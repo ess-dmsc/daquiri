@@ -1,0 +1,9 @@
+/build
+/install
+/src/config/*
+*.app
+*.desktop
+*.user
+*.log
+.*
+!.gitignore
