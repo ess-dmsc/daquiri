@@ -34,16 +34,19 @@ private:
 public:
   inline TimeStamp() {}
 
-  inline TimeStamp(uint64_t native_time, TimeBase tb)
+  inline TimeStamp(uint64_t native_time, TimeBase tb = TimeBase())
     : native_(native_time)
     , timebase_(tb)
   {}
 
-  inline TimeStamp make(uint64_t native) const
+  inline void set_native(uint64_t t)
   {
-    TimeStamp ret = *this;
-    ret.native_ = native;
-    return ret;
+    native_ = t;
+  }
+
+  inline TimeBase base() const
+  {
+    return timebase_;
   }
 
   inline uint64_t native() const
@@ -51,7 +54,7 @@ public:
     return native_;
   }
 
-  inline double to_nanosec() const
+  inline double nanosecs() const
   {
     return timebase_.to_nanosec(native_);
   }
@@ -61,90 +64,81 @@ public:
     return (timebase_ == other.timebase_);
   }
 
-
-  inline int64_t to_native(double ns)
-  {
-    if (ns > 0)
-      return std::ceil(timebase_.to_native(ns));
-    //negative?
-    return 0;
-  }
-
   inline void delay(double ns)
   {
-    if (ns > 0)
-      native_ += to_native(ns);
+    native_ += std::round(timebase_.to_native(ns));
+  }
+
+  inline TimeStamp delayed(double ns) const
+  {
+    TimeStamp ret = *this;
+    ret.delay(ns);
+    return ret;
   }
 
   inline double operator-(const TimeStamp& other) const
   {
-    return (to_nanosec() - other.to_nanosec());
+    // if same base, simplify?
+    return (nanosecs() - other.nanosecs());
   }
 
   inline bool operator<(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ < other.native_);
-    else
-      return (to_nanosec() < other.to_nanosec());
+    return (nanosecs() < other.nanosecs());
   }
 
   inline bool operator>(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ > other.native_);
-    else
-      return (to_nanosec() > other.to_nanosec());
+    return (nanosecs() > other.nanosecs());
   }
 
   inline bool operator<=(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ <= other.native_);
-    else
-      return (to_nanosec() <= other.to_nanosec());
+    return (nanosecs() <= other.nanosecs());
   }
 
   inline bool operator>=(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ >= other.native_);
-    else
-      return (to_nanosec() >= other.to_nanosec());
+    return (nanosecs() >= other.nanosecs());
   }
 
   inline bool operator==(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ == other.native_);
-    else
-      return (to_nanosec() == other.to_nanosec());
+    return (nanosecs() == other.nanosecs());
   }
 
   inline bool operator!=(const TimeStamp& other) const
   {
     if (same_base((other)))
       return (native_ != other.native_);
-    else
-      return (to_nanosec() != other.to_nanosec());
+    return (nanosecs() != other.nanosecs());
   }
 
-  inline std::string to_string() const
+  inline std::string debug() const
   {
-    std::stringstream ss;
-    ss << native_ << timebase_.to_string();
-    return ss.str();
+    return std::to_string(native_) + timebase_.debug();
   }
 };
 
 inline void to_json(json& j, const TimeStamp& t)
 {
-  //do something
+  j["native"] = t.native();
+  j["base"] = t.base();
 }
 
 inline void from_json(const json& j, TimeStamp& t)
 {
-  //do something
+  t = TimeStamp(j["native"], j["base"]);
 }
 
 }

@@ -30,8 +30,8 @@ class Hit
 private:
   int16_t       source_channel_;
   TimeStamp     timestamp_;
-  std::vector<DigitizedVal> values_;
-  std::vector<uint16_t>     trace_;
+  std::vector<DigitizedVal>          values_;
+  std::vector<std::vector<uint16_t>> traces_;
 
 public:
   inline Hit()
@@ -40,10 +40,16 @@ public:
 
   inline Hit(int16_t sourcechan, const HitModel &model)
     : source_channel_(sourcechan)
-    , timestamp_(model.timebase)
+    , timestamp_(0, model.timebase)
     , values_ (model.values)
   {
-    trace_.resize(model.tracelength);
+    for (auto t : model.traces)
+    {
+      size_t product = 1;
+      for (auto d : t)
+        product *= d;
+      traces_.push_back(std::vector<uint16_t>(product, 0));
+    }
   }
 
   //Accessors
@@ -64,21 +70,22 @@ public:
 
   inline DigitizedVal value(size_t idx) const
   {
-    if (idx < values_.size())
-      return values_.at(idx);
-    else
-      return DigitizedVal();
+    if (idx >= values_.size())
+      throw std::out_of_range("Hit: bad value index");
+    return values_.at(idx);
   }
 
-  inline const std::vector<uint16_t>& trace() const
+  inline const std::vector<uint16_t>& trace(size_t idx) const
   {
-    return trace_;
+    if (idx >= traces_.size())
+      throw std::out_of_range("Hit: bad trace index");
+    return traces_.at(idx);
   }
 
   //Setters
-  inline void set_timestamp_native(uint64_t native)
+  inline void set_timestamp(TimeStamp ts)
   {
-    timestamp_ = timestamp_.make(native);
+    timestamp_ = ts;
   }
 
   inline void set_value(size_t idx, uint16_t val)
@@ -87,11 +94,14 @@ public:
       values_[idx].set_val(val);
   }
 
-  inline void set_trace(const std::vector<uint16_t> &trc)
+  inline void set_trace(size_t idx, const std::vector<uint16_t> &trc)
   {
-    size_t len = std::min(trc.size(), trace_.size());
+    if (idx >= traces_.size())
+      throw std::out_of_range("Hit: bad trace index");
+    auto& t = traces_[idx];
+    size_t len = std::min(trc.size(), t.size());
     for (size_t i=0; i < len; ++i)
-      trace_[i] = trc.at(i);
+      t[i] = trc.at(i);
   }
 
   //Comparators
@@ -100,7 +110,7 @@ public:
     if (source_channel_ != other.source_channel_) return false;
     if (timestamp_ != other.timestamp_) return false;
     if (values_ != other.values_) return false;
-    if (trace_ != other.trace_) return false;
+    if (traces_ != other.traces_) return false;
     return true;
   }
 
@@ -127,7 +137,7 @@ public:
   inline std::string debug() const
   {
     std::stringstream ss;
-    ss << "[ch" << source_channel_ << "|t" << timestamp_.to_string();
+    ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
     for (auto &v : values_)
       ss << v.debug();
     ss << "]";

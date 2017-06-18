@@ -52,3 +52,10 @@ TEST(TimeBase, Common)
   ASSERT_EQ(DAQuiri::TimeBase(1,7),
             DAQuiri::TimeBase::common(t6, t7));
 }
+
+TEST(TimeBase, DebugPrint)
+{
+  DAQuiri::TimeBase t1{}, t2{3,7};
+  ASSERT_EQ("", t1.debug());
+  ASSERT_EQ("x(3/7)", t2.debug());
+}

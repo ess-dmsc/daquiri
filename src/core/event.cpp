@@ -45,7 +45,7 @@ bool Event::addHit(const Hit &newhit) {
 
 std::string Event::to_string() const {
   std::stringstream ss;
-  ss << "EVT[t" << lower_time.to_string() << "w" << window_ns << "]";
+  ss << "EVT[t" << lower_time.debug() << "w" << window_ns << "]";
   for (auto &q : hits)
     ss << " " << q.first << "=" << q.second.debug();
   return ss.str();

@@ -91,12 +91,12 @@ public:
                     lcm(a.divider_, b.divider_));
   }
 
-  inline std::string to_string() const
+  inline std::string debug() const
   {
+    std::stringstream ss;
     if ((multiplier_ != 1) && (divider_ != 1))
-      return "x(" + std::to_string(multiplier_) + "/"
-          + std::to_string(divider_) + ")";
-    return "";
+      ss << "x(" << multiplier_ << "/" << divider_ << ")";
+    return ss.str();
   }
 
 private:
