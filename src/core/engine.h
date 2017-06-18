@@ -71,8 +71,8 @@ public:
   bool daq_stop();
   bool daq_running();
 
-  static int print_version();
-  static std::string version();
+//  static int print_version();
+//  static std::string version();
 
 protected:
   std::string profile_path_;

@@ -26,24 +26,24 @@
 #include "custom_logger.h"
 #include "producer_factory.h"
 #include <iomanip>
-#include "core_compiletime.h"
+//#include "core_compiletime.h"
 
 namespace DAQuiri {
 
-int Engine::print_version()
-{
-  LINFO << "<DAQuiri> " << Engine::version();
-}
+//int Engine::print_version()
+//{
+//  LINFO << "<DAQuiri> " << Engine::version();
+//}
 
-std::string Engine::version()
-{
-  return "git.SHA1=" + std::string(GIT_VERSION)
-      + " compiled at " + std::string(_TIMEZ_)
-      + " on " + std::string(CMAKE_SYSTEM)
-      + " with " + std::string(CMAKE_SYSTEM_PROCESSOR);
-}
+//std::string Engine::version()
+//{
+//  return "git.SHA1=" + std::string(GIT_VERSION)
+//      + " compiled at " + std::string(_TIMEZ_)
+//      + " on " + std::string(CMAKE_SYSTEM)
+//      + " with " + std::string(CMAKE_SYSTEM_PROCESSOR);
+//}
 
-const static int initializer = Engine::print_version();
+//const static int initializer = Engine::print_version();
 
 Engine::Engine() {
   aggregate_status_ = ProducerStatus(0);

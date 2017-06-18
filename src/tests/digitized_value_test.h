@@ -1,7 +1,4 @@
 #include "digitized_value.h"
-#include "print_exception.h"
-#include <cassert>
-#include <iostream>
 #include <gtest/gtest.h>
 
 TEST(DigitizedValue, Equals)
@@ -21,37 +18,37 @@ TEST(DigitizedValue, Equals)
 TEST(DigitizedValue, UnscaledVals)
 {
   DAQuiri::DigitizedVal v{10,0};
-  ASSERT_TRUE(10 == v.val(0));
-  ASSERT_TRUE(10 == v.val(7));
-  ASSERT_TRUE(10 == v.val(16));
-  ASSERT_TRUE(10 == v.val(5000));
-  ASSERT_TRUE(10 == v.val(-20));
+  ASSERT_EQ(10, v.val(0));
+  ASSERT_EQ(10, v.val(7));
+  ASSERT_EQ(10, v.val(16));
+  ASSERT_EQ(10, v.val(5000));
+  ASSERT_EQ(10, v.val(-20));
 }
 
 TEST(DigitizedValue, ScaledVals)
 {
   DAQuiri::DigitizedVal v{16,8};
-  ASSERT_TRUE(0 == v.val(0));
-  ASSERT_TRUE(8 == v.val(7));
-  ASSERT_TRUE(16 == v.val(8));
-  ASSERT_TRUE(32 == v.val(9));
+  ASSERT_EQ(0, v.val(0));
+  ASSERT_EQ(8, v.val(7));
+  ASSERT_EQ(16, v.val(8));
+  ASSERT_EQ(32, v.val(9));
 }
 
 TEST(DigitizedValue, ReportBits)
 {
   DAQuiri::DigitizedVal v{16,8};
-  ASSERT_TRUE(8 == v.bits());
+  ASSERT_EQ(8, v.bits());
 }
 
 TEST(DigitizedValue, SetVal)
 {
   DAQuiri::DigitizedVal v{0,8};
   v.set_val(12);
-  ASSERT_TRUE(12 == v.val(v.bits()));
+  ASSERT_EQ(12, v.val(v.bits()));
 }
 
 TEST(DigitizedValue, DebugPrint)
 {
   DAQuiri::DigitizedVal v{1,1};
-  ASSERT_TRUE(std::string("1(1b)") == v.debug());
+  ASSERT_EQ("1(1b)", v.debug());
 }

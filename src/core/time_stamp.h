@@ -21,63 +21,59 @@
 
 #include <string>
 #include <cmath>
-#include <fstream>
-#include "util.h"
-
-#include "json.hpp"
-using namespace nlohmann;
+#include "time_base.h"
 
 namespace DAQuiri {
 
 class TimeStamp
 {
 private:
-  uint64_t time_native_ {0};
-  uint32_t timebase_multiplier_ {1};
-  uint32_t timebase_divider_ {1};
+  uint64_t native_ {0};
+  TimeBase timebase_;
 
 public:
   inline TimeStamp() {}
 
-  inline TimeStamp(uint32_t multiplier, uint32_t divider)
-    : time_native_(0)
-    , timebase_multiplier_(multiplier)
-    , timebase_divider_(divider)
-  {
-    if (!timebase_multiplier_)
-      timebase_multiplier_ = 1;
-    if (!timebase_divider_)
-      timebase_divider_ = 1;
-  }
+  inline TimeStamp(uint64_t native_time, TimeBase tb)
+    : native_(native_time)
+    , timebase_(tb)
+  {}
 
   inline TimeStamp make(uint64_t native) const
   {
     TimeStamp ret = *this;
-    ret.time_native_ = native;
+    ret.native_ = native;
     return ret;
   }
 
-  inline double timebase_multiplier() const
+  inline uint64_t native() const
   {
-    return timebase_multiplier_;
+    return native_;
   }
 
-  inline double timebase_divider() const
+  inline double to_nanosec() const
   {
-    return timebase_divider_;
+    return timebase_.to_nanosec(native_);
   }
 
-  static inline TimeStamp common_timebase(const TimeStamp& a, const TimeStamp& b)
+  inline bool same_base(const TimeStamp& other) const
   {
-    if (a.timebase_divider_ == b.timebase_divider_)
-    {
-      if (a.timebase_multiplier_ < b.timebase_multiplier_)
-        return a;
-      else
-        return b;
-    }
-    else
-      return TimeStamp(1, lcm(a.timebase_divider_, b.timebase_divider_));
+    return (timebase_ == other.timebase_);
+  }
+
+
+  inline int64_t to_native(double ns)
+  {
+    if (ns > 0)
+      return std::ceil(timebase_.to_native(ns));
+    //negative?
+    return 0;
+  }
+
+  inline void delay(double ns)
+  {
+    if (ns > 0)
+      native_ += to_native(ns);
   }
 
   inline double operator-(const TimeStamp& other) const
@@ -85,36 +81,10 @@ public:
     return (to_nanosec() - other.to_nanosec());
   }
 
-  inline bool same_base(const TimeStamp& other) const
-  {
-    return ((timebase_divider_ == other.timebase_divider_) && (timebase_multiplier_ == other.timebase_multiplier_));
-  }
-
-  inline double to_nanosec(uint64_t native) const
-  {
-    return native * double(timebase_multiplier_) / double(timebase_divider_);
-  }
-
-  inline int64_t to_native(double ns)
-  {
-    return std::ceil(ns * double(timebase_divider_) / double(timebase_multiplier_));
-  }
-
-  inline double to_nanosec() const
-  {
-    return time_native_ * double(timebase_multiplier_) / double(timebase_divider_);
-  }
-
-  inline void delay(double ns)
-  {
-    if (ns > 0)
-      time_native_ += std::ceil(ns * double(timebase_divider_) / double(timebase_multiplier_));
-  }
-
   inline bool operator<(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ < other.time_native_);
+      return (native_ < other.native_);
     else
       return (to_nanosec() < other.to_nanosec());
   }
@@ -122,7 +92,7 @@ public:
   inline bool operator>(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ > other.time_native_);
+      return (native_ > other.native_);
     else
       return (to_nanosec() > other.to_nanosec());
   }
@@ -130,7 +100,7 @@ public:
   inline bool operator<=(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ <= other.time_native_);
+      return (native_ <= other.native_);
     else
       return (to_nanosec() <= other.to_nanosec());
   }
@@ -138,7 +108,7 @@ public:
   inline bool operator>=(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ >= other.time_native_);
+      return (native_ >= other.native_);
     else
       return (to_nanosec() >= other.to_nanosec());
   }
@@ -146,7 +116,7 @@ public:
   inline bool operator==(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ == other.time_native_);
+      return (native_ == other.native_);
     else
       return (to_nanosec() == other.to_nanosec());
   }
@@ -154,25 +124,27 @@ public:
   inline bool operator!=(const TimeStamp& other) const
   {
     if (same_base((other)))
-      return (time_native_ != other.time_native_);
+      return (native_ != other.native_);
     else
       return (to_nanosec() != other.to_nanosec());
   }
 
-  inline void write_bin(std::ofstream &outfile) const
+  inline std::string to_string() const
   {
-    outfile.write((char*)&time_native_, sizeof(time_native_));
+    std::stringstream ss;
+    ss << native_ << timebase_.to_string();
+    return ss.str();
   }
-
-  inline void read_bin(std::ifstream &infile)
-  {
-    infile.read(reinterpret_cast<char*>(&time_native_), sizeof(time_native_));
-  }
-
-  std::string to_string() const;
 };
 
-void to_json(json& j, const TimeStamp& t);
-void from_json(const json& j, TimeStamp& t);
+inline void to_json(json& j, const TimeStamp& t)
+{
+  //do something
+}
+
+inline void from_json(const json& j, TimeStamp& t)
+{
+  //do something
+}
 
 }

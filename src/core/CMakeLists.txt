@@ -2,15 +2,15 @@ cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(core CXX)
 
 # Build time in UTC ISO 8601
-FILE (WRITE ${CMAKE_BINARY_DIR}/core_compiletime.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
-FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(WRITE core_compiletime.h \"#ifndef TIMESTAMP_H\\n\")\n")
-FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define TIMESTAMP_H\\n\\n\")\n")
-FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define _TIMEZ_ \\\"\${TIMEZ}\\\"\\n\\n\")\n")
-FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#endif // TIMESTAMP_H\\n\")\n")
-ADD_CUSTOM_TARGET (
-    core_compiletime
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/core_compiletime.cmake
-    ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/core_compiletime.cmake)
+#FILE (WRITE ${CMAKE_BINARY_DIR}/core_compiletime.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(WRITE core_compiletime.h \"#ifndef TIMESTAMP_H\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define TIMESTAMP_H\\n\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define _TIMEZ_ \\\"\${TIMEZ}\\\"\\n\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#endif // TIMESTAMP_H\\n\")\n")
+#ADD_CUSTOM_TARGET (
+#    core_compiletime
+#    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/core_compiletime.cmake
+#    ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/core_compiletime.cmake)
 
 # Git commit SHA1
 execute_process(COMMAND
@@ -58,7 +58,7 @@ target_link_libraries(
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-ADD_DEPENDENCIES(${PROJECT_NAME} core_compiletime)
+#ADD_DEPENDENCIES(${PROJECT_NAME} core_compiletime)
 
 # Expose public includes
 set(${PROJECT_NAME}_INCLUDE_DIRS
