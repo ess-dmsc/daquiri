@@ -124,34 +124,15 @@ public:
     timestamp_.delay(ns);
   }
 
-  //binary stream i/o
-  inline void write_bin(std::ofstream &outfile) const
+  inline std::string debug() const
   {
-    outfile.write((char*)&source_channel_, sizeof(source_channel_));
-    timestamp_.write_bin(outfile);
+    std::stringstream ss;
+    ss << "[ch" << source_channel_ << "|t" << timestamp_.to_string();
     for (auto &v : values_)
-      v.write_bin(outfile);
-    if (trace_.size())
-      outfile.write((char*)trace_.data(), sizeof(uint16_t) * trace_.size());
+      ss << v.debug();
+    ss << "]";
+    return ss.str();
   }
-
-  inline void read_bin(std::ifstream &infile, const std::map<int16_t, HitModel> &model_hits)
-  {
-    int16_t channel = -1;
-    infile.read(reinterpret_cast<char*>(&channel), sizeof(channel));
-    if (!model_hits.count(channel))
-      return;
-    *this = Hit(channel, model_hits.at(channel));
-    timestamp_.read_bin(infile);
-
-    for (auto &v : values_)
-      v.read_bin(infile);
-
-    if (trace_.size())
-      infile.read(reinterpret_cast<char*>(trace_.data()), sizeof(uint16_t) * trace_.size());
-  }
-
-  std::string to_string() const;
 };
 
 }

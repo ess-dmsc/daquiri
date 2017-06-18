@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(qpx_gamma CXX)
+project(daquiri CXX)
+option(test "Build all tests." ON)
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
@@ -39,10 +40,14 @@ add_definitions(-DBOOST_LOG_DYN_LINK)
 list (APPEND json_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/external/json/src)
 
-# HDF5 if enabled
 add_subdirectory(external/h5/source/h5cc)
 
 add_subdirectory(core)
+
+if (test)
+  add_subdirectory(tests)
+endif()
+
 #add_subdirectory(consumers)
 #add_subdirectory(producers)
 #add_subdirectory(gui)

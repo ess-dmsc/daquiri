@@ -27,17 +27,12 @@ namespace DAQuiri {
 class DigitizedVal {
 public:
 
-  inline DigitizedVal()
-  {
-    val_ = 0;
-    bits_ = 16;
-  }
+  inline DigitizedVal() {}
 
   inline DigitizedVal(uint16_t v, uint16_t b)
-  {
-    val_ = v;
-    bits_ = b;
-  }
+    : val_(v)
+    , bits_(b)
+  {}
 
   inline void set_val(uint16_t v)
   {
@@ -51,7 +46,9 @@ public:
 
   inline uint16_t val(uint16_t bits) const
   {
-    if (bits == bits_)
+    if (!bits && bits_)
+      return 0;
+    else if (!bits_ || (bits == bits_))
       return val_;
     else if (bits < bits_)
       return val_ >> (bits_ - bits);
@@ -69,21 +66,15 @@ public:
     return !operator==(other);
   }
 
-  inline void write_bin(std::ofstream &outfile) const
+  inline std::string debug() const
   {
-    outfile.write((char*)&val_, sizeof(val_));
+    return std::to_string(val_) +
+        "(" + std::to_string(bits_) + "b)";
   }
-
-  inline void read_bin(std::ifstream &infile)
-  {
-    infile.read(reinterpret_cast<char*>(&val_), sizeof(val_));
-  }
-
-  std::string to_string() const;
 
 private:
-  uint16_t  val_;
-  uint16_t  bits_;
+  uint16_t  val_  {0};
+  uint16_t  bits_ {0};
 };
 
 }
