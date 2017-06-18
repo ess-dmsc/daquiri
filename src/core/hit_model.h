@@ -24,6 +24,8 @@
 #include "digitized_value.h"
 #include "time_stamp.h"
 
+//might want to encapsulate member vars?
+
 namespace DAQuiri {
 
 struct HitModel

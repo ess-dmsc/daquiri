@@ -21,22 +21,19 @@
 
 #include "hit_model.h"
 #include <vector>
-#include <fstream>
 
 namespace DAQuiri {
 
 class Hit
 {
 private:
-  int16_t       source_channel_;
+  int16_t       source_channel_ {-1};
   TimeStamp     timestamp_;
   std::vector<DigitizedVal>          values_;
   std::vector<std::vector<uint16_t>> traces_;
 
 public:
-  inline Hit()
-    : Hit(-1, HitModel())
-  {}
+  inline Hit() {}
 
   inline Hit(int16_t sourcechan, const HitModel &model)
     : source_channel_(sourcechan)
@@ -68,6 +65,11 @@ public:
     return values_.size();
   }
 
+  inline size_t trace_count() const
+  {
+    return traces_.size();
+  }
+
   inline DigitizedVal value(size_t idx) const
   {
     if (idx >= values_.size())
@@ -83,15 +85,21 @@ public:
   }
 
   //Setters
-  inline void set_timestamp(TimeStamp ts)
+  inline void set_native_time(uint64_t t)
+  {
+    timestamp_.set_native(t);
+  }
+
+  inline void set_timestamp(const TimeStamp& ts)
   {
     timestamp_ = ts;
   }
 
   inline void set_value(size_t idx, uint16_t val)
   {
-    if (idx < values_.size())
-      values_[idx].set_val(val);
+    if (idx >= values_.size())
+      throw std::out_of_range("Hit: bad value index");
+    values_[idx].set_val(val);
   }
 
   inline void set_trace(size_t idx, const std::vector<uint16_t> &trc)

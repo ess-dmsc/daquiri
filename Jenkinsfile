@@ -39,5 +39,15 @@ node ("boost && fedora") {
             failure_function(e, 'Build failed')
         }
 
+        try {
+            stage("Run test") {
+                sh "./tests/daquiri_tests --gtest_output=xml:LogTests.xml"
+                junit '*Tests.xml'
+            }
+        } catch (e) {
+            junit '*Tests.xml'
+            failure_function(e, 'Tests failed')
+	}
+
     }
 }

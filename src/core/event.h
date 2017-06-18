@@ -26,28 +26,55 @@ namespace DAQuiri {
 
 struct Event {
   TimeStamp              lower_time;
-  double                 window_ns;
-  double                 max_delay_ns;
+  double                 window_ns    {0.0};
+  double                 max_delay_ns {0.0};
   std::map<int16_t, Hit> hits;
 
-  bool in_window(const Hit& h) const;
-  bool past_due(const Hit& h) const;
-  bool antecedent(const Hit& h) const;
-  bool addHit(const Hit &newhit);
+  inline Event() {}
 
-  std::string to_string() const;
-
-  inline Event() {
-    window_ns = 0.0;
-    max_delay_ns = 0.0;
-  }
-
-  inline Event(const Hit &newhit, double win, double max_delay) {
+  inline Event(const Hit &newhit, double win, double max_delay)
+  {
     lower_time = newhit.timestamp();
     hits[newhit.source_channel()] = newhit;
     window_ns = win;
     max_delay_ns = std::max(win, max_delay);
   }
+
+  inline bool antecedent(const Hit& h) const
+  {
+    return (h.timestamp() < lower_time);
+  }
+
+  inline bool in_window(const Hit& h) const
+  {
+    return (h.timestamp() >= lower_time) &&
+        ((h.timestamp() - lower_time) <= window_ns);
+  }
+
+  inline bool past_due(const Hit& h) const
+  {
+    return (h.timestamp() >= lower_time) &&
+        ((h.timestamp() - lower_time) > max_delay_ns);
+  }
+  inline bool add_hit(const Hit &newhit)
+  {
+    if (hits.count(newhit.source_channel()))
+      return false;
+    if (lower_time > newhit.timestamp())
+      lower_time = newhit.timestamp();
+    hits[newhit.source_channel()] = newhit;
+    return true;
+  }
+
+  inline std::string to_string() const
+  {
+    std::stringstream ss;
+    ss << "EVT[t" << lower_time.debug() << "w" << window_ns << "]";
+    for (auto &q : hits)
+      ss << " " << q.first << "=" << q.second.debug();
+    return ss.str();
+  }
+
 };
 
 }
