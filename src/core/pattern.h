@@ -57,9 +57,10 @@ public:
     if (threshold_ == 0)
       return true;
     size_t matches = 0;
-    for (auto &h : e.hits)
+    for (auto h : e.hits())
     {
-      if ((h.first < 0) || (h.first >= static_cast<int16_t>(gates_.size())))
+      if ((h.first < 0) ||
+          (h.first >= static_cast<int16_t>(gates_.size())))
         continue;
       else if (gates_[h.first])
         matches++;
@@ -74,7 +75,7 @@ public:
     if (threshold_ == 0)
       return true;
     size_t matches = threshold_;
-    for (auto &h : e.hits)
+    for (auto h : e.hits())
     {
       if ((h.first < 0) || (h.first >= static_cast<int16_t>(gates_.size())))
         continue;

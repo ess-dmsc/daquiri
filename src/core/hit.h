@@ -132,16 +132,6 @@ public:
     return !operator==(other);
   }
 
-//  inline bool operator<(const Hit other) const
-//  {
-//    return (timestamp_ < other.timestamp_);
-//  }
-
-//  inline bool operator>(const Hit other) const
-//  {
-//    return (timestamp_ > other.timestamp_);
-//  }
-
   inline std::string debug() const
   {
     std::stringstream ss;
