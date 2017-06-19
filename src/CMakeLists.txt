@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(daquiri CXX)
 option(test "Build all tests." ON)
+option(COV "Enable code coverage test for unit tests (if possible)." OFF)
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
