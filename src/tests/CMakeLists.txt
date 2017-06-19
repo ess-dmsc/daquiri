@@ -56,7 +56,7 @@ if(DO_COV)
         message(WARNING "Unable to enable coverage target as gcov and/or gocvr was not found.")
     else()
         message(STATUS "Generating coverage target.")
-        add_custom_target(coverage COMMAND ${GCOVR_PATH} "-r" "${CMAKE_SOURCE_DIR}/" "-x" "-o" "${CMAKE_BINARY_DIR}/cov.xml"
+        add_custom_target(coverage COMMAND ${GCOVR_PATH} "-r" "${CMAKE_SOURCE_DIR}/" "-x" "-o" "${CMAKE_BINARY_DIR}/coverage.xml"
           "--object-directory=${PROJECT_BINARY_DIR}/CMakeFiles/daquiri_tests.dir/")
     endif()
 endif()

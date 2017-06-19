@@ -33,7 +33,7 @@ node ("boost && fedora") {
         
         try {
             stage("Build project") {
-                sh "make VERBOSE=1"
+                sh "make -DCOV=y VERBOSE=1"
             }
         } catch (e) {
             failure_function(e, 'Build failed')
@@ -44,11 +44,12 @@ node ("boost && fedora") {
                 sh "./tests/daquiri_tests --gtest_output=xml:LogTests.xml"
                 junit '*Tests.xml'
                 // Publish test coverage results.
+                sh "make coverage"
                 step([
                     $class: 'CoberturaPublisher',
                     autoUpdateHealth: false,
                     autoUpdateStability: false,
-                    coberturaReportFile: 'gcovr/coverage.xml',
+                    coberturaReportFile: 'coverage.xml',
                     failUnhealthy: false,
                     failUnstable: false,
                     maxNumberOfBuilds: 0,
