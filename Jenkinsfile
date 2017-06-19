@@ -8,6 +8,8 @@ def failure_function(exception_obj, failureMessage) {
 }
 
 node ("boost && fedora") {
+    cleanWs()
+
     dir("code") {
         try {
             stage("Checkout projects") {
