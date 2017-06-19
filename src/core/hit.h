@@ -95,6 +95,11 @@ public:
     timestamp_ = ts;
   }
 
+  inline void delay_ns(double ns)
+  {
+    timestamp_.delay(ns);
+  }
+
   inline void set_value(size_t idx, uint16_t val)
   {
     if (idx >= values_.size())
@@ -127,27 +132,24 @@ public:
     return !operator==(other);
   }
 
-  inline bool operator<(const Hit other) const
-  {
-    return (timestamp_ < other.timestamp_);
-  }
+//  inline bool operator<(const Hit other) const
+//  {
+//    return (timestamp_ < other.timestamp_);
+//  }
 
-  inline bool operator>(const Hit other) const
-  {
-    return (timestamp_ > other.timestamp_);
-  }
-
-  inline void delay_ns(double ns)
-  {
-    timestamp_.delay(ns);
-  }
+//  inline bool operator>(const Hit other) const
+//  {
+//    return (timestamp_ > other.timestamp_);
+//  }
 
   inline std::string debug() const
   {
     std::stringstream ss;
     ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
+    if (traces_.size())
+      ss << "|ntraces=" << traces_.size();
     for (auto &v : values_)
-      ss << v.debug();
+      ss << " " << v.debug();
     ss << "]";
     return ss.str();
   }
