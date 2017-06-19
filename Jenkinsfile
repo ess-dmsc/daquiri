@@ -43,11 +43,24 @@ node ("boost && fedora") {
             stage("Run test") {
                 sh "./tests/daquiri_tests --gtest_output=xml:LogTests.xml"
                 junit '*Tests.xml'
-            }
+                // Publish test coverage results.
+                step([
+                    $class: 'CoberturaPublisher',
+                    autoUpdateHealth: false,
+                    autoUpdateStability: false,
+                    coberturaReportFile: 'gcovr/coverage.xml',
+                    failUnhealthy: false,
+                    failUnstable: false,
+                    maxNumberOfBuilds: 0,
+                    onlyStable: false,
+                    sourceEncoding: 'ASCII',
+                    zoomCoverageChart: false
+                ])
+          }
         } catch (e) {
             junit '*Tests.xml'
             failure_function(e, 'Tests failed')
-	}
+        }
 
     }
 }
