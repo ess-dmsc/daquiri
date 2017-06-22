@@ -26,8 +26,7 @@ add_definitions(-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
 # Boost
 SET(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS
-  system filesystem thread timer date_time
-  log log_setup regex REQUIRED)
+  system filesystem thread timer date_time log log_setup REQUIRED)
 #link_directories( ${BOOST_LIBRARY_DIRS} )
 
 FIND_PACKAGE ( Threads REQUIRED )

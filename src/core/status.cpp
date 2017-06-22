@@ -17,36 +17,34 @@
  *
  ******************************************************************************/
 
-#pragma once
-
 #include "status.h"
-#include <boost/date_time.hpp>
-#include "setting.h"
-#include "detector.h"
+#include "util.h"
 
 namespace DAQuiri {
 
-struct Spill
+void to_json(json& j, const Status& s)
 {
-public:
-  boost::posix_time::ptime   time
-    {boost::posix_time::microsec_clock::universal_time()};
-  std::vector<char>          data; // raw from device
-  std::list<Hit>             hits; // parsed
-  std::map<int16_t, Status> stats; // per channel
-  std::vector<Detector> detectors; // per channel
-  Setting                   state;
+  j["type"] = type_to_str(s.type_);
+  j["channel"] = s.channel_;
+  j["time_"] = boost::posix_time::to_iso_extended_string(s.time_);
+  j["hit_model"] = s.hit_model_;
+  for (auto &i : s.stats_)
+    j["stats_"][i.first] = i.second;
+}
 
-public:
-  bool empty();
-  std::string to_string() const;
-};
+void from_json(const json& j, Status& s)
+{
+  s.type_ = type_from_str(j["type"]);
+  s.channel_ = j["channel"];
+  s.time_ = from_iso_extended(j["time_"]);
+  s.hit_model_ = j["hit_model"];
 
-typedef std::shared_ptr<Spill> SpillPtr;
-typedef std::vector<SpillPtr> ListData;
-
-void to_json(json& j, const Spill &s);
-void to_json(json& j, const Spill& s, bool with_settings);
-void from_json(const json& j, Spill &s);
+  if (j.count("stats_"))
+  {
+    auto o = j["stats_"];
+    for (json::iterator it = o.begin(); it != o.end(); ++it)
+      s.stats_[it.key()] = it.value();
+  }
+}
 
 }

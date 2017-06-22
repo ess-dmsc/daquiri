@@ -22,23 +22,6 @@
 
 namespace DAQuiri {
 
-bool Spill::operator==(const Spill other) const
-{
-  if (time != other.time)
-    return false;
-  if (stats != other.stats)
-    return false;
-  if (detectors != other.detectors)
-    return false;
-  if (state != other.state)
-    return false;
-  if (data != other.data)
-    return false;
-  if (hits.size() != other.hits.size())
-    return false;
-  return true;
-}
-
 bool Spill::empty()
 {
   if (!stats.empty())
@@ -99,8 +82,8 @@ void from_json(const json& j, Spill& s)
   if (j.count("stats"))
     for (auto it : j["stats"])
     {
-      StatsUpdate st = it;
-      s.stats[st.source_channel] = st;
+      Status st = it;
+      s.stats[st.channel()] = st;
     }
 
   if (j.count("state"))

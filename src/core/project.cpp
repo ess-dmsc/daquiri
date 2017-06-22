@@ -53,12 +53,14 @@ Project::Project(const Project& other)
 
 std::string Project::identity() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_); return identity_;
+  boost::unique_lock<boost::mutex> lock(mutex_);
+  return identity_;
 }
 
-std::set<Spill> Project::spills() const
+std::list<Spill> Project::spills() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_); return spills_;
+  boost::unique_lock<boost::mutex> lock(mutex_);
+  return spills_;
 }
 
 void Project::clear()
@@ -264,7 +266,7 @@ void Project::add_spill(Spill* one_spill)
 
   if (!one_spill->detectors.empty()
       || !one_spill->state.branches.empty())
-    spills_.insert(*one_spill);
+    spills_.push_back(*one_spill);
 
   if ((!one_spill->stats.empty())
       || (!one_spill->hits.empty())
@@ -353,7 +355,7 @@ void Project::from_h5(H5CC::Group &group, bool with_sinks, bool with_full_sinks)
       json j;
       to_json(j, sgroup.open_group(g));
       Spill sp = j;
-      spills_.insert(sp);
+      spills_.push_back(sp);
     }
   }
 

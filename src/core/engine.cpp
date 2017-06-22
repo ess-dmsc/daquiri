@@ -527,8 +527,9 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
     in_spill = data_queue->dequeue();
     if (in_spill != nullptr) {
       for (auto &q : in_spill->stats) {
-        if (q.second.source_channel >= 0) {
-          queue_status[q.second.source_channel] = (!in_spill->hits.empty() || (q.second.stats_type == StatsUpdate::Type::stop));
+        if (q.second.channel() >= 0) {
+          queue_status[q.second.channel()] =
+              (!in_spill->hits.empty() || (q.second.type() == StatusType::stop));
         }
       }
       current_spills.insert(in_spill);
@@ -549,9 +550,9 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
           q.second = false;
         for (auto i = current_spills.begin(); i != current_spills.end(); i++) {
           for (auto &q : (*i)->stats) {
-            if ((q.second.source_channel >= 0) &&
-                (!(*i)->hits.empty() || (q.second.stats_type == StatsUpdate::Type::stop) ))
-              queue_status[q.second.source_channel] = true;
+            if ((q.second.channel() >= 0) &&
+                (!(*i)->hits.empty() || (q.second.type() == StatusType::stop) ))
+              queue_status[q.second.channel()] = true;
           }
         }
       } else {

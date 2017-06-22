@@ -35,7 +35,7 @@ protected:
 
   //data
   std::map<int64_t, SinkPtr> sinks_;
-  std::set<Spill> spills_;
+  std::list<Spill> spills_;
 
   //saveability
   std::string   identity_ {"New project"};
@@ -79,7 +79,7 @@ public:
   bool changed() const;
   void mark_changed();
 
-  std::set<Spill> spills() const;
+  std::list<Spill> spills() const;
   
   //get sinks
   SinkPtr get_sink(int64_t idx);
