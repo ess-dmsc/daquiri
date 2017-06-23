@@ -47,26 +47,18 @@ std::string Spill::to_string() const
   if (hits.size())
     info += " [" + std::to_string(hits.size()) + "]";
   if (data.size())
-    info += " RAW=" + std::to_string(data.size() * sizeof(uint32_t));
+    info += " RAW=" + std::to_string(data.size() * sizeof(char));
   return info;
 }
 
 void to_json(json& j, const Spill& s)
 {
-  to_json(j, s, true);
-}
-
-void to_json(json& j, const Spill &s, bool with_settings)
-{
   j["time"] = boost::posix_time::to_iso_extended_string(s.time);
-//  j["bytes_raw_data"] = data.size() * sizeof(uint32_t);
+//  j["bytes_raw_data"] = data.size() * sizeof(char);
 //  j["number_of_hits"] = hits.size();
 
   for (auto &st : s.stats)
     j["stats"].push_back(st.second);
-
-  if (!with_settings)
-    return;
 
   if (!s.state.branches.empty())
     j["state"] = s.state;

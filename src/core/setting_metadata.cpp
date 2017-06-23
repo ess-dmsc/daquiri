@@ -104,12 +104,6 @@ std::string to_string(SettingType type)
     return "";
 }
 
-
-bool SettingMeta::shallow_equals(const SettingMeta& other) const
-{
-  return (id_ == other.id_);
-}
-
 bool SettingMeta::operator!= (const SettingMeta& other) const
 {
   return !operator==(other);

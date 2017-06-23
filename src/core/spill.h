@@ -20,7 +20,6 @@
 #pragma once
 
 #include "status.h"
-#include <boost/date_time.hpp>
 #include "setting.h"
 #include "detector.h"
 
@@ -46,7 +45,6 @@ typedef std::shared_ptr<Spill> SpillPtr;
 typedef std::vector<SpillPtr> ListData;
 
 void to_json(json& j, const Spill &s);
-void to_json(json& j, const Spill& s, bool with_settings);
 void from_json(const json& j, Spill &s);
 
 }

@@ -69,7 +69,6 @@ struct SettingMeta
   std::map<int32_t, std::string> int_menu_items; //or intrinsic branches
   std::set<std::string> flags;
 
-
   SettingMeta() {}
 
   SettingMeta stripped() const;
@@ -80,7 +79,7 @@ struct SettingMeta
 
   std::string debug(std::string prepend = std::string()) const;
 
-  bool shallow_equals(const SettingMeta& other) const;
+  //deprecate!!!!
   bool operator!= (const SettingMeta& other) const;
   bool operator== (const SettingMeta& other) const;
 };
