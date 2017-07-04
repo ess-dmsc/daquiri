@@ -2,83 +2,86 @@
 
 #include <vector>
 #include <string>
-#include "event.h"
+#include <sstream>
 
 namespace DAQuiri {
 
 class Pattern
 {
-private:
-  std::vector<bool> gates_;
-  size_t threshold_ {0};
-
 public:
   inline Pattern() {}
 
-  inline Pattern(const std::string &s)
-  {
-    from_string(s);
-  }
-
-  void resize(size_t);
-  std::vector<bool> gates() const { return gates_; }
-  size_t threshold() const { return threshold_; }
-  void set_gates(std::vector<bool>);
-  void set_theshold(size_t);
+  inline const std::vector<bool>& gates() const { return gates_; }
+  inline size_t threshold() const { return threshold_; }
 
   inline bool relevant(size_t chan) const
   {
-    if (chan >= gates_.size())
-      return false;
-    return gates_[chan];
+    return ((chan < gates_.size()) && gates_[chan]);
   }
 
-  inline bool validate(const Event &e) const
+  inline void resize(size_t sz)
   {
-    if (threshold_ == 0)
-      return true;
-    size_t matches = 0;
-    for (auto h : e.hits())
-    {
-      if ((h.first < 0) ||
-          (h.first >= static_cast<int16_t>(gates_.size())))
-        continue;
-      else if (gates_[h.first])
-        matches++;
-      if (matches == threshold_)
-        break;
-    }
-    return (matches == threshold_);
+    gates_.resize(sz);
+    threshold_ = std::min(sz, threshold_);
   }
 
-  inline bool antivalidate(const Event &e) const
+  inline void set_gates(std::vector<bool> gts)
   {
-    if (threshold_ == 0)
-      return true;
-    size_t matches = threshold_;
-    for (auto h : e.hits())
-    {
-      if ((h.first < 0) || (h.first >= static_cast<int16_t>(gates_.size())))
-        continue;
-      else if (gates_[h.first])
-        matches--;
-      if (matches < threshold_)
-        break;
-    }
-    return (matches == threshold_);
+    gates_ = gts;
+    threshold_ = std::min(gates_.size(), threshold_);
   }
 
-  std::string to_string() const;
-  void from_string(std::string s);
+  inline void set_threshold(size_t sz)
+  {
+    threshold_ = sz;
+    threshold_ = std::min(gates_.size(), threshold_);
+  }
 
-  std::string gates_to_string() const;
-  void gates_from_string(std::string s);
+  inline void set(size_t thresh, std::vector<bool> gts)
+  {
+    threshold_ = thresh;
+    gates_ = gts;
+    threshold_ = std::min(gates_.size(), threshold_);
+  }
 
-  bool operator==(const Pattern other) const;
-  bool operator!=(const Pattern other) const {return !operator ==(other);}
+  inline bool operator==(const Pattern other) const
+  {
+    return ((gates_ == other.gates_) &&
+            (threshold_ == other.threshold_));
+  }
+
+  inline bool operator!=(const Pattern other) const
+  {
+    return !operator ==(other);
+  }
+
+  inline std::string debug() const
+  {
+    std::stringstream ss;
+    ss << threshold_;
+    for (bool g : gates_)
+      if (g)
+        ss << "+";
+      else
+        ss << "o";
+    return ss.str();
+  }
+
+private:
+  std::vector<bool> gates_;
+  size_t threshold_ {0};
 };
 
-void to_json(json& j, const Pattern &s);
-void from_json(const json& j, Pattern &s);
+inline void to_json(json& j, const Pattern &s)
+{
+  j["threshold"] = s.threshold();
+  j["gates"] = s.gates();
+}
+
+inline void from_json(const json& j, Pattern &s)
+{
+  s.set_threshold(j["threshold"]);
+  s.set_gates(j["gates"]);
+}
 
 }

@@ -18,20 +18,15 @@ enum Match {
 inline Match operator|(Match a, Match b) {return static_cast<Match>(static_cast<int>(a) | static_cast<int>(b));}
 inline Match operator&(Match a, Match b) {return static_cast<Match>(static_cast<int>(a) & static_cast<int>(b));}
 
-struct Setting;
+class Setting;
 
-struct Setting
+class Setting
 {
+public:
   std::string       id_;
   SettingMeta       metadata;
   std::set<int32_t> indices;
 
-  int64_t                          value_int     {0};
-  double                           value_dbl     {0.0};
-  PreciseFloat                     value_precise {0};
-  std::string                      value_text;
-  boost::posix_time::ptime         value_time;
-  boost::posix_time::time_duration value_duration;
   Pattern                          value_pattern;
 
   Container<Setting> branches;
@@ -67,12 +62,18 @@ struct Setting
   std::string val_to_pretty_string() const;
   std::string indices_to_string(bool showblanks = false) const;
 
+  void set_time(boost::posix_time::ptime v);
+  boost::posix_time::ptime time() const;
+
+  void set_duration(boost::posix_time::time_duration v);
+  boost::posix_time::time_duration duration() const;
+
   void set_text(std::string val);
-  std::string text() const;
+  std::string get_text() const;
 
   //Numerics only (float, integer, floatprecise)
   bool numeric() const;
-  double number();
+  double get_number();
   void set_number(double);
 
   // prefix
@@ -94,6 +95,14 @@ private:
 
   json val_to_json() const;
   void val_from_json(const json &j);
+
+
+  int64_t                          value_int     {0};
+  double                           value_dbl     {0.0};
+  PreciseFloat                     value_precise {0};
+  std::string                      value_text;
+  boost::posix_time::ptime         value_time;
+  boost::posix_time::time_duration value_duration;
 };
 
 }

@@ -72,11 +72,14 @@ void Engine::initialize(std::string profile_path, std::string settings_path)
   die();
   devices_.clear();
 
-  for (auto &q : tree.branches.my_data_) {
-    if (q.id_ != "Detectors") {
-      boost::filesystem::path dev_settings = path / q.value_text;
+  for (auto &q : tree.branches.my_data_)
+  {
+    if (q.id_ != "Detectors")
+    {
+      boost::filesystem::path dev_settings = path / q.get_text();
       ProducerPtr device = ProducerFactory::singleton().create_type(q.id_, dev_settings.string());
-      if (device) {
+      if (device)
+      {
         DBG << "<Engine> Success loading " << device->device_name();
         devices_[q.id_] = device;
       }
@@ -86,8 +89,8 @@ void Engine::initialize(std::string profile_path, std::string settings_path)
   push_settings(tree);
   get_all_settings();
 
-  if (!descr.value_text.empty())
-    LINFO << "<Engine> Welcome to " << descr.value_text;
+  if (!descr.get_text().empty())
+    LINFO << "<Engine> Welcome to " << descr.get_text();
 }
 
 Engine::~Engine()
@@ -130,7 +133,7 @@ bool Engine::read_settings_bulk(){
 
       //set.metadata.step = 2; //to always save
       Setting totaldets(total_det_num_);
-      totaldets.value_int = detectors_.size();
+      totaldets.set_number(detectors_.size());
 
       Setting det(single_det_);
 
@@ -168,16 +171,16 @@ bool Engine::write_settings_bulk(){
   return true;
 }
 
-void Engine::rebuild_structure(Setting &set) {
+void Engine::rebuild_structure(Setting &set)
+{
   Setting totaldets = set.get_setting(Setting("Total detectors"), Match::id);
   int oldtotal = detectors_.size();
-  int newtotal = totaldets.value_int;
+  int newtotal = totaldets.get_number();
   if (newtotal < 0)
     newtotal = 0;
 
   if (oldtotal != newtotal)
     detectors_.resize(newtotal);
-
 }
 
 bool Engine::boot() {
@@ -270,11 +273,13 @@ void Engine::set_detector(size_t ch, Detector det)
 
   for (auto &set : settings_tree_.branches.my_data_)
   {
-    if (set.id_ == "Detectors") {
-      for (auto &q : set.branches.my_data_) {
+    if (set.id_ == "Detectors")
+    {
+      for (auto &q : set.branches.my_data_)
+      {
         if (q.indices.count(ch) > 0)
         {
-          q.value_text = detectors_[ch].name();
+          q.set_text(detectors_[ch].name());
           load_optimization(ch);
         }
       }

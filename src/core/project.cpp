@@ -428,16 +428,14 @@ void Project::import_spn(std::string file_name)
 
   ConsumerMetadata temp = ConsumerFactory::singleton().create_prototype("1D");
   Setting res = temp.get_attribute("resolution");
-  res.value_int = 12;
+  res.set_number(12);
   temp.set_attribute(res);
   Setting pattern;
   pattern = temp.get_attribute("pattern_coinc");
-  pattern.value_pattern.set_gates(std::vector<bool>({1}));
-  pattern.value_pattern.set_theshold(1);
+  pattern.value_pattern.set(1, {true});
   temp.set_attribute(pattern);
   pattern = temp.get_attribute("pattern_add");
-  pattern.value_pattern.set_gates(std::vector<bool>({1}));
-  pattern.value_pattern.set_theshold(1);
+  pattern.value_pattern.set(1, {true});
   temp.set_attribute(pattern);
 
   uint32_t one;

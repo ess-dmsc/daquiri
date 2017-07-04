@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hit.h"
+#include "pattern.h"
 #include <map>
 
 namespace DAQuiri {
@@ -89,5 +90,41 @@ public:
     return ss.str();
   }
 };
+
+inline bool validate(const Event &e, const Pattern& p)
+{
+  if (p.threshold() == 0)
+    return true;
+  size_t matches = 0;
+  for (auto h : e.hits())
+  {
+    if ((h.first < 0) ||
+        (h.first >= int16_t(p.gates().size())))
+      continue;
+    else if (p.gates()[h.first])
+      matches++;
+    if (matches == p.threshold())
+      break;
+  }
+  return (matches == p.threshold());
+}
+
+inline bool antivalidate(const Event &e, const Pattern& p)
+{
+  if (p.threshold() == 0)
+    return true;
+  size_t matches = p.threshold();
+  for (auto h : e.hits())
+  {
+    if ((h.first < 0) ||
+        (h.first >= int16_t(p.gates().size())))
+      continue;
+    else if (p.gates()[h.first])
+      matches--;
+    if (matches < p.threshold())
+      break;
+  }
+  return (matches == p.threshold());
+}
 
 }

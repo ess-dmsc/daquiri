@@ -19,14 +19,37 @@ Setting::operator bool() const
   return ((*this) != Setting());
 }
 
+void Setting::set_time(boost::posix_time::ptime v)
+{
+  value_time = v;
+}
+
+boost::posix_time::ptime Setting::time() const
+{
+  return value_time;
+}
+
+void Setting::set_duration(boost::posix_time::time_duration v)
+{
+  value_duration = v;
+}
+
+boost::posix_time::time_duration Setting::duration() const
+{
+  return value_duration;
+}
+
 bool Setting::compare(const Setting &other, Match flags) const
 {
   if ((flags & Match::id) && (id_ != other.id_))
     return false;
-  if (flags & Match::indices) {
+  if (flags & Match::indices)
+  {
     bool mt = indices.empty() && other.indices.empty();
-    for (auto &q : other.indices) {
-      if (indices.count(q) > 0) {
+    for (auto &q : other.indices)
+    {
+      if (indices.count(q))
+      {
         mt = true;
         break;
       }
@@ -135,7 +158,7 @@ std::string Setting::val_to_string() const
   else if (metadata.type() == SettingType::floating_precise)
     ss << std::setprecision(std::numeric_limits<PreciseFloat>::max_digits10) << value_precise;
   else if (metadata.type() == SettingType::pattern)
-    ss << value_pattern.to_string();
+    ss << value_pattern.debug();
   else if ((metadata.type() == SettingType::text) ||
            (metadata.type() == SettingType::color) ||
            (metadata.type() == SettingType::detector) ||
@@ -463,12 +486,12 @@ void Setting::set_text(std::string val)
   value_text = val;
 }
 
-std::string Setting::text() const
+std::string Setting::get_text() const
 {
   return value_text;
 }
 
-double Setting::number()
+double Setting::get_number()
 {
   if (metadata.type() == SettingType::integer)
     return static_cast<double>(value_int);

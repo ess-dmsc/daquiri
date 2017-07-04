@@ -3,6 +3,7 @@
 #include "status.h"
 #include "setting.h"
 #include "detector.h"
+#include "hit.h"
 
 namespace DAQuiri {
 

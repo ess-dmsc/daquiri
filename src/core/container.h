@@ -42,14 +42,14 @@ public:
 
   void from_vector(std::vector<T> vec);
 
-  friend void to_json(json& j, const Container<T>& t)
+  inline friend void to_json(json& j, const Container<T>& t)
   {
     j = t.my_data_;
   //    for (auto k : t.my_data_)
   //      j.push_back(json(k));
   }
 
-  friend void from_json(const json& j, Container<T>& t)
+  inline friend void from_json(const json& j, Container<T>& t)
   {
     for (auto it : j)
       t.my_data_.push_back(it);
