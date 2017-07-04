@@ -9,7 +9,7 @@
 
 namespace DAQuiri {
 
-struct HitModel
+struct EventModel
 {
 public:
   TimeBase                      timebase;
@@ -57,7 +57,7 @@ public:
 
 };
 
-inline void to_json(json& j, const HitModel& t)
+inline void to_json(json& j, const EventModel& t)
 {
   j["timebase"] = t.timebase;
   for (size_t i=0; i < t.values.size(); ++i)
@@ -76,7 +76,7 @@ inline void to_json(json& j, const HitModel& t)
   }
 }
 
-inline void from_json(const json& j, HitModel& t)
+inline void from_json(const json& j, EventModel& t)
 {
   t.timebase = j["timebase"];
   if (j.count("values"))

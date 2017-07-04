@@ -84,7 +84,7 @@ protected:
 
   virtual void _set_detectors(const std::vector<Detector>& dets) = 0;
   virtual void _push_spill(const Spill&);
-  virtual void _push_hit(const Hit&) = 0;
+  virtual void _push_hit(const Event&) = 0;
   virtual void _push_stats(const Status&) = 0;
   virtual void _flush() {}
 

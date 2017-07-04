@@ -50,7 +50,7 @@ public:
   virtual void read_settings_bulk(Setting &/*set*/) const {}
   virtual void get_all_settings() {}
 
-  virtual std::list<Hit> oscilloscope() {return std::list<Hit>();}
+  virtual std::list<Event> oscilloscope() {return std::list<Event>();}
 
   virtual bool daq_init() {return true;}
   virtual bool daq_start(SpillQueue) {return false;}

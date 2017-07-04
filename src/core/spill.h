@@ -3,7 +3,7 @@
 #include "status.h"
 #include "setting.h"
 #include "detector.h"
-#include "hit.h"
+#include "event.h"
 
 namespace DAQuiri {
 
@@ -13,7 +13,7 @@ public:
   boost::posix_time::ptime   time
     {boost::posix_time::microsec_clock::universal_time()};
   std::vector<char>          data; // raw from device
-  std::list<Hit>             hits; // parsed
+  std::list<Event>             hits; // parsed
   std::map<int16_t, Status> stats; // per channel
   std::vector<Detector> detectors; // per channel
   Setting                   state;

@@ -1,5 +1,7 @@
 #include "setting.h"
 #include <boost/lexical_cast.hpp>
+#include "bin_hex_print.h"
+#include "time_extensions.h"
 #include "util.h"
 
 namespace DAQuiri {

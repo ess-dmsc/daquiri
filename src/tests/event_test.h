@@ -3,74 +3,73 @@
 
 TEST(Event, Init)
 {
-  DAQuiri::Event e;
-  ASSERT_TRUE(e.empty());
+  DAQuiri::Event h;
+  ASSERT_EQ(-1, h.source_channel());
+  ASSERT_EQ(DAQuiri::TimeStamp(), h.timestamp());
+  ASSERT_EQ(0, h.value_count());
+  ASSERT_EQ(0, h.trace_count());
+  EXPECT_EQ("[ch-1|t0]", h.debug());
 
-  DAQuiri::Event e1(DAQuiri::Hit(), 20, 20);
-  ASSERT_FALSE(e1.empty());
+  DAQuiri::EventModel hm;
+  hm.timebase = DAQuiri::TimeBase(14,10);
+  hm.add_value("energy", 16);
+  hm.add_trace("wave", {3});
+  DAQuiri::Event h2(2, hm);
+  ASSERT_EQ(2, h2.source_channel());
+  ASSERT_EQ(DAQuiri::TimeBase(7,5),
+            h2.timestamp().base());
+  ASSERT_EQ(1, h2.value_count());
+  ASSERT_EQ(1, h2.trace_count());
+  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1 0(16b)]", h2.debug());
 }
 
-TEST(Event, Range)
+TEST(Event, Value)
 {
-  DAQuiri::Hit h;
-  h.set_native_time(10);
-  DAQuiri::Event e(h, 20, 40);
-
-  ASSERT_FALSE(e.antecedent(h));
-  ASSERT_TRUE(e.in_window(h));
-  ASSERT_FALSE(e.past_due(h));
-
-  h.set_native_time(5);
-  ASSERT_TRUE(e.antecedent(h));
-  ASSERT_FALSE(e.in_window(h));
-  ASSERT_FALSE(e.past_due(h));
-
-  h.set_native_time(30);
-  ASSERT_FALSE(e.antecedent(h));
-  ASSERT_TRUE(e.in_window(h));
-  ASSERT_FALSE(e.past_due(h));
-
-  h.set_native_time(31);
-  ASSERT_FALSE(e.antecedent(h));
-  ASSERT_FALSE(e.in_window(h));
-  ASSERT_FALSE(e.past_due(h));
-
-  h.set_native_time(50);
-  ASSERT_FALSE(e.antecedent(h));
-  ASSERT_FALSE(e.in_window(h));
-  ASSERT_FALSE(e.past_due(h));
-
-  h.set_native_time(51);
-  ASSERT_FALSE(e.antecedent(h));
-  ASSERT_FALSE(e.in_window(h));
-  ASSERT_TRUE(e.past_due(h));
+  DAQuiri::EventModel hm;
+  hm.timebase = DAQuiri::TimeBase(14,10);
+  hm.add_value("energy", 16);
+  DAQuiri::Event h(2, hm);
+  ASSERT_ANY_THROW(h.value(2));
+  ASSERT_NO_THROW(h.set_value(0,42));
+  ASSERT_EQ(42, h.value(0).val(16));
+  EXPECT_EQ("[ch2|t0x(7/5) 42(16b)]", h.debug());
 }
 
-TEST(Event, Add)
+TEST(Event, Trace)
 {
-  DAQuiri::Hit h;
-  h.set_native_time(10);
-  DAQuiri::Event e(h, 20, 40);
-  ASSERT_EQ(10, e.lower_time().native());
-  ASSERT_EQ(10, e.upper_time().native());
-
-  h.set_native_time(5);
-  e.add_hit(h);
-  ASSERT_EQ(2, e.size());
-  ASSERT_EQ(5, e.lower_time().native());
-  ASSERT_EQ(10, e.upper_time().native());
-
-  h.set_native_time(20);
-  e.add_hit(h);
-  ASSERT_EQ(3, e.size());
-  ASSERT_EQ(5, e.lower_time().native());
-  ASSERT_EQ(20, e.upper_time().native());
-
-  h.set_native_time(30);
-  e.add_hit(h);
-  ASSERT_EQ(4, e.size());
-  ASSERT_EQ(5, e.lower_time().native());
-  ASSERT_EQ(30, e.upper_time().native());
-
-  ASSERT_EQ(4, e.hits().size());
+  DAQuiri::EventModel hm;
+  hm.timebase = DAQuiri::TimeBase(14,10);
+  hm.add_trace("wave", {3});
+  DAQuiri::Event h(2, hm);
+  ASSERT_ANY_THROW(h.trace(2));
+  ASSERT_NO_THROW(h.set_trace(0, {3,6,9}));
+  ASSERT_EQ(std::vector<uint16_t>({3,6,9}),
+            h.trace(0));
+  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1]", h.debug());
 }
+
+TEST(Event, Time)
+{
+  DAQuiri::EventModel hm;
+  hm.timebase = DAQuiri::TimeBase(2,1);
+  DAQuiri::Event h(2, hm);
+  ASSERT_EQ(DAQuiri::TimeBase(2,1), h.timestamp().base());
+  h.set_native_time(10);
+  ASSERT_EQ(20, h.timestamp().nanosecs());
+  h.set_timestamp(DAQuiri::TimeStamp(10, DAQuiri::TimeBase(7,5)));
+  ASSERT_EQ(14, h.timestamp().nanosecs());
+  EXPECT_EQ("[ch2|t10x(7/5)]", h.debug());
+}
+
+TEST(Event, Comparators)
+{
+  DAQuiri::Event h, h1;
+  DAQuiri::EventModel hm;
+  hm.timebase = DAQuiri::TimeBase(2,1);
+  DAQuiri::Event h2(2, hm);
+  ASSERT_TRUE(h == h1);
+  ASSERT_FALSE(h1 == h2);
+  ASSERT_TRUE(h1 != h2);
+}
+
+

@@ -1,130 +1,129 @@
 #pragma once
 
-#include "hit.h"
-#include "pattern.h"
-#include <map>
+#include "event_model.h"
+#include <vector>
 
 namespace DAQuiri {
 
-struct Event
+class Event
 {
 private:
-  TimeStamp              lower_time_;
-  TimeStamp              upper_time_;
-  double                 window_ns_    {0.0};
-  double                 max_delay_ns_ {0.0};
-  std::multimap<int16_t, Hit> hits_;
+  int16_t       source_channel_ {-1};
+  TimeStamp     timestamp_;
+  std::vector<DigitizedVal>          values_;
+  std::vector<std::vector<uint16_t>> traces_;
 
 public:
   inline Event() {}
 
-  inline Event(const Hit &newhit, double win, double max_delay)
+  inline Event(int16_t sourcechan, const EventModel &model)
+    : source_channel_(sourcechan)
+    , timestamp_(0, model.timebase)
+    , values_ (model.values)
   {
-    upper_time_ = lower_time_ = newhit.timestamp();
-    hits_.insert({newhit.source_channel(), newhit});
-    window_ns_ = win;
-    max_delay_ns_ = std::max(win, max_delay);
+    for (auto t : model.traces)
+    {
+      size_t product = 1;
+      for (auto d : t)
+        product *= d;
+      traces_.push_back(std::vector<uint16_t>(product, 0));
+    }
   }
 
-  inline bool add_hit(const Hit &newhit)
+  //Accessors
+  inline const int16_t& source_channel() const
   {
-    bool collision = hits_.count(newhit.source_channel());
-    lower_time_ = std::min(lower_time_, newhit.timestamp());
-    upper_time_ = std::max(upper_time_, newhit.timestamp());
-    hits_.insert({newhit.source_channel(), newhit});
-    return collision;
+    return source_channel_;
   }
 
-  inline bool empty() const
+  inline const TimeStamp& timestamp() const
   {
-    return hits_.empty();
+    return timestamp_;
   }
 
-  inline size_t size() const
+  inline size_t value_count() const
   {
-    return hits_.size();
+    return values_.size();
   }
 
-  inline const std::multimap<int16_t, Hit>& hits() const
+  inline size_t trace_count() const
   {
-    return hits_;
+    return traces_.size();
   }
 
-  inline TimeStamp lower_time() const
+  inline DigitizedVal value(size_t idx) const
   {
-    return lower_time_;
+    if (idx >= values_.size())
+      throw std::out_of_range("Event: bad value index");
+    return values_.at(idx);
   }
 
-  inline TimeStamp upper_time() const
+  inline const std::vector<uint16_t>& trace(size_t idx) const
   {
-    return upper_time_;
+    if (idx >= traces_.size())
+      throw std::out_of_range("Event: bad trace index");
+    return traces_.at(idx);
   }
 
-  inline bool antecedent(const Hit& h) const
+  //Setters
+  inline void set_native_time(uint64_t t)
   {
-    return (h.timestamp() < lower_time_);
+    timestamp_.set_native(t);
   }
 
-  inline bool in_window(const Hit& h) const
+  inline void set_timestamp(const TimeStamp& ts)
   {
-    return (h.timestamp() >= lower_time_) &&
-        ((h.timestamp() - lower_time_) <= window_ns_);
+    timestamp_ = ts;
   }
 
-  inline bool past_due(const Hit& h) const
+  inline void delay_ns(double ns)
   {
-    return (h.timestamp() >= lower_time_) &&
-        ((h.timestamp() - lower_time_) > max_delay_ns_);
+    timestamp_.delay(ns);
+  }
+
+  inline void set_value(size_t idx, uint16_t val)
+  {
+    if (idx >= values_.size())
+      throw std::out_of_range("Event: bad value index");
+    values_[idx].set_val(val);
+  }
+
+  inline void set_trace(size_t idx, const std::vector<uint16_t> &trc)
+  {
+    if (idx >= traces_.size())
+      throw std::out_of_range("Event: bad trace index");
+    auto& t = traces_[idx];
+    size_t len = std::min(trc.size(), t.size());
+    for (size_t i=0; i < len; ++i)
+      t[i] = trc.at(i);
+  }
+
+  //Comparators
+  inline bool operator==(const Event other) const
+  {
+    if (source_channel_ != other.source_channel_) return false;
+    if (timestamp_ != other.timestamp_) return false;
+    if (values_ != other.values_) return false;
+    if (traces_ != other.traces_) return false;
+    return true;
+  }
+
+  inline bool operator!=(const Event other) const
+  {
+    return !operator==(other);
   }
 
   inline std::string debug() const
   {
     std::stringstream ss;
-    ss << "Evt[t" << lower_time_.debug()
-       << "w" << window_ns_;
-    if (max_delay_ns_ != window_ns_)
-      ss << "d" << max_delay_ns_;
+    ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
+    if (traces_.size())
+      ss << "|ntraces=" << traces_.size();
+    for (auto &v : values_)
+      ss << " " << v.debug();
     ss << "]";
-    for (auto &q : hits_)
-      ss << " " << q.first << "=" << q.second.debug();
     return ss.str();
   }
 };
-
-inline bool validate(const Event &e, const Pattern& p)
-{
-  if (p.threshold() == 0)
-    return true;
-  size_t matches = 0;
-  for (auto h : e.hits())
-  {
-    if ((h.first < 0) ||
-        (h.first >= int16_t(p.gates().size())))
-      continue;
-    else if (p.gates()[h.first])
-      matches++;
-    if (matches == p.threshold())
-      break;
-  }
-  return (matches == p.threshold());
-}
-
-inline bool antivalidate(const Event &e, const Pattern& p)
-{
-  if (p.threshold() == 0)
-    return true;
-  size_t matches = p.threshold();
-  for (auto h : e.hits())
-  {
-    if ((h.first < 0) ||
-        (h.first >= int16_t(p.gates().size())))
-      continue;
-    else if (p.gates()[h.first])
-      matches--;
-    if (matches < p.threshold())
-      break;
-  }
-  return (matches == p.threshold());
-}
 
 }

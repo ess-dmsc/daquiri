@@ -219,14 +219,14 @@ bool Engine::die() {
   return success;
 }
 
-std::vector<Hit> Engine::oscilloscope() {
-  std::vector<Hit> traces;
+std::vector<Event> Engine::oscilloscope() {
+  std::vector<Event> traces;
   traces.resize(detectors_.size());
 
   for (auto &q : devices_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil)) {
       //DBG << "oscil > " << q.second->device_name();
-      std::list<Hit> trc = q.second->oscilloscope();
+      std::list<Event> trc = q.second->oscilloscope();
       for (auto &p : trc)
         if ((p.source_channel() >= 0) && (p.source_channel() < static_cast<int16_t>(traces.size())))
           traces[p.source_channel()] = p;
@@ -542,12 +542,12 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
       presort_cycles++;
       presort_timer.start();
       while (!empty) {
-        Hit oldest;
+        Event oldest;
         for (auto &q : current_spills) {
           if (q->hits.empty()) {
             empty = true;
             break;
-          } else if ((oldest == Hit()) || (q->hits.front().timestamp() < oldest.timestamp())) {
+          } else if ((oldest == Event()) || (q->hits.front().timestamp() < oldest.timestamp())) {
             oldest = q->hits.front();
             presort_compares++;
           }

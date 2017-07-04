@@ -1,9 +1,9 @@
-#include "hit_model.h"
+#include "event_model.h"
 #include <gtest/gtest.h>
 
-TEST(HitModel, AddValue)
+TEST(EventModel, AddValue)
 {
-  DAQuiri::HitModel h;
+  DAQuiri::EventModel h;
   EXPECT_EQ("", h.debug());
 
   h.add_value("a", 2);
@@ -25,9 +25,9 @@ TEST(HitModel, AddValue)
   EXPECT_EQ("a(2b) b(7b) ", h.debug());
 }
 
-TEST(HitModel, AddTrace)
+TEST(EventModel, AddTrace)
 {
-  DAQuiri::HitModel h;
+  DAQuiri::EventModel h;
   EXPECT_EQ("", h.debug());
 
   h.add_trace("x", {2,3});

@@ -2,7 +2,6 @@
 
 #include <string>
 #include <sstream>
-#include <boost/date_time/local_time/local_time.hpp>
 #include <boost/algorithm/string.hpp>
 
 const std::string k_branch_mid = "\u251C\u2500";
@@ -119,96 +118,4 @@ inline double get_precision(std::string value)
 
   // return factor for shifting according to exponent
   return pow(10.0, double(sigpos + exponent));
-}
-
-inline std::string itobin16 (uint16_t bin)
-{
-  std::stringstream ss;
-  for (int k = 0; k < 16; ++k) {
-    if (bin & 0x8000)
-      ss << "1";
-    else
-      ss << "0";
-    bin <<= 1;
-  }
-  return ss.str();
-}
-
-inline std::string itobin32 (uint32_t bin)
-{
-  uint16_t lo = bin & 0x0000FFFF;
-  uint16_t hi = (bin >> 16) & 0x0000FFFF;
-
-  return (itobin16(hi) + " " + itobin16(lo));
-}
-
-inline std::string itobin64 (uint64_t bin)
-{
-  uint32_t lo = bin & 0x00000000FFFFFFFF;
-  uint32_t hi = (bin >> 32) & 0x00000000FFFFFFFF;
-
-  return (itobin32(hi) + " " + itobin32(lo));
-}
-
-
-inline std::string itohex64 (uint64_t bin)
-{
-  std::stringstream stream;
-  stream << std::uppercase << std::setfill ('0') << std::setw(sizeof(uint64_t)*2)
-         << std::hex << bin;
-  return stream.str();
-}
-
-inline std::string itohex32 (uint32_t bin)
-{
-  std::stringstream stream;
-  stream << std::uppercase << std::setfill ('0') << std::setw(sizeof(uint32_t)*2)
-         << std::hex << bin;
-  return stream.str();
-}
-
-inline std::string itohex16 (uint16_t bin)
-{
-  std::stringstream stream;
-  stream << std::uppercase << std::setfill ('0') << std::setw(sizeof(uint16_t)*2)
-         << std::hex << bin;
-  return stream.str();
-}
-
-inline boost::posix_time::ptime from_iso_extended(std::string str)
-{
-  boost::posix_time::ptime tm;
-  if (str.empty())
-    return tm;
-  boost::posix_time::time_input_facet *tif = new boost::posix_time::time_input_facet;
-  tif->set_iso_extended_format();
-  std::stringstream iss(str);
-  iss.imbue(std::locale(std::locale::classic(), tif));
-  iss >> tm;
-  return tm;
-}
-
-inline boost::posix_time::ptime from_custom_format(std::string str, std::string format)
-{
-  boost::posix_time::ptime tm;
-  if (str.empty())
-    return tm;
-  boost::posix_time::time_input_facet
-      *tif(new boost::posix_time::time_input_facet(format));
-  std::stringstream iss(str);
-  iss.imbue(std::locale(std::locale::classic(), tif));
-  iss >> tm;
-  return tm;
-}
-
-inline std::string very_simple(const boost::posix_time::time_duration &duration)
-{
-  uint64_t s = duration.total_seconds();
-  uint64_t min = s / 60;
-  uint64_t h   = min / 60;
-  std::stringstream ss;
-  ss << h << ":"
-     << std::setfill('0') << std::setw(2) << min - (h*60) << ":"
-     << std::setfill('0') << std::setw(2) << s - (min*60);
-  return ss.str();
 }

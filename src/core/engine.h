@@ -46,7 +46,7 @@ public:
   bool read_settings_bulk(); 
   void get_all_settings();
 
-  std::vector<Hit> oscilloscope();
+  std::vector<Event> oscilloscope();
   
   bool daq_start(SynchronizedQueue<Spill*>* out_queue);
   bool daq_stop();

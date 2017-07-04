@@ -1,9 +1,9 @@
 #pragma once
 
 #include <boost/date_time.hpp>
-#include "hit_model.h"
+#include "event_model.h"
 #include "precise_float.h"
-#include "util.h"
+#include "time_extensions.h"
 
 namespace DAQuiri {
 
@@ -35,14 +35,14 @@ struct Status
 private:
   StatusType               type_     {StatusType::running};
   int16_t                  channel_  {-1};
-  HitModel                 hit_model_;
+  EventModel                 hit_model_;
   boost::posix_time::ptime time_;     //timestamp at end of spill
   std::map<std::string, PreciseFloat> stats_;
   
 public:
   inline void set_type(StatusType t) { type_ = t; }
   inline void set_channel(int16_t c) { channel_ = c; }
-  inline void set_model(HitModel hm) { hit_model_ = hm; }
+  inline void set_model(EventModel hm) { hit_model_ = hm; }
   inline void set_time(boost::posix_time::ptime t) { time_ = t; }
   inline void set_value(const std::string& key, const PreciseFloat& val)
   {
@@ -51,7 +51,7 @@ public:
 
   inline StatusType type() const { return type_; }
   inline int16_t channel() const { return channel_; }
-  inline HitModel  hit_model() const { return hit_model_; }
+  inline EventModel  hit_model() const { return hit_model_; }
   inline boost::posix_time::ptime time() const { return time_; }
   inline std::map<std::string, PreciseFloat> stats() const { return stats_; }
 

@@ -21,7 +21,7 @@ TEST(Status, SetGet)
   s.set_time(t);
   ASSERT_EQ(s.time(), t);
 
-  DAQuiri::HitModel hm;
+  DAQuiri::EventModel hm;
   hm.timebase = DAQuiri::TimeBase(14,10);
   hm.add_value("energy", 16);
   hm.add_trace("wave", {3});
