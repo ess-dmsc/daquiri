@@ -57,18 +57,21 @@ struct Setting
 
   void condense();
   void enable_if_flag(bool enable, const std::string &flag);
-  void cull_invisible();
+  void cull_hidden();
   void cull_readonly();
   void strip_metadata();
   void enrich(const std::map<std::string, SettingMeta> &, bool impose_limits = false);
+  void enforce_limits();
 
   std::string debug(std::string prepend = std::string()) const;
   std::string val_to_pretty_string() const;
   std::string indices_to_string(bool showblanks = false) const;
 
+  void set_text(std::string val);
+  std::string text() const;
 
   //Numerics only (float, integer, floatprecise)
-  bool is_numeric() const;
+  bool numeric() const;
   double number();
   void set_number(double);
 

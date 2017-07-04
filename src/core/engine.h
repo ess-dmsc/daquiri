@@ -57,7 +57,8 @@ public:
 
 protected:
   std::string profile_path_;
-  ProducerStatus aggregate_status_, intrinsic_status_;
+  ProducerStatus aggregate_status_ {ProducerStatus(0)};
+  ProducerStatus intrinsic_status_ {ProducerStatus(0)};
   mutable boost::mutex mutex_;
 
   std::map<std::string, ProducerPtr> devices_;

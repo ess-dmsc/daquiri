@@ -3,8 +3,11 @@
 #include <string>
 #include <map>
 #include <set>
+#include <list>
 #include "json.hpp"
 using namespace nlohmann;
+
+#define TT template<typename T>
 
 namespace DAQuiri {
 
@@ -32,42 +35,86 @@ SettingType to_type(const std::string &type);
 std::string to_string(SettingType);
 
 
-struct SettingMeta
+class SettingMeta
 {
-  std::string        id_;
-  SettingType        setting_type {SettingType::none};
-
-  json               contents;
-
-  bool               writable    {false};
-  bool               visible     {true};
-  bool               saveworthy  {true};
-  double             minimum     {std::numeric_limits<double>::min()};
-  double             maximum     {std::numeric_limits<double>::max()};
-  double             step        {1};
-  int16_t            max_indices {0};
-  int64_t            address     {-1};
-  std::string        name, description;
-  std::string        unit;                       //or extension if file
-  std::map<int32_t, std::string> int_menu_items; //or intrinsic branches
-  std::set<std::string> flags;
-
+public:
   SettingMeta() {}
+  SettingMeta(std::string id, SettingType type);
+  SettingMeta(std::string id, SettingType type, std::string name);
 
   SettingMeta stripped() const;
   bool meaningful() const;
+  bool numeric() const;
 
-  bool is_numeric() const;
+  std::string id() const;
+  SettingType type() const;
+
+  void set_flag(std::string f);
+  void remove_flag(std::string f);
+  void set_flags(std::initializer_list<std::string> fs);
+  bool has_flag(std::string f);
+
+  std::string enum_name(int32_t idx) const;
+  std::list<std::string> enum_names() const;
+
+  std::string get_string(std::string name, std::string default_val) const;
+
+  TT T get_num(std::string name, T default_val) const;
+  TT void set_val(std::string name, T val);
+  TT T min() const;
+  TT T max() const;
+  TT T step() const;
+
   std::string value_range() const;
-
   std::string debug(std::string prepend = std::string()) const;
 
-  //deprecate!!!!
+  //deprecate?
   bool operator!= (const SettingMeta& other) const;
   bool operator== (const SettingMeta& other) const;
+
+  friend void to_json(json& j, const SettingMeta &s);
+  friend void from_json(const json& j, SettingMeta &s);
+
+private:
+  std::string                    id_;
+  SettingType                    type_ {SettingType::none};
+  std::set<std::string>          flags_;
+  json                           contents_;
+  std::map<int32_t, std::string> enum_map_;
 };
 
-void to_json(json& j, const SettingMeta &s);
-void from_json(const json& j, SettingMeta &s);
+
+TT T SettingMeta::get_num(std::string name, T default_val) const
+{
+  if (contents_.count(name) && contents_.at(name).is_number())
+    return contents_.at(name).get<T>();
+  return default_val;
+}
+
+TT void SettingMeta::set_val(std::string name, T val)
+{
+  contents_[name] = val;
+}
+
+TT T SettingMeta::min() const
+{
+  return get_num("min", std::numeric_limits<T>::min());
+}
+
+TT T SettingMeta::max() const
+{
+  return get_num("max", std::numeric_limits<T>::max());
+}
+
+TT T SettingMeta::step() const
+{
+  return get_num("step", T(1));
+}
+
+//  bool               writable    {true}; changed!!!
+//  bool               visible     {true};
+//  bool               saveworthy  {true};
 
 }
+
+#undef TT

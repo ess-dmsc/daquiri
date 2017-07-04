@@ -26,25 +26,13 @@ namespace DAQuiri {
 
 //const static int initializer = Engine::print_version();
 
-Engine::Engine() {
-  aggregate_status_ = ProducerStatus(0);
-  intrinsic_status_ = ProducerStatus(0);
+Engine::Engine()
+{
+  total_det_num_ = SettingMeta("Total detectors", SettingType::integer);
+  total_det_num_.set_val("min", 1);
+  total_det_num_.set_val("max", 64);
 
-  total_det_num_.id_ = "Total detectors";
-  total_det_num_.name = "Total detectors";
-  total_det_num_.writable = true;
-  total_det_num_.visible = true;
-  total_det_num_.setting_type = SettingType::integer;
-  total_det_num_.minimum = 1;
-  total_det_num_.maximum = 42;
-  total_det_num_.step = 1;
-
-  single_det_.id_ = "Detector";
-  single_det_.name = "Detector";
-  single_det_.writable = true;
-  single_det_.saveworthy = true;
-  single_det_.visible = true;
-  single_det_.setting_type = SettingType::detector;
+  single_det_ = SettingMeta("Detector", SettingType::detector);
 }
 
 
@@ -151,11 +139,10 @@ bool Engine::read_settings_bulk(){
 
       for (size_t i=0; i < detectors_.size(); ++i)
       {
-        det.metadata.name = "Detector " + std::to_string(i);
-        det.value_text = detectors_[i].name();
+        det.metadata.set_val("name", "Detector " + std::to_string(i));
+        det.set_text(detectors_[i].name());
         det.indices.clear();
         det.indices.insert(i);
-        det.metadata.writable = true;
         set.branches.add_a(det);
       }
 
@@ -319,7 +306,7 @@ void Engine::load_optimization(size_t i)
     return;
   for (auto s : detectors_[i].optimizations())
   {
-    if (!s.metadata.writable)
+    if (s.metadata.has_flag("readonly"))
       continue;
     s.indices.insert(i);
     settings_tree_.set_setting_r(s, Match::id | Match::indices);

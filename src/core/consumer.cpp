@@ -8,50 +8,37 @@ Consumer::Consumer()
 {
   Setting attributes = metadata_.attributes();
 
-  Setting name;
-  name.id_ = "name";
-  name.metadata.setting_type = SettingType::text;
-  name.metadata.writable = true;
+  Setting name(SettingMeta("name", SettingType::text));
   attributes.branches.add(name);
 
-  Setting vis;
-  vis.id_ = "visible";
-  vis.metadata.setting_type = SettingType::boolean;
-  vis.metadata.description = "Plot visible";
-  vis.metadata.writable = true;
+  Setting vis(SettingMeta("visible", SettingType::boolean));
+  vis.metadata.set_val("description", "Plot visible");
   attributes.branches.add(vis);
 
-  Setting app;
-  app.id_ = "appearance";
-  app.metadata.setting_type = SettingType::color;
-  app.metadata.description = "Plot appearance";
-  app.metadata.writable = true;
+  Setting app(SettingMeta("appearance", SettingType::color));
+  app.metadata.set_val("description", "Plot appearance");
   attributes.branches.add(app);
 
-  Setting rescale;
-  rescale.id_ = "rescale";
-  rescale.metadata.setting_type = SettingType::floating_precise;
-  rescale.metadata.description = "Rescale factor";
-  rescale.metadata.writable = true;
-  rescale.metadata.minimum = 0;
-  rescale.metadata.maximum = 1e10;
-  rescale.metadata.step = 1;
-  rescale.value_precise = 1;
-  attributes.branches.add(rescale);
+//  Setting rescale;
+//  rescale.id_ = "rescale";
+//  rescale.metadata.setting_type = SettingType::floating_precise;
+//  rescale.metadata.description = "Rescale factor";
+//  rescale.metadata.minimum = 0;
+//  rescale.metadata.maximum = 1e10;
+//  rescale.metadata.step = 1;
+//  rescale.value_precise = 1;
+//  attributes.branches.add(rescale);
 
-  Setting descr;
-  descr.id_ = "description";
-  descr.metadata.setting_type = SettingType::text;
-  descr.metadata.description = "Description";
-  descr.metadata.writable = true;
+  Setting descr(SettingMeta("description", SettingType::text));
+  descr.metadata.set_val("description", "Description");
   attributes.branches.add(descr);
 
-  Setting start_time;
-  start_time.id_ = "start_time";
-  start_time.metadata.setting_type = SettingType::time;
-  start_time.metadata.description = "Start time";
-  start_time.metadata.writable = false;
-  attributes.branches.add(start_time);
+//  Setting start_time;
+//  start_time.id_ = "start_time";
+//  start_time.metadata.setting_type = SettingType::time;
+//  start_time.metadata.description = "Start time";
+//  start_time.metadata.flags.insert("readonly");
+//  attributes.branches.add(start_time);
 
   metadata_.overwrite_all_attributes(attributes);
 }

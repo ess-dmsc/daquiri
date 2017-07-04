@@ -85,6 +85,17 @@ std::string to_string(SettingType type)
     return "";
 }
 
+SettingMeta::SettingMeta(std::string id, SettingType type)
+  : SettingMeta(id, type, id)
+{}
+
+SettingMeta::SettingMeta(std::string id, SettingType type, std::string name)
+  : id_(id)
+  , type_ (type)
+{
+  contents_["name"] = name;
+}
+
 bool SettingMeta::operator!= (const SettingMeta& other) const
 {
   return !operator==(other);
@@ -93,73 +104,105 @@ bool SettingMeta::operator!= (const SettingMeta& other) const
 bool SettingMeta::operator== (const SettingMeta& other) const
 {
   if (id_ != other.id_) return false;
-  if (name != other.name) return false;
-  if (unit != other.unit) return false;
-  if (minimum != other.minimum) return false;
-  if (maximum != other.maximum) return false;
-  if (step != other.step) return false;
-  if (writable != other.writable) return false;
-  if (description != other.description) return false;
-  if (address != other.address) return false;
-  if (int_menu_items != other.int_menu_items) return false;
-  if (flags != other.flags) return false;
+  if (contents_ != other.contents_) return false;
+  if (enum_map_ != other.enum_map_) return false;
+  if (flags_ != other.flags_) return false;
   return true;
+}
+
+std::string SettingMeta::id() const
+{
+  return id_;
+}
+
+SettingType SettingMeta::type() const
+{
+  return type_;
+}
+
+std::string SettingMeta::enum_name(int32_t idx) const
+{
+  if (enum_map_.count(idx))
+    return enum_map_.at(idx);
+  return "";
+}
+
+std::list<std::string> SettingMeta::enum_names() const
+{
+  std::list<std::string> ret;
+  for (auto i : enum_map_)
+    ret.push_back(i.second);
+  return ret;
+}
+
+std::string SettingMeta::get_string(std::string name, std::string default_val) const
+{
+  if (contents_.count(name) && contents_.at(name).is_string())
+    return contents_[name];
+  return default_val;
+}
+
+void SettingMeta::set_flag(std::string f)
+{
+  flags_.insert(f);
+}
+
+void SettingMeta::remove_flag(std::string f)
+{
+  if (flags_.count(f))
+    flags_.erase(f);
+}
+
+void SettingMeta::set_flags(std::initializer_list<std::string> fs)
+{
+  for (auto f : fs)
+    flags_.insert(f);
+}
+
+bool SettingMeta::has_flag(std::string f)
+{
+  return flags_.count(f);
 }
 
 SettingMeta SettingMeta::stripped() const
 {
   SettingMeta s;
   s.id_ = id_;
-  s.setting_type = setting_type;
+  s.type_ = type_;
   return s;
 }
 
 bool SettingMeta::meaningful() const
 {
-  return (operator!=(this->stripped()));
+  return (!flags_.empty() ||
+          !contents_.empty() ||
+          !enum_map_.empty());
 }
 
 std::string SettingMeta::debug(std::string prepend) const
 {
-  std::string ret = to_string(setting_type);
-  if (!name.empty())
-    ret += "(" + name + ")";
-  if (address != -1)
-    ret += " " + std::to_string(address);
-  if (writable)
-    ret += " wr";
-  if ((setting_type == SettingType::command) && !visible)
-    ret += " invis";
-  if ((setting_type == SettingType::stem) && saveworthy)
-    ret += " savew";
-  if ((setting_type == SettingType::binary) || (setting_type == SettingType::pattern))
-    ret += " wsize=" + std::to_string(maximum);
-  if (is_numeric())
-  {
-    std::stringstream ss;
-    ss << " [" << minimum << "\uFF1A" << step << "\uFF1A" << maximum << "]";
-    ret += ss.str();
-  }
-  if (!unit.empty())
-    ret += " unit=" + unit;
-  if (!description.empty())
-    ret += " \"" + description + "\"";
+  std::string ret = to_string(type_);
+  if (numeric())
+    ret += value_range();
 
-  if (!flags.empty()) {
+  if (!flags_.empty())
+  {
     std::string flgs;
-    for (auto &q : flags)
+    for (auto &q : flags_)
       flgs += q + " ";
     boost::algorithm::trim_if(flgs, boost::algorithm::is_any_of("\r\n\t "));
     if (!flgs.empty())
       ret += " flags=\"" + flgs + "\"";
   }
 
-  if (int_menu_items.size())
+  if (enum_map_.size())
   {
     ret += "\n" + prepend + " ";
-    for (auto &i : int_menu_items)
+    for (auto &i : enum_map_)
       ret += std::to_string(i.first) + "=\"" + i.second + "\"  ";
   }
+  if (!contents_.empty())
+    ret += "contents_=" + contents_.dump();
 
   return ret;
 }
@@ -167,106 +210,55 @@ std::string SettingMeta::debug(std::string prepend) const
 
 std::string SettingMeta::value_range() const
 {
-  if (is_numeric())
+  if (numeric())
   {
     std::stringstream ss;
-    ss << "[" << minimum << " \uFF1A " << step << " \uFF1A " << maximum << "]";
+    ss << "[" << min<double>() << " \uFF1A "
+       << step<double>() << " \uFF1A "
+       << max<double>() << "]";
     return ss.str();
   }
-  else if ((setting_type == SettingType::binary) || (setting_type == SettingType::pattern))
-  {
-    std::stringstream ss;
-    ss << to_string(setting_type) << maximum;
-    return ss.str();
-  }
-  else
-    return to_string(setting_type);
+  return "";
 }
 
-bool SettingMeta::is_numeric() const
+bool SettingMeta::numeric() const
 {
-  return ((setting_type == SettingType::integer)
-          || (setting_type == SettingType::floating)
-          || (setting_type == SettingType::floating_precise));
+  return ((type_ == SettingType::integer)
+          || (type_ == SettingType::floating)
+          || (type_ == SettingType::floating_precise));
 }
 
 void to_json(json& j, const SettingMeta &s)
 {
   j["id"] = s.id_;
-  j["type"] = to_string(s.setting_type);
-  j["address"] = s.address;
-  j["max_indices"] = s.max_indices;
-  j["writable"] = s.writable;
+  j["type"] = to_string(s.type_);
 
-  if (!s.name.empty())
-    j["name"] = s.name;
-  if (!s.unit.empty())
-    j["unit"] = s.unit;
-  if (!s.description.empty())
-    j["description"] = s.description;
+  if (!s.contents_.empty())
+    j["contents_"] = s.contents_;
 
-  if (s.setting_type == SettingType::command)
-    j["visible"] = s.visible;
-  if (s.setting_type == SettingType::stem)
-    j["saveworthy"] = s.saveworthy;
-
-  if (s.is_numeric())
-  {
-    j["step"] = s.step;
-    j["minimum"] = s.minimum;
-    j["maximum"] = s.maximum;
-  }
-  else if ((s.setting_type == SettingType::binary) ||
-           (s.setting_type == SettingType::pattern))
-    j["word_size"] = s.maximum;
-
-  if ((s.setting_type == SettingType::binary) ||
-      (s.setting_type == SettingType::indicator) ||
-      (s.setting_type == SettingType::int_menu) ||
-      (s.setting_type == SettingType::stem))
-    for (auto &q : s.int_menu_items)
+  if ((s.type_ == SettingType::binary) ||
+      (s.type_ == SettingType::indicator) ||
+      (s.type_ == SettingType::int_menu) ||
+      (s.type_ == SettingType::stem))
+    for (auto &q : s.enum_map_)
      j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
 
-  if (!s.flags.empty())
-    j["flags"] = s.flags;
+  if (!s.flags_.empty())
+    j["flags"] = s.flags_;
 }
 
 void from_json(const json& j, SettingMeta &s)
 {
   s.id_          = j["id"];
-  s.setting_type = to_type(j["type"]);
-  s.address      = j["address"];
-  s.max_indices  = j["max_indices"];
-  s.writable     = j["writable"];
-
-  if (j.count("name"))
-    s.name = j["name"];
-  if (j.count("unit"))
-    s.unit = j["unit"];
-  if (j.count("description"))
-    s.description = j["description"];
-
-  if (j.count("visible"))
-    s.visible = j["visible"];
-  if (j.count("saveworthy"))
-    s.saveworthy = j["saveworthy"];
-
-  if (s.is_numeric())
-  {
-    s.step = j["step"];
-    s.minimum = j["minimum"];
-    s.maximum = j["maximum"];
-  }
-  else if (j.count("word_size"))
-    s.maximum = j["word_size"];
+  s.type_ = to_type(j["type"]);
 
   if (j.count("items"))
     for (auto it : j["items"])
-      s.int_menu_items[it["val"]] = it["meaning"];
+      s.enum_map_[it["val"]] = it["meaning"];
 
   if (j.count("flags"))
     for (auto it : j["flags"])
-      s.flags.insert(it.get<std::string>());
+      s.flags_.insert(it.get<std::string>());
 }
 
 }

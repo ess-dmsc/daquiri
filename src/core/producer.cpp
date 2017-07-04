@@ -52,7 +52,7 @@ bool Producer::load_setting_json(const std::string& file)
   for (auto it : j)
   {
     SettingMeta m = it;
-    setting_definitions_[m.id_] = m;
+    setting_definitions_[m.id()] = m;
   }
 
   if (!setting_definitions_.empty())

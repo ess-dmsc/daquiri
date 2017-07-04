@@ -5,18 +5,21 @@ namespace DAQuiri {
 
 ConsumerMetadata::ConsumerMetadata()
 {
-  attributes_.metadata.setting_type = SettingType::stem;
+  attributes_.metadata = SettingMeta("", SettingType::stem);
 }
 
-ConsumerMetadata::ConsumerMetadata(std::string tp, std::string descr, uint16_t dim,
-                   std::list<std::string> itypes, std::list<std::string> otypes)
+ConsumerMetadata::ConsumerMetadata(std::string tp,
+                                   std::string descr,
+                                   uint16_t dim,
+                                   std::list<std::string> itypes,
+                                   std::list<std::string> otypes)
   : type_(tp)
   , type_description_(descr)
   , dimensions_(dim)
   , input_types_(itypes)
   , output_types_(otypes)
 {
-  attributes_.metadata.setting_type = SettingType::stem;
+  attributes_.metadata = SettingMeta("", SettingType::stem);
 }
 
 bool ConsumerMetadata::shallow_equals(const ConsumerMetadata& other) const
@@ -138,20 +141,23 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
     limit = 1;
 
   for (auto &a : attributes_.branches.my_data_)
-    if (a.metadata.setting_type == SettingType::pattern)
+    if (a.metadata.type() == SettingType::pattern)
       a.value_pattern.resize(limit);
-    else if (a.metadata.setting_type == SettingType::stem) {
+    else if (a.metadata.type() == SettingType::stem)
+    {
       Setting prototype;
       for (auto &p : a.branches.my_data_)
         if (p.indices.count(-1))
           prototype = p;
-      if (prototype.metadata.setting_type == SettingType::stem) {
+      if (prototype.metadata.type() == SettingType::stem)
+      {
         a.indices.clear();
         a.branches.clear();
-        prototype.metadata.visible = false;
+        prototype.metadata.set_flag("hidden");
         a.branches.add_a(prototype);
-        prototype.metadata.visible = true;
-        for (int i=0; i < limit; ++i) {
+        prototype.metadata.remove_flag("hidden");
+        for (int i=0; i < limit; ++i)
+        {
           prototype.indices.clear();
           prototype.indices.insert(i);
           for (auto &p : prototype.branches.my_data_)
@@ -166,7 +172,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
 bool ConsumerMetadata::chan_relevant(uint16_t chan) const
 {
   for (const Setting &s : attributes_.branches.my_data_)
-    if ((s.metadata.setting_type == SettingType::pattern) &&
+    if ((s.metadata.type() == SettingType::pattern) &&
         (s.value_pattern.relevant(chan)))
       return true;
   return false;
