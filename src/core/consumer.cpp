@@ -11,13 +11,13 @@ Consumer::Consumer()
   Setting name(SettingMeta("name", SettingType::text));
   attributes.branches.add(name);
 
-  Setting vis(SettingMeta("visible", SettingType::boolean));
-  vis.metadata.set_val("description", "Plot visible");
-  attributes.branches.add(vis);
+  SettingMeta vis("visible", SettingType::boolean);
+  vis.set_val("description", "Plot visible");
+  attributes.branches.add(Setting(vis));
 
-  Setting app(SettingMeta("appearance", SettingType::color));
-  app.metadata.set_val("description", "Plot appearance");
-  attributes.branches.add(app);
+  SettingMeta app("appearance", SettingType::color);
+  app.set_val("description", "Plot appearance");
+  attributes.branches.add(Setting(app));
 
 //  Setting rescale;
 //  rescale.id_ = "rescale";
@@ -29,9 +29,9 @@ Consumer::Consumer()
 //  rescale.value_precise = 1;
 //  attributes.branches.add(rescale);
 
-  Setting descr(SettingMeta("description", SettingType::text));
-  descr.metadata.set_val("description", "Description");
-  attributes.branches.add(descr);
+  SettingMeta descr("description", SettingType::text);
+  descr.set_val("description", "Description");
+  attributes.branches.add(Setting(descr));
 
 //  Setting start_time;
 //  start_time.id_ = "start_time";

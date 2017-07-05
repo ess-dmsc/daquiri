@@ -432,10 +432,10 @@ void Project::import_spn(std::string file_name)
   temp.set_attribute(res);
   Setting pattern;
   pattern = temp.get_attribute("pattern_coinc");
-  pattern.value_pattern.set(1, {true});
+  pattern.set_pattern(Pattern(1, {true}));
   temp.set_attribute(pattern);
   pattern = temp.get_attribute("pattern_add");
-  pattern.value_pattern.set(1, {true});
+  pattern.set_pattern(Pattern(1, {true}));
   temp.set_attribute(pattern);
 
   uint32_t one;

@@ -5,7 +5,7 @@ namespace DAQuiri {
 
 Detector::Detector()
 {
-  settings_.metadata = SettingMeta("", SettingType::stem);
+  settings_ = Setting(SettingMeta("", SettingType::stem));
 }
 
 Detector::Detector(std::string name)
@@ -44,9 +44,9 @@ void Detector::add_optimizations(const std::list<Setting>& l,
 {
   for (auto s : l)
   {
-    if (writable_only && s.metadata.has_flag("readonly"))
+    if (writable_only && s.metadata().has_flag("readonly"))
       continue;
-    s.indices.clear();
+    s.set_indices({});
     settings_.branches.replace(s);
   }
 }

@@ -10,6 +10,10 @@ class Pattern
 {
 public:
   inline Pattern() {}
+  inline Pattern(size_t thresh, std::vector<bool> gts)
+  {
+    set(thresh, gts);
+  }
 
   inline const std::vector<bool>& gates() const { return gates_; }
   inline size_t threshold() const { return threshold_; }

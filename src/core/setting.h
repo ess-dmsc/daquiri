@@ -8,7 +8,8 @@
 
 namespace DAQuiri {
 
-enum Match {
+enum Match
+{
   id      = 1 << 0,
   name    = 1 << 1,
   address = 1 << 2,
@@ -23,24 +24,23 @@ class Setting;
 class Setting
 {
 public:
-  std::string       id_;
-  SettingMeta       metadata;
-  std::set<int32_t> indices;
-
-  Pattern                          value_pattern;
-
   Container<Setting> branches;
 
-  
   Setting() {}
   Setting(std::string id);
   Setting(SettingMeta meta);
 
+  std::string id() const;
+  SettingMeta metadata() const;
   explicit operator bool() const;
+
   bool shallow_equals(const Setting& other) const;
   bool operator== (const Setting& other) const;
   bool operator!= (const Setting& other) const;
   bool compare(const Setting &other, Match flags) const;
+
+  void set_indices(std::initializer_list<int32_t> l);
+  bool has_index(int32_t i) const;
 
   void set_value(const Setting &other);
   bool set_setting_r(const Setting &setting, Match flags);
@@ -49,6 +49,8 @@ public:
   bool has(Setting address, Match flags) const;
   std::list<Setting> find_all(const Setting &setting, Match flags) const;
   void set_all(const std::list<Setting> &settings, Match flags);
+
+  void hide(bool h = true);
 
   void condense();
   void enable_if_flag(bool enable, const std::string &flag);
@@ -68,10 +70,13 @@ public:
   void set_duration(boost::posix_time::time_duration v);
   boost::posix_time::time_duration duration() const;
 
+  void set_pattern(Pattern v);
+  Pattern pattern() const;
+
   void set_text(std::string val);
   std::string get_text() const;
 
-  //Numerics only (float, integer, floatprecise)
+  // numerics (float, integer, floatprecise)
   bool numeric() const;
   double get_number();
   void set_number(double);
@@ -96,13 +101,16 @@ private:
   json val_to_json() const;
   void val_from_json(const json &j);
 
+  SettingMeta        metadata_;
+  std::set<int32_t>  indices_;
 
   int64_t                          value_int     {0};
-  double                           value_dbl     {0.0};
+  double                           value_dbl     {0};
   PreciseFloat                     value_precise {0};
   std::string                      value_text;
   boost::posix_time::ptime         value_time;
   boost::posix_time::time_duration value_duration;
+  Pattern                          value_pattern;
 };
 
 }

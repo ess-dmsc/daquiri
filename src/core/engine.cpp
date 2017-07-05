@@ -31,10 +31,7 @@ Engine::Engine()
   total_det_num_ = SettingMeta("Total detectors", SettingType::integer);
   total_det_num_.set_val("min", 1);
   total_det_num_.set_val("max", 64);
-
-  single_det_ = SettingMeta("Detector", SettingType::detector);
 }
-
 
 void Engine::initialize(std::string profile_path, std::string settings_path)
 {
@@ -74,14 +71,15 @@ void Engine::initialize(std::string profile_path, std::string settings_path)
 
   for (auto &q : tree.branches.my_data_)
   {
-    if (q.id_ != "Detectors")
+    if (q.id() != "Detectors")
     {
       boost::filesystem::path dev_settings = path / q.get_text();
-      ProducerPtr device = ProducerFactory::singleton().create_type(q.id_, dev_settings.string());
+      ProducerPtr device
+          = ProducerFactory::singleton().create_type(q.id(), dev_settings.string());
       if (device)
       {
         DBG << "<Engine> Success loading " << device->device_name();
-        devices_[q.id_] = device;
+        devices_[q.id()] = device;
       }
     }
   }
@@ -126,32 +124,33 @@ void Engine::push_settings(const Setting& newsettings) {
 //  LINFO << "settings pushed branches = " << settings_tree_.branches.size();
 }
 
-bool Engine::read_settings_bulk(){
+bool Engine::read_settings_bulk()
+{
   for (auto &set : settings_tree_.branches.my_data_)
   {
-    if (set.id_ == "Detectors") {
-
-      //set.metadata.step = 2; //to always save
+    if (set.id() == "Detectors")
+    {
       Setting totaldets(total_det_num_);
       totaldets.set_number(detectors_.size());
-
-      Setting det(single_det_);
 
       set.branches.clear();
       set.branches.add_a(totaldets);
 
       for (size_t i=0; i < detectors_.size(); ++i)
       {
-        det.metadata.set_val("name", "Detector " + std::to_string(i));
+        Setting det(SettingMeta("Detector",
+                                SettingType::detector,
+                                "Detector " + std::to_string(i)));
         det.set_text(detectors_[i].name());
-        det.indices.clear();
-        det.indices.insert(i);
+        det.set_indices({int32_t(i)});
         set.branches.add_a(det);
       }
 
-    } else if (devices_.count(set.id_)) {
+    }
+    else if (devices_.count(set.id()))
+    {
       //DBG << "read settings bulk > " << set.id_;
-      devices_[set.id_]->read_settings_bulk(set);
+      devices_[set.id()]->read_settings_bulk(set);
     }
 
   }
@@ -159,21 +158,22 @@ bool Engine::read_settings_bulk(){
   return true;
 }
 
-bool Engine::write_settings_bulk(){
-  for (auto &set : settings_tree_.branches.my_data_) {
-    if (set.id_ == "Detectors") {
+bool Engine::write_settings_bulk()
+{
+  for (auto &set : settings_tree_.branches.my_data_)
+  {
+    if (set.id() == "Detectors")
       rebuild_structure(set);
-    } else if (devices_.count(set.id_)) {
-      //DBG << "write settings bulk > " << set.id_;
-      devices_[set.id_]->write_settings_bulk(set);
-    }
+    else if (devices_.count(set.id()))
+      devices_[set.id()]->write_settings_bulk(set);
   }
   return true;
 }
 
 void Engine::rebuild_structure(Setting &set)
 {
-  Setting totaldets = set.get_setting(Setting("Total detectors"), Match::id);
+  Setting totaldets =
+      set.get_setting(Setting("Total detectors"), Match::id);
   int oldtotal = detectors_.size();
   int newtotal = totaldets.get_number();
   if (newtotal < 0)
@@ -273,11 +273,11 @@ void Engine::set_detector(size_t ch, Detector det)
 
   for (auto &set : settings_tree_.branches.my_data_)
   {
-    if (set.id_ == "Detectors")
+    if (set.id() == "Detectors")
     {
       for (auto &q : set.branches.my_data_)
       {
-        if (q.indices.count(ch) > 0)
+        if (q.has_index(ch))
         {
           q.set_text(detectors_[ch].name());
           load_optimization(ch);
@@ -294,7 +294,7 @@ void Engine::save_optimization()
 //    DBG << "Saving optimization channel " << i << " settings for " << detectors_[i].name_;
 //    detectors_[i].settings_ = Setting();
     Setting t;
-    t.indices.insert(i);
+    t.set_indices({int32_t(i)});
     detectors_[i].add_optimizations(settings_tree_.find_all(t, Match::indices));
   }
 }
@@ -311,9 +311,9 @@ void Engine::load_optimization(size_t i)
     return;
   for (auto s : detectors_[i].optimizations())
   {
-    if (s.metadata.has_flag("readonly"))
+    if (s.metadata().has_flag("readonly"))
       continue;
-    s.indices.insert(i);
+    s.set_indices({int32_t(i)});
     settings_tree_.set_setting_r(s, Match::id | Match::indices);
   }
 }

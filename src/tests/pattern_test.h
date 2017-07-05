@@ -6,6 +6,10 @@ TEST(Pattern, Init)
   DAQuiri::Pattern e;
   ASSERT_EQ(e.threshold(), 0);
   ASSERT_EQ(e.gates().size(), 0);
+
+  DAQuiri::Pattern e2(2, {true,true});
+  ASSERT_EQ(e2.threshold(), 2);
+  ASSERT_EQ(e2.gates(), std::vector<bool>({true,true}));
 }
 
 TEST(Pattern, Set)

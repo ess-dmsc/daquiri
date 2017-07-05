@@ -64,7 +64,7 @@ protected:
   std::map<std::string, ProducerPtr> devices_;
 
   Setting settings_tree_;
-  SettingMeta total_det_num_, single_det_;
+  SettingMeta total_det_num_;
 
   std::vector<Detector> detectors_;
 
