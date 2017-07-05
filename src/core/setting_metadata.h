@@ -16,23 +16,23 @@ enum class SettingType {none,
                         boolean,    // as int
                         integer,    // as int
                         command,    // as int
-                        int_menu,   // as int + branches
+                        menu,       // as int + branches
                         binary,     // as int + branches
                         indicator,  // as int + branches
                         floating,   // as double
-                        floating_precise, // as PreciseFloat
+                        precise,    // as PreciseFloat
                         text,          // as text
                         color,         // as text
-                        file_path,     // as text
-                        dir_path,      // as text
+                        file,          // as text
+                        dir,           // as text
                         detector,      // as text DOES NOT SCALE
                         time,          // as ptime
-                        time_duration, // as time_duration
+                        duration, // as time_duration
                         pattern        // as Pattern
                        };
 
-SettingType to_type(const std::string &type);
-std::string to_string(SettingType);
+SettingType from_string(const std::string &type);
+std::string to_string(const SettingType& t);
 
 
 class SettingMeta
@@ -50,10 +50,11 @@ public:
   SettingType type() const;
 
   void set_flag(std::string f);
+  bool has_flag(std::string f);
   void remove_flag(std::string f);
   void set_flags(std::initializer_list<std::string> fs);
-  bool has_flag(std::string f);
 
+  void set_enum(int32_t idx, std::string val);
   std::string enum_name(int32_t idx) const;
   std::list<std::string> enum_names() const;
 
@@ -66,11 +67,7 @@ public:
   TT T step() const;
 
   std::string value_range() const;
-  std::string debug(std::string prepend = std::string()) const;
-
-  //deprecate?
-  bool operator!= (const SettingMeta& other) const;
-  bool operator== (const SettingMeta& other) const;
+  std::string debug(std::string prepend = "") const;
 
   friend void to_json(json& j, const SettingMeta &s);
   friend void from_json(const json& j, SettingMeta &s);

@@ -5,7 +5,7 @@
 
 namespace DAQuiri {
 
-SettingType to_type(const std::string &type)
+SettingType from_string(const std::string &type)
 {
   if (type == "boolean")
     return SettingType::boolean;
@@ -17,24 +17,24 @@ SettingType to_type(const std::string &type)
     return SettingType::pattern;
   else if (type == "floating")
     return SettingType::floating;
-  else if (type == "floating_precise")
-    return SettingType::floating_precise;
+  else if (type == "precise")
+    return SettingType::precise;
   else if (type == "text")
     return SettingType::text;
   else if (type == "color")
     return SettingType::color;
   else if (type == "time")
     return SettingType::time;
-  else if (type == "time_duration")
-    return SettingType::time_duration;
+  else if (type == "duration")
+    return SettingType::duration;
   else if (type == "detector")
     return SettingType::detector;
-  else if (type == "file_path")
-    return SettingType::file_path;
-  else if (type == "dir_path")
-    return SettingType::dir_path;
-  else if (type == "int_menu")
-    return SettingType::int_menu;
+  else if (type == "file")
+    return SettingType::file;
+  else if (type == "dir")
+    return SettingType::dir;
+  else if (type == "menu")
+    return SettingType::menu;
   else if (type == "command")
     return SettingType::command;
   else if (type == "stem")
@@ -45,41 +45,41 @@ SettingType to_type(const std::string &type)
     return SettingType::none;
 }
 
-std::string to_string(SettingType type)
+std::string to_string(const SettingType &t)
 {
-  if (type == SettingType::boolean)
+  if (t == SettingType::boolean)
     return "boolean";
-  else if (type == SettingType::integer)
+  else if (t == SettingType::integer)
     return "integer";
-  else if (type == SettingType::binary)
+  else if (t == SettingType::binary)
     return "binary";
-  else if (type == SettingType::pattern)
+  else if (t == SettingType::pattern)
     return "pattern";
-  else if (type == SettingType::floating)
+  else if (t == SettingType::floating)
     return "floating";
-  else if (type == SettingType::floating_precise)
-    return "floating_precise";
-  else if (type == SettingType::text)
+  else if (t == SettingType::precise)
+    return "precise";
+  else if (t == SettingType::text)
     return "text";
-  else if (type == SettingType::color)
+  else if (t == SettingType::color)
     return "color";
-  else if (type == SettingType::detector)
+  else if (t == SettingType::detector)
     return "detector";
-  else if (type == SettingType::time)
+  else if (t == SettingType::time)
     return "time";
-  else if (type == SettingType::time_duration)
-    return "time_duration";
-  else if (type == SettingType::file_path)
-    return "file_path";
-  else if (type == SettingType::dir_path)
-    return "dir_path";
-  else if (type == SettingType::command)
+  else if (t == SettingType::duration)
+    return "duration";
+  else if (t == SettingType::file)
+    return "file";
+  else if (t == SettingType::dir)
+    return "dir";
+  else if (t == SettingType::command)
     return "command";
-  else if (type == SettingType::int_menu)
-    return "int_menu";
-  else if (type == SettingType::indicator)
+  else if (t == SettingType::menu)
+    return "menu";
+  else if (t == SettingType::indicator)
     return "indicator";
-  else if (type == SettingType::stem)
+  else if (t == SettingType::stem)
     return "stem";
   else
     return "";
@@ -96,20 +96,6 @@ SettingMeta::SettingMeta(std::string id, SettingType type, std::string name)
   contents_["name"] = name;
 }
 
-bool SettingMeta::operator!= (const SettingMeta& other) const
-{
-  return !operator==(other);
-}
-
-bool SettingMeta::operator== (const SettingMeta& other) const
-{
-  if (id_ != other.id_) return false;
-  if (contents_ != other.contents_) return false;
-  if (enum_map_ != other.enum_map_) return false;
-  if (flags_ != other.flags_) return false;
-  return true;
-}
-
 std::string SettingMeta::id() const
 {
   return id_;
@@ -118,6 +104,11 @@ std::string SettingMeta::id() const
 SettingType SettingMeta::type() const
 {
   return type_;
+}
+
+void SettingMeta::set_enum(int32_t idx, std::string val)
+{
+  enum_map_[idx] = val;
 }
 
 std::string SettingMeta::enum_name(int32_t idx) const
@@ -225,7 +216,7 @@ bool SettingMeta::numeric() const
 {
   return ((type_ == SettingType::integer)
           || (type_ == SettingType::floating)
-          || (type_ == SettingType::floating_precise));
+          || (type_ == SettingType::precise));
 }
 
 void to_json(json& j, const SettingMeta &s)
@@ -238,7 +229,7 @@ void to_json(json& j, const SettingMeta &s)
 
   if ((s.type_ == SettingType::binary) ||
       (s.type_ == SettingType::indicator) ||
-      (s.type_ == SettingType::int_menu) ||
+      (s.type_ == SettingType::menu) ||
       (s.type_ == SettingType::stem))
     for (auto &q : s.enum_map_)
      j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
@@ -249,8 +240,8 @@ void to_json(json& j, const SettingMeta &s)
 
 void from_json(const json& j, SettingMeta &s)
 {
-  s.id_          = j["id"];
-  s.type_ = to_type(j["type"]);
+  s.id_   = j["id"];
+  s.type_ = from_string(j["type"]);
 
   if (j.count("items"))
     for (auto it : j["items"])

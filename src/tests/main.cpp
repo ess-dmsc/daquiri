@@ -5,6 +5,7 @@
 #include "event_test.h"
 #include "status_test.h"
 #include "pattern_test.h"
+#include "setting_meta_test.h"
 //#include "H5CC_Common.h"
 
 int main(int argc, char **argv)

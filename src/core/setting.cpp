@@ -149,7 +149,7 @@ std::string Setting::val_to_string() const
       ss << "False";
   }
   else if ((metadata.type() == SettingType::integer) ||
-           (metadata.type() == SettingType::int_menu) ||
+           (metadata.type() == SettingType::menu) ||
            (metadata.type() == SettingType::indicator) )
     ss << std::to_string(value_int);
   else if (metadata.type() == SettingType::binary)
@@ -157,32 +157,34 @@ std::string Setting::val_to_string() const
     ss << std::to_string(value_int);
   else if (metadata.type() == SettingType::floating)
     ss << std::setprecision(std::numeric_limits<double>::max_digits10) << value_dbl;
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
     ss << std::setprecision(std::numeric_limits<PreciseFloat>::max_digits10) << value_precise;
   else if (metadata.type() == SettingType::pattern)
     ss << value_pattern.debug();
   else if ((metadata.type() == SettingType::text) ||
            (metadata.type() == SettingType::color) ||
            (metadata.type() == SettingType::detector) ||
-           (metadata.type() == SettingType::file_path) ||
-           (metadata.type() == SettingType::dir_path))
+           (metadata.type() == SettingType::file) ||
+           (metadata.type() == SettingType::dir))
     ss << value_text;
-  else if (metadata.type() == SettingType::time) {
+  else if (metadata.type() == SettingType::time)
+  {
     if (value_time.is_not_a_date_time())
       ss << "INVALID";
     else
       ss << boost::posix_time::to_iso_extended_string(value_time);
   }
-  else if (metadata.type() == SettingType::time_duration)
+  else if (metadata.type() == SettingType::duration)
     ss << boost::posix_time::to_simple_string(value_duration);
   return ss.str();
 }
 
 std::string Setting::val_to_pretty_string() const
 {
-  if ((metadata.type() == SettingType::time_duration) && !value_duration.is_not_a_date_time())
+  if ((metadata.type() == SettingType::duration)
+      && !value_duration.is_not_a_date_time())
     return very_simple(value_duration);
-  else if (metadata.type() == SettingType::int_menu)
+  else if (metadata.type() == SettingType::menu)
     return metadata.enum_name(value_int);
   else if (metadata.type() == SettingType::indicator)
   {
@@ -384,7 +386,7 @@ void Setting::enforce_limits()
     value_dbl = std::min(metadata.max<double>(), value_dbl);
     value_dbl = std::max(metadata.min<double>(), value_dbl);
   }
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
   {
     value_precise = std::min(metadata.max<PreciseFloat>(), value_precise);
     value_precise = std::max(metadata.min<PreciseFloat>(), value_precise);
@@ -499,7 +501,7 @@ double Setting::get_number()
     return static_cast<double>(value_int);
   else if (metadata.type() == SettingType::floating)
     return value_dbl;
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
     //    return value_precise.convert_to<double>();
     return static_cast<double>(value_precise);
   return std::numeric_limits<double>::quiet_NaN();
@@ -511,7 +513,7 @@ void Setting::set_number(double val)
     value_int = val;
   else if (metadata.type() == SettingType::floating)
     value_dbl = val;
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
     value_precise = val;
   enforce_limits();
 }
@@ -531,7 +533,7 @@ Setting& Setting::operator++()
     if (value_dbl > metadata.max<int64_t>())
       value_dbl = metadata.max<int64_t>();
   }
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
   {
     value_precise += metadata.step<int64_t>();
     if (value_precise > metadata.max<int64_t>())
@@ -554,7 +556,7 @@ Setting& Setting::operator--()
     if (value_dbl < metadata.min<int64_t>())
       value_dbl = metadata.min<int64_t>();
   }
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
   {
     value_precise -= metadata.step<int64_t>();
     if (value_precise < metadata.min<int64_t>())
@@ -583,18 +585,16 @@ json Setting::val_to_json() const
   if (metadata.type() == SettingType::boolean)
     return json(bool(value_int));
   else if ((metadata.type() == SettingType::integer) ||
-           (metadata.type() == SettingType::int_menu) ||
+           (metadata.type() == SettingType::menu) ||
+           (metadata.type() == SettingType::binary) ||
            (metadata.type() == SettingType::indicator) )
     return json(value_int);
-  else if (metadata.type() == SettingType::binary)
-    //    ss << itohex64(value_int);
-    return json(value_int);
-  else if (metadata.type() == SettingType::floating)
-    return json(value_dbl);
-  else if (metadata.type() == SettingType::floating_precise)
-    return json(value_precise);
   else if (metadata.type() == SettingType::pattern)
     return json(value_pattern);
+  else if (metadata.type() == SettingType::floating)
+    return json(value_dbl);
+  else if (metadata.type() == SettingType::precise)
+    return json(value_precise);
   else
     return json(val_to_string());
 }
@@ -604,27 +604,25 @@ void Setting::val_from_json(const json &j)
   if (metadata.type() == SettingType::boolean)
     value_int = j.get<bool>();
   else if ((metadata.type() == SettingType::integer) ||
-           (metadata.type() == SettingType::int_menu) ||
+           (metadata.type() == SettingType::menu) ||
+           (metadata.type() == SettingType::binary) ||
            (metadata.type() == SettingType::indicator) )
     value_int = j.get<int64_t>();
   else if (metadata.type() == SettingType::pattern)
     value_pattern = j;
-  else if (metadata.type() == SettingType::binary)
-    value_int = j.get<int64_t>();
-  //    ss << itohex64(value_int);
   else if (metadata.type() == SettingType::floating)
     value_dbl = j.get<double>();
-  else if (metadata.type() == SettingType::floating_precise)
+  else if (metadata.type() == SettingType::precise)
     value_precise = j;
   else if (metadata.type() == SettingType::time)
     value_time = from_iso_extended(j.get<std::string>());
-  else if (metadata.type() == SettingType::time_duration)
+  else if (metadata.type() == SettingType::duration)
     value_duration = boost::posix_time::duration_from_string(j.get<std::string>());
   else if ((metadata.type() == SettingType::text) ||
            (metadata.type() == SettingType::detector) ||
            (metadata.type() == SettingType::color) ||
-           (metadata.type() == SettingType::file_path) ||
-           (metadata.type() == SettingType::dir_path))
+           (metadata.type() == SettingType::file) ||
+           (metadata.type() == SettingType::dir))
     value_text = j.get<std::string>();
 }
 
@@ -653,7 +651,7 @@ void to_json(json& j, const Setting &s)
 void from_json(const json& j, Setting &s)
 {
   s.id_ = j["id"];
-  s.metadata = SettingMeta(s.id_, to_type(j["type"]));
+  s.metadata = SettingMeta(s.id_, from_string(j["type"]));
 
   if (j.count("metadata"))
     s.metadata = j["metadata"];
