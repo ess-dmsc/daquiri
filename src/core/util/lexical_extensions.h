@@ -4,18 +4,6 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 
-const std::string k_branch_mid = "\u251C\u2500";
-const std::string k_branch_end = "\u2514\u2500";
-const std::string k_branch_pre = "\u2502 ";
-
-const std::string k_branch_mid_A = "\u2560\u2550";
-const std::string k_branch_end_A = "\u255A\u2550";
-const std::string k_branch_pre_A = "\u2551 ";
-
-const std::string k_branch_mid_B = "\u2523\u2501";
-const std::string k_branch_end_B = "\u2517\u2501";
-const std::string k_branch_pre_B = "\u2503 ";
-
 inline std::string to_max_precision(double number)
 {
   std::stringstream ss;
@@ -23,7 +11,8 @@ inline std::string to_max_precision(double number)
   return ss.str();
 }
 
-inline std::string to_str_precision(double number, int precision = -1) {
+inline std::string to_str_precision(double number, int precision = -1)
+{
   std::ostringstream ss;
   if (precision < 0)
     ss << number;
@@ -32,20 +21,8 @@ inline std::string to_str_precision(double number, int precision = -1) {
   return ss.str();
 }
 
-inline std::string trim_all(std::string text)
+inline std::string to_str_decimals(double number, int decimals = 0)
 {
-  std::istringstream iss(text);
-  text = "";
-  std::string s;
-  while(iss >> s)
-  {
-    if ( text != "" ) text += " " + s;
-    else text = s;
-  }
-  return text;
-}
-
-inline std::string to_str_decimals(double number, int decimals = 0) {
   std::ostringstream ss;
   ss << std::fixed << std::setprecision(decimals) << number;
   return ss.str();

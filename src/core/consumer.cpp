@@ -1,6 +1,6 @@
 #include "consumer.h"
-#include "util.h"
 #include "h5json.h"
+#include "ascii_tree.h"
 
 namespace DAQuiri {
 
@@ -215,19 +215,21 @@ std::string Consumer::debug() const
 
 //change stuff
 
-void Consumer::set_attribute(const Setting &setting) {
+void Consumer::set_attribute(const Setting &setting, bool greedy)
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
-  metadata_.set_attribute(setting);
+  metadata_.set_attribute(setting, greedy);
   changed_ = true;
 }
 
-void Consumer::set_attributes(const Setting &settings) {
+void Consumer::set_attributes(const Setting &settings)
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
-  metadata_.set_attributes(settings);
+  metadata_.set_attributes(settings.branches.data(), true);
   changed_ = true;
 }
 

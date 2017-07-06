@@ -11,15 +11,14 @@ public:
   ConsumerMetadata(std::string tp, std::string descr, uint16_t dim,
            std::list<std::string> itypes, std::list<std::string> otypes);
 
-  // read & write
+  // attributes
+  Setting attributes() const;
   Setting get_attribute(std::string setting) const;
   Setting get_attribute(std::string setting, int32_t idx) const;
   Setting get_attribute(Setting setting) const;
-  Setting get_all_attributes() const;
-  void set_attribute(const Setting &setting);
-
-  Setting attributes() const;
-  void set_attributes(const Setting &settings);
+  Setting get_all_attributes() const;  
+  void set_attribute(const Setting &setting, bool greedy);
+  void set_attributes(const std::list<Setting> &s, bool greedy);
   void overwrite_all_attributes(Setting settings);
 
   //read only

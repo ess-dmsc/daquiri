@@ -12,12 +12,19 @@ enum Match
 {
   id      = 1 << 0,
   name    = 1 << 1,
-  address = 1 << 2,
+  address = 1 << 2, //deprecate?
   indices = 1 << 3
 };
 
-inline Match operator|(Match a, Match b) {return static_cast<Match>(static_cast<int>(a) | static_cast<int>(b));}
-inline Match operator&(Match a, Match b) {return static_cast<Match>(static_cast<int>(a) & static_cast<int>(b));}
+inline Match operator|(Match a, Match b)
+{
+  return static_cast<Match>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+inline Match operator&(Match a, Match b)
+{
+  return static_cast<Match>(static_cast<int>(a) & static_cast<int>(b));
+}
 
 class Setting;
 
@@ -42,13 +49,14 @@ public:
   void set_indices(std::initializer_list<int32_t> l);
   bool has_index(int32_t i) const;
 
-  void set_value(const Setting &other);
-  bool set_setting_r(const Setting &setting, Match flags);
-  Setting get_setting(Setting address, Match flags) const;
-  void del_setting(Setting address, Match flags);
+  void set_val(const Setting &other);
+  void set(const Setting &s, Match m, bool greedy = false);
+  //template for all containers?
+  void set(const std::list<Setting> &s, Match m, bool greedy = false);
   bool has(Setting address, Match flags) const;
+  void del_setting(Setting address, Match flags);
+  Setting get_setting(Setting address, Match flags) const;
   std::list<Setting> find_all(const Setting &setting, Match flags) const;
-  void set_all(const std::list<Setting> &settings, Match flags);
 
   void hide(bool h = true);
 
@@ -97,6 +105,8 @@ private:
 
   bool retrieve_one_setting(Setting&, const Setting&, Match flags) const;
   void delete_one_setting(const Setting&, Setting&, Match flags);
+  bool set_first(const Setting &setting, Match flags);
+  void set_all(const Setting &setting, Match flags);
 
   json val_to_json() const;
   void val_from_json(const json &j);

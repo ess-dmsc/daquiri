@@ -1,7 +1,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "setting_metadata.h"
-#include "util.h"
 
 namespace DAQuiri {
 

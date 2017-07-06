@@ -37,7 +37,7 @@ public:
 
   void load_optimization();
 
-  void set_setting(Setting address, Match flags);
+  void set_setting(Setting address, Match flags, bool greedy);
 
   /////SETTINGS/////
   Setting pull_settings() const;

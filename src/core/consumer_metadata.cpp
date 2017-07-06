@@ -1,5 +1,5 @@
 #include "consumer_metadata.h"
-#include "util.h"
+#include "ascii_tree.h"
 
 namespace DAQuiri {
 
@@ -74,9 +74,9 @@ Setting ConsumerMetadata::get_attribute(std::string setting, int32_t idx) const
   return attributes_.get_setting(find, Match::id | Match::indices);
 }
 
-void ConsumerMetadata::set_attribute(const Setting &setting)
+void ConsumerMetadata::set_attribute(const Setting &setting, bool greedy)
 {
-  attributes_.set_setting_r(setting, Match::id | Match::indices);
+  attributes_.set(setting, Match::id | Match::indices, greedy);
 }
 
 Setting ConsumerMetadata::get_all_attributes() const
@@ -89,13 +89,10 @@ Setting ConsumerMetadata::attributes() const
   return attributes_;
 }
 
-void ConsumerMetadata::set_attributes(const Setting &settings)
+void ConsumerMetadata::set_attributes(const std::list<Setting> &s, bool greedy)
 {
-  if (settings.branches.size())
-    for (auto &s : settings.branches.my_data_)
-      set_attributes(s);
-  else if (attributes_.has(settings, Match::id | Match::indices))
-    set_attribute(settings);
+  for (auto &ss : s)
+    set_attribute(ss, greedy);
 }
 
 void ConsumerMetadata::overwrite_all_attributes(Setting settings)
@@ -140,7 +137,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
   if (limit < 1)
     limit = 1;
 
-  for (auto &a : attributes_.branches.my_data_)
+  for (auto &a : attributes_.branches)
     if (a.metadata().type() == SettingType::pattern)
     {
       auto p = a.pattern();
@@ -150,7 +147,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
     else if (a.metadata().type() == SettingType::stem)
     {
       Setting prototype;
-      for (auto &p : a.branches.my_data_)
+      for (auto &p : a.branches)
         if (p.has_index(-1))
           prototype = p;
       if (prototype.metadata().type() == SettingType::stem)
@@ -163,7 +160,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
         for (int32_t i=0; i < limit; ++i)
         {
           prototype.set_indices({i});
-          for (auto &p : prototype.branches.my_data_)
+          for (auto &p : prototype.branches)
             p.set_indices({i});
           a.branches.add_a(prototype);
           //          a.indices.insert(i);
@@ -174,7 +171,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
 
 bool ConsumerMetadata::chan_relevant(uint16_t chan) const
 {
-  for (const Setting &s : attributes_.branches.my_data_)
+  for (const Setting &s : attributes_.branches)
     if ((s.metadata().type() == SettingType::pattern) &&
         (s.pattern().relevant(chan)))
       return true;

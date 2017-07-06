@@ -9,13 +9,34 @@ using namespace nlohmann;
 
 #define TT template<typename T>
 
-TT class Container {
+TT class Container
+{
+  using container_t = typename std::list<T>;
 public:
+  using iterator = typename container_t::iterator;
+  using const_iterator = typename container_t::const_iterator;
+
   Container() {}
 
   bool empty() const;
   size_t size() const;
   void clear();
+  inline std::list<T>& data()
+  {
+    return my_data_;
+  }
+
+  inline const std::list<T>& data() const
+  {
+    return my_data_;
+  }
+
+  iterator begin() { return my_data_.begin(); }
+  iterator end() { return my_data_.end(); }
+  const_iterator begin() const { return my_data_.begin(); }
+  const_iterator end() const { return my_data_.end(); }
+  const_iterator cbegin() const { return my_data_.cbegin(); }
+  const_iterator cend() const { return my_data_.cend(); }
 
   bool operator!= (const Container& other) const;
   bool operator== (const Container& other) const;
@@ -55,6 +76,7 @@ public:
       t.my_data_.push_back(it);
   }
 
+private:
   std::list<T> my_data_;
 };
 

@@ -1,7 +1,6 @@
 #include "project.h"
 #include "consumer_factory.h"
 #include "custom_logger.h"
-#include "util.h"
 
 #include <fstream>
 #include <boost/filesystem/convenience.hpp>
@@ -429,18 +428,19 @@ void Project::import_spn(std::string file_name)
   ConsumerMetadata temp = ConsumerFactory::singleton().create_prototype("1D");
   Setting res = temp.get_attribute("resolution");
   res.set_number(12);
-  temp.set_attribute(res);
+  temp.set_attribute(res, false);
   Setting pattern;
   pattern = temp.get_attribute("pattern_coinc");
   pattern.set_pattern(Pattern(1, {true}));
-  temp.set_attribute(pattern);
+  temp.set_attribute(pattern, false);
   pattern = temp.get_attribute("pattern_add");
   pattern.set_pattern(Pattern(1, {true}));
-  temp.set_attribute(pattern);
+  temp.set_attribute(pattern, false);
 
   uint32_t one;
   int spectra_count = 0;
-  while (myfile.tellg() != length) {
+  while (myfile.tellg() != length)
+  {
     //for (int j=0; j<150; ++j) {
     std::vector<uint32_t> data;
     int64_t totalcount = 0;
@@ -457,7 +457,7 @@ void Project::import_spn(std::string file_name)
     Setting name;
     name = temp.get_attribute("name");
     name = boost::filesystem::path(file_name).filename().string() + "[" + std::to_string(spectra_count++) + "]";
-    temp.set_attribute(name);
+    temp.set_attribute(name, false);
     SinkPtr spectrum = ConsumerFactory::singleton().create_from_prototype(temp);
     spectrum->set_detectors(dets);
     for (size_t i=0; i < data.size(); ++i) {

@@ -1,5 +1,5 @@
 #include "detector.h"
-#include "util.h"
+#include "ascii_tree.h"
 
 namespace DAQuiri {
 
@@ -26,7 +26,7 @@ std::string Detector::type() const
 
 std::list<Setting> Detector::optimizations() const
 {
-  return settings_.branches.my_data_;
+  return settings_.branches.data();
 }
 
 void Detector::set_name(const std::string& n)

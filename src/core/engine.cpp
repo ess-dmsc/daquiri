@@ -69,7 +69,7 @@ void Engine::initialize(std::string profile_path, std::string settings_path)
   die();
   devices_.clear();
 
-  for (auto &q : tree.branches.my_data_)
+  for (auto &q : tree.branches)
   {
     if (q.id() != "Detectors")
     {
@@ -126,7 +126,7 @@ void Engine::push_settings(const Setting& newsettings) {
 
 bool Engine::read_settings_bulk()
 {
-  for (auto &set : settings_tree_.branches.my_data_)
+  for (auto &set : settings_tree_.branches)
   {
     if (set.id() == "Detectors")
     {
@@ -160,7 +160,7 @@ bool Engine::read_settings_bulk()
 
 bool Engine::write_settings_bulk()
 {
-  for (auto &set : settings_tree_.branches.my_data_)
+  for (auto &set : settings_tree_.branches)
   {
     if (set.id() == "Detectors")
       rebuild_structure(set);
@@ -271,11 +271,11 @@ void Engine::set_detector(size_t ch, Detector det)
   detectors_[ch] = det;
   //DBG << "set det #" << ch << " to  " << det.name_;
 
-  for (auto &set : settings_tree_.branches.my_data_)
+  for (auto &set : settings_tree_.branches)
   {
     if (set.id() == "Detectors")
     {
-      for (auto &q : set.branches.my_data_)
+      for (auto &q : set.branches)
       {
         if (q.has_index(ch))
         {
@@ -314,20 +314,19 @@ void Engine::load_optimization(size_t i)
     if (s.metadata().has_flag("readonly"))
       continue;
     s.set_indices({int32_t(i)});
-    settings_tree_.set_setting_r(s, Match::id | Match::indices);
+    settings_tree_.set(s, Match::id | Match::indices, true);
   }
 }
 
-void Engine::set_setting(Setting address, Match flags) {
-  if (settings_tree_.set_setting_r(address, flags))
-  {
-//    DBG << "<Engine> Success setting " << address.id_;
-  }
+void Engine::set_setting(Setting address, Match flags, bool greedy)
+{
+  settings_tree_.set(address, flags, greedy);
   write_settings_bulk();
   read_settings_bulk();
 }
 
-void Engine::get_all_settings() {
+void Engine::get_all_settings()
+{
   aggregate_status_ = ProducerStatus(0);
   for (auto &q : devices_) {
     q.second->get_all_settings();

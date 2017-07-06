@@ -1,5 +1,4 @@
 #include "spill.h"
-#include "util.h"
 
 namespace DAQuiri {
 

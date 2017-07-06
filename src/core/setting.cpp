@@ -2,7 +2,7 @@
 #include <boost/lexical_cast.hpp>
 #include "bin_hex_print.h"
 #include "time_extensions.h"
-#include "util.h"
+#include "ascii_tree.h"
 
 namespace DAQuiri {
 
@@ -257,30 +257,58 @@ std::string Setting::debug(std::string prepend) const
   return ret;
 }
 
-void Setting::set_value(const Setting &other)
+void Setting::set_val(const Setting &other)
 {
   value_int = other.value_int;
-  value_text = other.value_text;
   value_dbl = other.value_dbl;
+  value_precise = other.value_precise;
+  value_text = other.value_text;
   value_time = other.value_time;
   value_duration = other.value_duration;
-  value_precise = other.value_precise;
   value_pattern = other.value_pattern;
 }
 
-bool Setting::set_setting_r(const Setting &setting, Match flags)
+bool Setting::set_first(const Setting &setting, Match flags)
 {
   if (this->compare(setting, flags))
   {
-    this->set_value(setting);
+    this->set_val(setting);
     return true;
-  } else if ((this->metadata_.type() == SettingType::stem)
-             || (this->metadata_.type() == SettingType::indicator)) {
-    for (auto &q : this->branches.my_data_)
-      if (q.set_setting_r(setting, flags))
+  }
+  else if ((this->metadata_.type() == SettingType::stem)
+           || (this->metadata_.type() == SettingType::indicator))
+  {
+    for (auto &q : this->branches)
+      if (q.set_first(setting, flags))
         return true;
   }
   return false;
+}
+
+void Setting::set_all(const Setting &setting, Match flags)
+{
+  if (this->compare(setting, flags))
+    this->set_val(setting);
+  for (auto &q : this->branches)
+    q.set_all(setting, flags);
+}
+
+void Setting::set(const Setting &s, Match m, bool greedy)
+{
+  if (greedy)
+    set_all(s, m);
+  else
+    set_first(s, m);
+}
+
+void Setting::set(const std::list<Setting> &s, Match m, bool greedy)
+{
+  if (greedy)
+    for (const auto& ss : s)
+      set_all(ss, m);
+  else
+    for (const auto& ss : s)
+      set_first(ss, m);
 }
 
 
@@ -292,7 +320,7 @@ bool Setting::retrieve_one_setting(Setting &det, const Setting& root,
     return true;
   } else if ((root.metadata_.type() == SettingType::stem)
              || (root.metadata_.type() == SettingType::indicator)) {
-    for (auto &q : root.branches.my_data_)
+    for (auto &q : root.branches)
       if (retrieve_one_setting(det, q, flags))
         return true;
   }
@@ -311,22 +339,11 @@ std::list<Setting> Setting::find_all(const Setting &setting, Match flags) const
 {
   std::list<Setting> result;
   if (metadata_.type() == SettingType::stem)
-    for (auto &q : branches.my_data_)
+    for (auto &q : branches)
       result.splice(result.end(), q.find_all(setting, flags));
   else if (compare(setting, flags) && (metadata_.type() != SettingType::detector))
     result.push_back(*this);
   return result;
-}
-
-void Setting::set_all(const std::list<Setting> &settings, Match flags)
-{
-  if (metadata_.type() == SettingType::stem)
-    for (auto &q : branches.my_data_)
-      q.set_all(settings, flags);
-  else
-    for (auto &q : settings)
-      if (compare(q, flags) && (metadata_.type() != SettingType::detector))
-        set_value(q);
 }
 
 bool Setting::has(Setting address, Match flags) const
@@ -338,7 +355,7 @@ void Setting::delete_one_setting(const Setting &det, Setting& root, Match flags)
 {
   Setting truncated = root;
   truncated.branches.clear();
-  for (auto &q : root.branches.my_data_)
+  for (auto &q : root.branches)
   {
     if (!q.compare(det, flags))
     {
@@ -468,7 +485,7 @@ void Setting::enable_if_flag(bool enable, const std::string &flag)
       metadata_.remove_flag("readonly");
   }
   if ((metadata_.type() == SettingType::stem) && !branches.empty())
-    for (auto &q : branches.my_data_)
+    for (auto &q : branches)
       q.enable_if_flag(enable, flag);
 }
 
@@ -512,7 +529,7 @@ void Setting::cull_readonly()
 
 void Setting::strip_metadata()
 {
-  for (auto &q : branches.my_data_)
+  for (auto &q : branches)
     q.strip_metadata();
   metadata_ = metadata_.stripped();
 }
