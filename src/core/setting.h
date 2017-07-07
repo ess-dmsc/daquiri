@@ -11,9 +11,10 @@ namespace DAQuiri {
 enum Match
 {
   id      = 1 << 0,
-  name    = 1 << 1,
+  name    = 1 << 1, //deprecate?
   address = 1 << 2, //deprecate?
-  indices = 1 << 3
+  indices = 1 << 3,
+  stype   = 1 << 4
 };
 
 inline Match operator|(Match a, Match b)
@@ -37,26 +38,29 @@ public:
   Setting(std::string id);
   Setting(SettingMeta meta);
 
+  explicit operator bool() const;
   std::string id() const;
   SettingMeta metadata() const;
-  explicit operator bool() const;
+  bool is(SettingType type) const;
 
   bool shallow_equals(const Setting& other) const;
   bool operator== (const Setting& other) const;
   bool operator!= (const Setting& other) const;
-  bool compare(const Setting &other, Match flags) const;
+  bool compare(const Setting &other, Match m) const;
 
+  void clear_indices();
   void set_indices(std::initializer_list<int32_t> l);
+  void add_indices(std::initializer_list<int32_t> l);
   bool has_index(int32_t i) const;
 
   void set_val(const Setting &other);
   void set(const Setting &s, Match m, bool greedy = false);
   //template for all containers?
   void set(const std::list<Setting> &s, Match m, bool greedy = false);
-  bool has(Setting address, Match flags) const;
-  void del_setting(Setting address, Match flags);
-  Setting get_setting(Setting address, Match flags) const;
-  std::list<Setting> find_all(const Setting &setting, Match flags) const;
+  bool has(Setting address, Match m) const;
+  void erase(Setting address, Match m);
+  Setting find(Setting address, Match m) const;
+  std::list<Setting> find_all(const Setting &setting, Match m) const;
 
   void hide(bool h = true);
 
@@ -103,10 +107,13 @@ public:
 private:
   std::string val_to_string() const;
 
-  bool retrieve_one_setting(Setting&, const Setting&, Match flags) const;
-  void delete_one_setting(const Setting&, Setting&, Match flags);
-  bool set_first(const Setting &setting, Match flags);
-  void set_all(const Setting &setting, Match flags);
+  bool find_dfs(Setting& result, const Setting& root, Match m) const;
+  void erase_matches(const Setting&, Setting&, Match m);
+  bool set_first(const Setting &setting, Match m);
+  void set_all(const Setting &setting, Match m);
+  bool compare_indices(const Setting &other) const;
+
+  bool may_have_branches() const;
 
   json val_to_json() const;
   void val_from_json(const json &j);

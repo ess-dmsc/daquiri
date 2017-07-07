@@ -172,8 +172,7 @@ bool Engine::write_settings_bulk()
 
 void Engine::rebuild_structure(Setting &set)
 {
-  Setting totaldets =
-      set.get_setting(Setting("Total detectors"), Match::id);
+  Setting totaldets = set.find({"Total detectors"}, Match::id);
   int oldtotal = detectors_.size();
   int newtotal = totaldets.get_number();
   if (newtotal < 0)

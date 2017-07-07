@@ -59,19 +59,19 @@ std::string ConsumerMetadata::debug(std::string prepend) const
 
 Setting ConsumerMetadata::get_attribute(Setting setting) const
 {
-  return attributes_.get_setting(setting, Match::id | Match::indices);
+  return attributes_.find(setting, Match::id | Match::indices);
 }
 
 Setting ConsumerMetadata::get_attribute(std::string setting) const
 {
-  return attributes_.get_setting(Setting(setting), Match::id | Match::indices);
+  return attributes_.find(Setting(setting), Match::id | Match::indices);
 }
 
 Setting ConsumerMetadata::get_attribute(std::string setting, int32_t idx) const
 {
   Setting find(setting);
   find.set_indices({idx});
-  return attributes_.get_setting(find, Match::id | Match::indices);
+  return attributes_.find(find, Match::id | Match::indices);
 }
 
 void ConsumerMetadata::set_attribute(const Setting &setting, bool greedy)
@@ -152,7 +152,7 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
           prototype = p;
       if (prototype.metadata().type() == SettingType::stem)
       {
-        a.set_indices({});
+        a.clear_indices();
         a.branches.clear();
         prototype.hide(true);
         a.branches.add_a(prototype);

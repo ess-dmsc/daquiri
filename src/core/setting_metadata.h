@@ -16,18 +16,18 @@ enum class SettingType {none,
                         boolean,    // as int
                         integer,    // as int
                         command,    // as int
-                        menu,       // as int + branches
-                        binary,     // as int + branches
-                        indicator,  // as int + branches
                         floating,   // as double
                         precise,    // as PreciseFloat
+                        menu,       // as int + enum_map
+                        binary,     // as int + enem_map (+ branches)
+                        indicator,  // as int + branches
                         text,          // as text
                         color,         // as text
                         file,          // as text
                         dir,           // as text
                         detector,      // as text DOES NOT SCALE
                         time,          // as ptime
-                        duration, // as time_duration
+                        duration,      // as time_duration
                         pattern        // as Pattern
                        };
 
@@ -48,6 +48,7 @@ public:
 
   std::string id() const;
   SettingType type() const;
+  bool is(SettingType type) const;
 
   void set_flag(std::string f);
   bool has_flag(std::string f);

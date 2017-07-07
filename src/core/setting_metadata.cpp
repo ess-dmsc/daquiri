@@ -88,7 +88,8 @@ SettingMeta::SettingMeta(std::string id, SettingType type)
   : SettingMeta(id, type, id)
 {}
 
-SettingMeta::SettingMeta(std::string id, SettingType type, std::string name)
+SettingMeta::SettingMeta(std::string id, SettingType type,
+                         std::string name)
   : id_(id)
   , type_ (type)
 {
@@ -103,6 +104,11 @@ std::string SettingMeta::id() const
 SettingType SettingMeta::type() const
 {
   return type_;
+}
+
+bool SettingMeta::is(SettingType type) const
+{
+  return (type_ == type);
 }
 
 void SettingMeta::set_enum(int32_t idx, std::string val)
@@ -213,9 +219,9 @@ std::string SettingMeta::value_range() const
 
 bool SettingMeta::numeric() const
 {
-  return ((type_ == SettingType::integer)
-          || (type_ == SettingType::floating)
-          || (type_ == SettingType::precise));
+  return (is(SettingType::integer)
+          || is(SettingType::floating)
+          || is(SettingType::precise));
 }
 
 void to_json(json& j, const SettingMeta &s)
@@ -226,10 +232,10 @@ void to_json(json& j, const SettingMeta &s)
   if (!s.contents_.empty())
     j["contents_"] = s.contents_;
 
-  if ((s.type_ == SettingType::binary) ||
-      (s.type_ == SettingType::indicator) ||
-      (s.type_ == SettingType::menu) ||
-      (s.type_ == SettingType::stem))
+  if (s.is(SettingType::binary) ||
+      s.is(SettingType::indicator) ||
+      s.is(SettingType::menu) ||
+      s.is(SettingType::stem))
     for (auto &q : s.enum_map_)
      j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
 

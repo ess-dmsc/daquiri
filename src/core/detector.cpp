@@ -46,14 +46,14 @@ void Detector::add_optimizations(const std::list<Setting>& l,
   {
     if (writable_only && s.metadata().has_flag("readonly"))
       continue;
-    s.set_indices({});
+    s.clear_indices();
     settings_.branches.replace(s);
   }
 }
 
 Setting Detector::get_setting(std::string id) const
 {
-  return settings_.get_setting(Setting(id), Match::id);
+  return settings_.find({id}, Match::id);
 }
 
 void Detector::clear_optimizations()
