@@ -18,40 +18,33 @@ public:
 
   Container() {}
 
-  bool empty() const;
-  size_t size() const;
-  void clear();
-  inline std::list<T>& data()
-  {
-    return my_data_;
-  }
+  inline bool empty() const { return my_data_.empty(); }
+  inline size_t size() const { return my_data_.size(); }
+  inline void clear() { my_data_.clear(); }
+  inline std::list<T>& data() { return my_data_; }
+  inline const std::list<T>& data() const { return my_data_; }
 
-  inline const std::list<T>& data() const
-  {
-    return my_data_;
-  }
-
-  iterator begin() { return my_data_.begin(); }
-  iterator end() { return my_data_.end(); }
-  const_iterator begin() const { return my_data_.begin(); }
-  const_iterator end() const { return my_data_.end(); }
-  const_iterator cbegin() const { return my_data_.cbegin(); }
-  const_iterator cend() const { return my_data_.cend(); }
+  inline iterator begin() { return my_data_.begin(); }
+  inline iterator end() { return my_data_.end(); }
+  inline const_iterator begin() const { return my_data_.begin(); }
+  inline const_iterator end() const { return my_data_.end(); }
+  inline const_iterator cbegin() const { return my_data_.cbegin(); }
+  inline const_iterator cend() const { return my_data_.cend(); }
 
   bool operator!= (const Container& other) const;
   bool operator== (const Container& other) const;
 
-  bool has(const T& t) const;
-  bool has_a(const T& t) const;
+  bool has(const T& t) const;   //using deep compare
+  bool has_a(const T& t) const; //using shallow compare
   
-  void add(T t);
-  void add_a(T t);
-  void replace(T t);
+  void add(T t);   //using shallow compare
+  void add_a(T t); //force add
 
+  void replace(T t); //using shallow compare
   void replace(size_t i, T t);
  
-  void remove(const T &t);  //using deep compare
-  void remove_a(const T &t);   //using shallow compare
+  void remove(const T &t);   //using deep compare
+  void remove_a(const T &t); //using shallow compare
   void remove(size_t i);
     
   T get(T t) const;
@@ -60,7 +53,6 @@ public:
   void down(size_t i);
 
   std::vector<T> to_vector() const;
-
   void from_vector(std::vector<T> vec);
 
   inline friend void to_json(json& j, const Container<T>& t)
@@ -81,23 +73,6 @@ private:
 };
 
 
-
-
-
-TT bool Container<T>::empty() const
-{
-  return my_data_.empty();
-}
-
-TT size_t Container<T>::size() const
-{
-  return my_data_.size();
-}
-
-TT void Container<T>::clear()
-{
-  my_data_.clear();
-}
 
 TT bool Container<T>::operator!= (const Container& other) const
 {
@@ -152,7 +127,8 @@ TT void Container<T>::replace(T t)
     return;
   bool replaced = false;
   for (auto &q : my_data_)
-    if (q.shallow_equals(t)) {
+    if (q.shallow_equals(t))
+    {
       replaced = true;
       q = t;
     }
