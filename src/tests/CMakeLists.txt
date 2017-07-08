@@ -21,6 +21,7 @@ target_include_directories(
   PRIVATE ${h5cc_INCLUDE_DIRS}
   PRIVATE ${GTEST_INCLUDE_DIRS}
   PRIVATE ${core_INCLUDE_DIRS}
+  PRIVATE ${consumers_INCLUDE_DIRS}
 )
 
 target_link_libraries(

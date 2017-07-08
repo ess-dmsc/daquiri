@@ -6,13 +6,13 @@ TEST(Coincidence, Init)
   DAQuiri::Coincidence e;
   ASSERT_TRUE(e.empty());
 
-  DAQuiri::Coincidence e1(DAQuiri::Hit(), 20, 20);
+  DAQuiri::Coincidence e1(DAQuiri::Event(), 20, 20);
   ASSERT_FALSE(e1.empty());
 }
 
 TEST(Coincidence, Range)
 {
-  DAQuiri::Hit h;
+  DAQuiri::Event h;
   h.set_native_time(10);
   DAQuiri::Coincidence e(h, 20, 40);
 
@@ -48,7 +48,7 @@ TEST(Coincidence, Range)
 
 TEST(Coincidence, Add)
 {
-  DAQuiri::Hit h;
+  DAQuiri::Event h;
   h.set_native_time(10);
   DAQuiri::Coincidence e(h, 20, 40);
   ASSERT_EQ(10, e.lower_time().native());

@@ -37,6 +37,19 @@ public:
   Setting() {}
   Setting(std::string id);
   Setting(SettingMeta meta);
+  Setting(std::string sid, boost::posix_time::ptime v);
+  Setting(std::string sid, boost::posix_time::time_duration v);
+  Setting(std::string sid, Pattern v);
+  static Setting floating(std::string sid, double val);
+  static Setting precise(std::string sid, PreciseFloat val);
+  static Setting boolean(std::string sid, bool val);
+  static Setting integer(std::string sid, int64_t val);
+  static Setting text(std::string sid, std::string val);
+  static Setting color(std::string sid, std::string val);
+  static Setting file(std::string sid, std::string val);
+  static Setting dir(std::string sid, std::string val);
+  static Setting detector(std::string sid, std::string val);
+
 
   // id, type, metadata
   explicit operator bool() const;
@@ -53,13 +66,54 @@ public:
   bool operator!= (const Setting& other) const;
   bool compare(const Setting &other, Match m) const;
 
+
+
+  //time
+  void set_time(boost::posix_time::ptime v);
+  boost::posix_time::ptime time() const;
+
+  //duration
+  void set_duration(boost::posix_time::time_duration v);
+  boost::posix_time::time_duration duration() const;
+
+  //pattern
+  void set_pattern(Pattern v);
+  Pattern pattern() const;
+
+  //numerics
+  bool numeric() const;
+  double get_number() const;
+  void set_number(double);
+  // prefix
+  Setting& operator++();
+  Setting& operator--();
+  // postfix
+  Setting operator++(int);
+  Setting operator--(int);
+
+  // menu/indicator
+  void select(int64_t v);
+  int64_t selection() const;
+
+  //command/boolean
+  bool triggered() const;
+  void trigger();
+  void reset();
+
+  //text
+  void set_text(std::string val);
+  std::string get_text() const;
+
+
+
   // indices
   void clear_indices();
   void set_indices(std::initializer_list<int32_t> l);
   void add_indices(std::initializer_list<int32_t> l);
   bool has_index(int32_t i) const;
+  std::set<int32_t> indices() const;
 
-  // clone value
+  // assign value
   void set_val(const Setting &other);
 
   // recursive access
@@ -79,39 +133,13 @@ public:
   void cull_readonly();
   void enforce_limits();
 
+
+
   // to string
   std::string debug(std::string prepend = std::string()) const;
   std::string val_to_pretty_string() const;
   std::string indices_to_string(bool showblanks = false) const;
 
-  //time
-  void set_time(boost::posix_time::ptime v);
-  boost::posix_time::ptime time() const;
-
-  //duration
-  void set_duration(boost::posix_time::time_duration v);
-  boost::posix_time::time_duration duration() const;
-
-  //pattern
-  void set_pattern(Pattern v);
-  Pattern pattern() const;
-
-  //text
-  void set_text(std::string val);
-  std::string get_text() const;
-
-  // numerics
-  bool numeric() const;
-  double get_number();
-  void set_number(double);
-
-  // prefix
-  Setting& operator++();
-  Setting& operator--();
-
-  // postfix
-  Setting operator++(int);
-  Setting operator--(int);
 
   // serialization
   friend void to_json(json& j, const Setting &s);

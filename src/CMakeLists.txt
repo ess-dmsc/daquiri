@@ -44,11 +44,11 @@ list (APPEND json_INCLUDE_DIRS
 add_subdirectory(external/h5/source/h5cc)
 
 add_subdirectory(core)
+add_subdirectory(consumers)
 
 if (test)
   add_subdirectory(tests)
 endif()
 
-#add_subdirectory(consumers)
 #add_subdirectory(producers)
 #add_subdirectory(gui)

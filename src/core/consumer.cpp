@@ -19,26 +19,21 @@ Consumer::Consumer()
   app.set_val("description", "Plot appearance");
   attributes.branches.add(Setting(app));
 
-//  Setting rescale;
-//  rescale.id_ = "rescale";
-//  rescale.metadata.setting_type = SettingType::floating_precise;
-//  rescale.metadata.description = "Rescale factor";
-//  rescale.metadata.minimum = 0;
-//  rescale.metadata.maximum = 1e10;
-//  rescale.metadata.step = 1;
-//  rescale.value_precise = 1;
-//  attributes.branches.add(rescale);
+  SettingMeta rescale("rescale", SettingType::precise);
+  rescale.set_val("description", "Rescale factor");
+  rescale.set_val("min", 0);
+  Setting resc(rescale);
+  resc.set_number(1);
+  attributes.branches.add(resc);
 
   SettingMeta descr("description", SettingType::text);
   descr.set_val("description", "Description");
   attributes.branches.add(Setting(descr));
 
-//  Setting start_time;
-//  start_time.id_ = "start_time";
-//  start_time.metadata.setting_type = SettingType::time;
-//  start_time.metadata.description = "Start time";
-//  start_time.metadata.flags.insert("readonly");
-//  attributes.branches.add(start_time);
+  SettingMeta start_time("start_time", SettingType::time);
+  start_time.set_val("description", "Start time");
+  start_time.set_flag("readonly");
+  attributes.branches.add(start_time);
 
   metadata_.overwrite_all_attributes(attributes);
 }

@@ -13,22 +13,25 @@ namespace DAQuiri {
 
 enum class SettingType {none,
                         stem,       // as branches
+                        time,       // as ptime
+                        duration,   // as time_duration
+                        pattern,    // as Pattern
+
+                        floating,   // as double
+                        precise,    // as PreciseFloat
+
                         boolean,    // as int
                         integer,    // as int
                         command,    // as int
-                        floating,   // as double
-                        precise,    // as PreciseFloat
                         menu,       // as int + enum_map
                         binary,     // as int + enem_map (+ branches)
                         indicator,  // as int + branches
-                        text,          // as text
-                        color,         // as text
-                        file,          // as text
-                        dir,           // as text
-                        detector,      // as text DOES NOT SCALE
-                        time,          // as ptime
-                        duration,      // as time_duration
-                        pattern        // as Pattern
+
+                        text,       // as text
+                        color,      // as text
+                        file,       // as text
+                        dir,        // as text
+                        detector    // as text DOES NOT SCALE
                        };
 
 SettingType from_string(const std::string &type);

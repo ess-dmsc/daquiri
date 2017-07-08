@@ -218,45 +218,53 @@ bool Engine::die() {
   return success;
 }
 
-std::vector<Event> Engine::oscilloscope() {
+std::vector<Event> Engine::oscilloscope()
+{
   std::vector<Event> traces;
   traces.resize(detectors_.size());
 
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil)) {
+    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
+    {
       //DBG << "oscil > " << q.second->device_name();
       std::list<Event> trc = q.second->oscilloscope();
       for (auto &p : trc)
-        if ((p.source_channel() >= 0) && (p.source_channel() < static_cast<int16_t>(traces.size())))
-          traces[p.source_channel()] = p;
+        if ((p.channel() >= 0) && (p.channel() < static_cast<int16_t>(traces.size())))
+          traces[p.channel()] = p;
     }
   return traces;
 }
 
-bool Engine::daq_start(SynchronizedQueue<Spill*>* out_queue) {
+bool Engine::daq_start(SynchronizedQueue<Spill*>* out_queue)
+{
   bool success = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run)) {
+    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
+    {
       success |= q.second->daq_start(out_queue);
       //DBG << "daq_start > " << q.second->device_name();
     }
   return success;
 }
 
-bool Engine::daq_stop() {
+bool Engine::daq_stop()
+{
   bool success = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run)) {
+    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
+    {
       success |= q.second->daq_stop();
       //DBG << "daq_stop > " << q.second->device_name();
     }
   return success;
 }
 
-bool Engine::daq_running() {
+bool Engine::daq_running()
+{
   bool running = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run)) {
+    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
+    {
       running |= q.second->daq_running();
       //DBG << "daq_check > " << q.second->device_name();
     }

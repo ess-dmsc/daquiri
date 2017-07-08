@@ -35,7 +35,7 @@ struct Status
 private:
   StatusType               type_     {StatusType::running};
   int16_t                  channel_  {-1};
-  EventModel                 hit_model_;
+  EventModel               hit_model_;
   boost::posix_time::ptime time_;     //timestamp at end of spill
   std::map<std::string, PreciseFloat> stats_;
   

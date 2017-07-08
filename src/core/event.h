@@ -31,7 +31,7 @@ public:
   }
 
   //Accessors
-  inline const int16_t& source_channel() const
+  inline const int16_t& channel() const
   {
     return source_channel_;
   }

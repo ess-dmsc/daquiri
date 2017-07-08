@@ -58,6 +58,17 @@ bool Setting::has_index(int32_t i) const
   return indices_.count(i);
 }
 
+std::set<int32_t> Setting::indices() const
+{
+  return indices_;
+}
+
+Setting::Setting(std::string sid, boost::posix_time::ptime v)
+  : Setting(SettingMeta(sid, SettingType::time))
+{
+  value_time = v;
+}
+
 void Setting::set_time(boost::posix_time::ptime v)
 {
   value_time = v;
@@ -68,6 +79,12 @@ boost::posix_time::ptime Setting::time() const
   return value_time;
 }
 
+Setting::Setting(std::string sid, boost::posix_time::time_duration v)
+  : Setting(SettingMeta(sid, SettingType::duration))
+{
+  value_duration = v;
+}
+
 void Setting::set_duration(boost::posix_time::time_duration v)
 {
   value_duration = v;
@@ -76,6 +93,12 @@ void Setting::set_duration(boost::posix_time::time_duration v)
 boost::posix_time::time_duration Setting::duration() const
 {
   return value_duration;
+}
+
+Setting::Setting(std::string sid, Pattern v)
+  : Setting(SettingMeta(sid, SettingType::pattern))
+{
+  value_pattern = v;
 }
 
 void Setting::set_pattern(Pattern v)
@@ -432,6 +455,41 @@ void Setting::strip_metadata()
   metadata_ = metadata_.stripped();
 }
 
+Setting Setting::text(std::string sid, std::string val)
+{
+  Setting ret(SettingMeta(sid, SettingType::text));
+  ret.value_text = val;
+  return ret;
+}
+
+Setting Setting::color(std::string sid, std::string val)
+{
+  Setting ret(SettingMeta(sid, SettingType::color));
+  ret.value_text = val;
+  return ret;
+}
+
+Setting Setting::file(std::string sid, std::string val)
+{
+  Setting ret(SettingMeta(sid, SettingType::file));
+  ret.value_text = val;
+  return ret;
+}
+
+Setting Setting::dir(std::string sid, std::string val)
+{
+  Setting ret(SettingMeta(sid, SettingType::dir));
+  ret.value_text = val;
+  return ret;
+}
+
+Setting Setting::detector(std::string sid, std::string val)
+{
+  Setting ret(SettingMeta(sid, SettingType::detector));
+  ret.value_text = val;
+  return ret;
+}
+
 void Setting::set_text(std::string val)
 {
   value_text = val;
@@ -442,15 +500,44 @@ std::string Setting::get_text() const
   return value_text;
 }
 
-//For numerics
+// Numerics
+
+Setting Setting::floating(std::string sid, double val)
+{
+  Setting ret(SettingMeta(sid, SettingType::floating));
+  ret.value_dbl = val;
+  return ret;
+}
+
+Setting Setting::precise(std::string sid, PreciseFloat val)
+{
+  Setting ret(SettingMeta(sid, SettingType::precise));
+  ret.value_precise = val;
+  return ret;
+}
+
+Setting Setting::boolean(std::string sid, bool val)
+{
+  Setting ret(SettingMeta(sid, SettingType::boolean));
+  ret.value_int = val;
+  return ret;
+}
+
+Setting Setting::integer(std::string sid, int64_t val)
+{
+  Setting ret(SettingMeta(sid, SettingType::integer));
+  ret.value_int = val;
+  return ret;
+}
+
 bool Setting::numeric() const
 {
   return metadata_.numeric();
 }
 
-double Setting::get_number()
+double Setting::get_number() const
 {
-  if (is(SettingType::integer))
+  if (is(SettingType::integer) || is(SettingType::binary))
     return static_cast<double>(value_int);
   else if (is(SettingType::floating))
     return value_dbl;
@@ -469,6 +556,31 @@ void Setting::set_number(double val)
   else if (is(SettingType::precise))
     value_precise = val;
   enforce_limits();
+}
+
+void Setting::select(int64_t v)
+{
+  value_int = v;
+}
+
+int64_t Setting::selection() const
+{
+  return value_int;
+}
+
+bool Setting::triggered() const
+{
+  return value_int;
+}
+
+void Setting::trigger()
+{
+  value_int = 1;
+}
+
+void Setting::reset()
+{
+  value_int = 0;
 }
 
 // prefix

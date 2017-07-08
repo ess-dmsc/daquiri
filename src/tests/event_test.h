@@ -4,7 +4,7 @@
 TEST(Event, Init)
 {
   DAQuiri::Event h;
-  ASSERT_EQ(-1, h.source_channel());
+  ASSERT_EQ(-1, h.channel());
   ASSERT_EQ(DAQuiri::TimeStamp(), h.timestamp());
   ASSERT_EQ(0, h.value_count());
   ASSERT_EQ(0, h.trace_count());
@@ -15,7 +15,7 @@ TEST(Event, Init)
   hm.add_value("energy", 16);
   hm.add_trace("wave", {3});
   DAQuiri::Event h2(2, hm);
-  ASSERT_EQ(2, h2.source_channel());
+  ASSERT_EQ(2, h2.channel());
   ASSERT_EQ(DAQuiri::TimeBase(7,5),
             h2.timestamp().base());
   ASSERT_EQ(1, h2.value_count());
