@@ -8,8 +8,7 @@ class ConsumerMetadata
 {
 public:
   ConsumerMetadata();
-  ConsumerMetadata(std::string tp, std::string descr, uint16_t dim,
-           std::list<std::string> itypes, std::list<std::string> otypes);
+  ConsumerMetadata(std::string tp, std::string descr, uint16_t dim);
 
   // attributes
   Setting attributes() const;
@@ -25,8 +24,6 @@ public:
   std::string type() const {return type_;}
   std::string type_description() const {return type_description_;}
   uint16_t dimensions() const {return dimensions_;}
-  std::list<std::string> input_types() const {return input_types_;}
-  std::list<std::string> output_types() const {return output_types_;}
 
 
   void disable_presets();
@@ -47,8 +44,6 @@ private:
   std::string type_ {"invalid"};
   std::string type_description_;
   uint16_t dimensions_ {0};
-  std::list<std::string> input_types_;
-  std::list<std::string> output_types_;
 
   //can change these
   Setting attributes_ {"Options"};

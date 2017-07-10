@@ -19,14 +19,12 @@ class ConsumerFactory {
   SinkPtr create_type(std::string type);
   SinkPtr create_from_prototype(const ConsumerMetadata& tem);
   SinkPtr create_from_h5(H5CC::Group &group, bool withdata = true);
-  SinkPtr create_from_file(std::string filename);
   SinkPtr create_copy(SinkPtr other);
 
   ConsumerMetadata create_prototype(std::string type);
 
  private:
   std::map<std::string, std::function<Consumer*(void)>> constructors;
-  std::map<std::string, std::string> ext_to_type;
   std::map<std::string, ConsumerMetadata> prototypes;
 
   //singleton assurance

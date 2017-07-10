@@ -10,14 +10,10 @@ ConsumerMetadata::ConsumerMetadata()
 
 ConsumerMetadata::ConsumerMetadata(std::string tp,
                                    std::string descr,
-                                   uint16_t dim,
-                                   std::list<std::string> itypes,
-                                   std::list<std::string> otypes)
+                                   uint16_t dim)
   : type_(tp)
   , type_description_(descr)
   , dimensions_(dim)
-  , input_types_(itypes)
-  , output_types_(otypes)
 {
   attributes_ = Setting(SettingMeta("", SettingType::stem));
 }

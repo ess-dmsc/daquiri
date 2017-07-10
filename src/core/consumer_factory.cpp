@@ -43,21 +43,6 @@ SinkPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata)
   return SinkPtr();
 }
 
-SinkPtr ConsumerFactory::create_from_file(std::string filename)
-{
-  std::string ext(boost::filesystem::extension(filename));
-  if (ext.size())
-    ext = ext.substr(1, ext.size()-1);
-  boost::algorithm::to_lower(ext);
-  auto it = ext_to_type.find(ext);
-  SinkPtr instance;
-  if (it != ext_to_type.end())
-    instance = SinkPtr(create_type(it->second));
-  if (instance && instance->read_file(filename, ext))
-    return instance;
-  return SinkPtr();
-}
-
 ConsumerMetadata ConsumerFactory::create_prototype(std::string type)
 {
   auto it = prototypes.find(type);
@@ -72,11 +57,10 @@ void ConsumerFactory::register_type(ConsumerMetadata tt, std::function<Consumer*
   LINFO << "<ConsumerFactory> registering sink type '" << tt.type() << "'";
   constructors[tt.type()] = typeConstructor;
   prototypes[tt.type()] = tt;
-  for (auto &q : tt.input_types())
-    ext_to_type[q] = tt.type();
 }
 
-const std::vector<std::string> ConsumerFactory::types() {
+const std::vector<std::string> ConsumerFactory::types()
+{
   std::vector<std::string> all_types;
   for (auto &q : constructors)
     all_types.push_back(q.first);

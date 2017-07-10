@@ -52,10 +52,6 @@ public:
   //retrieve axis-values for given dimension (can be precalculated energies)
   std::vector<double> axis_values(uint16_t dimension) const;
 
-  //export to some format (factory keeps track of file types)
-  bool write_file(std::string dir, std::string format) const;
-  bool read_file(std::string name, std::string format);
-
   //ConsumerMetadata
   ConsumerMetadata metadata() const;
   void reset_changed();
@@ -73,13 +69,13 @@ public:
 
 protected:
   //////////////////////////////////////////
-  //////////////////////////////////////////
   //////////THIS IS THE MEAT////////////////
   ///implement these to make custom types///
   //////////////////////////////////////////
   
   virtual std::string my_type() const = 0;
   virtual bool _initialize();
+  virtual void _init_from_file(std::string name);
   virtual void _recalc_axes() = 0;
 
   virtual void _set_detectors(const std::vector<Detector>& dets) = 0;
@@ -92,9 +88,6 @@ protected:
   virtual std::unique_ptr<std::list<Entry>> _data_range(std::initializer_list<Pair>)
     { return std::unique_ptr<std::list<Entry>>(new std::list<Entry>); }
   virtual void _append(const Entry&) {}
-
-  virtual bool _write_file(std::string, std::string) const {return false;}
-  virtual bool _read_file(std::string, std::string) {return false;}
 
   virtual void _load_data(H5CC::Group&) {}
   virtual void _save_data(H5CC::Group&) const {}

@@ -15,10 +15,6 @@ Consumer::Consumer()
   vis.set_val("description", "Plot visible");
   attributes.branches.add(Setting(vis));
 
-  SettingMeta app("appearance", SettingType::color);
-  app.set_val("description", "Plot appearance");
-  attributes.branches.add(Setting(app));
-
   SettingMeta rescale("rescale", SettingType::precise);
   rescale.set_val("description", "Rescale factor");
   rescale.set_val("min", 0);
@@ -38,20 +34,30 @@ Consumer::Consumer()
   metadata_.overwrite_all_attributes(attributes);
 }
 
-bool Consumer::_initialize() {
+bool Consumer::_initialize()
+{
   metadata_.disable_presets();
   return false; //abstract sink indicates failure to init
 }
 
+void Consumer::_init_from_file(std::string name)
+{
+  metadata_.set_attribute(Setting::text("name", name), false);
+  _initialize();
+  _recalc_axes();
+  _flush();
+}
 
-PreciseFloat Consumer::data(std::initializer_list<size_t> list ) const {
+PreciseFloat Consumer::data(std::initializer_list<size_t> list ) const
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   if (list.size() != this->metadata_.dimensions())
     return 0;
   return this->_data(list);
 }
 
-std::unique_ptr<std::list<Entry>> Consumer::data_range(std::initializer_list<Pair> list) {
+std::unique_ptr<EntryList> Consumer::data_range(std::initializer_list<Pair> list)
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   if (list.size() != this->metadata_.dimensions())
     return 0; //wtf???
@@ -61,7 +67,8 @@ std::unique_ptr<std::list<Entry>> Consumer::data_range(std::initializer_list<Pai
   }
 }
 
-void Consumer::append(const Entry& e) {
+void Consumer::append(const Entry& e)
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   if (metadata_.dimensions() < 1)
     return;
@@ -69,7 +76,8 @@ void Consumer::append(const Entry& e) {
     this->_append(e);
 }
 
-bool Consumer::from_prototype(const ConsumerMetadata& newtemplate) {
+bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
@@ -85,14 +93,16 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate) {
 //  DBG << "from prototype " << metadata_.debug();
 }
 
-void Consumer::push_spill(const Spill& one_spill) {
+void Consumer::push_spill(const Spill& one_spill)
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
   this->_push_spill(one_spill);
 }
 
-void Consumer::_push_spill(const Spill& one_spill) {
+void Consumer::_push_spill(const Spill& one_spill)
+{
   //  CustomTimer addspill_timer(true);
 
   if (!one_spill.detectors.empty())
@@ -111,7 +121,8 @@ void Consumer::_push_spill(const Spill& one_spill) {
   //  DBG << "<" << metadata_.name << "> left in backlog " << backlog.size();
 }
 
-void Consumer::flush() {
+void Consumer::flush()
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
@@ -135,7 +146,8 @@ bool Consumer::changed() const
   return changed_;
 }
 
-void Consumer::set_detectors(const std::vector<Detector>& dets) {
+void Consumer::set_detectors(const std::vector<Detector>& dets)
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
@@ -144,37 +156,29 @@ void Consumer::set_detectors(const std::vector<Detector>& dets) {
   changed_ = true;
 }
 
-void Consumer::reset_changed() {
+void Consumer::reset_changed()
+{
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
   changed_ = false;
 }
 
-bool Consumer::write_file(std::string dir, std::string format) const {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
-  return _write_file(dir, format);
-}
-
-bool Consumer::read_file(std::string name, std::string format) {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
-  return _read_file(name, format);
-}
-
 //accessors for various properties
-ConsumerMetadata Consumer::metadata() const {
+ConsumerMetadata Consumer::metadata() const
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   return metadata_;
 }
 
-std::string Consumer::type() const {
+std::string Consumer::type() const
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   return my_type();
 }
 
-uint16_t Consumer::dimensions() const {
+uint16_t Consumer::dimensions() const
+{
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   return metadata_.dimensions();
 }
