@@ -55,19 +55,19 @@ TEST(Coincidence, Add)
   ASSERT_EQ(10, e.upper_time().native());
 
   h.set_native_time(5);
-  e.add_hit(h);
+  e.add_event(h);
   ASSERT_EQ(2, e.size());
   ASSERT_EQ(5, e.lower_time().native());
   ASSERT_EQ(10, e.upper_time().native());
 
   h.set_native_time(20);
-  e.add_hit(h);
+  e.add_event(h);
   ASSERT_EQ(3, e.size());
   ASSERT_EQ(5, e.lower_time().native());
   ASSERT_EQ(20, e.upper_time().native());
 
   h.set_native_time(30);
-  e.add_hit(h);
+  e.add_event(h);
   ASSERT_EQ(4, e.size());
   ASSERT_EQ(5, e.lower_time().native());
   ASSERT_EQ(30, e.upper_time().native());

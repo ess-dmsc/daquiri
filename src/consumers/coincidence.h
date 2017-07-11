@@ -26,7 +26,7 @@ public:
     max_delay_ns_ = std::max(win, max_delay);
   }
 
-  inline bool add_hit(const Event &newhit)
+  inline bool add_event(const Event &newhit)
   {
     bool collision = hits_.count(newhit.channel());
     lower_time_ = std::min(lower_time_, newhit.timestamp());

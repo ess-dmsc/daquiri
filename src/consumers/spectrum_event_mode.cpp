@@ -13,25 +13,6 @@ SpectrumEventMode::SpectrumEventMode()
   totc.set_number(0);
   attributes.branches.add(totc);
 
-//  SettingMeta resm("resolution", SettingType::menu);
-//  resm.set_flag("preset");
-//  resm.set_enum(4, "4 bit (16)");
-//  resm.set_enum(5, "5 bit (32)");
-//  resm.set_enum(6, "6 bit (64)");
-//  resm.set_enum(7, "7 bit (128)");
-//  resm.set_enum(8, "8 bit (256)");
-//  resm.set_enum(9, "9 bit (512)");
-//  resm.set_enum(10, "10 bit (1024)");
-//  resm.set_enum(11, "11 bit (2048)");
-//  resm.set_enum(12, "12 bit (4096)");
-//  resm.set_enum(13, "13 bit (8192)");
-//  resm.set_enum(14, "14 bit (16384)");
-//  resm.set_enum(15, "15 bit (32768)");
-//  resm.set_enum(16, "16 bit (65536)");
-//  Setting res(resm);
-//  res.set_number(14);
-//  attributes.branches.add(res);
-
   Setting det({"detector", SettingType::stem});
   det.set_indices({-1});
 
@@ -86,8 +67,6 @@ bool SpectrumEventMode::_initialize()
 {
   Spectrum::_initialize();
 
-//  bits_ = metadata_.get_attribute("resolution").selection();
-
   pattern_coinc_ = metadata_.get_attribute("pattern_coinc").pattern();
   pattern_anti_ = metadata_.get_attribute("pattern_anti").pattern();
   pattern_add_ = metadata_.get_attribute("pattern_add").pattern();
@@ -118,7 +97,6 @@ bool SpectrumEventMode::_initialize()
     }
   }
   max_delay_ += coinc_window_;
-  //   DBG << "<" << metadata_.name << "> coinc " << coinc_window_ << " max delay " << max_delay_;
 
   return false; //still too abstract
 }
@@ -129,9 +107,6 @@ void SpectrumEventMode::_init_from_file(std::string name)
   metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_), false);
   metadata_.set_attribute(Setting("pattern_anti", pattern_anti_), false);
   metadata_.set_attribute(Setting("pattern_add", pattern_add_), false);
-
-//  std::string name = boost::filesystem::path(filename).filename().string();
-//  std::replace( name.begin(), name.end(), '.', '_');
 
   Spectrum::_init_from_file(name);
 }
@@ -149,54 +124,52 @@ bool SpectrumEventMode::event_relevant(const Event& e) const
   return this->channel_relevant(e.channel());
 }
 
-void SpectrumEventMode::_push_hit(const Event& newhit)
+void SpectrumEventMode::_push_event(const Event& new_event)
 {
-  if (!this->event_relevant(newhit))
+  if (!this->event_relevant(new_event))
     return;
 
-  //  DBG << "Processing " << newhit.to_string();
-
-  Event hit = newhit;
-  if (hit.channel() < static_cast<int16_t>(delay_ns_.size()))
-    hit.delay_ns(delay_ns_[hit.channel()]);
+  Event event = new_event;
+  if (event.channel() < static_cast<int16_t>(delay_ns_.size()))
+    event.delay_ns(delay_ns_[event.channel()]);
 
   bool appended = false;
   bool pileup = false;
-  if (backlog.empty() || backlog.back().past_due(hit))
-    backlog.push_back(Coincidence(hit, coinc_window_, max_delay_));
+  if (backlog.empty() || backlog.back().past_due(event))
+    backlog.push_back(Coincidence(event, coinc_window_, max_delay_));
   else
   {
     for (auto &q : backlog)
     {
-      if (q.in_window(hit))
+      if (q.in_window(event))
       {
-        if (q.add_hit(hit))
+        if (q.add_event(event))
         {
           if (appended)
             DBG << "<" << metadata_.get_attribute("name").get_text() << "> "
-                << "hit " << hit.debug() << " coincident with more than one other hit (counted >=2 times)";
+                << "event " << event.debug() << " coincident with more than one other event (counted >=2 times)";
           appended = true;
         }
         else
         {
           DBG << "<" << metadata_.get_attribute("name").get_text() << "> "
-              << "pileup hit " << hit.debug() << " with " << q.debug();
+              << "pileup event " << event.debug() << " with " << q.debug();
           pileup = true;
         }
       }
-      else if (q.past_due(hit))
+      else if (q.past_due(event))
         break;
-      else if (q.antecedent(hit))
+      else if (q.antecedent(event))
         DBG << "<" << metadata_.get_attribute("name").get_text() << "> "
-            << "antecedent hit " << hit.debug() << ". Something wrong with presorter or daq_device?";
+            << "antecedent event " << event.debug() << ". Something wrong with presorter or daq_device?";
     }
 
     if (!appended && !pileup)
-      backlog.push_back(Coincidence(hit, coinc_window_, max_delay_));
+      backlog.push_back(Coincidence(event, coinc_window_, max_delay_));
   }
 
   Coincidence evt;
-  while (!backlog.empty() && (evt = backlog.front()).past_due(hit))
+  while (!backlog.empty() && (evt = backlog.front()).past_due(event))
   {
     backlog.pop_front();
     if (validate_coincidence(evt))
@@ -221,8 +194,6 @@ bool SpectrumEventMode::validate_coincidence(const Coincidence &newEvent) const
 
 void SpectrumEventMode::_push_stats(const Status& newBlock)
 {
-  //private; no lock required
-
   if (!this->channel_relevant(newBlock.channel()))
     return;
 
@@ -230,8 +201,8 @@ void SpectrumEventMode::_push_stats(const Status& newBlock)
 
   if (newBlock.channel() >= static_cast<int16_t>(energy_idx_.size()))
     energy_idx_.resize(newBlock.channel() + 1, -1);
-  if (newBlock.hit_model().name_to_val.count("energy"))
-    energy_idx_[newBlock.channel()] = newBlock.hit_model().name_to_val.at("energy");
+  if (newBlock.event_model().name_to_val.count("energy"))
+    energy_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at("energy");
 
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_), false);
 }

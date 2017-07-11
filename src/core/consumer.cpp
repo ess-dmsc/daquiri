@@ -108,15 +108,15 @@ void Consumer::_push_spill(const Spill& one_spill)
   if (!one_spill.detectors.empty())
     this->_set_detectors(one_spill.detectors);
 
-  for (auto &q : one_spill.hits)
-    this->_push_hit(q);
+  for (auto &q : one_spill.events)
+    this->_push_event(q);
 
   for (auto &q : one_spill.stats)
     this->_push_stats(q.second);
 
   //  addspill_timer.stop();
-  //  DBG << "<" << metadata_.name << "> added " << hits << " hits in "
-  //         << addspill_timer.ms() << " ms at " << addspill_timer.us() / hits << " us/hit";
+  //  DBG << "<" << metadata_.name << "> added " << events << " events in "
+  //         << addspill_timer.ms() << " ms at " << addspill_timer.us() / events << " us/hit";
 
   //  DBG << "<" << metadata_.name << "> left in backlog " << backlog.size();
 }

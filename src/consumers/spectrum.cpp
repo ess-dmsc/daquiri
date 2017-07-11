@@ -1,5 +1,4 @@
 #include "spectrum.h"
-#include "custom_logger.h"
 
 Spectrum::Spectrum()
   : Consumer()
@@ -40,14 +39,16 @@ void Spectrum::_init_from_file(std::string name)
   Consumer::_init_from_file(name);
 }
 
+void Spectrum::_recalc_axes()
+{
+  axes_.resize(metadata_.dimensions());
+}
+
 void Spectrum::_push_stats(const Status& newBlock)
 {
-  //private; no lock required
-
   if (!this->channel_relevant(newBlock.channel()))
     return;
 
-  //DBG << "Spectrum " << metadata_.name << " received update for chan " << newBlock.channel;
   bool chan_new = (stats_list_.count(newBlock.channel()) == 0);
   bool new_start = (newBlock.type() == StatusType::start);
 
@@ -116,7 +117,8 @@ void Spectrum::_push_stats(const Status& newBlock)
       }
     }
 
-    if (stats_list_[newBlock.channel()].back().type() != StatusType::start) {
+    if (stats_list_[newBlock.channel()].back().type() != StatusType::start)
+    {
       real += rt;
       live += lt;
       //        DBG << "<Spectrum> \"" << metadata_.name << "\" RT + "
@@ -150,39 +152,7 @@ void Spectrum::_push_stats(const Status& newBlock)
   metadata_.set_attribute(Setting::precise("total_hits", total_count_), false);
 }
 
-
 void Spectrum::_flush()
 {
   metadata_.set_attribute(Setting::precise("total_hits", total_count_), false);
-}
-
-void Spectrum::_set_detectors(const std::vector<Detector>& dets)
-{
-  //private; no lock required
-  //  DBG << "<Spectrum> _set_detectors";
-
-  metadata_.detectors.clear();
-
-  //FIX THIS!!!!
-
-  //metadata_.detectors.resize(metadata_.dimensions(), Detector());
-  this->_recalc_axes();
-}
-
-void Spectrum::_recalc_axes()
-{
-  //private; no lock required
-
-  axes_.resize(metadata_.dimensions());
-  if (axes_.size() != metadata_.detectors.size())
-    return;
-
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
-  {
-//    Calibration this_calib = metadata_.detectors[i].best_calib(bits_);
-//    uint32_t res = pow(2,bits_);
-//    axes_[i].resize(res, 0.0);
-//    for (uint32_t j=0; j<res; j++)
-//      axes_[i][j] = this_calib.transform(j, bits_);
-  }
 }

@@ -35,12 +35,12 @@ public:
   int64_t add_sink(SinkPtr sink);
   int64_t add_sink(ConsumerMetadata prototype);
 
-  void import_spn(std::string file_name);
-
   void save();
   void save_as(std::string file_name);
 
-  void open(std::string file_name, bool with_sinks = true, bool with_full_sinks = true);
+  void open(std::string file_name,
+            bool with_sinks = true,
+            bool with_full_sinks = true);
 
   void delete_sink(int64_t idx);
 

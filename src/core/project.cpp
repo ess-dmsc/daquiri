@@ -82,7 +82,6 @@ bool Project::wait_ready()
   return true;
 }
 
-
 bool Project::new_data()
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
@@ -244,12 +243,11 @@ void Project::add_spill(Spill* one_spill)
     spills_.push_back(*one_spill);
 
   if ((!one_spill->stats.empty())
-      || (!one_spill->hits.empty())
+      || (!one_spill->events.empty())
       || (!one_spill->data.empty())
       || (!one_spill->state.branches.empty())
       || (!one_spill->detectors.empty()))
     changed_ = true;
-
   
   ready_ = true;
   newdata_ = true;
@@ -386,7 +384,9 @@ void Project::write_h5(std::string file_name)
   }
 }
 
-void Project::read_h5(std::string file_name, bool with_sinks, bool with_full_sinks)
+void Project::read_h5(std::string file_name,
+                      bool with_sinks,
+                      bool with_full_sinks)
 {
 //  try
 //  {
@@ -403,79 +403,6 @@ void Project::read_h5(std::string file_name, bool with_sinks, bool with_full_sin
 //    ERR << "<Project> Failed to read h5 " << file_name;
 //    printException();
 //  }
-}
-
-void Project::import_spn(std::string file_name)
-{
-  boost::unique_lock<boost::mutex> lock(mutex_);
-  //clear_helper();
-
-  std::ifstream myfile(file_name, std::ios::in | std::ios::binary);
-
-  if (!myfile)
-    return;
-
-  myfile.seekg (0, myfile.end);
-  int length = myfile.tellg();
-
-  //  if (length < 13)
-  //    return;
-
-  myfile.seekg (0, myfile.beg);
-
-  std::vector<Detector> dets(1);
-
-  ConsumerMetadata temp = ConsumerFactory::singleton().create_prototype("1D");
-  Setting res = temp.get_attribute("resolution");
-  res.set_number(12);
-  temp.set_attribute(res, false);
-  Setting pattern;
-  pattern = temp.get_attribute("pattern_coinc");
-  pattern.set_pattern(Pattern(1, {true}));
-  temp.set_attribute(pattern, false);
-  pattern = temp.get_attribute("pattern_add");
-  pattern.set_pattern(Pattern(1, {true}));
-  temp.set_attribute(pattern, false);
-
-  uint32_t one;
-  int spectra_count = 0;
-  while (myfile.tellg() != length)
-  {
-    //for (int j=0; j<150; ++j) {
-    std::vector<uint32_t> data;
-    int64_t totalcount = 0;
-    //    uint32_t header;
-    //    myfile.read ((char*)&header, sizeof(uint32_t));
-    //    DBG << "header " << header;
-    for (int i=0; i<4096; ++i) {
-      myfile.read ((char*)&one, sizeof(uint32_t));
-      data.push_back(one);
-      totalcount += one;
-    }
-    if ((totalcount == 0) || data.empty())
-      continue;
-    Setting name;
-    name = temp.get_attribute("name");
-    name = boost::filesystem::path(file_name).filename().string() + "[" + std::to_string(spectra_count++) + "]";
-    temp.set_attribute(name, false);
-    SinkPtr spectrum = ConsumerFactory::singleton().create_from_prototype(temp);
-    spectrum->set_detectors(dets);
-    for (size_t i=0; i < data.size(); ++i) {
-      Entry entry;
-      entry.first.resize(1, 0);
-      entry.first[0] = i;
-      entry.second = data[i];
-      spectrum->append(entry);
-    }
-    sinks_[++current_index_] = spectrum;
-  }
-
-  changed_ = true;
-  //  identity_ = file_name;
-
-  ready_ = true;
-  newdata_ = true;
-  cond_.notify_all();
 }
 
 }

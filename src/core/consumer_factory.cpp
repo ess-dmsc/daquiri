@@ -19,7 +19,6 @@ SinkPtr ConsumerFactory::create_copy(SinkPtr other)
   return SinkPtr(other->clone());
 }
 
-
 SinkPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem)
 {
 //  DBG << "<ConsumerFactory> creating " << tem.type();

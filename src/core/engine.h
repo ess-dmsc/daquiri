@@ -28,8 +28,9 @@ public:
   bool die();
   ProducerStatus status() {return aggregate_status_;}
 
-  ListData getList(uint64_t timeout, boost::atomic<bool>& inturruptor);
-  void getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool> &interruptor);
+  ListData acquire_list(uint64_t timeout, boost::atomic<bool>& inturruptor);
+  void acquire(uint64_t timeout, ProjectPtr spectra,
+              boost::atomic<bool> &interruptor);
 
   //detectors
   std::vector<Detector> get_detectors() const {return detectors_;}
@@ -73,7 +74,8 @@ protected:
   void rebuild_structure(Setting &set);
 
   //threads
-  void worker_MCA(SynchronizedQueue<Spill*>* data_queue, ProjectPtr spectra);
+  void worker_chronological(SynchronizedQueue<Spill*>* data_queue,
+                            ProjectPtr spectra);
 
 private:
 

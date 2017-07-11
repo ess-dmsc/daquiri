@@ -27,8 +27,8 @@ TEST(Status, SetGet)
   hm.add_trace("wave", {3});
 
   s.set_model(hm);
-  ASSERT_EQ(s.hit_model().timebase, hm.timebase);
-  ASSERT_EQ(s.hit_model().value_names, hm.value_names);
-  ASSERT_EQ(s.hit_model().trace_names, hm.trace_names);
+  ASSERT_EQ(s.event_model().timebase, hm.timebase);
+  ASSERT_EQ(s.event_model().value_names, hm.value_names);
+  ASSERT_EQ(s.event_model().trace_names, hm.trace_names);
 }
 

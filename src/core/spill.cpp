@@ -12,7 +12,7 @@ bool Spill::empty()
     return false;
   if (!data.empty())
     return false;
-  if (!hits.empty())
+  if (!events.empty())
     return false;
   return true;
 }
@@ -24,8 +24,8 @@ std::string Spill::to_string() const
     info += " D" + std::to_string(detectors.size());
   if (stats.size())
     info += " S" + std::to_string(stats.size());
-  if (hits.size())
-    info += " [" + std::to_string(hits.size()) + "]";
+  if (events.size())
+    info += " [" + std::to_string(events.size()) + "]";
   if (data.size())
     info += " RAW=" + std::to_string(data.size() * sizeof(char));
   return info;
@@ -35,7 +35,7 @@ void to_json(json& j, const Spill& s)
 {
   j["time"] = boost::posix_time::to_iso_extended_string(s.time);
 //  j["bytes_raw_data"] = data.size() * sizeof(char);
-//  j["number_of_hits"] = hits.size();
+//  j["number_of_events"] = events.size();
 
   for (auto &st : s.stats)
     j["stats"].push_back(st.second);

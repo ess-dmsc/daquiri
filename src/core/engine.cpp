@@ -182,17 +182,21 @@ void Engine::rebuild_structure(Setting &set)
     detectors_.resize(newtotal);
 }
 
-bool Engine::boot() {
+bool Engine::boot()
+{
   LINFO << "<Engine> Booting system...";
 
   bool success = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_boot)) {
+    if ((q.second != nullptr) &&
+        (q.second->status() & ProducerStatus::can_boot))
+    {
       success |= q.second->boot();
       //DBG << "daq_start > " << q.second->device_name();
     }
 
-  if (success) {
+  if (success)
+  {
     LINFO << "<Engine> Boot successful";
     //settings_tree_.value_int = 2;
     get_all_settings();
@@ -202,15 +206,19 @@ bool Engine::boot() {
   return success;
 }
 
-bool Engine::die() {
+bool Engine::die()
+{
   bool success = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) && (q.second->status() & ProducerStatus::booted)) {
+    if ((q.second != nullptr) &&
+        (q.second->status() & ProducerStatus::booted))
+    {
       success |= q.second->die();
       //DBG << "die > " << q.second->device_name();
     }
 
-  if (success) {
+  if (success)
+  {
     //settings_tree_.value_int = 0;
     get_all_settings();
   }
@@ -335,23 +343,27 @@ void Engine::set_setting(Setting address, Match flags, bool greedy)
 void Engine::get_all_settings()
 {
   aggregate_status_ = ProducerStatus(0);
-  for (auto &q : devices_) {
+  for (auto &q : devices_)
+  {
     q.second->get_all_settings();
     aggregate_status_ = aggregate_status_ | q.second->status();
   }
   read_settings_bulk();
 }
 
-void Engine::getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool>& interruptor) {
-
+void Engine::acquire(uint64_t timeout, ProjectPtr spectra,
+                     boost::atomic<bool>& interruptor)
+{
   boost::unique_lock<boost::mutex> lock(mutex_);
 
-  if (!spectra) {
+  if (!spectra)
+  {
     WARN << "<Engine> No reference to valid daq project";
     return;
   }
 
-  if (!(aggregate_status_ & ProducerStatus::can_run)) {
+  if (!(aggregate_status_ & ProducerStatus::can_run))
+  {
     WARN << "<Engine> No devices exist that can perform acquisition";
     return;
   }
@@ -366,7 +378,7 @@ void Engine::getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool>& i
 
   SynchronizedQueue<Spill*> parsedQueue;
 
-  boost::thread builder(boost::bind(&Engine::worker_MCA, this, &parsedQueue, spectra));
+  boost::thread builder(boost::bind(&Engine::worker_chronological, this, &parsedQueue, spectra));
 
   Spill* spill = new Spill;
   get_all_settings();
@@ -380,9 +392,11 @@ void Engine::getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool>& i
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
 
-  while (daq_running()) {
+  while (daq_running())
+  {
     wait_ms(1000);
-    if (anouncement_timer->s() > secs_between_anouncements) {
+    if (anouncement_timer->s() > secs_between_anouncements)
+    {
       if (timeout > 0)
         LINFO << "  RUNNING Elapsed: " << total_timer.done()
                 << "  ETA: " << total_timer.ETA();
@@ -392,7 +406,8 @@ void Engine::getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool>& i
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
-    if (interruptor.load() || (timeout && total_timer.timeout())) {
+    if (interruptor.load() || (timeout && total_timer.timeout()))
+    {
       if (daq_stop())
         DBG << "<Engine> Stopped device daq threads successfully";
       else
@@ -417,11 +432,12 @@ void Engine::getMca(uint64_t timeout, ProjectPtr spectra, boost::atomic<bool>& i
   LINFO << "<Engine> Acquisition finished";
 }
 
-ListData Engine::getList(uint64_t timeout, boost::atomic<bool>& interruptor) {
-
+ListData Engine::acquire_list(uint64_t timeout, boost::atomic<bool>& interruptor)
+{
   boost::unique_lock<boost::mutex> lock(mutex_);
 
-  if (!(aggregate_status_ & ProducerStatus::can_run)) {
+  if (!(aggregate_status_ & ProducerStatus::can_run))
+  {
     WARN << "<Engine> No devices exist that can perform acquisition";
     return ListData();
   }
@@ -451,15 +467,18 @@ ListData Engine::getList(uint64_t timeout, boost::atomic<bool>& interruptor) {
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
 
-  while (daq_running()) {
+  while (daq_running())
+  {
     wait_ms(1000);
-    if (anouncement_timer->s() > secs_between_anouncements) {
+    if (anouncement_timer->s() > secs_between_anouncements)
+    {
       LINFO << "  RUNNING Elapsed: " << total_timer.done()
               << "  ETA: " << total_timer.ETA();
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
-    if (interruptor.load() || (timeout && total_timer.timeout())) {
+    if (interruptor.load() || (timeout && total_timer.timeout()))
+    {
       if (daq_stop())
         DBG << "<Engine> Stopped device daq threads successfully";
       else
@@ -480,7 +499,6 @@ ListData Engine::getList(uint64_t timeout, boost::atomic<bool>& interruptor) {
   while (parsedQueue.size() > 0)
     result.push_back(SpillPtr(parsedQueue.dequeue()));
 
-
   parsedQueue.stop();
   return result;
 }
@@ -488,11 +506,11 @@ ListData Engine::getList(uint64_t timeout, boost::atomic<bool>& interruptor) {
 //////STUFF BELOW SHOULD NOT BE USED DIRECTLY////////////
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
-void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
-                        ProjectPtr spectra) {
-
+void Engine::worker_chronological(SynchronizedQueue<Spill*>* data_queue,
+                        ProjectPtr spectra)
+{
   CustomTimer presort_timer;
-  uint64_t presort_compares(0), presort_hits(0), presort_cycles(0);
+  uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
 
   std::map<int16_t, bool> queue_status;
   // for each input channel (detector) false = empty, true = data
@@ -502,44 +520,54 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
   DBG << "<Engine> Spectra builder thread initiated";
   Spill* in_spill  = nullptr;
   Spill* out_spill = nullptr;
-  while (true) {
+  while (true)
+  {
     in_spill = data_queue->dequeue();
-    if (in_spill != nullptr) {
-      for (auto &q : in_spill->stats) {
-        if (q.second.channel() >= 0) {
+    if (in_spill != nullptr)
+    {
+      for (auto &q : in_spill->stats)
+      {
+        if (q.second.channel() >= 0)
+        {
           queue_status[q.second.channel()] =
-              (!in_spill->hits.empty() || (q.second.type() == StatusType::stop));
+              (!in_spill->events.empty() || (q.second.type() == StatusType::stop));
         }
       }
       current_spills.insert(in_spill);
     }
 
 //    if (in_spill)
-//      DBG << "<Engine: worker_MCA> spill backlog " << current_spills.size()
+//      DBG << "<Engine: worker_chronological> spill backlog " << current_spills.size()
 //             << " at arrival of " << boost::posix_time::to_iso_extended_string(in_spill->time);
 
     bool empty = false;
-    while (!empty) {
-
+    while (!empty)
+    {
       out_spill = new Spill;
 
       empty = queue_status.empty();
-      if (in_spill != nullptr) {
+      if (in_spill != nullptr)
+      {
         for (auto &q : queue_status)
           q.second = false;
-        for (auto i = current_spills.begin(); i != current_spills.end(); i++) {
-          for (auto &q : (*i)->stats) {
+        for (auto i : current_spills)
+        {
+          for (auto &q : i->stats)
+          {
             if ((q.second.channel() >= 0) &&
-                (!(*i)->hits.empty() || (q.second.type() == StatusType::stop) ))
+                (!i->events.empty() || (q.second.type() == StatusType::stop) ))
               queue_status[q.second.channel()] = true;
           }
         }
-      } else {
+      }
+      else
+      {
         for (auto &q : queue_status)
           q.second = true;
       }
 
-      for (auto q : queue_status) {
+      for (auto q : queue_status)
+      {
         if (!q.second)
           empty = true;
       }
@@ -549,21 +577,29 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
       presort_timer.start();
       while (!empty) {
         Event oldest;
-        for (auto &q : current_spills) {
-          if (q->hits.empty()) {
+        for (auto &q : current_spills)
+        {
+          if (q->events.empty())
+          {
             empty = true;
             break;
-          } else if ((oldest == Event()) || (q->hits.front().timestamp() < oldest.timestamp())) {
-            oldest = q->hits.front();
+          }
+          else if ((oldest == Event()) ||
+                   (q->events.front().timestamp() < oldest.timestamp()))
+          {
+            oldest = q->events.front();
             presort_compares++;
           }
         }
-        if (!empty) {
-          presort_hits++;
-          out_spill->hits.push_back(oldest);
+        if (!empty)
+        {
+          presort_events++;
+          out_spill->events.push_back(oldest);
           for (auto &q : current_spills)
-            if ((!q->hits.empty()) && (q->hits.front().timestamp() == oldest.timestamp())) {
-              q->hits.pop_front();
+            if ((!q->events.empty()) &&
+                (q->events.front().timestamp() == oldest.timestamp()))
+            {
+              q->events.pop_front();
               presort_compares++;
               break;
             }
@@ -573,19 +609,20 @@ void Engine::worker_MCA(SynchronizedQueue<Spill*>* data_queue,
       }
       presort_timer.stop();
 
-//      DBG << "<Engine> Presort pushed " << presort_hits << " hits, ";
-//                               " time/hit: " << presort_timer.us()/presort_hits << "us, "
+//      DBG << "<Engine> Presort pushed " << presort_events << " events, ";
+//                               " time/hit: " << presort_timer.us()/presort_events << "us, "
 //                               " time/cycle: " << presort_timer.us()/presort_cycles  << "us, "
-//                               " compares/hit: " << double(presort_compares)/double(presort_hits) << ", "
-//                               " hits/cyle: " << double(presort_hits)/double(presort_cycles) << ", "
+//                               " compares/hit: " << double(presort_compares)/double(presort_events) << ", "
+//                               " events/cyle: " << double(presort_events)/double(presort_cycles) << ", "
 //                               " compares/cycle: " << double(presort_compares)/double(presort_cycles);
 
       bool noempties = false;
-      while (!noempties) {
-
+      while (!noempties)
+      {
         noempties = true;
         for (auto i = current_spills.begin(); i != current_spills.end(); i++)
-          if ((*i)->hits.empty()) {
+          if ((*i)->events.empty())
+          {
             out_spill->time = (*i)->time;
             out_spill->data = (*i)->data;
             out_spill->stats = (*i)->stats;

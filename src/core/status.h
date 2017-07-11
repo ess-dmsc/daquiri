@@ -35,14 +35,14 @@ struct Status
 private:
   StatusType               type_     {StatusType::running};
   int16_t                  channel_  {-1};
-  EventModel               hit_model_;
+  EventModel               event_model_;
   boost::posix_time::ptime time_;     //timestamp at end of spill
   std::map<std::string, PreciseFloat> stats_;
   
 public:
   inline void set_type(StatusType t) { type_ = t; }
   inline void set_channel(int16_t c) { channel_ = c; }
-  inline void set_model(EventModel hm) { hit_model_ = hm; }
+  inline void set_model(EventModel hm) { event_model_ = hm; }
   inline void set_time(boost::posix_time::ptime t) { time_ = t; }
   inline void set_value(const std::string& key, const PreciseFloat& val)
   {
@@ -51,7 +51,7 @@ public:
 
   inline StatusType type() const { return type_; }
   inline int16_t channel() const { return channel_; }
-  inline EventModel  hit_model() const { return hit_model_; }
+  inline EventModel  event_model() const { return event_model_; }
   inline boost::posix_time::ptime time() const { return time_; }
   inline std::map<std::string, PreciseFloat> stats() const { return stats_; }
 
@@ -61,7 +61,7 @@ public:
     ss << "Status::" << type_to_str(type_) << "("
        << "ch" << channel_
        << "@" << boost::posix_time::to_iso_extended_string(time_)
-       << "," << hit_model_.debug() << ")";
+       << "," << event_model_.debug() << ")";
     for (auto s : stats_)
       ss << " " << s.first << "=" << s.second;
     return ss.str();
@@ -72,7 +72,7 @@ public:
     j["type"] = type_to_str(s.type_);
     j["channel"] = s.channel_;
     j["time_"] = boost::posix_time::to_iso_extended_string(s.time_);
-    j["hit_model"] = s.hit_model_;
+    j["event_model"] = s.event_model_;
     for (auto &i : s.stats_)
       j["stats_"][i.first] = i.second;
   }
@@ -82,7 +82,7 @@ public:
     s.type_ = type_from_str(j["type"]);
     s.channel_ = j["channel"];
     s.time_ = from_iso_extended(j["time_"]);
-    s.hit_model_ = j["hit_model"];
+    s.event_model_ = j["event_model"];
 
     if (j.count("stats_"))
     {

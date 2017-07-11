@@ -11,11 +11,10 @@ public:
 
 protected:
   void _init_from_file(std::string name) override;
+  void _recalc_axes() override;
 
   void _push_stats(const Status&) override;
   void _flush() override;
-  void _set_detectors(const std::vector<Detector>& dets) override;
-  void _recalc_axes() override;
 
   virtual bool channel_relevant(int16_t) const = 0;
 

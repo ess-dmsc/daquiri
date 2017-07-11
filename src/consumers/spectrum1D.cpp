@@ -1,8 +1,4 @@
 #include "spectrum1D.h"
-#include "consumer_factory.h"
-#include "custom_logger.h"
-
-//static ConsumerRegistrar<Spectrum1D> registrar("1D");
 
 Spectrum1D::Spectrum1D()
 {
@@ -33,21 +29,39 @@ Spectrum1D::Spectrum1D()
   base_options.branches.add(res);
 
   metadata_.overwrite_all_attributes(base_options);
-//  DBG << "<1D:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
+}
+
+bool Spectrum1D::_initialize()
+{
+  Spectrum::_initialize();
+  bits_ = metadata_.get_attribute("resolution").selection();
+
+  size_t size = pow(2, bits_);
+  if (spectrum_.size() < size)
+    spectrum_.resize(size, PreciseFloat(0));
+
+  return false; //still too abstract
+}
+
+void Spectrum1D::_init_from_file(std::string name)
+{
+  metadata_.set_attribute(Setting::integer("resolution", bits_), false);
+  Spectrum::_init_from_file(name);
 }
 
 void Spectrum1D::_set_detectors(const std::vector<Detector>& dets)
 {
-//  DBG << "<1D:" << metadata_.get_attribute("name").value_text << "> dims=" << metadata_.dimensions();
   metadata_.detectors.resize(metadata_.dimensions(), Detector());
 
   if (dets.size() == metadata_.dimensions())
     metadata_.detectors = dets;
-  if (dets.size() >= metadata_.dimensions()) {
 
+  if (dets.size() >= metadata_.dimensions())
+  {
     for (size_t i=0; i < dets.size(); ++i)
     {
-      if (metadata_.chan_relevant(i)) {
+      if (metadata_.chan_relevant(i))
+      {
         metadata_.detectors[0] = dets[i];
         break;
       }
@@ -57,11 +71,21 @@ void Spectrum1D::_set_detectors(const std::vector<Detector>& dets)
   this->_recalc_axes();
 }
 
-bool Spectrum1D::_initialize()
+void Spectrum1D::_recalc_axes()
 {
-  Spectrum::_initialize();
-  bits_ = metadata_.get_attribute("resolution").selection();
-  return false; //still too abstract
+  Spectrum::_recalc_axes();
+
+  if (axes_.size() != metadata_.detectors.size())
+    return;
+
+  for (size_t i=0; i < metadata_.detectors.size(); ++i)
+  {
+//    Calibration this_calib = metadata_.detectors[i].best_calib(bits_);
+//    uint32_t res = pow(2,bits_);
+//    axes_[i].resize(res, 0.0);
+//    for (uint32_t j=0; j<res; j++)
+//      axes_[i][j] = this_calib.transform(j, bits_);
+  }
 }
 
 PreciseFloat Spectrum1D::_data(std::initializer_list<size_t> list) const
@@ -118,11 +142,13 @@ void Spectrum1D::_append(const Entry& e)
   }
 }
 
-void Spectrum1D::_init_from_file(std::string name)
+void Spectrum1D::_save_data(H5CC::Group& g) const
 {
-  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
-  metadata_.set_attribute(Setting::integer("resolution", bits_), false);
-  Spectrum::_init_from_file(name);
+  std::vector<long double> d(maxchan_);
+  for (uint32_t i = 0; i < maxchan_; i++)
+    d[i] = static_cast<long double>(spectrum_[i]);
+  auto dset = g.require_dataset<long double>("data", {maxchan_});
+  dset.write(d);
 }
 
 void Spectrum1D::_load_data(H5CC::Group& g)
@@ -144,13 +170,3 @@ void Spectrum1D::_load_data(H5CC::Group& g)
 
   maxchan_ = rdata.size();
 }
-
-void Spectrum1D::_save_data(H5CC::Group& g) const
-{
-  std::vector<long double> d(maxchan_);
-  for (uint32_t i = 0; i < maxchan_; i++)
-    d[i] = static_cast<long double>(spectrum_[i]);
-  auto dset = g.require_dataset<long double>("data", {maxchan_});
-  dset.write(d);
-}
-
