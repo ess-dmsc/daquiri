@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(consumers CXX)
+project(producers CXX)
 
-file(GLOB ${PROJECT_NAME}_SOURCES *.cpp xylib/xylib/*.cpp pugixml/src/*.cpp)
-file(GLOB ${PROJECT_NAME}_HEADERS *.h xylib/xylib/*.h pugixml/src/*.hpp pugixml/contrib/*.hpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES *.cpp)
+file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS *.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
 
 add_library(
@@ -11,7 +11,7 @@ add_library(
   ${${PROJECT_NAME}_HEADERS}
 )
 
-target_include_directories(
+include_directories(
   ${PROJECT_NAME}
   PRIVATE ${${PROJECT_NAME}_INCLUDE_DIRS}
   PRIVATE ${core_INCLUDE_DIRS}

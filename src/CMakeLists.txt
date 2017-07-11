@@ -45,10 +45,10 @@ add_subdirectory(external/h5/source/h5cc)
 
 add_subdirectory(core)
 add_subdirectory(consumers)
+add_subdirectory(producers)
 
 if (test)
   add_subdirectory(tests)
 endif()
 
-#add_subdirectory(producers)
 #add_subdirectory(gui)
