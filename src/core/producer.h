@@ -34,17 +34,14 @@ public:
   virtual ~Producer() {}
 
   static std::string plugin_name() {return std::string();}
+  ProducerStatus status() const {return status_;}
+  json setting_definitions() const;
+
   virtual std::string device_name() const {return std::string();}
 
-  bool load_setting_definitions(const std::string& file);
-  void save_setting_definitions(const std::string& file);
-
-  void settings_from_json(const json& j);
-  json settings_to_json() const;
-
-  ProducerStatus status() const {return status_;}
+  virtual bool initialize(const json& definitions);
   virtual bool boot() {return false;}
-  virtual bool die() {status_ = ProducerStatus(0); return true;}
+  virtual bool die() {status_ = ProducerStatus::dead; return true;}
 
   virtual void write_settings_bulk(Setting &/*set*/) {}
   virtual void read_settings_bulk(Setting &/*set*/) const {}
@@ -58,11 +55,11 @@ public:
   virtual bool daq_running() {return false;}
 
 protected:
-  ProducerStatus                     status_ {ProducerStatus(0)};
+  ProducerStatus                     status_ {ProducerStatus::dead};
   std::map<std::string, SettingMeta> setting_definitions_;
-  std::string                        profile_path_;
 
   Setting get_rich_setting(const std::string& id) const;
+  void add_definition(const SettingMeta& sm);
 
 private:
   //no copying

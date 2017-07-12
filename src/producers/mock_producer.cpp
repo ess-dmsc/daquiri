@@ -8,7 +8,45 @@
 
 MockProducer::MockProducer()
 {
-  status_ = ProducerStatus::loaded;// | ProducerStatus::can_boot;
+  std::string mp {"MockProducer/"};
+
+  SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
+  si.set_val("min", 1);
+  si.set_val("units", "s");
+  add_definition(si);
+
+  SettingMeta res(mp + "Resolution", SettingType::integer, "Resolution");
+  res.set_val("min", 4);
+  res.set_val("max", 16);
+  res.set_val("units", "bits");
+  add_definition(res);
+
+  SettingMeta cr(mp + "CountRate", SettingType::floating, "Event rate");
+  cr.set_val("min", 1);
+  cr.set_val("units", "cps");
+  add_definition(cr);
+
+  SettingMeta ei(mp + "EventInterval", SettingType::integer, "Event interval");
+  ei.set_val("min", 1);
+  ei.set_val("units", "ticks");
+  add_definition(ei);
+
+  SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
+  tm.set_val("min", 1);
+  tm.set_val("units", "ns");
+  add_definition(tm);
+
+  SettingMeta td(mp + "TimebaseDiv", SettingType::integer, "Timebase divider");
+  td.set_val("min", 1);
+  td.set_val("units", "1/ns");
+  add_definition(td);
+
+  SettingMeta lambda(mp + "Lambda", SettingType::floating, "Decay constant (λ)");
+  lambda.set_val("min", 0);
+  lambda.set_val("step", 0.01);
+  add_definition(lambda);
+
+  status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
 bool MockProducer::die()
@@ -81,9 +119,9 @@ void MockProducer::read_settings_bulk(Setting &set) const
         q.set_number(spill_interval_);
       else if (q.id() == "MockProducer/Resolution")
         q.select(bits_);
-      else if (q.id() == "MockProducer/ScaleRate")
+      else if (q.id() == "MockProducer/CountRate")
         q.set_number(count_rate_);
-      else if (q.id() == "MockProducer/CoincThresh")
+      else if (q.id() == "MockProducer/EventInterval")
         q.set_number(event_interval_);
       else if (q.id() == "MockProducer/TimebaseMult")
         q.set_number(model_hit.timebase.multiplier());
@@ -110,13 +148,13 @@ void MockProducer::write_settings_bulk(Setting &set)
       spill_interval_ = q.get_number();
     else if (q.id() == "MockProducer/Resolution")
       bits_ = q.get_number();
-    else if (q.id() == "MockProducer/CoincThresh")
+    else if (q.id() == "MockProducer/EventInterval")
       event_interval_ = q.get_number();
     else if (q.id() == "MockProducer/TimebaseMult")
       timebase_multiplier = q.get_number();
     else if (q.id() == "MockProducer/TimebaseDiv")
       timebase_divider = q.get_number();
-    else if (q.id() == "MockProducer/ScaleRate")
+    else if (q.id() == "MockProducer/CountRate")
       count_rate_ = q.get_number();
     else if (q.id() == "MockProducer/Lambda")
       lambda_ = q.get_number();

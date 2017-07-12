@@ -3,42 +3,23 @@
 
 namespace DAQuiri {
 
-bool Producer::load_setting_definitions(const std::string &file)
+bool Producer::initialize(const json& definitions)
 {
-  std::ifstream ifile (file);
-  json j;
-  if (ifile.is_open())
-    ifile >> j;
+  if (!definitions.empty())
+    for (auto it : definitions)
+      add_definition(it);
 
-  settings_from_json(j);
-
-  if (!setting_definitions_.empty())
-  {
-    DBG << "<Producer> " << this->device_name()
-        << " retrieved " << setting_definitions_.size()
-        << " setting definitions";
-    profile_path_ = file;
-    return true;
-  }
-  else
+  if (setting_definitions_.empty())
   {
     DBG << "<Producer> " << this->device_name()
         << " failed to load setting definitions";
-    profile_path_.clear();
     return false;
   }
+
+  return true;
 }
 
-void Producer::settings_from_json(const json& j)
-{
-  for (auto it : j)
-  {
-    SettingMeta m = it;
-    setting_definitions_[m.id()] = m;
-  }
-}
-
-json Producer::settings_to_json() const
+json Producer::setting_definitions() const
 {
   json j;
   for (auto m : setting_definitions_)
@@ -46,11 +27,9 @@ json Producer::settings_to_json() const
   return j;
 }
 
-void Producer::save_setting_definitions(const std::string &file)
+void Producer::add_definition(const SettingMeta& sm)
 {
-  std::ofstream ofile (file);
-  if (ofile.is_open())
-    ofile << settings_to_json();
+  setting_definitions_[sm.id()] = sm;
 }
 
 Setting Producer::get_rich_setting(const std::string& id) const

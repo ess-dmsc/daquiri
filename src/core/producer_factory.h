@@ -13,7 +13,7 @@ public:
     return singleton_instance;
   }
 
-  ProducerPtr create_type(std::string type, std::string file);
+  ProducerPtr create_type(std::string type, const json &profile);
 
   void register_type(std::string name, std::function<Producer*(void)> typeConstructor);
   const std::vector<std::string> types();

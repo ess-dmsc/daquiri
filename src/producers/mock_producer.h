@@ -40,11 +40,11 @@ protected:
   boost::thread *runner_ {nullptr};
 
   // cached params
-  int     bits_ {6};
-  int     spill_interval_ {5};
-  double  count_rate_ {5000};
-  double  lambda_ {0};
-  int     event_interval_ {10};
+  int      bits_ {6};
+  uint32_t spill_interval_ {5};
+  double   count_rate_ {5000};
+  double   lambda_ {0};
+  int      event_interval_ {10};
   uint64_t resolution_;
   EventModel model_hit;
 

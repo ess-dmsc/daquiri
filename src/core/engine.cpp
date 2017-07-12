@@ -1,12 +1,8 @@
 #include "engine.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/algorithm/string.hpp>
 #include "custom_logger.h"
 #include "producer_factory.h"
-#include <iomanip>
+#include "custom_timer.h"
+
 //#include "core_compiletime.h"
 
 namespace DAQuiri {
@@ -33,49 +29,21 @@ Engine::Engine()
   total_det_num_.set_val("max", 64);
 }
 
-void Engine::initialize(std::string profile_path, std::string settings_path)
+void Engine::initialize(const json &profile, const json &definitions)
 {
-  //don't allow this twice?
-  profile_path_ = profile_path;
+  Setting tree = profile;
 
-  DBG << "<Engine> attempting to initialize profile at " << profile_path_;
-
-  Setting tree, descr;
-
-//  pugi::xml_document doc;
-//  if (doc.load_file(profile_path_.c_str()))
-//  {
-//    DBG << "<Engine> Loading device settings " << profile_path_;
-//    pugi::xml_node root = doc.child(Setting().xml_element_name().c_str());
-//    if (root)
-//    {
-//      tree = Setting(root);
-//      tree.metadata.saveworthy = true;
-//      descr = tree.get_setting(Setting("Profile description"), Match::id);
-//      descr.metadata.setting_type = SettingType::text;
-//      descr.metadata.writable = true;
-//      tree.branches.replace(descr);
-//    }
-//  }
-
-
-  boost::filesystem::path path(settings_path);
-
-//  if (!boost::filesystem::is_directory(path)) {
-//    DBG << "<Engine> Bad profile root directory. Will not proceed with loading device settings";
-//    return;
-//  }
+  auto& pf = ProducerFactory::singleton();
 
   die();
   devices_.clear();
-
   for (auto &q : tree.branches)
   {
     if (q.id() != "Detectors")
     {
-      boost::filesystem::path dev_settings = path / q.get_text();
-      ProducerPtr device
-          = ProducerFactory::singleton().create_type(q.id(), dev_settings.string());
+      if (!definitions.count(q.get_text()))
+        continue;
+      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.get_text()));
       if (device)
       {
         DBG << "<Engine> Success loading " << device->device_name();
@@ -87,44 +55,66 @@ void Engine::initialize(std::string profile_path, std::string settings_path)
   push_settings(tree);
   get_all_settings();
 
-  if (!descr.get_text().empty())
-    LINFO << "<Engine> Welcome to " << descr.get_text();
+  Setting descr = tree.find(Setting("Profile description"), Match::id);
+  LINFO << "<Engine> Welcome to " << descr.get_text();
 }
 
 Engine::~Engine()
 {
-  if (die())
-    get_all_settings();
+  die();
 
-  if (!profile_path_.empty()) {
-    get_all_settings();
-
-    Setting dev_settings = pull_settings();
-    dev_settings.condense();
-    dev_settings.strip_metadata();
-
-//    pugi::xml_document doc;
-//    dev_settings.to_xml(doc);
-
-//    if (doc.save_file(profile_path_.c_str()))
-//      ERR << "<Engine> Saved settings to " << profile_path_;
-//    else
-//      ERR << "<Engine> Failed to save device settings";
-  }
+//    Setting dev_settings = pull_settings();
+//    dev_settings.condense();
+//    dev_settings.strip_metadata();
 }
 
-Setting Engine::pull_settings() const {
+void Engine::boot()
+{
+  bool success = false;
+  for (auto &q : devices_)
+    if ((q.second != nullptr) &&
+        (q.second->status() & ProducerStatus::can_boot))
+    {
+      success |= q.second->boot();
+      //DBG << "daq_start > " << q.second->device_name();
+    }
+
+  if (success)
+  {
+    LINFO << "<Engine> Boot successful";
+    //settings_tree_.value_int = 2;
+    get_all_settings();
+  } else
+    LINFO << "<Engine> Boot failed";
+}
+
+void Engine::die()
+{
+  for (auto &q : devices_)
+    if ((q.second != nullptr) &&
+        (q.second->status() & ProducerStatus::booted))
+    {
+      q.second->die();
+      //DBG << "die > " << q.second->device_name();
+    }
+
+  get_all_settings();
+}
+
+Setting Engine::pull_settings() const
+{
   return settings_tree_;
 }
 
-void Engine::push_settings(const Setting& newsettings) {
+void Engine::push_settings(const Setting& newsettings)
+{
   settings_tree_ = newsettings;
   write_settings_bulk();
 
 //  LINFO << "settings pushed branches = " << settings_tree_.branches.size();
 }
 
-bool Engine::read_settings_bulk()
+void Engine::read_settings_bulk()
 {
   for (auto &set : settings_tree_.branches)
   {
@@ -152,13 +142,11 @@ bool Engine::read_settings_bulk()
       //DBG << "read settings bulk > " << set.id_;
       devices_[set.id()]->read_settings_bulk(set);
     }
-
   }
   save_optimization();
-  return true;
 }
 
-bool Engine::write_settings_bulk()
+void Engine::write_settings_bulk()
 {
   for (auto &set : settings_tree_.branches)
   {
@@ -167,7 +155,6 @@ bool Engine::write_settings_bulk()
     else if (devices_.count(set.id()))
       devices_[set.id()]->write_settings_bulk(set);
   }
-  return true;
 }
 
 void Engine::rebuild_structure(Setting &set)
@@ -180,50 +167,6 @@ void Engine::rebuild_structure(Setting &set)
 
   if (oldtotal != newtotal)
     detectors_.resize(newtotal);
-}
-
-bool Engine::boot()
-{
-  LINFO << "<Engine> Booting system...";
-
-  bool success = false;
-  for (auto &q : devices_)
-    if ((q.second != nullptr) &&
-        (q.second->status() & ProducerStatus::can_boot))
-    {
-      success |= q.second->boot();
-      //DBG << "daq_start > " << q.second->device_name();
-    }
-
-  if (success)
-  {
-    LINFO << "<Engine> Boot successful";
-    //settings_tree_.value_int = 2;
-    get_all_settings();
-  } else
-    LINFO << "<Engine> Boot failed";
-
-  return success;
-}
-
-bool Engine::die()
-{
-  bool success = false;
-  for (auto &q : devices_)
-    if ((q.second != nullptr) &&
-        (q.second->status() & ProducerStatus::booted))
-    {
-      success |= q.second->die();
-      //DBG << "die > " << q.second->device_name();
-    }
-
-  if (success)
-  {
-    //settings_tree_.value_int = 0;
-    get_all_settings();
-  }
-
-  return success;
 }
 
 std::vector<Event> Engine::oscilloscope()
@@ -243,7 +186,7 @@ std::vector<Event> Engine::oscilloscope()
   return traces;
 }
 
-bool Engine::daq_start(SynchronizedQueue<Spill*>* out_queue)
+bool Engine::daq_start(SpillQueue out_queue)
 {
   bool success = false;
   for (auto &q : devices_)
@@ -267,7 +210,7 @@ bool Engine::daq_stop()
   return success;
 }
 
-bool Engine::daq_running()
+bool Engine::daq_running() const
 {
   bool running = false;
   for (auto &q : devices_)
@@ -351,8 +294,7 @@ void Engine::get_all_settings()
   read_settings_bulk();
 }
 
-void Engine::acquire(uint64_t timeout, ProjectPtr spectra,
-                     boost::atomic<bool>& interruptor)
+void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t timeout)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
 
@@ -432,7 +374,7 @@ void Engine::acquire(uint64_t timeout, ProjectPtr spectra,
   LINFO << "<Engine> Acquisition finished";
 }
 
-ListData Engine::acquire_list(uint64_t timeout, boost::atomic<bool>& interruptor)
+ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
 
@@ -506,7 +448,7 @@ ListData Engine::acquire_list(uint64_t timeout, boost::atomic<bool>& interruptor
 //////STUFF BELOW SHOULD NOT BE USED DIRECTLY////////////
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
-void Engine::worker_chronological(SynchronizedQueue<Spill*>* data_queue,
+void Engine::worker_chronological(SpillQueue data_queue,
                         ProjectPtr spectra)
 {
   CustomTimer presort_timer;

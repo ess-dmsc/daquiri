@@ -2,22 +2,23 @@
 
 namespace DAQuiri {
 
-ProducerPtr ProducerFactory::create_type(std::string type, std::string file)
+ProducerPtr ProducerFactory::create_type(std::string type, const json &profile)
 {
   ProducerPtr instance;
   auto it = constructors.find(type);
   if (it != constructors.end())
     instance = ProducerPtr(it->second());
   if (instance.operator bool() &&
-      instance->load_setting_definitions(file))
+      instance->initialize(profile))
     return instance;
   return ProducerPtr();
 }
 
-void ProducerFactory::register_type(std::string name, std::function<Producer*(void)> typeConstructor)
+void ProducerFactory::register_type(std::string name,
+                                    std::function<Producer*(void)> typeConstructor)
 {
-  LINFO << "<ProducerFactory> registering source '" << name << "'";
   constructors[name] = typeConstructor;
+  LINFO << "<ProducerFactory> registered '" << name << "'";
 }
 
 const std::vector<std::string> ProducerFactory::types()

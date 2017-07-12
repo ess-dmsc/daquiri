@@ -53,9 +53,9 @@ ConsumerMetadata ConsumerFactory::create_prototype(std::string type)
 
 void ConsumerFactory::register_type(ConsumerMetadata tt, std::function<Consumer*(void)> typeConstructor)
 {
-  LINFO << "<ConsumerFactory> registering sink type '" << tt.type() << "'";
   constructors[tt.type()] = typeConstructor;
   prototypes[tt.type()] = tt;
+  LINFO << "<ConsumerFactory> registered '" << tt.type() << "'";
 }
 
 const std::vector<std::string> ConsumerFactory::types()
