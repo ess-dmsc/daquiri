@@ -3,7 +3,6 @@
 #include "custom_logger.h"
 
 #include <fstream>
-#include <boost/filesystem/convenience.hpp>
 
 #include "H5CC_File.h"
 #include "h5json.h"

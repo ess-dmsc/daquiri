@@ -3,8 +3,8 @@ project(daquiri_tests CXX)
 
 enable_testing()
 
-find_package(Threads)
-find_package(GTest)
+find_package(Threads REQUIRED)
+find_package(GTest REQUIRED)
 
 file(GLOB ${PROJECT_NAME}_sources *.cpp)
 file(GLOB ${PROJECT_NAME}_headers *.h)
@@ -29,8 +29,7 @@ target_link_libraries(
   ${GTEST_BOTH_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${h5cc_LIBRARIES}
-  h5cc
-  core
+  ${core_LIBRARIES}
 )
 
 set(DO_COV OFF)

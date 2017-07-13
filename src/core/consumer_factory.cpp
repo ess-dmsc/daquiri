@@ -1,7 +1,5 @@
 #include "consumer_factory.h"
 #include "custom_logger.h"
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
 
 namespace DAQuiri {
 

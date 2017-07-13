@@ -13,9 +13,9 @@ add_library(
 
 target_include_directories(
   ${PROJECT_NAME}
-  PRIVATE ${${PROJECT_NAME}_INCLUDE_DIRS}
-  PRIVATE ${core_INCLUDE_DIRS}
-  PRIVATE ${h5cc_INCLUDE_DIRS}
+  PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
+  PUBLIC ${core_INCLUDE_DIRS}
+  PUBLIC ${h5cc_INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -26,10 +26,12 @@ target_link_libraries(
 # Expose public includes
 set(${PROJECT_NAME}_INCLUDE_DIRS
     ${${PROJECT_NAME}_INCLUDE_DIRS}
-    ${h5cc_INCLUDE_DIRS}
-    ${json_INCLUDE_DIRS}
 CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 
 set(${PROJECT_NAME}_LIBRARIES
-    -Wl,--whole-archive ${PROJECT_NAME} -Wl,--no-whole-archive
+    ${PROJECT_NAME}
     PARENT_SCOPE)
+
+#set(${PROJECT_NAME}_LIBRARIES
+#    -Wl,--whole-archive ${PROJECT_NAME} -Wl,--no-whole-archive
+#    PARENT_SCOPE)

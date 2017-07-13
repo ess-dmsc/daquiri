@@ -10,6 +10,8 @@ MockProducer::MockProducer()
 {
   std::string mp {"MockProducer/"};
 
+  SettingMeta root("MockProducer", SettingType::stem);
+
   SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
   si.set_val("min", 1);
   si.set_val("units", "s");
@@ -62,6 +64,19 @@ MockProducer::MockProducer()
   ps.set_val("min", 0);
   ps.set_val("step", 0.01);
   add_definition(ps);
+
+  root.set_enum(0, mp + "SpillInterval");
+  root.set_enum(1, mp + "Resolution");
+  root.set_enum(2, mp + "CountRate");
+  root.set_enum(3, mp + "EventInterval");
+  root.set_enum(4, mp + "TimebaseMult");
+  root.set_enum(5, mp + "TimebaseDiv");
+  root.set_enum(6, mp + "Lambda");
+  root.set_enum(7, mp + "ValName1");
+  root.set_enum(8, mp + "ValName2");
+  root.set_enum(9, mp + "PeakCenter");
+  root.set_enum(10, mp + "PeakSpread");
+  add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
@@ -213,11 +228,11 @@ bool MockProducer::boot()
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-  if (lab_time == 0.0)
-  {
-    WARN << "<MockProducer> Lab time = 0. Cannot create simulation.";
-    return false;
-  }
+//  if (lab_time == 0.0)
+//  {
+//    WARN << "<MockProducer> Lab time = 0. Cannot create simulation.";
+//    return false;
+//  }
 
   resolution_ = pow(2, bits_);
 
@@ -249,7 +264,6 @@ void MockProducer::worker_run(MockProducer* callback,
 {
   bool timeout = false;
 
-  double   rate = callback->count_rate_;
   double   lambda = callback->lambda_;
   Status moving_stats,
       one_run = callback->getBlock(callback->spill_interval_ * 0.99);
@@ -258,7 +272,7 @@ void MockProducer::worker_run(MockProducer* callback,
 
   DBG << "<MockProducer> Start run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns"
-      << "  init_rate=" << rate << " cps"
+      << "  init_rate=" << callback->count_rate_ << " cps"
       << "  lambda=" << lambda;
 
   one_spill = Spill();
@@ -274,11 +288,12 @@ void MockProducer::worker_run(MockProducer* callback,
   CustomTimer timer(true);
   while (!timeout)
   {
-    uint64_t rate = rate * exp(0.0 - lambda * timer.s());
+    double frac = exp(0.0 - lambda * timer.s());
+    double rate = callback->count_rate_ * frac;
     boost::this_thread::sleep(boost::posix_time::seconds(callback->spill_interval_));
 
     DBG << "<MockProducer> s=" << timer.s()
-        << "  exp=" << exp(0.0 - lambda * timer.s())
+        << "  frac=" << frac
         << "  rate=" << rate;
 
     one_spill = Spill();

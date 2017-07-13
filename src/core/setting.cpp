@@ -316,9 +316,8 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
     if (may_have_branches())
     {
       Container<Setting> new_branches;
-//      auto idss = metadata_.enum_names();
-      std::set<std::string> ids(metadata_.enum_names().begin(),
-                                metadata_.enum_names().end());
+      auto idss = metadata_.enum_names();
+      std::set<std::string> ids(idss.begin(), idss.end());
       for (auto old : branches)
       {
         if (setting_definitions.count(old.id()))

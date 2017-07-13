@@ -24,12 +24,10 @@ add_definitions(-DCMAKE_SYSTEM="${CMAKE_SYSTEM}")
 add_definitions(-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
 
 # Boost
-SET(Boost_USE_STATIC_LIBS ON)
+#SET(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS
-  system filesystem thread timer date_time log log_setup REQUIRED)
+  system thread timer date_time log log_setup REQUIRED)
 #link_directories( ${BOOST_LIBRARY_DIRS} )
-
-FIND_PACKAGE ( Threads REQUIRED )
 
 file(GLOB ${PROJECT_NAME}_SOURCES *.cpp util/*.cpp)
 file(GLOB ${PROJECT_NAME}_HEADERS *.h util/*.h)
@@ -67,5 +65,9 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
 CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 
 set(${PROJECT_NAME}_LIBRARIES
-    -Wl,--whole-archive ${PROJECT_NAME} -Wl,--no-whole-archive
+    ${PROJECT_NAME}
     PARENT_SCOPE)
+
+#set(${PROJECT_NAME}_LIBRARIES
+#    -Wl,--whole-archive ${PROJECT_NAME} -Wl,--no-whole-archive
+#    PARENT_SCOPE)

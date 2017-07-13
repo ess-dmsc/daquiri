@@ -47,6 +47,8 @@ add_subdirectory(core)
 add_subdirectory(consumers)
 add_subdirectory(producers)
 
+add_subdirectory(cmd)
+
 if (test)
   add_subdirectory(tests)
 endif()

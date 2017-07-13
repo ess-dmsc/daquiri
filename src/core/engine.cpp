@@ -41,9 +41,10 @@ void Engine::initialize(const json &profile, const json &definitions)
   {
     if (q.id() != "Detectors")
     {
-      if (!definitions.count(q.get_text()))
+//      DBG << "Will try to load " << q.get_text();
+      if (!definitions.count(q.id()))
         continue;
-      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.get_text()));
+      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.id()));
       if (device)
       {
         DBG << "<Engine> Success loading " << device->device_name();
@@ -517,7 +518,8 @@ void Engine::worker_chronological(SpillQueue data_queue,
 
       presort_cycles++;
       presort_timer.start();
-      while (!empty) {
+      while (!empty)
+      {
         Event oldest;
         for (auto &q : current_spills)
         {
