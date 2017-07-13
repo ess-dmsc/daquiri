@@ -198,7 +198,7 @@ std::string SettingMeta::debug(std::string prepend) const
       ret += std::to_string(i.first) + "=\"" + i.second + "\"  ";
   }
   if (!contents_.empty())
-    ret += "contents_=" + contents_.dump();
+    ret += " vals=" + contents_.dump();
 
   return ret;
 }
@@ -209,9 +209,19 @@ std::string SettingMeta::value_range() const
   if (numeric())
   {
     std::stringstream ss;
-    ss << "[" << min<double>() << " \uFF1A "
-       << step<double>() << " \uFF1A "
-       << max<double>() << "]";
+    ss << "[";
+    auto m = min<double>();
+    if (m == std::numeric_limits<double>::min())
+      ss << "m";
+    else
+      ss << m;
+    ss << "\uFF1A" << step<double>() << "\uFF1A";
+    auto M = max<double>();
+    if (M == std::numeric_limits<double>::max())
+      ss << "M";
+    else
+      ss << M;
+    ss << "]";
     return ss.str();
   }
   return "";

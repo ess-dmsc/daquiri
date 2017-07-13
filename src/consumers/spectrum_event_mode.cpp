@@ -7,6 +7,7 @@ SpectrumEventMode::SpectrumEventMode()
   Setting attributes = metadata_.attributes();
 
   SettingMeta totalcoinc("total_coinc", SettingType::precise);
+  totalcoinc.set_val("min", 0);
   totalcoinc.set_val("description", "Total coincidence count");
   totalcoinc.set_flag("readonly");
   Setting totc(totalcoinc);
@@ -38,9 +39,7 @@ SpectrumEventMode::SpectrumEventMode()
   coinc_window.set_val("description", "Coincidence window");
   coinc_window.set_val("units", "ns");
   coinc_window.set_val("min", 0);
-  Setting coinc(coinc_window);
-  coinc.set_number(50);
-  attributes.branches.add(coinc);
+  attributes.branches.add(coinc_window);
 
   SettingMeta pattern_coinc("pattern_coinc", SettingType::pattern);
   pattern_coinc.set_flag("preset");

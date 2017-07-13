@@ -35,5 +35,5 @@ protected:
 
   //data:
   std::list<Coincidence> backlog;
-  PreciseFloat total_coincidences_;
+  PreciseFloat total_coincidences_ {0};
 };

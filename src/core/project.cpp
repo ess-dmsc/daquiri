@@ -213,7 +213,8 @@ void Project::set_prototypes(const Container<ConsumerMetadata>& prototypes)
   boost::unique_lock<boost::mutex> lock(mutex_);
   clear_helper();
 
-  for (size_t i=0; i < prototypes.size(); i++) {
+  for (size_t i=0; i < prototypes.size(); i++)
+  {
 //    DBG << "Creating sink " << prototypes.get(i).debug();
 
     SinkPtr sink = ConsumerFactory::singleton().create_from_prototype(prototypes.get(i));

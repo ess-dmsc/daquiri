@@ -1,6 +1,8 @@
 #include "spectrum_events_1D.h"
 #include <boost/filesystem.hpp>
 
+#include "custom_logger.h"
+
 //#include "consumer_factory.h"
 //static ConsumerRegistrar<Spectrum1DEvent> registrar("1DEvent");
 
@@ -48,10 +50,10 @@ void Spectrum1DEvent::_init_from_file(std::string filename)
   SpectrumEventMode::_init_from_file(name);
 }
 
-void Spectrum1DEvent::bin_event(const Event& newHit)
+void Spectrum1DEvent::bin_event(const Event& e)
 {
-  uint16_t en = newHit.value(energy_idx_.at(newHit.channel())).val(bits_);
-  if (en < cutoff_bin_)
+  uint16_t en = e.value(energy_idx_.at(e.channel())).val(bits_);
+  if ((en < cutoff_bin_) || (en >= spectrum_.size()))
     return;
 
   ++spectrum_[en];
@@ -63,7 +65,9 @@ void Spectrum1DEvent::bin_event(const Event& newHit)
 
 bool Spectrum1DEvent::event_relevant(const Event& e) const
 {
-  return ((e.channel() < static_cast<int16_t>(energy_idx_.size())) &&
+  return (SpectrumEventMode::channel_relevant(e.channel()) &&
+          (e.channel() < static_cast<int16_t>(energy_idx_.size())) &&
+          (energy_idx_.at(e.channel()) >= 0) &&
           (e.value(energy_idx_.at(e.channel())).val(bits_) >= cutoff_logic_[e.channel()]));
 
 }

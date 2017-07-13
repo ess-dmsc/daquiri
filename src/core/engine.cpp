@@ -458,25 +458,17 @@ void Engine::worker_chronological(SpillQueue data_queue,
   std::map<int16_t, bool> queue_status;
   // for each input channel (detector) false = empty, true = data
 
-  std::multiset<Spill*> current_spills;
+  // use multimap from timestamp?
+  std::list<Spill*> current_spills;
 
   DBG << "<Engine> Spectra builder thread initiated";
-  Spill* in_spill  = nullptr;
-  Spill* out_spill = nullptr;
   while (true)
   {
-    in_spill = data_queue->dequeue();
+    Spill* in_spill = data_queue->dequeue();
     if (in_spill != nullptr)
     {
-      for (auto &q : in_spill->stats)
-      {
-        if (q.second.channel() >= 0)
-        {
-          queue_status[q.second.channel()] =
-              (!in_spill->events.empty() || (q.second.type() == StatusType::stop));
-        }
-      }
-      current_spills.insert(in_spill);
+//      DBG << "Spill arrived with " << in_spill->events.size();
+      current_spills.push_back(in_spill);
     }
 
 //    if (in_spill)
@@ -486,8 +478,6 @@ void Engine::worker_chronological(SpillQueue data_queue,
     bool empty = false;
     while (!empty)
     {
-      out_spill = new Spill;
-
       empty = queue_status.empty();
       if (in_spill != nullptr)
       {
@@ -510,12 +500,12 @@ void Engine::worker_chronological(SpillQueue data_queue,
       }
 
       for (auto q : queue_status)
-      {
         if (!q.second)
           empty = true;
-      }
 
+//      DBG << "Empty? " << empty;
 
+      Spill* out_spill = new Spill;
       presort_cycles++;
       presort_timer.start();
       while (!empty)

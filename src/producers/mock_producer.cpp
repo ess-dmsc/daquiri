@@ -43,6 +43,12 @@ MockProducer::MockProducer()
   td.set_val("units", "1/ns");
   add_definition(td);
 
+  SettingMeta dt(mp + "DeadTime", SettingType::integer, "Dead time (% of real time)");
+  dt.set_val("min", 0);
+  dt.set_val("max", 100);
+  dt.set_val("step", 0.01);
+  add_definition(dt);
+
   SettingMeta lambda(mp + "Lambda", SettingType::floating, "Decay constant (λ)");
   lambda.set_val("min", 0);
   lambda.set_val("step", 0.01);
@@ -56,7 +62,7 @@ MockProducer::MockProducer()
 
   SettingMeta pc(mp + "PeakCenter", SettingType::floating, "Peak center (% resolution)");
   pc.set_val("min", 0);
-  pc.set_val("min", 100);
+  pc.set_val("max", 100);
   pc.set_val("step", 0.1);
   add_definition(pc);
 
@@ -68,14 +74,15 @@ MockProducer::MockProducer()
   root.set_enum(0, mp + "SpillInterval");
   root.set_enum(1, mp + "Resolution");
   root.set_enum(2, mp + "CountRate");
-  root.set_enum(3, mp + "EventInterval");
-  root.set_enum(4, mp + "TimebaseMult");
-  root.set_enum(5, mp + "TimebaseDiv");
-  root.set_enum(6, mp + "Lambda");
-  root.set_enum(7, mp + "ValName1");
-  root.set_enum(8, mp + "ValName2");
-  root.set_enum(9, mp + "PeakCenter");
-  root.set_enum(10, mp + "PeakSpread");
+  root.set_enum(3, mp + "DeadTime");
+  root.set_enum(4, mp + "EventInterval");
+  root.set_enum(5, mp + "TimebaseMult");
+  root.set_enum(6, mp + "TimebaseDiv");
+  root.set_enum(7, mp + "Lambda");
+  root.set_enum(8, mp + "ValName1");
+  root.set_enum(9, mp + "ValName2");
+  root.set_enum(10, mp + "PeakCenter");
+  root.set_enum(11, mp + "PeakSpread");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -99,7 +106,7 @@ MockProducer::~MockProducer()
   die();
 }
 
-bool MockProducer::daq_start(SynchronizedQueue<Spill*>* out_queue)
+bool MockProducer::daq_start(SpillQueue out_queue)
 {
   if (run_status_.load() > 0)
     return false;
@@ -150,9 +157,11 @@ void MockProducer::read_settings_bulk(Setting &set) const
       if (q.id() == "MockProducer/SpillInterval")
         q.set_number(spill_interval_);
       else if (q.id() == "MockProducer/Resolution")
-        q.select(bits_);
+        q.set_number(bits_);
       else if (q.id() == "MockProducer/CountRate")
         q.set_number(count_rate_);
+      else if (q.id() == "MockProducer/DeadTime")
+        q.set_number(dead_);
       else if (q.id() == "MockProducer/EventInterval")
         q.set_number(event_interval_);
       else if (q.id() == "MockProducer/TimebaseMult")
@@ -197,6 +206,8 @@ void MockProducer::write_settings_bulk(Setting &set)
       timebase_divider = q.get_number();
     else if (q.id() == "MockProducer/CountRate")
       count_rate_ = q.get_number();
+    else if (q.id() == "MockProducer/DeadTime")
+      dead_ = q.get_number();
     else if (q.id() == "MockProducer/Lambda")
       lambda_ = q.get_number();
     else if (q.id() == "MockProducer/ValName1")
@@ -215,6 +226,8 @@ void MockProducer::write_settings_bulk(Setting &set)
   model_hit.add_value(vname2, bits_);
   model_hit.add_trace("trace", {200});
 
+  resolution_ = pow(2, uint32_t(bits_));
+
   set.enrich(setting_definitions_);
 }
 
@@ -228,125 +241,57 @@ bool MockProducer::boot()
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-//  if (lab_time == 0.0)
-//  {
-//    WARN << "<MockProducer> Lab time = 0. Cannot create simulation.";
-//    return false;
-//  }
+  LINFO << "<MockProducer> Booting mock producer"
+        << " resolution=" << resolution_ << " rate=" << count_rate_ << "cps"
+        << " with peak at " << peak_center_ << "%  with stdev=" << peak_spread_;
 
-  resolution_ = pow(2, bits_);
-
-  LINFO << "<MockProducer> Building matrix for simulation from "
-       << " resolution=" << resolution_ << " rate=" << count_rate_ << "cps";
-
-  dist_ = std::normal_distribution<double>(peak_center_, peak_spread_);
-
+  dist_ = std::normal_distribution<double>(peak_center_ * resolution_,
+                                           peak_spread_);
   clock_ = 0;
-  lab_time = 0;
-  live_time = 0;
-
   status_ = ProducerStatus::loaded | ProducerStatus::booted | ProducerStatus::can_run;
   return true;
 }
 
-
-void MockProducer::get_all_settings()
-{
-  if (status_ & ProducerStatus::booted)
-  {
-
-  }
-}
-
-
 void MockProducer::worker_run(MockProducer* callback,
-                             SynchronizedQueue<Spill*>* spill_queue)
+                              SpillQueue spill_queue)
 {
-  bool timeout = false;
-
-  double   lambda = callback->lambda_;
-  Status moving_stats,
-      one_run = callback->getBlock(callback->spill_interval_ * 0.99);
-
-  Spill one_spill;
-
-  DBG << "<MockProducer> Start run   "
+  DBG << "<MockProducer> Starting run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns"
       << "  init_rate=" << callback->count_rate_ << " cps"
-      << "  lambda=" << lambda;
-
-  one_spill = Spill();
-  moving_stats.set_model(callback->model_hit);
-  moving_stats.set_type(StatusType::start);
-  moving_stats.set_time(boost::posix_time::microsec_clock::universal_time());
-
-//  moving_stats.set_channel(callback->chan0_);
-//  one_spill.stats[callback->chan0_] = moving_stats;
-
-  spill_queue->enqueue(new Spill(one_spill));
+      << "  lambda=" << callback->lambda_;
 
   CustomTimer timer(true);
-  while (!timeout)
+
+  spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
+  while (callback->run_status_.load() != 2)
   {
-    double frac = exp(0.0 - lambda * timer.s());
-    double rate = callback->count_rate_ * frac;
     boost::this_thread::sleep(boost::posix_time::seconds(callback->spill_interval_));
-
-    DBG << "<MockProducer> s=" << timer.s()
-        << "  frac=" << frac
-        << "  rate=" << rate;
-
-    one_spill = Spill();
-
-    for (uint32_t i=0; i< (rate * callback->spill_interval_); i++)
-      callback->add_hit(one_spill);
-
-//    moving_stats = moving_stats + one_run;
-    moving_stats.set_model(callback->model_hit);
-    moving_stats.set_type(StatusType::running);
-    moving_stats.set_time(boost::posix_time::microsec_clock::universal_time());
-
-//    DBG << "pushing with model " << moving_stats.model_hit.to_string();
-
-//    moving_stats.set_channel(callback->chan0_);
-//    one_spill.stats[callback->chan0_] = moving_stats;
-
-    spill_queue->enqueue(new Spill(one_spill));
-
-    timeout = (callback->run_status_.load() == 2);
+    spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
   }
-
-  one_spill.events.clear();
-  for (auto &q : one_spill.stats)
-    q.second.set_type(StatusType::stop);
-
-  spill_queue->enqueue(new Spill(one_spill));
+  spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));
 
   callback->run_status_.store(3);
-
-  //  DBG << "<MockProducer> Stop run worker";
 }
 
-void MockProducer::add_hit(Spill& one_spill)
+void MockProducer::add_hit(Spill& spill)
 {
-  if (resolution_ < 1)
-    return;
-
   int16_t chan0 {0};
-
-  double v1 = dist_(gen_) * resolution_;
-  double v2 = dist_(gen_) * resolution_;
 
   Event h(chan0, model_hit);
   h.set_native_time(clock_);
-  if (v1 > 0)
-    h.set_value(0, round(v1));
-  if (v2 > 0)
-    h.set_value(1, round(v2));
-  make_trace(h, 1000);
-  one_spill.events.push_back(h);
+  h.set_value(0, generate());
+  h.set_value(1, generate());
+//  make_trace(h, 1000);
 
+  spill.events.push_back(h);
   clock_ += event_interval_ + 1;
+}
+
+uint16_t MockProducer::generate()
+{
+  double v = dist_(gen_);
+  v= std::max(std::min(v, double(resolution_)), 0.0);
+  return std::round(v);
 }
 
 void MockProducer::make_trace(Event& h, uint16_t baseline)
@@ -365,31 +310,51 @@ void MockProducer::make_trace(Event& h, uint16_t baseline)
   h.set_trace(0, trc);
 }
 
-Spill MockProducer::get_spill()
+Spill* MockProducer::get_spill(StatusType t, double seconds)
 {
-  Spill one_spill;
+  int16_t chan0 {0};
 
-  return one_spill;
-}
+  Spill* spill = new Spill();
 
-Status MockProducer::getBlock(double duration)
-{
-  Status newBlock;
-
-  double fraction;
-
-  newBlock.set_value("native_time", duration);
-
-  if (lab_time == 0.0)
-    fraction = duration;
-  else
-    fraction = duration / lab_time;
-
-  if (std::isfinite(live_time) && (live_time > 0))
+  if (t == StatusType::running)
   {
-    newBlock.set_value("live_time", live_time);
-    newBlock.set_value("live_trigger", live_time);
+    double rate = count_rate_;
+
+    if (lambda_)
+    {
+      double frac = exp(0.0 - lambda_ * seconds);
+      rate *= frac;
+      DBG << "<MockProducer> s=" << seconds << "  frac=" << frac << "  rate=" << rate;
+    }
+
+//    DBG << "Will make hits for " << (rate * spill_interval_);
+
+    for (uint32_t i=0; i< (rate * spill_interval_); i++)
+      add_hit(*spill);
+
+//    DBG << "Added " << spill->events.size() << " events to spill";
+
   }
 
-  return newBlock;
+  spill->stats[chan0] = get_status(chan0, t);
+
+  return spill;
+}
+
+Status MockProducer::get_status(int16_t chan, StatusType t)
+{
+  Status status;
+  status.set_type(t);
+  status.set_channel(chan);
+  status.set_model(model_hit);
+  status.set_time(boost::posix_time::microsec_clock::universal_time());
+
+  double duration = clock_;
+  double duration_live = duration * (1.0 - dead_);
+
+  status.set_value("native_time", duration);
+  status.set_value("live_time", duration_live);
+  status.set_value("live_trigger", duration_live);
+
+  return status;
 }

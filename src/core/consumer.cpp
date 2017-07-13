@@ -2,6 +2,8 @@
 #include "h5json.h"
 #include "ascii_tree.h"
 
+#include "custom_logger.h"
+
 namespace DAQuiri {
 
 Consumer::Consumer()
@@ -59,12 +61,7 @@ PreciseFloat Consumer::data(std::initializer_list<size_t> list ) const
 std::unique_ptr<EntryList> Consumer::data_range(std::initializer_list<Pair> list)
 {
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
-  if (list.size() != this->metadata_.dimensions())
-    return 0; //wtf???
-  else {
-    //    std::vector<Pair> ranges(list.begin(), list.end());
-    return this->_data_range(list);
-  }
+  return this->_data_range(list);
 }
 
 void Consumer::append(const Entry& e)
@@ -93,25 +90,25 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 //  DBG << "from prototype " << metadata_.debug();
 }
 
-void Consumer::push_spill(const Spill& one_spill)
+void Consumer::push_spill(const Spill& spill)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
     boost::this_thread::sleep_for(boost::chrono::seconds{1});
-  this->_push_spill(one_spill);
+  this->_push_spill(spill);
 }
 
-void Consumer::_push_spill(const Spill& one_spill)
+void Consumer::_push_spill(const Spill& spill)
 {
   //  CustomTimer addspill_timer(true);
 
-  if (!one_spill.detectors.empty())
-    this->_set_detectors(one_spill.detectors);
+  if (!spill.detectors.empty())
+    this->_set_detectors(spill.detectors);
 
-  for (auto &q : one_spill.events)
+  for (auto &q : spill.events)
     this->_push_event(q);
 
-  for (auto &q : one_spill.stats)
+  for (auto &q : spill.stats)
     this->_push_stats(q.second);
 
   //  addspill_timer.stop();

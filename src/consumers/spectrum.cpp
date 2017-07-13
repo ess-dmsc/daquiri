@@ -5,12 +5,11 @@ Spectrum::Spectrum()
 {
   Setting attributes = metadata_.attributes();
 
-  SettingMeta totalcoinc("total_count", SettingType::precise);
-  totalcoinc.set_val("description", "Total count");
-  totalcoinc.set_flag("readonly");
-  Setting totc(totalcoinc);
-  totc.set_number(0);
-  attributes.branches.add(totc);
+  SettingMeta totalcount("total_count", SettingType::precise);
+  totalcount.set_val("min", 0);
+  totalcount.set_val("description", "Total count");
+  totalcount.set_flag("readonly");
+  attributes.branches.add(totalcount);
 
   SettingMeta live_time("live_time", SettingType::duration);
   live_time.set_flag("readonly");
@@ -149,10 +148,10 @@ void Spectrum::_push_stats(const Status& newBlock)
 
   }
 
-  metadata_.set_attribute(Setting::precise("total_hits", total_count_), false);
+  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
 }
 
 void Spectrum::_flush()
 {
-  metadata_.set_attribute(Setting::precise("total_hits", total_count_), false);
+  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
 }
