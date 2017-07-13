@@ -56,7 +56,7 @@ void Engine::initialize(const json &profile, const json &definitions)
   push_settings(tree);
   get_all_settings();
 
-  Setting descr = tree.find(Setting("Profile description"), Match::id);
+  Setting descr = tree.find(Setting("Profile description"));
   LINFO << "<Engine> Welcome to " << descr.get_text();
 }
 
@@ -160,7 +160,7 @@ void Engine::write_settings_bulk()
 
 void Engine::rebuild_structure(Setting &set)
 {
-  Setting totaldets = set.find({"Total detectors"}, Match::id);
+  Setting totaldets = set.find({"Total detectors"});
   int oldtotal = detectors_.size();
   int newtotal = totaldets.get_number();
   if (newtotal < 0)
@@ -329,8 +329,8 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
   spill->detectors = get_detectors();
   parsedQueue.enqueue(spill);
 
-  if (daq_start(&parsedQueue))
-    DBG << "<Engine> Started device daq threads";
+  if (!daq_start(&parsedQueue))
+    ERR << "<Engine> Failed to start device daq threads";
 
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
@@ -351,9 +351,7 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
-      if (daq_stop())
-        DBG << "<Engine> Stopped device daq threads successfully";
-      else
+      if (!daq_stop())
         ERR << "<Engine> Failed to stop device daq threads";
     }
   }
@@ -404,8 +402,8 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   SynchronizedQueue<Spill*> parsedQueue;
 
-  if (daq_start(&parsedQueue))
-    DBG << "<Engine> Started device daq threads";
+  if (!daq_start(&parsedQueue))
+    ERR << "<Engine> Failed to start device daq threads";
 
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
@@ -422,9 +420,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
-      if (daq_stop())
-        DBG << "<Engine> Stopped device daq threads successfully";
-      else
+      if (!daq_stop())
         ERR << "<Engine> Failed to stop device daq threads";
     }
   }
@@ -461,7 +457,6 @@ void Engine::worker_chronological(SpillQueue data_queue,
   // use multimap from timestamp?
   std::list<Spill*> current_spills;
 
-  DBG << "<Engine> Spectra builder thread initiated";
   while (true)
   {
     Spill* in_spill = data_queue->dequeue();

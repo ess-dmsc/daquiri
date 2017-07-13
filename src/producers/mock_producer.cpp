@@ -243,7 +243,7 @@ bool MockProducer::boot()
 
   LINFO << "<MockProducer> Booting mock producer"
         << " resolution=" << resolution_ << " rate=" << count_rate_ << "cps"
-        << " with peak at " << peak_center_ << "%  with stdev=" << peak_spread_;
+        << " with peak at " << peak_center_ << "%   stdev=" << peak_spread_;
 
   dist_ = std::normal_distribution<double>(peak_center_ * resolution_,
                                            peak_spread_);
@@ -257,7 +257,7 @@ void MockProducer::worker_run(MockProducer* callback,
 {
   DBG << "<MockProducer> Starting run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns"
-      << "  init_rate=" << callback->count_rate_ << " cps"
+      << "  init_rate=" << callback->count_rate_ << "cps"
       << "  lambda=" << callback->lambda_;
 
   CustomTimer timer(true);

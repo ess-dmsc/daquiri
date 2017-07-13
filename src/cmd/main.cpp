@@ -7,6 +7,7 @@
 #include "consumer_factory.h"
 
 #include "custom_logger.h"
+#include "lexical_extensions.h"
 
 static ProducerRegistrar<MockProducer> reg1("MockProducer");
 static ConsumerRegistrar<Spectrum1DEvent> reg2("1DEvent");
@@ -16,6 +17,15 @@ Container<ConsumerMetadata> get_prototypes();
 
 int main(int argc, char **argv)
 {
+  int duration = 1;
+  std::string durstr;
+  if (argc > 1)
+    durstr = std::string (argv[1]);
+  if (is_number(durstr))
+    duration = std::stoi(durstr);
+  if (duration < 1)
+    duration = 1;
+
   json defs;
   defs["MockProducer"] = json();
 
@@ -24,14 +34,19 @@ int main(int argc, char **argv)
   engine.boot();
 
   DBG << "\n" << engine.pull_settings().debug("   ");
-  DBG << "Engine can run? " << (0 != (engine.status() & ProducerStatus::can_run));
+
+  if (0 == (engine.status() & ProducerStatus::can_run))
+  {
+    DBG << "Engine cannot run";
+    return 1;
+  }
 
   ProjectPtr project = ProjectPtr( new Project() );
 
   project->set_prototypes(get_prototypes());
 
   Interruptor interruptor(false);
-  engine.acquire(project, interruptor, 30);
+  engine.acquire(project, interruptor, duration);
   engine.die();
 
   auto result = project->get_sink(1);
@@ -39,12 +54,8 @@ int main(int argc, char **argv)
   {
     DBG << "Results:\n" << result->debug();
     auto dr = result->data_range();
-    DBG << "Spectrum size = " << dr->size();
 
-    int total{0};
-    for (auto d : *dr)
-      total += d.second;
-    DBG << "Specturm tally = " << total;
+    int total = result->metadata().get_attribute("total_count").get_number();
 
     int nstars=100;
     for (auto d : *dr)
@@ -65,11 +76,11 @@ Setting get_profile()
   dummy.write_settings_bulk(default_settings);
   dummy.read_settings_bulk(default_settings);
 
-  default_settings.set(Setting::integer("MockProducer/Resolution", 16), Match::id);
-  default_settings.set(Setting::text("MockProducer/ValName1", "energy"), Match::id);
-  default_settings.set(Setting::floating("MockProducer/PeakSpread", 1500), Match::id);
-  default_settings.set(Setting::floating("MockProducer/CountRate", 20000), Match::id);
-  default_settings.set(Setting::floating("MockProducer/DeadTime", 5), Match::id);
+  default_settings.set(Setting::integer("MockProducer/Resolution", 16));
+  default_settings.set(Setting::text("MockProducer/ValName1", "energy"));
+  default_settings.set(Setting::floating("MockProducer/PeakSpread", 1500));
+  default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
+  default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
 
   Setting profile({"Profile", SettingType::stem});
   profile.branches.add(Setting::text("Profile description",
@@ -84,12 +95,12 @@ Container<ConsumerMetadata> get_prototypes()
   Container<ConsumerMetadata> prototypes;
 
   ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("1DEvent");
-  ptype.set_attribute(Setting::text("name", "Spectrum"), false);
-  ptype.set_attribute(Setting::integer("resolution", 6), false);
-  ptype.set_attribute(Setting("pattern_coinc", Pattern(1, {true})), false);
-  ptype.set_attribute(Setting("pattern_add", Pattern(1, {true})), false);
+  ptype.set_attribute(Setting::text("name", "Spectrum"));
+  ptype.set_attribute(Setting::integer("resolution", 6));
+  ptype.set_attribute(Setting("pattern_coinc", Pattern(1, {true})));
+  ptype.set_attribute(Setting("pattern_add", Pattern(1, {true})));
 
-  DBG << "Will acquire\n" << ptype.debug("   ");
+  DBG << "Consumers:\n" << ptype.debug("   ");
 
   prototypes.add(ptype);
   return prototypes;

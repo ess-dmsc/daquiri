@@ -4,12 +4,18 @@
 #include <map>
 #include <set>
 #include <list>
+#include "precise_float.h"
+
 #include "json.hpp"
 using namespace nlohmann;
 
 #define TT template<typename T>
 
 namespace DAQuiri {
+
+using integer_t = int64_t;
+using floating_t = double;
+using precise_t = PreciseFloat;
 
 enum class SettingType {none,
                         stem,       // as branches
@@ -82,7 +88,34 @@ private:
   std::set<std::string>          flags_;
   json                           contents_;
   std::map<int32_t, std::string> enum_map_;
+
+  std::string mins(std::string def) const;
+  std::string maxs(std::string def) const;
+
+  TT std::string min_str(std::string def) const;
+  TT std::string max_str(std::string def) const;
 };
+
+
+TT std::string SettingMeta::min_str(std::string def) const
+{
+  auto m = min<T>();
+  if (m == std::numeric_limits<T>::min())
+    return def;
+  std::stringstream ss;
+  ss << m;
+  return ss.str();
+}
+
+TT std::string SettingMeta::max_str(std::string def) const
+{
+  auto m = max<T>();
+  if (m == std::numeric_limits<T>::max())
+    return def;
+  std::stringstream ss;
+  ss << m;
+  return ss.str();
+}
 
 
 TT T SettingMeta::get_num(std::string name, T default_val) const

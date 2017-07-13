@@ -3,7 +3,6 @@
 #include "setting_metadata.h"
 #include <boost/date_time.hpp>
 #include "pattern.h"
-#include "precise_float.h"
 #include "container.h"
 
 namespace DAQuiri {
@@ -40,10 +39,10 @@ public:
   Setting(std::string sid, boost::posix_time::ptime v);
   Setting(std::string sid, boost::posix_time::time_duration v);
   Setting(std::string sid, Pattern v);
-  static Setting floating(std::string sid, double val);
-  static Setting precise(std::string sid, PreciseFloat val);
+  static Setting floating(std::string sid, floating_t val);
+  static Setting precise(std::string sid, precise_t val);
   static Setting boolean(std::string sid, bool val);
-  static Setting integer(std::string sid, int64_t val);
+  static Setting integer(std::string sid, integer_t val);
   static Setting text(std::string sid, std::string val);
   static Setting color(std::string sid, std::string val);
   static Setting file(std::string sid, std::string val);
@@ -92,8 +91,8 @@ public:
   Setting operator--(int);
 
   // menu/indicator
-  void select(int64_t v);
-  int64_t selection() const;
+  void select(integer_t v);
+  integer_t selection() const;
 
   //command/boolean
   bool triggered() const;
@@ -117,13 +116,13 @@ public:
   void set_val(const Setting &other);
 
   // recursive access
-  void set(const Setting &s, Match m, bool greedy = false);
+  void set(const Setting &s, Match m = Match::id, bool greedy = false);
   //template for all containers?
-  void set(const std::list<Setting> &s, Match m, bool greedy = false);
-  bool has(Setting address, Match m) const;
-  void erase(Setting address, Match m);
-  Setting find(Setting address, Match m) const;
-  std::list<Setting> find_all(const Setting &setting, Match m) const;
+  void set(const std::list<Setting> &s, Match m = Match::id, bool greedy = false);
+  bool has(Setting address, Match m = Match::id) const;
+  void erase(Setting address, Match m = Match::id);
+  Setting find(Setting address, Match m = Match::id) const;
+  std::list<Setting> find_all(const Setting &setting, Match m = Match::id) const;
 
   // metadata-related convenience functions
   void enable_if_flag(bool enable, const std::string &flag);
@@ -161,9 +160,9 @@ private:
   SettingMeta        metadata_;
   std::set<int32_t>  indices_;
 
-  int64_t                          value_int     {0};
-  double                           value_dbl     {0};
-  PreciseFloat                     value_precise {0};
+  integer_t                        value_int     {0};
+  floating_t                       value_dbl     {0};
+  precise_t                        value_precise {0};
   std::string                      value_text;
   boost::posix_time::ptime         value_time;
   boost::posix_time::time_duration value_duration;

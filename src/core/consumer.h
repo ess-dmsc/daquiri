@@ -63,7 +63,7 @@ public:
   std::string debug() const;
 
   //Change metadata
-  void set_attribute(const Setting &setting, bool greedy);
+  void set_attribute(const Setting &setting, bool greedy = false);
   void set_attributes(const Setting &settings);
   void set_detectors(const std::vector<Detector>& dets);
 

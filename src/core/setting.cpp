@@ -3,6 +3,7 @@
 #include "bin_hex_print.h"
 #include "time_extensions.h"
 #include "ascii_tree.h"
+#include "color_bash.h"
 #include <boost/algorithm/string.hpp>
 
 namespace DAQuiri {
@@ -186,7 +187,7 @@ std::string Setting::indices_to_string(bool showblanks) const
       idcs.push_back("-");
 
   if (idcs.size())
-    return "{ " + boost::join(idcs, " ") + " }";
+    return "{" + boost::join(idcs, " ") + "}";
 
   return "";
 }
@@ -357,18 +358,18 @@ void Setting::enforce_limits()
 {
   if (is(SettingType::integer))
   {
-    value_int = std::min(metadata_.max<int64_t>(), value_int);
-    value_int = std::max(metadata_.min<int64_t>(), value_int);
+    value_int = std::min(metadata_.max<integer_t>(), value_int);
+    value_int = std::max(metadata_.min<integer_t>(), value_int);
   }
   else if (is(SettingType::floating))
   {
-    value_dbl = std::min(metadata_.max<double>(), value_dbl);
-    value_dbl = std::max(metadata_.min<double>(), value_dbl);
+    value_dbl = std::min(metadata_.max<floating_t>(), value_dbl);
+    value_dbl = std::max(metadata_.min<floating_t>(), value_dbl);
   }
   else if (is(SettingType::precise))
   {
-    value_precise = std::min(metadata_.max<PreciseFloat>(), value_precise);
-    value_precise = std::max(metadata_.min<PreciseFloat>(), value_precise);
+    value_precise = std::min(metadata_.max<precise_t>(), value_precise);
+    value_precise = std::max(metadata_.min<precise_t>(), value_precise);
   }
   else if (is(SettingType::pattern))
   {
@@ -501,14 +502,14 @@ std::string Setting::get_text() const
 
 // Numerics
 
-Setting Setting::floating(std::string sid, double val)
+Setting Setting::floating(std::string sid, floating_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::floating));
   ret.value_dbl = val;
   return ret;
 }
 
-Setting Setting::precise(std::string sid, PreciseFloat val)
+Setting Setting::precise(std::string sid, precise_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::precise));
   ret.value_precise = val;
@@ -522,7 +523,7 @@ Setting Setting::boolean(std::string sid, bool val)
   return ret;
 }
 
-Setting Setting::integer(std::string sid, int64_t val)
+Setting Setting::integer(std::string sid, integer_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::integer));
   ret.value_int = val;
@@ -536,7 +537,10 @@ bool Setting::numeric() const
 
 double Setting::get_number() const
 {
-  if (is(SettingType::integer) || is(SettingType::binary))
+  if (is(SettingType::integer)
+      || is(SettingType::binary)
+      || is(SettingType::menu)
+      || is(SettingType::indicator))
     return static_cast<double>(value_int);
   else if (is(SettingType::floating))
     return value_dbl;
@@ -557,12 +561,12 @@ void Setting::set_number(double val)
   enforce_limits();
 }
 
-void Setting::select(int64_t v)
+void Setting::select(integer_t v)
 {
   value_int = v;
 }
 
-int64_t Setting::selection() const
+integer_t Setting::selection() const
 {
   return value_int;
 }
@@ -587,21 +591,21 @@ Setting& Setting::operator++()
 {
   if (is(SettingType::integer))
   {
-    value_int += metadata_.step<int64_t>();
-    if (value_int > metadata_.max<int64_t>())
-      value_int = metadata_.max<int64_t>();
+    value_int += metadata_.step<integer_t>();
+    if (value_int > metadata_.max<integer_t>())
+      value_int = metadata_.max<integer_t>();
   }
   else if (is(SettingType::floating))
   {
-    value_dbl += metadata_.step<int64_t>();
-    if (value_dbl > metadata_.max<int64_t>())
-      value_dbl = metadata_.max<int64_t>();
+    value_dbl += metadata_.step<floating_t>();
+    if (value_dbl > metadata_.max<floating_t>())
+      value_dbl = metadata_.max<floating_t>();
   }
   else if (is(SettingType::precise))
   {
-    value_precise += metadata_.step<int64_t>();
-    if (value_precise > metadata_.max<int64_t>())
-      value_precise = metadata_.max<int64_t>();
+    value_precise += metadata_.step<precise_t>();
+    if (value_precise > metadata_.max<precise_t>())
+      value_precise = metadata_.max<precise_t>();
   }
   return *this;
 }
@@ -610,21 +614,21 @@ Setting& Setting::operator--()
 {
   if (is(SettingType::integer))
   {
-    value_int -= metadata_.step<int64_t>();
-    if (value_int < metadata_.min<int64_t>())
-      value_int = metadata_.min<int64_t>();
+    value_int -= metadata_.step<integer_t>();
+    if (value_int < metadata_.min<integer_t>())
+      value_int = metadata_.min<integer_t>();
   }
   else if (is(SettingType::floating))
   {
-    value_dbl -= metadata_.step<int64_t>();
-    if (value_dbl < metadata_.min<int64_t>())
-      value_dbl = metadata_.min<int64_t>();
+    value_dbl -= metadata_.step<floating_t>();
+    if (value_dbl < metadata_.min<floating_t>())
+      value_dbl = metadata_.min<floating_t>();
   }
   else if (is(SettingType::precise))
   {
-    value_precise -= metadata_.step<int64_t>();
-    if (value_precise < metadata_.min<int64_t>())
-      value_precise = metadata_.min<int64_t>();
+    value_precise -= metadata_.step<precise_t>();
+    if (value_precise < metadata_.min<precise_t>())
+      value_precise = metadata_.min<precise_t>();
   }
   return *this;
 }
@@ -664,10 +668,10 @@ std::string Setting::val_to_string() const
     //    ss << itohex64(value_int);
     ss << std::to_string(value_int);
   else if (is(SettingType::floating))
-    ss << std::setprecision(std::numeric_limits<double>::max_digits10)
+    ss << std::setprecision(std::numeric_limits<floating_t>::max_digits10)
        << value_dbl;
   else if (is(SettingType::precise))
-    ss << std::setprecision(std::numeric_limits<PreciseFloat>::max_digits10)
+    ss << std::setprecision(std::numeric_limits<precise_t>::max_digits10)
        << value_precise;
   else if (is(SettingType::pattern))
     ss << value_pattern.debug();
@@ -718,13 +722,17 @@ std::string Setting::val_to_pretty_string() const
 
 std::string Setting::debug(std::string prepend) const
 {
-  std::string ret = id();
+  std::string ret;
+  if (!id().empty())
+    ret = col(BLUE, NONE, BRIGHT) + id() + col();
   if (!indices_.empty())
-    ret += indices_to_string(true);
-  ret += "=" + val_to_pretty_string();
-  ret += " " + metadata_.debug(prepend);
+    ret += col(RED) + indices_to_string(true) + col();
+  if (!ret.empty())
+    ret += "=";
+  ret += col(GREEN, NONE, BRIGHT) + val_to_pretty_string() + col();
   if (!branches.empty())
     ret += " branches=" + std::to_string(branches.size());
+  ret += " " + metadata_.debug(prepend);
   ret += "\n";
   if (!branches.empty())
     for (size_t i = 0; i < branches.size(); ++i)
@@ -766,11 +774,11 @@ void Setting::val_from_json(const json &j)
            is(SettingType::menu) ||
            is(SettingType::binary) ||
            is(SettingType::indicator) )
-    value_int = j.get<int64_t>();
+    value_int = j.get<integer_t>();
   else if (is(SettingType::pattern))
     value_pattern = j;
   else if (is(SettingType::floating))
-    value_dbl = j.get<double>();
+    value_dbl = j.get<floating_t>();
   else if (is(SettingType::precise))
     value_precise = j;
   else if (is(SettingType::time))

@@ -89,8 +89,8 @@ bool SpectrumEventMode::_initialize()
     }
     if (idx >= 0)
     {
-      cutoff_logic_[idx] = d.find({"cutoff_logic"}, Match::id).get_number();
-      delay_ns_[idx]     = d.find({"delay_ns"}, Match::id).get_number();
+      cutoff_logic_[idx] = d.find({"cutoff_logic"}).get_number();
+      delay_ns_[idx]     = d.find({"delay_ns"}).get_number();
       if (delay_ns_[idx] > max_delay_)
         max_delay_ = delay_ns_[idx];
     }

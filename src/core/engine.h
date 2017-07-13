@@ -33,7 +33,7 @@ public:
   /////SETTINGS/////
   Setting pull_settings() const;
   void push_settings(const Setting&);
-  void set_setting(Setting address, Match flags, bool greedy);
+  void set_setting(Setting address, Match flags, bool greedy = false);
   void write_settings_bulk();
   void read_settings_bulk();
   void get_all_settings();

@@ -186,12 +186,12 @@ std::string Consumer::debug() const
 
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   std::stringstream ss;
-  ss << my_type();
+  ss << prepend << my_type();
   if (changed_)
-    ss << " changed";
+    ss << "(changed)";
   ss << "\n";
   if (axes_.empty())
-    ss << prepend << k_branch_mid_B << "Axes empty";
+    ss << prepend << k_branch_mid_B << "Axes empty\n";
   else
   {
     ss << prepend << k_branch_mid_B << "Axes:\n";

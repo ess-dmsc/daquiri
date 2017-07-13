@@ -1,6 +1,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "setting_metadata.h"
+#include "color_bash.h"
 
 namespace DAQuiri {
 
@@ -177,9 +178,10 @@ bool SettingMeta::meaningful() const
 
 std::string SettingMeta::debug(std::string prepend) const
 {
-  std::string ret = to_string(type_);
+  std::string ret = col(GREEN) + to_string(type_) + col();
+
   if (numeric())
-    ret += value_range();
+    ret += " " + col(CYAN) + value_range() + col();
 
   if (!flags_.empty())
   {
@@ -206,25 +208,35 @@ std::string SettingMeta::debug(std::string prepend) const
 
 std::string SettingMeta::value_range() const
 {
-  if (numeric())
-  {
-    std::stringstream ss;
-    ss << "[";
-    auto m = min<double>();
-    if (m == std::numeric_limits<double>::min())
-      ss << "m";
-    else
-      ss << m;
-    ss << "\uFF1A" << step<double>() << "\uFF1A";
-    auto M = max<double>();
-    if (M == std::numeric_limits<double>::max())
-      ss << "M";
-    else
-      ss << M;
-    ss << "]";
-    return ss.str();
-  }
-  return "";
+  if (!numeric())
+    return "";
+  std::stringstream ss;
+  ss << "[" << mins("m")
+     << "\uFF1A" << step<double>() << "\uFF1A"
+     << maxs("M") << "]";
+  return ss.str();
+}
+
+std::string SettingMeta::mins(std::string def) const
+{
+  if (is(SettingType::integer))
+    return min_str<integer_t>(def);
+  else if (is(SettingType::floating))
+    return min_str<floating_t>(def);
+  else if (is(SettingType::precise))
+    return min_str<precise_t>(def);
+  return "?";
+}
+
+std::string SettingMeta::maxs(std::string def) const
+{
+  if (is(SettingType::integer))
+    return max_str<integer_t>(def);
+  else if (is(SettingType::floating))
+    return max_str<floating_t>(def);
+  else if (is(SettingType::precise))
+    return max_str<precise_t>(def);
+  return "?";
 }
 
 bool SettingMeta::numeric() const

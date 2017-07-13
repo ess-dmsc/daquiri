@@ -16,8 +16,8 @@ public:
   Setting get_attribute(std::string setting, int32_t idx) const;
   Setting get_attribute(Setting setting) const;
   Setting get_all_attributes() const;  
-  void set_attribute(const Setting &setting, bool greedy);
-  void set_attributes(const std::list<Setting> &s, bool greedy);
+  void set_attribute(const Setting &setting, bool greedy = false);
+  void set_attributes(const std::list<Setting> &s, bool greedy = false);
   void overwrite_all_attributes(Setting settings);
 
   //read only
