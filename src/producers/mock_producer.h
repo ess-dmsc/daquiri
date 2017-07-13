@@ -1,8 +1,9 @@
 #pragma once
 
 #include "producer.h"
-#include <boost/random/discrete_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
+#include <random>
+//#include <boost/random/discrete_distribution.hpp>
+//#include <boost/random/mersenne_twister.hpp>
 
 using namespace DAQuiri;
 
@@ -40,23 +41,25 @@ protected:
   boost::thread *runner_ {nullptr};
 
   // cached params
-  int      bits_ {6};
+  uint16_t bits_ {6};
   uint32_t spill_interval_ {5};
-  double   count_rate_ {5000};
+  double   count_rate_ {10};
   double   lambda_ {0};
+  double   peak_center_{0.5};
+  double   peak_spread_{1.0};
   int      event_interval_ {10};
   uint64_t resolution_;
   EventModel model_hit;
 
   // runtime
-  boost::random::discrete_distribution<> dist_;
-  boost::random::mt19937 gen;
+  std::normal_distribution<double> dist_;
+  std::default_random_engine gen_;
   double lab_time {0};
   double live_time {0};
   uint64_t clock_ {0};
 
   Spill get_spill();
   Status getBlock(double duration);
-  void push_hit(Spill&, uint16_t);
+  void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
 };

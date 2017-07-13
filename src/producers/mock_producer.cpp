@@ -46,6 +46,23 @@ MockProducer::MockProducer()
   lambda.set_val("step", 0.01);
   add_definition(lambda);
 
+  SettingMeta val1(mp + "ValName1", SettingType::text, "Value name 1");
+  add_definition(val1);
+
+  SettingMeta val2(mp + "ValName2", SettingType::text, "Value name 2");
+  add_definition(val2);
+
+  SettingMeta pc(mp + "PeakCenter", SettingType::floating, "Peak center (% resolution)");
+  pc.set_val("min", 0);
+  pc.set_val("min", 100);
+  pc.set_val("step", 0.1);
+  add_definition(pc);
+
+  SettingMeta ps(mp + "PeakSpread", SettingType::floating, "Peak spread (stddev)");
+  ps.set_val("min", 0);
+  ps.set_val("step", 0.01);
+  add_definition(ps);
+
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
@@ -129,6 +146,14 @@ void MockProducer::read_settings_bulk(Setting &set) const
         q.set_number(model_hit.timebase.divider());
       else if (q.id() == "MockProducer/Lambda")
         q.set_number(lambda_);
+      else if (q.id() == "MockProducer/ValName1")
+        q.set_text((model_hit.values.size() > 0) ? model_hit.value_names.at(0) : "v1");
+      else if (q.id() == "MockProducer/ValName2")
+        q.set_text((model_hit.values.size() > 1) ? model_hit.value_names.at(1) : "v2");
+      else if (q.id() == "MockProducer/PeakCenter")
+        q.set_number(peak_center_ * 100);
+      else if (q.id() == "MockProducer/PeakSpread")
+        q.set_number(peak_spread_);
     }
   }
 }
@@ -141,6 +166,7 @@ void MockProducer::write_settings_bulk(Setting &set)
 
   double timebase_multiplier = model_hit.timebase.multiplier();
   double timebase_divider = model_hit.timebase.divider();
+  std::string vname1 {"v1"}, vname2 {"v2"};
 
   for (auto &q : set.branches)
   {
@@ -158,12 +184,20 @@ void MockProducer::write_settings_bulk(Setting &set)
       count_rate_ = q.get_number();
     else if (q.id() == "MockProducer/Lambda")
       lambda_ = q.get_number();
+    else if (q.id() == "MockProducer/ValName1")
+      vname1 = q.get_text();
+    else if (q.id() == "MockProducer/ValName2")
+      vname2 = q.get_text();
+    else if (q.id() == "MockProducer/PeakCenter")
+      peak_center_ = q.get_number() / 100.0;
+    else if (q.id() == "MockProducer/PeakSpread")
+      peak_spread_ = q.get_number();
   }
 
   model_hit = EventModel();
   model_hit.timebase = TimeBase(timebase_multiplier, timebase_divider);
-  model_hit.add_value("energy", 16);
-  model_hit.add_value("junk", 16);
+  model_hit.add_value(vname1, bits_);
+  model_hit.add_value(vname2, bits_);
   model_hit.add_trace("trace", {200});
 
   set.enrich(setting_definitions_);
@@ -189,14 +223,8 @@ bool MockProducer::boot()
 
   LINFO << "<MockProducer> Building matrix for simulation from "
        << " resolution=" << resolution_ << " rate=" << count_rate_ << "cps";
-  std::vector<double> distribution(resolution_, 0.0);   //optimize somehow
 
-//  for (auto it : *spec_list)
-//    distribution[(it.first[0] >> adjust_bits) * resolution_
-//        + (it.first[1] >> adjust_bits)]
-//        =  static_cast<double>(it.second) / totevts;
-
-  dist_ = boost::random::discrete_distribution<>(distribution);
+  dist_ = std::normal_distribution<double>(peak_center_, peak_spread_);
 
   clock_ = 0;
   lab_time = 0;
@@ -249,21 +277,14 @@ void MockProducer::worker_run(MockProducer* callback,
     uint64_t rate = rate * exp(0.0 - lambda * timer.s());
     boost::this_thread::sleep(boost::posix_time::seconds(callback->spill_interval_));
 
-    DBG << "<MockProducer> s=" << timer.s() << " exp=" << exp(0.0 - lambda * timer.s())
-        << "  current rate = " << rate;
+    DBG << "<MockProducer> s=" << timer.s()
+        << "  exp=" << exp(0.0 - lambda * timer.s())
+        << "  rate=" << rate;
 
     one_spill = Spill();
 
     for (uint32_t i=0; i< (rate * callback->spill_interval_); i++)
-    {
-      if (callback->resolution_ > 0)
-      {
-        uint64_t newpoint = callback->dist_(callback->gen);
-        int32_t en1 = newpoint / callback->resolution_;
-
-        callback->push_hit(one_spill, en1);
-      }
-    }
+      callback->add_hit(one_spill);
 
 //    moving_stats = moving_stats + one_run;
     moving_stats.set_model(callback->model_hit);
@@ -291,17 +312,24 @@ void MockProducer::worker_run(MockProducer* callback,
   //  DBG << "<MockProducer> Stop run worker";
 }
 
-void MockProducer::push_hit(Spill& one_spill, uint16_t en1)
+void MockProducer::add_hit(Spill& one_spill)
 {
-  if (en1 > 0)
-  {
-//    Event h(chan0_, model_hit);
-//    h.set_native_time(clock_);
-//    h.set_value(0, round(en1 * gain0_ * 0.01));
-//    h.set_value(1, rand() % 100);
-//    make_trace(h, 1000);
-//    one_spill.events.push_back(h);
-  }
+  if (resolution_ < 1)
+    return;
+
+  int16_t chan0 {0};
+
+  double v1 = dist_(gen_) * resolution_;
+  double v2 = dist_(gen_) * resolution_;
+
+  Event h(chan0, model_hit);
+  h.set_native_time(clock_);
+  if (v1 > 0)
+    h.set_value(0, round(v1));
+  if (v2 > 0)
+    h.set_value(1, round(v2));
+  make_trace(h, 1000);
+  one_spill.events.push_back(h);
 
   clock_ += event_interval_ + 1;
 }
