@@ -77,7 +77,7 @@ public:
   TT T step() const;
 
   std::string value_range() const;
-  std::string debug(std::string prepend = "") const;
+  std::string debug(std::string prepend = "", bool verbose = true) const;
 
   friend void to_json(json& j, const SettingMeta &s);
   friend void from_json(const json& j, SettingMeta &s);

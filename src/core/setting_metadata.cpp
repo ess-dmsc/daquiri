@@ -176,7 +176,7 @@ bool SettingMeta::meaningful() const
           !enum_map_.empty());
 }
 
-std::string SettingMeta::debug(std::string prepend) const
+std::string SettingMeta::debug(std::string prepend, bool verbose) const
 {
   std::string ret = col(GREEN) + to_string(type_) + col();
 
@@ -184,23 +184,38 @@ std::string SettingMeta::debug(std::string prepend) const
     ret += " " + col(CYAN) + value_range() + col();
 
   if (!flags_.empty())
+    ret += " " + col(WHITE, NONE, DIM)
+        + boost::algorithm::join(flags_, " ")
+        + col();
+
+  json cont;
+  if (verbose)
+    cont = contents_;
+  else
+    for (auto it = contents_.begin();
+         it != contents_.end(); ++it)
+      if ((it.key() != "min") &&
+          (it.key() != "max") &&
+          (it.key() != "step") &&
+          (it.key() != "chans") &&
+          (it.key() != "address") &&
+          (it.key() != "bits"))
+        cont[it.key()] = it.value();
+
+  if (!cont.empty())
   {
-    std::string flgs;
-    for (auto &q : flags_)
-      flgs += q + " ";
-    boost::algorithm::trim_if(flgs, boost::algorithm::is_any_of("\r\n\t "));
-    if (!flgs.empty())
-      ret += " flags=\"" + flgs + "\"";
+    for (auto it = cont.begin();
+         it != cont.end(); ++it)
+      ret += " " + it.key() + "="
+          + it.value().dump();
   }
 
-  if (enum_map_.size())
+  if (verbose && enum_map_.size())
   {
     ret += "\n" + prepend + " ";
     for (auto &i : enum_map_)
       ret += std::to_string(i.first) + "=\"" + i.second + "\"  ";
   }
-  if (!contents_.empty())
-    ret += " vals=" + contents_.dump();
 
   return ret;
 }

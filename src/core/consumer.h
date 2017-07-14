@@ -60,7 +60,7 @@ public:
   //Convenience functions for most common metadata
   std::string type() const;
   uint16_t dimensions() const;
-  std::string debug() const;
+  std::string debug(std::string prepend = "", bool verbose = true) const;
 
   //Change metadata
   void set_attribute(const Setting &setting, bool greedy = false);
@@ -91,6 +91,8 @@ protected:
 
   virtual void _load_data(H5CC::Group&) {}
   virtual void _save_data(H5CC::Group&) const {}
+  virtual std::string _data_debug(const std::string& prepend) const
+  { return std::string(); }
 };
 
 typedef std::shared_ptr<Consumer> SinkPtr;

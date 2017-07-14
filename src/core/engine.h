@@ -24,10 +24,10 @@ public:
   void boot();
   void die();
 
-  ProducerStatus status() const {return aggregate_status_;}
+  ProducerStatus status() const;
   std::vector<Event> oscilloscope();
   ListData acquire_list(Interruptor& inturruptor, uint64_t timeout);
-  void acquire(ProjectPtr spectra, Interruptor &interruptor,
+  void acquire(ProjectPtr project, Interruptor &interruptor,
                uint64_t timeout);
 
   /////SETTINGS/////
@@ -39,24 +39,29 @@ public:
   void get_all_settings();
 
   //detectors
-  std::vector<Detector> get_detectors() const {return detectors_;}
+  std::vector<Detector> get_detectors() const;
   void set_detector(size_t, Detector);
-  void load_optimization();
+  void load_optimizations();
 
 //  static int print_version();
 //  static std::string version();
 
 private:
-  mutable boost::mutex mutex_;
+  mutable boost::shared_mutex shared_mutex_;
+  mutable boost::mutex unique_mutex_;
 
   ProducerStatus aggregate_status_ {ProducerStatus(0)};
-  ProducerStatus intrinsic_status_ {ProducerStatus(0)};
 
   std::map<std::string, ProducerPtr> devices_;
 
-  Setting settings_tree_;
-  SettingMeta total_det_num_;
+  Setting settings_ {SettingMeta("Engine", SettingType::stem)};
   std::vector<Detector> detectors_;
+
+  void _die();
+  void _push_settings(const Setting&);
+  void _get_all_settings();
+  void _read_settings_bulk();
+  void _write_settings_bulk();
 
   void save_det_settings(Setting&, const Setting&, Match flags) const;
   void load_det_settings(Setting, Setting&, Match flags);
@@ -71,7 +76,7 @@ private:
 
   //threads
   void worker_chronological(SpillQueue data_queue,
-                            ProjectPtr spectra);
+                            ProjectPtr project);
 
   //singleton assurance
   Engine();

@@ -2,7 +2,10 @@
 #include "h5json.h"
 #include "ascii_tree.h"
 
+#include "custom_timer.h"
 #include "custom_logger.h"
+
+#define SLEEP_TIME_MS 200
 
 namespace DAQuiri {
 
@@ -77,7 +80,7 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
 
   if (metadata_.type() != newtemplate.type())
     return false;
@@ -94,7 +97,7 @@ void Consumer::push_spill(const Spill& spill)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   this->_push_spill(spill);
 }
 
@@ -122,7 +125,7 @@ void Consumer::flush()
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   this->_flush();
 }
 
@@ -147,7 +150,7 @@ void Consumer::set_detectors(const std::vector<Detector>& dets)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   
   this->_set_detectors(dets);
   changed_ = true;
@@ -157,7 +160,7 @@ void Consumer::reset_changed()
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   changed_ = false;
 }
 
@@ -180,10 +183,8 @@ uint16_t Consumer::dimensions() const
   return metadata_.dimensions();
 }
 
-std::string Consumer::debug() const
+std::string Consumer::debug(std::string prepend, bool verbose) const
 {
-  std::string prepend;
-
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   std::stringstream ss;
   ss << prepend << my_type();
@@ -191,7 +192,7 @@ std::string Consumer::debug() const
     ss << "(changed)";
   ss << "\n";
   if (axes_.empty())
-    ss << prepend << k_branch_mid_B << "Axes empty\n";
+    ss << prepend << k_branch_mid_B << "Axes undefined\n";
   else
   {
     ss << prepend << k_branch_mid_B << "Axes:\n";
@@ -203,7 +204,9 @@ std::string Consumer::debug() const
         ss << prepend << k_branch_pre_B  << k_branch_mid_B << i << ".size=" << axes_.at(i).size() << "\n";
     }
   }
-  ss << prepend << k_branch_end_B << metadata_.debug(prepend + "  ");
+  ss << prepend << k_branch_mid_B << metadata_.debug(prepend + k_branch_pre_B, verbose);
+  ss << prepend << k_branch_end_B << "Data:\n"
+     << this->_data_debug(prepend + "  ");
   return ss.str();
 }
 
@@ -215,7 +218,7 @@ void Consumer::set_attribute(const Setting &setting, bool greedy)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   metadata_.set_attribute(setting, greedy);
   changed_ = true;
 }
@@ -224,7 +227,7 @@ void Consumer::set_attributes(const Setting &settings)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
   metadata_.set_attributes(settings.branches.data(), true);
   changed_ = true;
 }
@@ -240,7 +243,7 @@ bool Consumer::load(H5CC::Group& g, bool withdata)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
-    boost::this_thread::sleep_for(boost::chrono::seconds{1});
+    wait_ms(SLEEP_TIME_MS);
 
   if (!g.has_group("metadata"))
     return false;

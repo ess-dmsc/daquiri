@@ -135,7 +135,7 @@ public:
 
 
   // to string
-  std::string debug(std::string prepend = std::string()) const;
+  std::string debug(std::string prepend = "", bool verbose = true) const;
   std::string val_to_pretty_string() const;
   std::string indices_to_string(bool showblanks = false) const;
 

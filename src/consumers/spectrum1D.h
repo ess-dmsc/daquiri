@@ -20,6 +20,7 @@ protected:
 
   void _save_data(H5CC::Group&) const override;
   void _load_data(H5CC::Group&) override;
+  std::string _data_debug(const std::string& prepend) const override;
 
   // cached parameters
   uint16_t bits_ {0};

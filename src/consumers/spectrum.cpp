@@ -23,6 +23,7 @@ Spectrum::Spectrum()
 
   SettingMeta inst_rate("instant_rate", SettingType::floating);
   inst_rate.set_flag("readonly");
+  inst_rate.set_val("min", 0);
   inst_rate.set_val("description", "Instant count rate");
   inst_rate.set_val("units", "cps");
   Setting inst(inst_rate);
@@ -72,6 +73,7 @@ void Spectrum::_push_stats(const Status& newBlock)
       (recent_end_.time() - recent_start_.time()).total_milliseconds() * 0.001;
   if (recent_time > 0)
     rate.set_number(recent_count_ / recent_time);
+
   metadata_.set_attribute(rate, false);
 
   recent_count_ = 0;

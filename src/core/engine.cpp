@@ -5,6 +5,8 @@
 
 //#include "core_compiletime.h"
 
+#define SLEEP_TIME_MS 200
+
 namespace DAQuiri {
 
 //int Engine::print_version()
@@ -24,18 +26,21 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
-  total_det_num_ = SettingMeta("Total detectors", SettingType::integer);
-  total_det_num_.set_val("min", 1);
-  total_det_num_.set_val("max", 64);
+  settings_.branches.add(Setting::text("Profile description",
+                                       "Test profile for Mock Producer"));
 }
 
 void Engine::initialize(const json &profile, const json &definitions)
 {
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   Setting tree = profile;
 
   auto& pf = ProducerFactory::singleton();
 
-  die();
+  _die();
   devices_.clear();
   for (auto &q : tree.branches)
   {
@@ -53,8 +58,8 @@ void Engine::initialize(const json &profile, const json &definitions)
     }
   }
 
-  push_settings(tree);
-  get_all_settings();
+  _push_settings(tree);
+  _get_all_settings();
 
   Setting descr = tree.find(Setting("Profile description"));
   LINFO << "<Engine> Welcome to " << descr.get_text();
@@ -64,13 +69,17 @@ Engine::~Engine()
 {
   die();
 
-//    Setting dev_settings = pull_settings();
+//    Setting dev_settings = settings_;
 //    dev_settings.condense();
 //    dev_settings.strip_metadata();
 }
 
 void Engine::boot()
 {
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   bool success = false;
   for (auto &q : devices_)
     if ((q.second != nullptr) &&
@@ -83,13 +92,21 @@ void Engine::boot()
   if (success)
   {
     LINFO << "<Engine> Boot successful";
-    //settings_tree_.value_int = 2;
-    get_all_settings();
+    //settings_.value_int = 2;
+    _get_all_settings();
   } else
     LINFO << "<Engine> Boot failed";
 }
 
 void Engine::die()
+{
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  _die();
+}
+
+void Engine::_die()
 {
   for (auto &q : devices_)
     if ((q.second != nullptr) &&
@@ -98,30 +115,61 @@ void Engine::die()
       q.second->die();
       //DBG << "die > " << q.second->device_name();
     }
+  _get_all_settings();
+}
 
-  get_all_settings();
+ProducerStatus Engine::status() const
+{
+  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  return aggregate_status_;
+}
+
+std::vector<Detector> Engine::get_detectors() const
+{
+  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  return detectors_;
 }
 
 Setting Engine::pull_settings() const
 {
-  return settings_tree_;
+  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  return settings_;
 }
 
 void Engine::push_settings(const Setting& newsettings)
 {
-  settings_tree_ = newsettings;
-  write_settings_bulk();
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  _push_settings(newsettings);
+}
 
-//  LINFO << "settings pushed branches = " << settings_tree_.branches.size();
+void Engine::_push_settings(const Setting& newsettings)
+{
+  settings_ = newsettings;
+  _write_settings_bulk();
+//  LINFO << "settings pushed branches = " << settings_.branches.size();
 }
 
 void Engine::read_settings_bulk()
 {
-  for (auto &set : settings_tree_.branches)
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  _read_settings_bulk();
+}
+
+void Engine::_read_settings_bulk()
+{
+  for (auto &set : settings_.branches)
   {
     if (set.id() == "Detectors")
     {
-      Setting totaldets(total_det_num_);
+      SettingMeta total_det_num;
+      total_det_num = SettingMeta("Total detectors", SettingType::integer);
+      total_det_num.set_val("min", 1);
+
+      Setting totaldets(total_det_num);
       totaldets.set_number(detectors_.size());
 
       set.branches.clear();
@@ -149,7 +197,15 @@ void Engine::read_settings_bulk()
 
 void Engine::write_settings_bulk()
 {
-  for (auto &set : settings_tree_.branches)
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  _write_settings_bulk();
+}
+
+void Engine::_write_settings_bulk()
+{
+  for (auto &set : settings_.branches)
   {
     if (set.id() == "Detectors")
       rebuild_structure(set);
@@ -172,6 +228,10 @@ void Engine::rebuild_structure(Setting &set)
 
 std::vector<Event> Engine::oscilloscope()
 {
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   std::vector<Event> traces;
   traces.resize(detectors_.size());
 
@@ -225,12 +285,16 @@ bool Engine::daq_running() const
 
 void Engine::set_detector(size_t ch, Detector det)
 {
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   if (ch >= detectors_.size())
     return;
   detectors_[ch] = det;
   //DBG << "set det #" << ch << " to  " << det.name_;
 
-  for (auto &set : settings_tree_.branches)
+  for (auto &set : settings_.branches)
   {
     if (set.id() == "Detectors")
     {
@@ -254,12 +318,16 @@ void Engine::save_optimization()
 //    detectors_[i].settings_ = Setting();
     Setting t;
     t.set_indices({int32_t(i)});
-    detectors_[i].add_optimizations(settings_tree_.find_all(t, Match::indices));
+    detectors_[i].add_optimizations(settings_.find_all(t, Match::indices));
   }
 }
 
-void Engine::load_optimization()
+void Engine::load_optimizations()
 {
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   for (size_t i = 0; i < detectors_.size(); i++)
     load_optimization(i);
 }
@@ -273,18 +341,30 @@ void Engine::load_optimization(size_t i)
     if (s.metadata().has_flag("readonly"))
       continue;
     s.set_indices({int32_t(i)});
-    settings_tree_.set(s, Match::id | Match::indices, true);
+    settings_.set(s, Match::id | Match::indices, true);
   }
 }
 
 void Engine::set_setting(Setting address, Match flags, bool greedy)
 {
-  settings_tree_.set(address, flags, greedy);
-  write_settings_bulk();
-  read_settings_bulk();
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
+  settings_.set(address, flags, greedy);
+  _write_settings_bulk();
+  _read_settings_bulk();
 }
 
 void Engine::get_all_settings()
+{
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  _get_all_settings();
+}
+
+void Engine::_get_all_settings()
 {
   aggregate_status_ = ProducerStatus(0);
   for (auto &q : devices_)
@@ -292,14 +372,14 @@ void Engine::get_all_settings()
     q.second->get_all_settings();
     aggregate_status_ = aggregate_status_ | q.second->status();
   }
-  read_settings_bulk();
+  _read_settings_bulk();
 }
 
-void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t timeout)
+void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t timeout)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
 
-  if (!spectra)
+  if (!project)
   {
     WARN << "<Engine> No reference to valid daq project";
     return;
@@ -311,6 +391,10 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
     return;
   }
 
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
   if (timeout > 0)
     LINFO << "<Engine> Starting acquisition scheduled for " << timeout << " seconds";
   else
@@ -321,12 +405,12 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
 
   SynchronizedQueue<Spill*> parsedQueue;
 
-  boost::thread builder(boost::bind(&Engine::worker_chronological, this, &parsedQueue, spectra));
+  boost::thread builder(boost::bind(&Engine::worker_chronological, this, &parsedQueue, project));
 
   Spill* spill = new Spill;
-  get_all_settings();
-  spill->state = pull_settings();
-  spill->detectors = get_detectors();
+  _get_all_settings();
+  spill->state = settings_;
+  spill->detectors = detectors_;
   parsedQueue.enqueue(spill);
 
   if (!daq_start(&parsedQueue))
@@ -337,7 +421,7 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
 
   while (daq_running())
   {
-    wait_ms(1000);
+    wait_ms(500);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       if (timeout > 0)
@@ -359,8 +443,8 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
   delete anouncement_timer;
 
   spill = new Spill;
-  get_all_settings();
-  spill->state = pull_settings();
+  _get_all_settings();
+  spill->state = settings_;
   parsedQueue.enqueue(spill);
 
   wait_ms(500);
@@ -375,13 +459,17 @@ void Engine::acquire(ProjectPtr spectra, Interruptor &interruptor, uint64_t time
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
 
   if (!(aggregate_status_ & ProducerStatus::can_run))
   {
     WARN << "<Engine> No devices exist that can perform acquisition";
     return ListData();
   }
+
+  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
+  while (!uniqueLock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
 
   if (timeout > 0)
     LINFO << "<Engine> List mode acquisition scheduled for " << timeout << " seconds";
@@ -395,9 +483,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   double secs_between_anouncements = 5;
 
   one_spill = new Spill;
-  get_all_settings();
-  one_spill->state = pull_settings();
-  one_spill->detectors = get_detectors();
+  _get_all_settings();
+  one_spill->state = settings_;
+  one_spill->detectors = detectors_;
   result.push_back(SpillPtr(one_spill));
 
   SynchronizedQueue<Spill*> parsedQueue;
@@ -410,7 +498,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   while (daq_running())
   {
-    wait_ms(1000);
+    wait_ms(500);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       LINFO << "  RUNNING Elapsed: " << total_timer.done()
@@ -428,8 +516,8 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   delete anouncement_timer;
 
   one_spill = new Spill;
-  get_all_settings();
-  one_spill->state = pull_settings();
+  _get_all_settings();
+  one_spill->state = settings_;
   parsedQueue.enqueue(one_spill);
 //  result.push_back(SpillPtr(one_spill));
 
@@ -446,7 +534,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
 void Engine::worker_chronological(SpillQueue data_queue,
-                        ProjectPtr spectra)
+                        ProjectPtr project)
 {
   CustomTimer presort_timer;
   uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
@@ -557,7 +645,7 @@ void Engine::worker_chronological(SpillQueue data_queue,
             out_spill->stats = (*i)->stats;
             out_spill->detectors = (*i)->detectors;
             out_spill->state = (*i)->state;
-            spectra->add_spill(out_spill);
+            project->add_spill(out_spill);
 
             delete (*i);
             current_spills.erase(i);
@@ -577,7 +665,7 @@ void Engine::worker_chronological(SpillQueue data_queue,
 
   DBG << "<Engine> Spectra builder terminating";
 
-  spectra->flush();
+  project->flush();
 }
 
 

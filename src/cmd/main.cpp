@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   engine.initialize(get_profile(), defs);
   engine.boot();
 
-  DBG << "\n" << engine.pull_settings().debug("   ");
+  DBG << "\n" << engine.pull_settings().debug("   ", false);
 
   if (0 == (engine.status() & ProducerStatus::can_run))
   {
@@ -51,17 +51,7 @@ int main(int argc, char **argv)
 
   auto result = project->get_sink(1);
   if (result)
-  {
-    DBG << "Results:\n" << result->debug();
-    auto dr = result->data_range();
-
-    int total = result->metadata().get_attribute("total_count").get_number();
-
-    int nstars=100;
-    for (auto d : *dr)
-      if (d.second)
-        DBG << d.first[0] << ": " << std::string(d.second*nstars/total,'*');
-  }
+    DBG << "Results:\n" << result->debug("", false);
 
   boost::this_thread::sleep(boost::posix_time::seconds(2));
 
@@ -76,15 +66,17 @@ Setting get_profile()
   dummy.write_settings_bulk(default_settings);
   dummy.read_settings_bulk(default_settings);
 
+  default_settings.set(Setting::integer("MockProducer/SpillInterval", 5));
   default_settings.set(Setting::integer("MockProducer/Resolution", 16));
   default_settings.set(Setting::text("MockProducer/ValName1", "energy"));
-  default_settings.set(Setting::floating("MockProducer/PeakSpread", 1500));
+  default_settings.set(Setting::floating("MockProducer/PeakCenter", 50));
+  default_settings.set(Setting::floating("MockProducer/PeakSpread", 2500));
   default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
   default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
 
-  Setting profile({"Profile", SettingType::stem});
-  profile.branches.add(Setting::text("Profile description",
-                                              "Test profile for Mock Producer"));
+  auto profile = Engine::singleton().pull_settings();
+  profile.set(Setting::text("Profile description",
+                            "Test profile for Mock Producer"));
   profile.branches.add(default_settings);
 
   return profile;
@@ -96,11 +88,11 @@ Container<ConsumerMetadata> get_prototypes()
 
   ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("1DEvent");
   ptype.set_attribute(Setting::text("name", "Spectrum"));
-  ptype.set_attribute(Setting::integer("resolution", 6));
+  ptype.set_attribute(Setting::integer("resolution", 7));
   ptype.set_attribute(Setting("pattern_coinc", Pattern(1, {true})));
   ptype.set_attribute(Setting("pattern_add", Pattern(1, {true})));
 
-  DBG << "Consumers:\n" << ptype.debug("   ");
+  DBG << "Consumers:\n" << ptype.debug("   ", false);
 
   prototypes.add(ptype);
   return prototypes;

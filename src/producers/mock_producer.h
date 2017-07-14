@@ -45,9 +45,12 @@ protected:
   double   dead_ {0};
   double   peak_center_ {0.5};
   double   peak_spread_ {1.0};
-  int      event_interval_ {150};
-  uint32_t resolution_ {0};
+
+  std::string vname1 {"v1"}, vname2 {"v2"};
+
   EventModel model_hit;
+  uint32_t  resolution_ {0};
+  int       event_interval_ {150};
 
   // runtime
   std::normal_distribution<double> dist_;

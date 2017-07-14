@@ -3,10 +3,7 @@
 
 namespace DAQuiri {
 
-ConsumerMetadata::ConsumerMetadata()
-{
-  attributes_ = Setting(SettingMeta("", SettingType::stem));
-}
+ConsumerMetadata::ConsumerMetadata() {}
 
 ConsumerMetadata::ConsumerMetadata(std::string tp,
                                    std::string descr,
@@ -14,9 +11,7 @@ ConsumerMetadata::ConsumerMetadata(std::string tp,
   : type_(tp)
   , type_description_(descr)
   , dimensions_(dim)
-{
-  attributes_ = Setting(SettingMeta("", SettingType::stem));
-}
+{}
 
 bool ConsumerMetadata::shallow_equals(const ConsumerMetadata& other) const
 {
@@ -36,7 +31,7 @@ bool ConsumerMetadata::operator== (const ConsumerMetadata& other) const
 }
 
 
-std::string ConsumerMetadata::debug(std::string prepend) const
+std::string ConsumerMetadata::debug(std::string prepend, bool verbose) const
 {
   std::stringstream ss;
   ss << type_ << " (dim=" << dimensions_ << ")\n";
@@ -49,7 +44,7 @@ std::string ConsumerMetadata::debug(std::string prepend) const
     else
       ss << prepend << k_branch_pre_B << k_branch_mid_B << i << ": " << detectors.at(i).debug(prepend + k_branch_pre_B + k_branch_pre_B);
   }
-  ss << prepend << k_branch_end_B << attributes_.debug(prepend + "  ");
+  ss << prepend << k_branch_end_B << attributes_.debug(prepend + "  ", verbose);
   return ss.str();
 }
 

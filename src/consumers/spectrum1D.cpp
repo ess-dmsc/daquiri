@@ -170,3 +170,23 @@ void Spectrum1D::_load_data(H5CC::Group& g)
 
   maxchan_ = rdata.size();
 }
+
+std::string Spectrum1D::_data_debug(const std::string &prepend) const
+{
+  std::stringstream ss;
+
+  uint64_t total  = static_cast<uint64_t>(total_count_);
+  uint64_t nstars = static_cast<uint64_t>(maxchan_*2);
+  if (!nstars)
+    nstars = 100;
+
+  for (uint32_t i = 0; i < maxchan_; i++)
+  {
+    long double val = static_cast<long double>(spectrum_[i]);
+    if (val)
+      ss << prepend << i << ": " <<
+            std::string(val*nstars/total,'*') << "\n";
+  }
+
+  return ss.str();
+}

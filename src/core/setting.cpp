@@ -720,7 +720,7 @@ std::string Setting::val_to_pretty_string() const
 }
 
 
-std::string Setting::debug(std::string prepend) const
+std::string Setting::debug(std::string prepend, bool verbose) const
 {
   std::string ret;
   if (!id().empty())
@@ -730,17 +730,17 @@ std::string Setting::debug(std::string prepend) const
   if (!ret.empty())
     ret += "=";
   ret += col(GREEN, NONE, BRIGHT) + val_to_pretty_string() + col();
-  if (!branches.empty())
-    ret += " branches=" + std::to_string(branches.size());
-  ret += " " + metadata_.debug(prepend);
+  ret += " " + metadata_.debug(prepend, verbose);
   ret += "\n";
   if (!branches.empty())
     for (size_t i = 0; i < branches.size(); ++i)
     {
       if ((i+1) == branches.size())
-        ret += prepend + k_branch_end + branches.get(i).debug(prepend + "  ");
+        ret += prepend + k_branch_end +
+            branches.get(i).debug(prepend + "  ", verbose);
       else
-        ret += prepend + k_branch_mid + branches.get(i).debug(prepend + k_branch_pre);
+        ret += prepend + k_branch_mid +
+            branches.get(i).debug(prepend + k_branch_pre, verbose);
     }
   return ret;
 }

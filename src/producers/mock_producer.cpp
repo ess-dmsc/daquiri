@@ -28,11 +28,6 @@ MockProducer::MockProducer()
   cr.set_val("units", "cps");
   add_definition(cr);
 
-  SettingMeta ei(mp + "EventInterval", SettingType::integer, "Event interval");
-  ei.set_val("min", 1);
-  ei.set_val("units", "ticks");
-  add_definition(ei);
-
   SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
   tm.set_val("min", 1);
   tm.set_val("units", "ns");
@@ -43,7 +38,7 @@ MockProducer::MockProducer()
   td.set_val("units", "1/ns");
   add_definition(td);
 
-  SettingMeta dt(mp + "DeadTime", SettingType::integer, "Dead time (% of real time)");
+  SettingMeta dt(mp + "DeadTime", SettingType::floating, "Dead time (% of real time)");
   dt.set_val("min", 0);
   dt.set_val("max", 100);
   dt.set_val("step", 0.01);
@@ -150,36 +145,19 @@ bool MockProducer::daq_running()
 
 void MockProducer::read_settings_bulk(Setting &set) const
 {
-  if (set.id() == device_name())
-  {
-    for (auto &q : set.branches)
-    {
-      if (q.id() == "MockProducer/SpillInterval")
-        q.set_number(spill_interval_);
-      else if (q.id() == "MockProducer/Resolution")
-        q.set_number(bits_);
-      else if (q.id() == "MockProducer/CountRate")
-        q.set_number(count_rate_);
-      else if (q.id() == "MockProducer/DeadTime")
-        q.set_number(dead_);
-      else if (q.id() == "MockProducer/EventInterval")
-        q.set_number(event_interval_);
-      else if (q.id() == "MockProducer/TimebaseMult")
-        q.set_number(model_hit.timebase.multiplier());
-      else if (q.id() == "MockProducer/TimebaseDiv")
-        q.set_number(model_hit.timebase.divider());
-      else if (q.id() == "MockProducer/Lambda")
-        q.set_number(lambda_);
-      else if (q.id() == "MockProducer/ValName1")
-        q.set_text((model_hit.values.size() > 0) ? model_hit.value_names.at(0) : "v1");
-      else if (q.id() == "MockProducer/ValName2")
-        q.set_text((model_hit.values.size() > 1) ? model_hit.value_names.at(1) : "v2");
-      else if (q.id() == "MockProducer/PeakCenter")
-        q.set_number(peak_center_ * 100);
-      else if (q.id() == "MockProducer/PeakSpread")
-        q.set_number(peak_spread_);
-    }
-  }
+  if (set.id() != device_name())
+    return;
+  set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
+  set.set(Setting::integer("MockProducer/Resolution", bits_));
+  set.set(Setting::floating("MockProducer/CountRate", count_rate_));
+  set.set(Setting::floating("MockProducer/DeadTime", dead_*100));
+  set.set(Setting::integer("MockProducer/TimebaseMult", model_hit.timebase.multiplier()));
+  set.set(Setting::integer("MockProducer/TimebaseDiv", model_hit.timebase.divider()));
+  set.set(Setting::floating("MockProducer/Lambda", lambda_));
+  set.set(Setting::floating("MockProducer/PeakCenter", peak_center_*100));
+  set.set(Setting::floating("MockProducer/PeakSpread", peak_spread_));
+  set.set(Setting::text("MockProducer/ValName1", vname1));
+  set.set(Setting::text("MockProducer/ValName2", vname2));
 }
 
 
@@ -188,47 +166,30 @@ void MockProducer::write_settings_bulk(Setting &set)
   if (set.id() != device_name())
     return;
 
-  double timebase_multiplier = model_hit.timebase.multiplier();
-  double timebase_divider = model_hit.timebase.divider();
-  std::string vname1 {"v1"}, vname2 {"v2"};
+  set.enrich(setting_definitions_, true);
 
-  for (auto &q : set.branches)
-  {
-    if (q.id() == "MockProducer/SpillInterval")
-      spill_interval_ = q.get_number();
-    else if (q.id() == "MockProducer/Resolution")
-      bits_ = q.get_number();
-    else if (q.id() == "MockProducer/EventInterval")
-      event_interval_ = q.get_number();
-    else if (q.id() == "MockProducer/TimebaseMult")
-      timebase_multiplier = q.get_number();
-    else if (q.id() == "MockProducer/TimebaseDiv")
-      timebase_divider = q.get_number();
-    else if (q.id() == "MockProducer/CountRate")
-      count_rate_ = q.get_number();
-    else if (q.id() == "MockProducer/DeadTime")
-      dead_ = q.get_number();
-    else if (q.id() == "MockProducer/Lambda")
-      lambda_ = q.get_number();
-    else if (q.id() == "MockProducer/ValName1")
-      vname1 = q.get_text();
-    else if (q.id() == "MockProducer/ValName2")
-      vname2 = q.get_text();
-    else if (q.id() == "MockProducer/PeakCenter")
-      peak_center_ = q.get_number() / 100.0;
-    else if (q.id() == "MockProducer/PeakSpread")
-      peak_spread_ = q.get_number();
-  }
+  spill_interval_ = set.find({"MockProducer/SpillInterval"}).get_number();
+  bits_ = set.find({"MockProducer/Resolution"}).get_number();
+  count_rate_ = set.find({"MockProducer/CountRate"}).get_number();
+  lambda_ = set.find({"MockProducer/Lambda"}).get_number();
+  dead_ = set.find({"MockProducer/DeadTime"}).get_number() * 0.01;
+  peak_center_ = set.find({"MockProducer/PeakCenter"}).get_number() * 0.01;
+  peak_spread_ = set.find({"MockProducer/PeakSpread"}).get_number();
+  vname1 = set.find({"MockProducer/ValName1"}).get_text();
+  vname2 = set.find({"MockProducer/ValName2"}).get_text();
 
   model_hit = EventModel();
-  model_hit.timebase = TimeBase(timebase_multiplier, timebase_divider);
+  model_hit.timebase = TimeBase(set.find({"MockProducer/TimebaseMult"}).get_number(),
+                                set.find({"MockProducer/TimebaseDiv"}).get_number());
   model_hit.add_value(vname1, bits_);
   model_hit.add_value(vname2, bits_);
-  model_hit.add_trace("trace", {200});
+//  model_hit.add_trace("trace", {200});
 
   resolution_ = pow(2, uint32_t(bits_));
 
-  set.enrich(setting_definitions_);
+  // account for dead-time more realistically?
+  event_interval_ = model_hit.timebase.to_native(spill_interval_ * pow(10,9))
+      / count_rate_;
 }
 
 bool MockProducer::boot()
@@ -258,6 +219,7 @@ void MockProducer::worker_run(MockProducer* callback,
   DBG << "<MockProducer> Starting run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns"
       << "  init_rate=" << callback->count_rate_ << "cps"
+      << "  event_interval=" << callback->event_interval_ << "ticks"
       << "  lambda=" << callback->lambda_;
 
   CustomTimer timer(true);
@@ -351,10 +313,11 @@ Status MockProducer::get_status(int16_t chan, StatusType t)
 
   double duration = clock_;
   double duration_live = duration * (1.0 - dead_);
+  double duration_trigger = duration * (1.0 - 0.5 * dead_);
 
   status.set_value("native_time", duration);
   status.set_value("live_time", duration_live);
-  status.set_value("live_trigger", duration_live);
+  status.set_value("live_trigger", duration_trigger);
 
   return status;
 }

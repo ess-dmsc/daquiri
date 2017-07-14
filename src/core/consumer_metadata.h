@@ -30,7 +30,7 @@ public:
   void set_det_limit(uint16_t limit);
   bool chan_relevant(uint16_t chan) const;
 
-  std::string debug(std::string prepend) const;
+  std::string debug(std::string prepend, bool verbose = true) const;
 
   bool shallow_equals(const ConsumerMetadata& other) const;
   bool operator!= (const ConsumerMetadata& other) const;
@@ -46,7 +46,7 @@ private:
   uint16_t dimensions_ {0};
 
   //can change these
-  Setting attributes_ {"Options"};
+  Setting attributes_ {SettingMeta("Attributes", SettingType::stem)};
 
 public:
   std::vector<Detector> detectors;
