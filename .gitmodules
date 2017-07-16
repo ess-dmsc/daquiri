@@ -4,3 +4,6 @@
 [submodule "src/external/json"]
 	path = src/external/json
 	url = https://github.com/nlohmann/json.git
+[submodule "src/gui/widgets/ColorWidgets"]
+	path = src/gui/widgets/ColorWidgets
+	url = https://github.com/mbasaglia/Qt-Color-Widgets.git

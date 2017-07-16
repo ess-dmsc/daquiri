@@ -67,6 +67,10 @@ public:
   void set_enum(int32_t idx, std::string val);
   std::string enum_name(int32_t idx) const;
   std::list<std::string> enum_names() const;
+  std::map<int32_t, std::string> enum_map() const
+  {
+    return enum_map_;
+  }
 
   std::string get_string(std::string name, std::string default_val) const;
 

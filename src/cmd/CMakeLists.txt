@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(daquiri_cmd CXX)
 
-#add_definitions(-DBOOST_LOG_DYN_LINK)
-
 file(GLOB ${PROJECT_NAME}_sources *.cpp)
 file(GLOB ${PROJECT_NAME}_headers *.h)
 dirs_of(${PROJECT_NAME}_include_dirs "${${PROJECT_NAME}_headers}")

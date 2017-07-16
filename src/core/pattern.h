@@ -4,6 +4,9 @@
 #include <string>
 #include <sstream>
 
+#include "json.hpp"
+using namespace nlohmann;
+
 namespace DAQuiri {
 
 class Pattern
