@@ -52,13 +52,13 @@ private slots:
   void post_boot();
 
   void push_settings();
-  void push_from_table(Setting setting);
+  void push_from_table(DAQuiri::Setting setting);
   void chose_detector(int chan, std::string name);
 
-  void ask_binary_tree(Setting, QModelIndex index);
-  void ask_execute_tree(Setting, QModelIndex index);
-  void ask_binary_table(Setting, QModelIndex index);
-  void ask_execute_table(Setting, QModelIndex index);
+  void ask_binary_tree(DAQuiri::Setting, QModelIndex index);
+  void ask_execute_tree(DAQuiri::Setting, QModelIndex index);
+  void ask_binary_table(DAQuiri::Setting, QModelIndex index);
+  void ask_execute_table(DAQuiri::Setting, QModelIndex index);
 
   void on_checkShowRO_clicked();
   void on_bootButton_clicked();

@@ -23,8 +23,8 @@ protected:
   void closeEvent(QCloseEvent*);
 
 public slots:
-  void oscil_complete(OscilData);
-  void toggle_push(bool, ProducerStatus);
+  void oscil_complete(DAQuiri::OscilData);
+  void toggle_push(bool, DAQuiri::ProducerStatus);
 
 private slots:
   void on_pushOscilRefresh_clicked();
@@ -35,7 +35,7 @@ private slots:
   void on_pushHideAll_clicked();
 
 public slots:
-  void updateMenu(std::vector<Detector>);
+  void updateMenu(std::vector<DAQuiri::Detector>);
   
 private:
   Ui::FormOscilloscope *ui;

@@ -33,7 +33,7 @@ void FormOscilloscope::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void FormOscilloscope::updateMenu(std::vector<Detector> dets)
+void FormOscilloscope::updateMenu(std::vector<DAQuiri::Detector> dets)
 {
   channels_ = dets;
 
@@ -92,7 +92,7 @@ void FormOscilloscope::channelDetails(SelectorItem item)
   ui->widgetPlot->setTitle(text);
 }
 
-void FormOscilloscope::toggle_push(bool enable, ProducerStatus status)
+void FormOscilloscope::toggle_push(bool enable, DAQuiri::ProducerStatus status)
 {
   bool online = (status & ProducerStatus::can_oscil);
   ui->pushOscilRefresh->setEnabled(enable && online);
@@ -103,7 +103,7 @@ void FormOscilloscope::on_pushOscilRefresh_clicked()
   emit refresh_oscil();
 }
 
-void FormOscilloscope::oscil_complete(OscilData traces)
+void FormOscilloscope::oscil_complete(DAQuiri::OscilData traces)
 {
   if (!this->isVisible())
     return;

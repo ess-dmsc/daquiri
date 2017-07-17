@@ -32,14 +32,16 @@ FormListDaq::FormListDaq(ThreadRunner &thread, QWidget *parent) :
   ui->tableHits->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tableHits->horizontalHeader()->setStretchLastSection(true);
   ui->tableHits->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  connect(ui->tableHits->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-          this, SLOT(hit_selection_changed(QItemSelection,QItemSelection)));
+  connect(ui->tableHits->selectionModel(),
+          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+          this, SLOT(event_selection_changed(QItemSelection,QItemSelection)));
 
   ui->tableStats->setSelectionMode(QAbstractItemView::SingleSelection);
   ui->tableStats->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tableStats->horizontalHeader()->setStretchLastSection(true);
   ui->tableStats->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  connect(ui->tableStats->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+  connect(ui->tableStats->selectionModel(),
+          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(stats_selection_changed(QItemSelection,QItemSelection)));
 
   ui->tableHitValues->setSelectionMode(QAbstractItemView::NoSelection);
@@ -187,12 +189,12 @@ void FormListDaq::displayHit(int idx)
 
   }
 
-  uint32_t trace_length = hit.trace(0).size();
-  if (trace_length > 0)
+  if (hit.trace_count() &&  hit.trace(0).size())
   {
+    uint32_t trace_length = hit.trace(0).size();
     QVector<double> x(trace_length), y(trace_length);
-    int chan = hit.channel();
-    Detector this_det;
+//    int chan = hit.channel();
+//    Detector this_det;
 
     //    if ((chan > -1) && (chan < list_data_->run.detectors.size()))
     //      this_det = list_data_->run.detectors[chan];

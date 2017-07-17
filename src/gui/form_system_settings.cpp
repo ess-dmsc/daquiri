@@ -24,12 +24,12 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
 
   this->setWindowTitle("DAQ Settings");
 
-  connect(&runner_thread_, SIGNAL(settingsUpdated(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
-          this, SLOT(update(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
+  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
+          this, SLOT(update(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
   connect(&runner_thread_, SIGNAL(bootComplete()), this, SLOT(post_boot()));
 
-  connect(&runner_thread_, SIGNAL(oscilReadOut(OscilData)),
-          ui->formOscilloscope, SLOT(oscil_complete(OscilData)));
+  connect(&runner_thread_, SIGNAL(oscilReadOut(DAQuiri::OscilData)),
+          ui->formOscilloscope, SLOT(oscil_complete(DAQuiri::OscilData)));
 
   connect(ui->formOscilloscope, SIGNAL(refresh_oscil()), this, SLOT(refresh_oscil()));
 
@@ -43,9 +43,12 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
   viewTreeSettings->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   tree_delegate_.set_detectors(detectors_);
   connect(&tree_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
-  connect(&tree_delegate_, SIGNAL(ask_execute(Setting, QModelIndex)), this, SLOT(ask_execute_tree(Setting, QModelIndex)));
-  connect(&tree_delegate_, SIGNAL(ask_binary(Setting, QModelIndex)), this, SLOT(ask_binary_tree(Setting, QModelIndex)));
-  connect(&tree_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)), this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
+  connect(&tree_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)), this,
+          SLOT(ask_execute_tree(DAQuiri::Setting, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_binary_tree(DAQuiri::Setting, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+          this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
 
   viewTableSettings = new QTableView(this);
   ui->tabsSettings->addTab(viewTableSettings, "Settings table");
@@ -57,15 +60,22 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
   table_settings_model_.update(channels_);
   viewTableSettings->show();
   connect(&table_settings_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
-  connect(&table_settings_delegate_, SIGNAL(ask_execute(Setting, QModelIndex)), this, SLOT(ask_execute_table(Setting, QModelIndex)));
-  connect(&table_settings_delegate_, SIGNAL(ask_binary(Setting, QModelIndex)), this, SLOT(ask_binary_table(Setting, QModelIndex)));
-  connect(&table_settings_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)), this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
+  connect(&table_settings_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_execute_table(DAQuiri::Setting, QModelIndex)));
+  connect(&table_settings_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_binary_table(DAQuiri::Setting, QModelIndex)));
+  connect(&table_settings_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+          this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
 
-  connect(&tree_settings_model_, SIGNAL(tree_changed()), this, SLOT(push_settings()));
-  connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)), this, SLOT(chose_detector(int,std::string)));
+  connect(&tree_settings_model_, SIGNAL(tree_changed()),
+          this, SLOT(push_settings()));
+  connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)),
+          this, SLOT(chose_detector(int,std::string)));
 
-  connect(&table_settings_model_, SIGNAL(setting_changed(Setting)), this, SLOT(push_from_table(Setting)));
-  connect(&table_settings_model_, SIGNAL(detector_chosen(int, std::string)), this, SLOT(chose_detector(int,std::string)));
+  connect(&table_settings_model_, SIGNAL(setting_changed(DAQuiri::Setting)),
+          this, SLOT(push_from_table(DAQuiri::Setting)));
+  connect(&table_settings_model_, SIGNAL(detector_chosen(int, std::string)),
+          this, SLOT(chose_detector(int,std::string)));
 
   detectorOptions.addAction("Apply saved settings", this, SLOT(apply_detector_presets()));
   detectorOptions.addAction("Edit detector database", this, SLOT(open_detector_DB()));
