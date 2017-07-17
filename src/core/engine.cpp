@@ -226,7 +226,7 @@ void Engine::rebuild_structure(Setting &set)
     detectors_.resize(newtotal);
 }
 
-std::vector<Event> Engine::oscilloscope()
+OscilData Engine::oscilloscope()
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
@@ -239,7 +239,7 @@ std::vector<Event> Engine::oscilloscope()
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
     {
       //DBG << "oscil > " << q.second->device_name();
-      std::list<Event> trc = q.second->oscilloscope();
+      OscilData trc = q.second->oscilloscope();
       for (auto &p : trc)
         if ((p.channel() >= 0) && (p.channel() < static_cast<int16_t>(traces.size())))
           traces[p.channel()] = p;

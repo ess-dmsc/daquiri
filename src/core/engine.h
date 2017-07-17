@@ -25,7 +25,7 @@ public:
   void die();
 
   ProducerStatus status() const;
-  std::vector<Event> oscilloscope();
+  OscilData oscilloscope();
   ListData acquire_list(Interruptor& inturruptor, uint64_t timeout);
   void acquire(ProjectPtr project, Interruptor &interruptor,
                uint64_t timeout);

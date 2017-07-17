@@ -64,4 +64,6 @@ protected:
   static void make_trace(Event& h, uint16_t baseline);
   uint16_t generate();
 
+  void add_dummy_settings();
+
 };

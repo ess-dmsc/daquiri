@@ -104,7 +104,7 @@ private:
 TT std::string SettingMeta::min_str(std::string def) const
 {
   auto m = min<T>();
-  if (m == std::numeric_limits<T>::min())
+  if (m == -std::numeric_limits<T>::max())
     return def;
   std::stringstream ss;
   ss << m;
@@ -136,7 +136,7 @@ TT void SettingMeta::set_val(std::string name, T val)
 
 TT T SettingMeta::min() const
 {
-  return get_num("min", std::numeric_limits<T>::min());
+  return get_num("min", -std::numeric_limits<T>::max());
 }
 
 TT T SettingMeta::max() const

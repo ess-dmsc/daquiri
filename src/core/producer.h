@@ -26,6 +26,7 @@ inline ProducerStatus operator^(ProducerStatus a, ProducerStatus b)
 
 
 using SpillQueue = SynchronizedQueue<Spill*>*;
+using OscilData = std::vector<Event>;
 
 class Producer
 {
@@ -47,7 +48,7 @@ public:
   virtual void read_settings_bulk(Setting &/*set*/) const {}
   virtual void get_all_settings() {}
 
-  virtual std::list<Event> oscilloscope() {return std::list<Event>();}
+  virtual OscilData oscilloscope() { return OscilData(); }
 
   virtual bool daq_init() {return true;}
   virtual bool daq_start(SpillQueue) {return false;}

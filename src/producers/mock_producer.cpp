@@ -10,10 +10,9 @@ MockProducer::MockProducer()
 {
   std::string mp {"MockProducer/"};
 
-  SettingMeta root("MockProducer", SettingType::stem);
-
   SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
   si.set_val("min", 1);
+  si.set_val("max", 1000000);
   si.set_val("units", "s");
   add_definition(si);
 
@@ -66,11 +65,11 @@ MockProducer::MockProducer()
   ps.set_val("step", 0.01);
   add_definition(ps);
 
+  SettingMeta root("MockProducer", SettingType::stem);
   root.set_enum(0, mp + "SpillInterval");
   root.set_enum(1, mp + "Resolution");
   root.set_enum(2, mp + "CountRate");
   root.set_enum(3, mp + "DeadTime");
-  root.set_enum(4, mp + "EventInterval");
   root.set_enum(5, mp + "TimebaseMult");
   root.set_enum(6, mp + "TimebaseDiv");
   root.set_enum(7, mp + "Lambda");
@@ -78,10 +77,157 @@ MockProducer::MockProducer()
   root.set_enum(9, mp + "ValName2");
   root.set_enum(10, mp + "PeakCenter");
   root.set_enum(11, mp + "PeakSpread");
+
+  add_dummy_settings();
+  root.set_enum(1000, "MockProducer/DummySettings");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
+
+void MockProducer::add_dummy_settings()
+{
+  std::string r {"MockProducer/DummySettings"};
+
+  SettingMeta a1(r + "/IntUnbounded", SettingType::integer);
+  add_definition(a1);
+
+  SettingMeta a2(r + "/IntLB", SettingType::integer);
+  a2.set_val("min", 0);
+  add_definition(a2);
+
+  SettingMeta a3(r + "/IntUB", SettingType::integer);
+  a3.set_val("max", 0);
+  add_definition(a3);
+
+  SettingMeta a4(r + "/IntBounded", SettingType::integer);
+  a4.set_val("min", 2);
+  a4.set_val("max", 4);
+  add_definition(a4);
+
+
+
+  SettingMeta a5(r + "/FloatUnbounded", SettingType::floating);
+  a5.set_val("step", 0.05);
+  add_definition(a5);
+
+  SettingMeta a6(r + "/FloatLB", SettingType::floating);
+  a6.set_val("min", 0);
+  a6.set_val("step", 0.2);
+  add_definition(a6);
+
+  SettingMeta a7(r + "/FloatUB", SettingType::floating);
+  a7.set_val("max", 0);
+  a7.set_val("step", 0.5);
+  add_definition(a7);
+
+  SettingMeta a8(r + "/FloatBounded", SettingType::floating);
+  a8.set_val("min", 2);
+  a8.set_val("max", 4);
+  a8.set_val("step", 0.1);
+  add_definition(a8);
+
+
+
+  SettingMeta a9(r + "/PreciseUnbounded", SettingType::precise);
+  a9.set_val("step", 0.05);
+  add_definition(a9);
+
+  SettingMeta a10(r + "/PreciseLB", SettingType::precise);
+  a10.set_val("min", 0);
+  a10.set_val("step", 0.2);
+  add_definition(a10);
+
+  SettingMeta a11(r + "/PreciseUB", SettingType::precise);
+  a11.set_val("max", 0);
+  a11.set_val("step", 0.5);
+  add_definition(a11);
+
+  SettingMeta a12(r + "/PreciseBounded", SettingType::precise);
+  a12.set_val("min", 2);
+  a12.set_val("max", 4);
+  a12.set_val("step", 0.1);
+  add_definition(a12);
+
+
+  SettingMeta a13(r + "/Time", SettingType::time);
+  add_definition(a13);
+
+  SettingMeta a14(r + "/Duration", SettingType::duration);
+  add_definition(a14);
+
+  SettingMeta a15(r + "/Pattern", SettingType::pattern);
+  a15.set_val("chans", 6);
+  add_definition(a15);
+
+
+
+  SettingMeta a16(r + "/Boolean", SettingType::boolean);
+  add_definition(a16);
+
+  SettingMeta a17(r + "/text", SettingType::text);
+  add_definition(a17);
+
+  SettingMeta a18(r + "/Color", SettingType::color);
+  add_definition(a18);
+
+  SettingMeta a19(r + "/File", SettingType::file);
+  a19.set_val("wildcards", "Bash file (*.sh)");
+  add_definition(a19);
+
+  SettingMeta a20(r + "/Directory", SettingType::dir);
+  add_definition(a20);
+
+  SettingMeta a21(r + "/Detector", SettingType::detector);
+  add_definition(a21);
+
+
+  SettingMeta a22(r + "/Command", SettingType::command);
+  add_definition(a22);
+
+  SettingMeta a23(r + "/Menu", SettingType::menu);
+  a23.set_enum(1, "item1");
+  a23.set_enum(2, "item2");
+  a23.set_enum(3, "item3");
+  add_definition(a23);
+
+  SettingMeta a24(r + "/Binary", SettingType::binary);
+  add_definition(a24);
+
+  SettingMeta a25(r + "/Indicator", SettingType::indicator);
+  add_definition(a25);
+
+
+  SettingMeta root(r, SettingType::stem);
+  root.set_enum(1, a1.id());
+  root.set_enum(2, a2.id());
+  root.set_enum(3, a3.id());
+  root.set_enum(4, a4.id());
+  root.set_enum(5, a5.id());
+  root.set_enum(6, a6.id());
+  root.set_enum(7, a7.id());
+  root.set_enum(8, a8.id());
+  root.set_enum(9, a9.id());
+  root.set_enum(10, a10.id());
+  root.set_enum(11, a11.id());
+  root.set_enum(12, a12.id());
+  root.set_enum(13, a13.id());
+  root.set_enum(14, a14.id());
+  root.set_enum(15, a15.id());
+  root.set_enum(16, a16.id());
+  root.set_enum(17, a17.id());
+  root.set_enum(18, a18.id());
+  root.set_enum(19, a19.id());
+  root.set_enum(20, a20.id());
+  root.set_enum(21, a21.id());
+  root.set_enum(22, a22.id());
+  root.set_enum(23, a23.id());
+  root.set_enum(24, a24.id());
+  root.set_enum(25, a25.id());
+  add_definition(root);
+
+}
+
 
 bool MockProducer::die()
 {

@@ -7,3 +7,6 @@
 [submodule "src/gui/widgets/ColorWidgets"]
 	path = src/gui/widgets/ColorWidgets
 	url = https://github.com/mbasaglia/Qt-Color-Widgets.git
+[submodule "src/gui/qplot"]
+	path = src/gui/qplot
+	url = https://github.com/ess-dmsc/qplot.git

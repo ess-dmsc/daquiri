@@ -107,8 +107,8 @@ public:
 
   // indices
   void clear_indices();
-  void set_indices(std::initializer_list<int32_t> l);
-  void add_indices(std::initializer_list<int32_t> l);
+  void set_indices(std::set<int32_t> l);
+  void add_indices(std::set<int32_t> l);
   bool has_index(int32_t i) const;
   std::set<int32_t> indices() const;
 

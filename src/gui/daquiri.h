@@ -10,8 +10,7 @@
 
 #include "producer.h"
 
-//#include "thread_runner.h"
-//#include "form_system_settings.h"
+#include "form_system_settings.h"
 
 
 namespace Ui {
@@ -44,11 +43,16 @@ public:
 private:
   Ui::daquiri *ui;
 
+  Container<DAQuiri::Detector>    detectors_;
+  ThreadRunner                runner_thread_;
+  DAQuiri::ProducerStatus px_status_;
+
   //connect gui with boost logger framework
   std::stringstream log_stream_;
   LogEmitter        my_emitter_;
   LogStreamBuffer   text_buffer_;
 
+  FormSystemSettings* main_tab_ {nullptr};
 
   bool gui_enabled_;
 
@@ -64,6 +68,8 @@ protected:
   void closeEvent(QCloseEvent*);
 
 private slots:
+  void update_settings(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus);
+  void toggleIO(bool);
   void updateStatusText(QString);
 
   void tabCloseRequested(int index);
@@ -79,5 +85,5 @@ private slots:
   void tabs_moved(int, int);
   void addClosableTab(QWidget*, QString);
   void tab_changed(int);
-
 };
+

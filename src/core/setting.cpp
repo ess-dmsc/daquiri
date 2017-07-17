@@ -42,13 +42,13 @@ void Setting::clear_indices()
   indices_.clear();
 }
 
-void Setting::set_indices(std::initializer_list<int32_t> l)
+void Setting::set_indices(std::set<int32_t> l)
 {
   clear_indices();
   add_indices(l);
 }
 
-void Setting::add_indices(std::initializer_list<int32_t> l)
+void Setting::add_indices(std::set<int32_t> l)
 {
   for (auto ll : l)
     indices_.insert(ll);
@@ -318,6 +318,7 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
     {
       Container<Setting> new_branches;
       auto idss = metadata_.enum_names();
+      auto idm = metadata_.enum_map();
       std::set<std::string> ids(idss.begin(), idss.end());
       for (auto old : branches)
       {
@@ -329,11 +330,13 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
         if (ids.count(old.id()))
           ids.erase(old.id());
       }
-      for (auto id : ids)
+      for (auto id : idm)
       {
-        if (!setting_definitions.count(id))
+        if (!ids.count(id.second))
           continue;
-        Setting newset = Setting(setting_definitions.at(id));
+        if (!setting_definitions.count(id.second))
+          continue;
+        Setting newset = Setting(setting_definitions.at(id.second));
         newset.enrich(setting_definitions, impose_limits);
         newset.indices_ = indices_;
         new_branches.add_a(newset);
@@ -818,6 +821,9 @@ void to_json(json& j, const Setting &s)
 
 void from_json(const json& j, Setting &s)
 {
+  if (!j.count("id") || !j.count("type"))
+    return;
+
   s.metadata_ = SettingMeta(j["id"], from_string(j["type"]));
 
   if (j.count("metadata_"))

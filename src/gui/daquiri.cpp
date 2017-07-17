@@ -20,6 +20,14 @@
 
 //#include "qt_util.h"
 
+
+#include "mock_producer.h"
+#include "producer_factory.h"
+#include "spectrum_events_1D.h"
+#include "consumer_factory.h"
+static ProducerRegistrar<MockProducer> reg1("MockProducer");
+static ConsumerRegistrar<Spectrum1DEvent> reg2("1DEvent");
+
 daquiri::daquiri(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::daquiri),
@@ -27,6 +35,13 @@ daquiri::daquiri(QWidget *parent) :
   log_stream_(),
   text_buffer_(log_stream_, my_emitter_)
 {
+  detectors_.add(Detector("D1"));
+  detectors_.add(Detector("D2"));
+  detectors_.add(Detector("D3"));
+  detectors_.add(Detector("D4"));
+
+  qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
+  qRegisterMetaType<std::vector<DAQuiri::Detector>>("std::vector<DAQuiri::Detector>");
   qRegisterMetaType<DAQuiri::ListData>("DAQuiri::ListData");
   qRegisterMetaType<DAQuiri::Setting>("DAQuiri::Setting");
   qRegisterMetaType<DAQuiri::ProducerStatus>("DAQuiri::ProducerStatus");
@@ -36,6 +51,9 @@ daquiri::daquiri(QWidget *parent) :
   CustomLogger::initLogger(&log_stream_, "daquiri_%N.log");
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
+
+  connect(&runner_thread_, SIGNAL(settingsUpdated(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
+          this, SLOT(update_settings(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
 
   loadSettings();
 
@@ -63,6 +81,19 @@ daquiri::daquiri(QWidget *parent) :
 
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
   connect(ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
+
+  main_tab_ = new FormSystemSettings(runner_thread_, detectors_, this);
+  ui->tabs->addTab(main_tab_, "DAQ");
+//  ui->tabs->addTab(main_tab_, main_tab_->windowTitle());
+  ui->tabs->setTabIcon(ui->tabs->count() - 1, QIcon(":/icons/oxy/16/applications_systemg.png"));
+  connect(main_tab_, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
+//  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
+//          main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+//  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
+//  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
+
+  ui->tabs->setCurrentWidget(main_tab_);
+  reorder_tabs();
 }
 
 daquiri::~daquiri()
@@ -73,16 +104,54 @@ daquiri::~daquiri()
 
 void daquiri::closeEvent(QCloseEvent *event)
 {
-  for (int i = ui->tabs->count() - 2; i >= 0; --i)
+  if (runner_thread_.running())
   {
-    ui->tabs->setCurrentIndex(i);
-    if (!ui->tabs->widget(i)->close())
+    int reply = QMessageBox::warning(this, "Ongoing data acquisition operations",
+                                     "Terminate?",
+                                     QMessageBox::Yes|QMessageBox::Cancel);
+    if (reply == QMessageBox::Yes)
+    {
+      /*for (int i = ui->tabs->count() - 1; i >= 0; --i)
+        if (ui->tabs->widget(i) != main_tab_)
+          ui->tabs->widget(i)->exit();*/
+
+      runner_thread_.terminate();
+      runner_thread_.wait();
+    }
+    else
     {
       event->ignore();
       return;
-    } else {
-      ui->tabs->removeTab(i);
     }
+  }
+  else
+  {
+    runner_thread_.terminate();
+    runner_thread_.wait();
+  }
+
+
+  for (int i = ui->tabs->count() - 2; i >= 0; --i)
+  {
+    if (ui->tabs->widget(i) != main_tab_)
+    {
+      ui->tabs->setCurrentIndex(i);
+      if (!ui->tabs->widget(i)->close())
+      {
+        event->ignore();
+        return;
+      }
+      else
+      {
+        ui->tabs->removeTab(i);
+      }
+    }
+  }
+
+  if (main_tab_ != nullptr)
+  {
+    main_tab_->exit();
+    main_tab_->close();
   }
 
   saveSettings();
@@ -102,11 +171,41 @@ void daquiri::tab_changed(int index)
 {
   if ((index < 0) || (index >= ui->tabs->count()))
     return;
+  if (main_tab_ == nullptr)
+    return;
+  runner_thread_.set_idle_refresh(ui->tabs->widget(index) == main_tab_);
 }
 
 void daquiri::add_log_text(QString line)
 {
   ui->logBox->append(line);
+}
+
+void daquiri::update_settings(Setting /*sets*/,
+                              std::vector<DAQuiri::Detector> channels,
+                              DAQuiri::ProducerStatus status)
+{
+  px_status_ = status;
+//  current_dets_ = channels;
+  toggleIO(true);
+}
+
+void daquiri::toggleIO(bool enable)
+{
+  gui_enabled_ = enable;
+
+  if (enable && (px_status_ & DAQuiri::ProducerStatus::booted))
+    ui->statusBar->showMessage("Online");
+  else if (enable)
+    ui->statusBar->showMessage("Offline");
+  else
+    ui->statusBar->showMessage("Busy");
+
+  for (int i = 0; i < ui->tabs->count(); ++i)
+    if (ui->tabs->widget(i) != main_tab_)
+      ui->tabs->setTabText(i, ui->tabs->widget(i)->windowTitle());
+
+//  emit toggle_push(enable, px_status_);
 }
 
 void daquiri::loadSettings()

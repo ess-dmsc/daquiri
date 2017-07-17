@@ -33,7 +33,7 @@ private slots:
   void on_spinM_valueChanged(int);
   void on_spinH_valueChanged(int);
   void on_spinS_valueChanged(int);
-  void on_spin_ms_valueChanged(int arg1);
+  void on_spin_ms_valueChanged(int);
 
   void on_spinDays_editingFinished();
   void on_spinH_editingFinished();
