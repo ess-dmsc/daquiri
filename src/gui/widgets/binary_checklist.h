@@ -6,7 +6,8 @@
 #include <QComboBox>
 #include "setting.h"
 
-class BinaryChecklist : public QDialog {
+class BinaryChecklist : public QDialog
+{
   Q_OBJECT
 
 public:
@@ -17,11 +18,8 @@ private slots:
   void change_setting();
 
 private:
-//  Ui::FormDaqSettings *ui;
-
   DAQuiri::Setting      setting_;
   std::vector<QCheckBox*> boxes_;
   std::vector<QDoubleSpinBox*>  spins_;
   std::vector<QComboBox*> menus_;
-
 };

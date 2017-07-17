@@ -153,7 +153,9 @@ bool TreeItem::is_editable(int column) const
 {
   if ((column == 1)  && (itemData.metadata().get_num("chans", 0) > 0))
     return true;
-  else if ((column != 2) || itemData.is(SettingType::stem))
+  else if ((column != 2) ||
+           itemData.is(SettingType::stem) ||
+           itemData.is(SettingType::indicator))
     return false;
   else if (itemData.is(SettingType::binary))
     return true;

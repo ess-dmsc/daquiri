@@ -7,8 +7,9 @@
 #include <QDialogButtonBox>
 #include <bitset>
 
+using namespace DAQuiri;
 
-BinaryChecklist::BinaryChecklist(DAQuiri::Setting setting, QWidget *parent) :
+BinaryChecklist::BinaryChecklist(Setting setting, QWidget *parent) :
   QDialog(parent),
   setting_(setting)
 {
@@ -48,7 +49,7 @@ BinaryChecklist::BinaryChecklist(DAQuiri::Setting setting, QWidget *parent) :
     bool visible = setting_.metadata().enum_map().count(i) || showall;
 
     bool is_branch = false;
-    DAQuiri::Setting sub;
+    Setting sub;
     if (exists)
       for (auto &q : setting_.branches)
         if (q.id() == setting_.metadata().enum_name(i))
@@ -57,8 +58,8 @@ BinaryChecklist::BinaryChecklist(DAQuiri::Setting setting, QWidget *parent) :
           sub = q;
         }
 
-    bool is_int = (is_branch && sub.is(DAQuiri::SettingType::integer));
-    bool is_menu = (is_branch && sub.is(DAQuiri::SettingType::menu));
+    bool is_int = (is_branch && sub.is(SettingType::integer));
+    bool is_menu = (is_branch && sub.is(SettingType::menu));
 
     label = new QLabel();
     label->setFixedHeight(25);
@@ -86,16 +87,19 @@ BinaryChecklist::BinaryChecklist(DAQuiri::Setting setting, QWidget *parent) :
     if (is_int)
     {
       uint64_t num = setting.selection();
-      num = num << uint8_t(64 - sub.metadata().max<int64_t>() - i);
-      num = num >> uint8_t(64 - sub.metadata().max<int64_t>());
-      uint64_t max = pow(2, uint16_t(sub.metadata().max<int64_t>())) - 1;
+      int bits = sub.metadata().get_num("bits", int(0));
+      num = num << uint8_t(64 - bits - i);
+      num = num >> uint8_t(64 - bits);
+      uint64_t max = pow(2, uint16_t(bits)) - 1;
 
-      spin->setMinimum(sub.metadata().min<int64_t>());    //sub.metadata().min<int64_t>()
-      spin->setSingleStep(sub.metadata().step<int64_t>());
-      spin->setMaximum(sub.metadata().min<int64_t>() + sub.metadata().step<int64_t>() * max);
-      spin->setValue(sub.metadata().min<int64_t>() + sub.metadata().step<int64_t>() * num);    //sub.metadata().min<int64_t>() + step*
-      //      DBG << "converted num " << num << " to " << spin->value();
-      if (sub.metadata().step<int64_t>() == 1.0)
+      double val_offset = sub.metadata().get_num("offset", double(0));
+      double val_step = sub.metadata().get_num("step", double(1));
+
+      spin->setMinimum(val_offset);
+      spin->setSingleStep(val_step);
+      spin->setMaximum(val_offset + val_step * max);
+      spin->setValue(val_offset + val_step * num);
+      if (val_step == 1.0)
         spin->setDecimals(0);
       vl_checks->addWidget(spin);
     }

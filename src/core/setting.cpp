@@ -176,8 +176,6 @@ std::string Setting::indices_to_string(bool showblanks) const
 
   auto max = metadata_.get_num<size_t>("max_indices", 0);
 
-  //better dealing with index = -1 ?
-
   std::list<std::string> idcs;
   for (auto &q : indices_)
     idcs.push_back(std::to_string(q));
@@ -533,6 +531,13 @@ Setting Setting::integer(std::string sid, integer_t val)
   return ret;
 }
 
+Setting Setting::indicator(std::string sid, integer_t val)
+{
+  Setting ret(SettingMeta(sid, SettingType::indicator));
+  ret.value_int = val;
+  return ret;
+}
+
 bool Setting::numeric() const
 {
   return metadata_.numeric();
@@ -545,11 +550,10 @@ double Setting::get_number() const
       || is(SettingType::menu)
       || is(SettingType::indicator))
     return static_cast<double>(value_int);
+  else if (is(SettingType::precise))
+    return to_double(value_precise);
   else if (is(SettingType::floating))
     return value_dbl;
-  else if (is(SettingType::precise))
-    //    return value_precise.convert_to<double>();
-    return static_cast<double>(value_precise);
   return std::numeric_limits<double>::quiet_NaN();
 }
 
@@ -668,7 +672,6 @@ std::string Setting::val_to_string() const
            is(SettingType::indicator) )
     ss << std::to_string(value_int);
   else if (is(SettingType::binary))
-    //    ss << itohex64(value_int);
     ss << std::to_string(value_int);
   else if (is(SettingType::floating))
     ss << std::setprecision(std::numeric_limits<floating_t>::max_digits10)

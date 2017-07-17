@@ -46,6 +46,8 @@ protected:
   double   peak_center_ {0.5};
   double   peak_spread_ {1.0};
 
+  int dummy_selection_{0};
+
   std::string vname1 {"v1"}, vname2 {"v2"};
 
   EventModel model_hit;

@@ -186,17 +186,50 @@ void MockProducer::add_dummy_settings()
   add_definition(a22);
 
   SettingMeta a23(r + "/Menu", SettingType::menu);
-  a23.set_enum(1, "item1");
-  a23.set_enum(2, "item2");
-  a23.set_enum(3, "item3");
+  a23.set_enum(0, "a");
+  a23.set_enum(1, "b");
+  a23.set_enum(2, "c");
   add_definition(a23);
 
+
   SettingMeta a24(r + "/Binary", SettingType::binary);
+  a24.set_val("bits", 16);
+  a24.set_enum(0, "bit0");
+  a24.set_enum(1, "bit1");
+  a24.set_enum(3, "bit3");
+  a24.set_enum(4, r + "/Binary/bit4");
+  a24.set_enum(8, r + "/Binary/bit8");
   add_definition(a24);
+  SettingMeta a24b4(r + "/Binary/bit4", SettingType::menu);
+  a24b4.set_enum(0, "c0");
+  a24b4.set_enum(1, "c1");
+  a24b4.set_enum(2, "c2");
+  a24b4.set_enum(3, "c3");
+  a24b4.set_val("name", "name of a24b4");
+  add_definition(a24b4);
+  SettingMeta a24b8(r + "/Binary/bit8", SettingType::integer);
+  a24b8.set_val("bits", 8);
+  a24b8.set_val("name", "name of a24b8");
+  add_definition(a24b8);
+
 
   SettingMeta a25(r + "/Indicator", SettingType::indicator);
+  a25.set_enum(0, r + "/Indicator/a");
+  a25.set_enum(1, r + "/Indicator/b");
+  a25.set_enum(2, r + "/Indicator/c");
   add_definition(a25);
-
+  SettingMeta a26(r + "/Indicator/a", SettingType::text);
+  a26.set_val("name", "A");
+  a26.set_val("color", "#FF0000");
+  add_definition(a26);
+  SettingMeta a27(r + "/Indicator/b", SettingType::text);
+  a27.set_val("name", "B");
+  a27.set_val("color", "#00FF00");
+  add_definition(a27);
+  SettingMeta a28(r + "/Indicator/c", SettingType::text);
+  a28.set_val("name", "C");
+  a28.set_val("color", "#0000FF");
+  add_definition(a28);
 
   SettingMeta root(r, SettingType::stem);
   root.set_enum(1, a1.id());
@@ -304,6 +337,8 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set.set(Setting::floating("MockProducer/PeakSpread", peak_spread_));
   set.set(Setting::text("MockProducer/ValName1", vname1));
   set.set(Setting::text("MockProducer/ValName2", vname2));
+
+  set.set(Setting::indicator("MockProducer/DummySettings/Indicator", dummy_selection_));
 }
 
 
@@ -323,6 +358,8 @@ void MockProducer::write_settings_bulk(Setting &set)
   peak_spread_ = set.find({"MockProducer/PeakSpread"}).get_number();
   vname1 = set.find({"MockProducer/ValName1"}).get_text();
   vname2 = set.find({"MockProducer/ValName2"}).get_text();
+
+  dummy_selection_ = set.find({"MockProducer/DummySettings/Menu"}).selection();
 
   model_hit = EventModel();
   model_hit.timebase = TimeBase(set.find({"MockProducer/TimebaseMult"}).get_number(),

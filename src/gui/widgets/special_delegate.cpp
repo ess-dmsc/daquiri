@@ -77,10 +77,8 @@ void DAQuiriSpecialDelegate::paint(QPainter *painter,
 
     if (itemData.is(SettingType::indicator))
     {
-      QColor bkgCol = QColor(QString::fromStdString(
-                               itemData.find(Setting(itemData.metadata().enum_name(itemData.get_number())))
-                               .metadata().get_string("color", ""))
-                             );
+      auto ii = itemData.find(Setting(itemData.metadata().enum_name(itemData.get_number())));
+      QColor bkgCol = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
       painter->fillRect(option.rect, bkgCol);
       painter->setPen(QPen(Qt::white, 3));
       QFont f = painter->font();

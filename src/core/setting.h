@@ -43,6 +43,7 @@ public:
   static Setting precise(std::string sid, precise_t val);
   static Setting boolean(std::string sid, bool val);
   static Setting integer(std::string sid, integer_t val);
+  static Setting indicator(std::string sid, integer_t val);
   static Setting text(std::string sid, std::string val);
   static Setting color(std::string sid, std::string val);
   static Setting file(std::string sid, std::string val);
