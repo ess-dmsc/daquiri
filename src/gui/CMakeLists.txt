@@ -14,16 +14,19 @@ file(GLOB ${PROJECT_NAME}_resources
 
 file(GLOB ${PROJECT_NAME}_ui
   *.ui
+  daq/*.ui
   widgets/*.ui
   widgets/ColorWidgets/src/*.ui)
 
 file(GLOB ${PROJECT_NAME}_sources
   *.cpp
+  daq/*.cpp
   widgets/*.cpp
   widgets/ColorWidgets/src/*.cpp)
 
 file(GLOB ${PROJECT_NAME}_headers
   *.h
+  daq/*.h
   widgets/*.h
   widgets/ColorWidgets/include/*.hpp
   ${PROJECT_BINARY_DIR}/*.h)

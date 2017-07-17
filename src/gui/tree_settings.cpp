@@ -20,7 +20,7 @@ TreeItem::TreeItem(const Setting &data, TreeItem *parent)
   }
 }
 
-bool TreeItem::eat_data(const Setting &data)
+bool TreeItem::replace_data(const Setting &data)
 {
   itemData = data;
 
@@ -33,7 +33,7 @@ bool TreeItem::eat_data(const Setting &data)
       Setting s = itemData.branches.get(i);
       if (childItems[i]->itemData.id() != s.id())
         return false;
-      if (!childItems[i]->eat_data(itemData.branches.get(i)))
+      if (!childItems[i]->replace_data(itemData.branches.get(i)))
         return false;
     }
   }
@@ -583,7 +583,7 @@ void TreeSettings::update(const Setting &data)
     data_.cull_readonly();
   }
 
-  if (!rootItem->eat_data(data_))
+  if (!rootItem->replace_data(data_))
   {
 //    DBG << "deleting root node";
     beginResetModel();

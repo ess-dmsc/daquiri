@@ -244,8 +244,8 @@ void ThreadRunner::run()
     if (action_ == kMCA)
     {
       engine_.get_all_settings();
-      DAQuiri::ProducerStatus ds = engine_.status() ^ DAQuiri::ProducerStatus::can_run; //turn off can_run
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), ds);
+      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(),
+                           engine_.status() ^ DAQuiri::ProducerStatus::can_run); //turn off can_run
       interruptor_->store(false);
       engine_.acquire(spectra_, *interruptor_, timeout_);
       action_ = kSettingsRefresh;
@@ -254,7 +254,8 @@ void ThreadRunner::run()
     else if (action_ == kList)
     {
       interruptor_->store(false);
-      DAQuiri::ProducerStatus ds = engine_.status() ^ DAQuiri::ProducerStatus::can_run; //turn off can_run
+      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(),
+                           engine_.status() ^ DAQuiri::ProducerStatus::can_run); //turn off can_run
       ListData newListRun = engine_.acquire_list(*interruptor_, timeout_);
       action_ = kSettingsRefresh;
       emit listComplete(newListRun);
@@ -334,12 +335,7 @@ void ThreadRunner::run()
         engine_.set_detector(q.first, q.second);
       engine_.load_optimizations();
       engine_.write_settings_bulk();
-
-      //XDT?
-
-      //engine_.get_all_settings();
       action_ = kOscil;
-      //emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
     }
     else if (action_ == kOscil)
     {

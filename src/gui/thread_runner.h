@@ -51,9 +51,11 @@ public:
 signals:
   void bootComplete();
   void runComplete();
-  void listComplete(ListData);
-  void settingsUpdated(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus);
-  void oscilReadOut(OscilData);
+  void listComplete(DAQuiri::ListData);
+  void settingsUpdated(DAQuiri::Setting,
+                       std::vector<DAQuiri::Detector>,
+                       DAQuiri::ProducerStatus);
+  void oscilReadOut(DAQuiri::OscilData);
 
 protected:
   void run();

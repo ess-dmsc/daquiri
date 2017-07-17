@@ -14,7 +14,7 @@ public:
     explicit TreeItem(const Setting &data, TreeItem *parent = 0);
     ~TreeItem();
 
-    bool eat_data(const Setting &data);
+    bool replace_data(const Setting &data);
 
     TreeItem *child(int number);
     int childCount() const;
@@ -49,7 +49,7 @@ private:
   bool show_address_;
   bool edit_read_only_;
 
-public:  
+public:
   explicit TreeSettings(QObject *parent = 0);
   ~TreeSettings();
 

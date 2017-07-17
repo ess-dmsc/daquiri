@@ -64,11 +64,16 @@ private:
 
   void reorder_tabs();
 
+signals:
+  void toggle_push(bool, DAQuiri::ProducerStatus);
+
 protected:
   void closeEvent(QCloseEvent*);
 
 private slots:
-  void update_settings(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus);
+  void update_settings(Setting,
+                       std::vector<DAQuiri::Detector>,
+                       DAQuiri::ProducerStatus);
   void toggleIO(bool);
   void updateStatusText(QString);
 
@@ -85,5 +90,7 @@ private slots:
   void tabs_moved(int, int);
   void addClosableTab(QWidget*, QString);
   void tab_changed(int);
+
+  void open_list();
 };
 

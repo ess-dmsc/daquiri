@@ -18,6 +18,8 @@
 
 #include "project.h"
 
+#include "form_list_daq.h"
+
 //#include "qt_util.h"
 
 
@@ -52,8 +54,8 @@ daquiri::daquiri(QWidget *parent) :
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 
-  connect(&runner_thread_, SIGNAL(settingsUpdated(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
-          this, SLOT(update_settings(Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
+  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
+          this, SLOT(update_settings(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
 
   loadSettings();
 
@@ -77,6 +79,7 @@ daquiri::daquiri(QWidget *parent) :
   // Add tab button to current tab. Button will be enabled, but tab -- not
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
+  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
   tb->setMenu(&menuOpen);
 
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
@@ -87,8 +90,8 @@ daquiri::daquiri(QWidget *parent) :
 //  ui->tabs->addTab(main_tab_, main_tab_->windowTitle());
   ui->tabs->setTabIcon(ui->tabs->count() - 1, QIcon(":/icons/oxy/16/applications_systemg.png"));
   connect(main_tab_, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
-//  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
-//          main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
+          main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
 //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
 //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
 
@@ -205,7 +208,7 @@ void daquiri::toggleIO(bool enable)
     if (ui->tabs->widget(i) != main_tab_)
       ui->tabs->setTabText(i, ui->tabs->widget(i)->windowTitle());
 
-//  emit toggle_push(enable, px_status_);
+  emit toggle_push(enable, px_status_);
 }
 
 void daquiri::loadSettings()
@@ -271,4 +274,21 @@ bool daquiri::hasTab(QString tofind)
     if (ui->tabs->tabText(i) == tofind)
       return true;
   return false;
+}
+
+void daquiri::open_list()
+{
+  FormListDaq *newListForm = new FormListDaq(runner_thread_, this);
+  addClosableTab(newListForm, "Close");
+
+  connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
+  connect(newListForm, SIGNAL(statusText(QString)), this, SLOT(updateStatusText(QString)));
+  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
+          newListForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+
+  ui->tabs->setCurrentWidget(newListForm);
+
+  reorder_tabs();
+
+  emit toggle_push(gui_enabled_, px_status_);
 }
