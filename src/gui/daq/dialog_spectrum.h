@@ -27,12 +27,13 @@ public:
     DAQuiri::ConsumerMetadata product() { return sink_metadata_; }
 
 private slots:
-    void on_pushLock_clicked();
+    void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+
+    void on_pushLock_clicked();
+
     void on_pushDetEdit_clicked();
     void on_pushDetRename_clicked();
-    void on_pushDelete_clicked();
-    void on_pushAnalyse_clicked();
     void on_pushDetFromDB_clicked();
     void on_pushDetToDB_clicked();
     void on_spinDets_valueChanged(int arg1);
@@ -42,12 +43,6 @@ private slots:
     void det_selection_changed(QItemSelection,QItemSelection);
 
     void on_comboType_activated(const QString &arg1);
-
-    void on_buttonBox_accepted();
-
-signals:
-    void delete_spectrum();
-    void analyse();
 
 private:
     Ui::DialogSpectrum *ui;

@@ -32,7 +32,7 @@ DialogSpectrum::DialogSpectrum(ConsumerMetadata sink_metadata,
 
   ui->treeAttribs->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-  ui->widgetMore->setVisible(has_sink_parent);
+  ui->pushLock->setVisible(has_sink_parent);
   ui->comboType->setEnabled(allow_edit_type);
   ui->widgetDetectors->setVisible(!allow_edit_type);
 
@@ -122,15 +122,17 @@ void DialogSpectrum::updateData()
 void DialogSpectrum::open_close_locks() {
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
-  ui->pushDelete->setEnabled(lockit);
   ui->spinDets->setEnabled(lockit || !has_sink_parent_);
 
   ui->treeAttribs->clearSelection();
 //  ui->tableDetectors->clearSelection();
-  if (!lockit) {
+  if (!lockit)
+  {
     attr_model_.set_edit_read_only(false);
 //    ui->tableDetectors->setSelectionMode(QAbstractItemView::NoSelection);
-  } else {
+  }
+  else
+  {
     attr_model_.set_edit_read_only(true);
 //    ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
     changed_ = true;
@@ -257,21 +259,6 @@ void DialogSpectrum::on_pushDetRename_clicked()
 //      open_close_locks();
 //    }
 //  }
-}
-
-void DialogSpectrum::on_pushDelete_clicked()
-{
-  int ret = QMessageBox::question(this, "Delete spectrum?", "Are you sure you want to delete this spectrum?");
-  if (ret == QMessageBox::Yes) {
-    emit delete_spectrum();
-    on_buttonBox_rejected();
-  }
-}
-
-void DialogSpectrum::on_pushAnalyse_clicked()
-{
-  emit analyse();
-  on_buttonBox_rejected();
 }
 
 void DialogSpectrum::on_pushDetFromDB_clicked()
