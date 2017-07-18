@@ -84,8 +84,6 @@ void Spectrum1D::_recalc_axes()
   for (size_t i=0; i < res; ++i)
     axes_[0][i] = i;
 
-  DBG << "recalced 1d axis " << axes_[0].size();
-
   if (axes_.size() != metadata_.detectors.size())
     return;
 

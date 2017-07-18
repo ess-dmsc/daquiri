@@ -48,9 +48,9 @@ bool Consumer::_initialize()
 void Consumer::_init_from_file(std::string name)
 {
   metadata_.set_attribute(Setting::text("name", name), false);
-  _initialize();
-  _recalc_axes();
-  _flush();
+  this->_initialize();
+  this->_recalc_axes();
+  this->_flush();
 }
 
 PreciseFloat Consumer::data(std::initializer_list<size_t> list ) const
@@ -129,7 +129,6 @@ void Consumer::flush()
   this->_flush();
 }
 
-
 std::vector<double> Consumer::axis_values(uint16_t dimension) const
 {
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
@@ -198,10 +197,16 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
     ss << prepend << k_branch_mid_B << "Axes:\n";
     for (size_t i=0; i < axes_.size();++i)
     {
-      if ((i+1) == axes_.size())
-        ss << prepend << k_branch_pre_B  << k_branch_end_B << i << ".size=" << axes_.at(i).size() << "\n";
-      else
-        ss << prepend << k_branch_pre_B  << k_branch_mid_B << i << ".size=" << axes_.at(i).size() << "\n";
+      ss << prepend << k_branch_pre_B
+         << (((i+1) == axes_.size()) ? k_branch_end_B : k_branch_mid_B)
+         << i << "   size=" << axes_.at(i).size();
+      if (axes_.at(i).size())
+      {
+        ss << " [" << axes_.at(i)[0]
+           << "-" << axes_.at(i)[axes_.at(i).size()-1]
+           << "]";
+      }
+      ss << "\n";
     }
   }
   ss << prepend << k_branch_mid_B << metadata_.debug(prepend + k_branch_pre_B, verbose);

@@ -44,6 +44,7 @@ private:
   Ui::daquiri *ui;
 
   Container<DAQuiri::Detector>    detectors_;
+  std::vector<DAQuiri::Detector>  current_dets_;
   ThreadRunner                runner_thread_;
   DAQuiri::ProducerStatus px_status_;
 
@@ -92,5 +93,7 @@ private slots:
   void tab_changed(int);
 
   void open_list();
+  void open_project(DAQuiri::ProjectPtr);
+  void openNewProject();
 };
 

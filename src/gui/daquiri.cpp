@@ -19,6 +19,7 @@
 #include "project.h"
 
 #include "form_list_daq.h"
+#include "form_mca_daq.h"
 
 //#include "qt_util.h"
 
@@ -79,6 +80,7 @@ daquiri::daquiri(QWidget *parent) :
   // Add tab button to current tab. Button will be enabled, but tab -- not
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
+  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(openNewProject()));
   menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
   tb->setMenu(&menuOpen);
 
@@ -291,4 +293,27 @@ void daquiri::open_list()
   reorder_tabs();
 
   emit toggle_push(gui_enabled_, px_status_);
+}
+
+void daquiri::openNewProject()
+{
+  open_project(nullptr);
+}
+
+void daquiri::open_project(DAQuiri::ProjectPtr proj)
+{
+  FormMcaDaq *newSpectraForm = new FormMcaDaq(runner_thread_, detectors_,
+                                              current_dets_,
+                                              proj, this);
+  connect(newSpectraForm, SIGNAL(requestClose(QWidget*)), this, SLOT(closeTab(QWidget*)));
+
+  connect(newSpectraForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
+  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
+          newSpectraForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+
+  addClosableTab(newSpectraForm, "Close");
+  ui->tabs->setCurrentWidget(newSpectraForm);
+  reorder_tabs();
+
+  newSpectraForm->toggle_push(true, px_status_);
 }

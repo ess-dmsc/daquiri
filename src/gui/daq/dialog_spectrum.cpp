@@ -49,11 +49,11 @@ DialogSpectrum::DialogSpectrum(ConsumerMetadata sink_metadata,
 
 //  ui->tableDetectors->setModel(&det_table_model_);
 //  ui->tableDetectors->setSelectionModel(&det_selection_model_);
-  ui->tableDetectors->horizontalHeader()->setStretchLastSection(true);
-  ui->tableDetectors->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  ui->tableDetectors->setSelectionBehavior(QAbstractItemView::SelectRows);
-  ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
-  ui->tableDetectors->show();
+//  ui->tableDetectors->horizontalHeader()->setStretchLastSection(true);
+//  ui->tableDetectors->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//  ui->tableDetectors->setSelectionBehavior(QAbstractItemView::SelectRows);
+//  ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
+//  ui->tableDetectors->show();
 
   attr_model_.set_show_address_(false);
 
@@ -126,13 +126,13 @@ void DialogSpectrum::open_close_locks() {
   ui->spinDets->setEnabled(lockit || !has_sink_parent_);
 
   ui->treeAttribs->clearSelection();
-  ui->tableDetectors->clearSelection();
+//  ui->tableDetectors->clearSelection();
   if (!lockit) {
     attr_model_.set_edit_read_only(false);
-    ui->tableDetectors->setSelectionMode(QAbstractItemView::NoSelection);
+//    ui->tableDetectors->setSelectionMode(QAbstractItemView::NoSelection);
   } else {
     attr_model_.set_edit_read_only(true);
-    ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
+//    ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
     changed_ = true;
   }
   toggle_push();
@@ -151,22 +151,22 @@ void DialogSpectrum::toggle_push()
   ui->pushDetFromDB->setEnabled(false);
   ui->pushDetToDB->setEnabled(false);
 
-  bool unlocked = !ui->pushLock->isChecked();
+//  bool unlocked = !ui->pushLock->isChecked();
 
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
-  if (i < static_cast<int>(sink_metadata_.detectors.size()))
-  {
-    ui->pushDetEdit->setEnabled(unlocked);
-    ui->pushDetRename->setEnabled(unlocked);
-    ui->pushDetToDB->setEnabled(unlocked);
-    Detector det = sink_metadata_.detectors[i];
-    if (unlocked && detectors_.has_a(det))
-      ui->pushDetFromDB->setEnabled(true);
-  }
+//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  {
+//    ui->pushDetEdit->setEnabled(unlocked);
+//    ui->pushDetRename->setEnabled(unlocked);
+//    ui->pushDetToDB->setEnabled(unlocked);
+//    Detector det = sink_metadata_.detectors[i];
+//    if (unlocked && detectors_.has_a(det))
+//      ui->pushDetFromDB->setEnabled(true);
+//  }
 }
 
 void DialogSpectrum::on_pushLock_clicked()
@@ -201,61 +201,62 @@ void DialogSpectrum::on_buttonBox_rejected()
 
 void DialogSpectrum::on_pushDetEdit_clicked()
 {
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
 //  DialogDetector* newDet = new DialogDetector(spectrum_detectors_.get(i), false, this);
 //  connect(newDet, SIGNAL(newDetReady(Detector)), this, SLOT(changeDet(Detector)));
 //  newDet->exec();
 }
 
-void DialogSpectrum::changeDet(Detector newDetector) {
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+void DialogSpectrum::changeDet(Detector newDetector)
+{
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
-  if (i < static_cast<int>(sink_metadata_.detectors.size()))
-  {
-    sink_metadata_.detectors[i] = newDetector;
-    changed_ = true;
+//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  {
+//    sink_metadata_.detectors[i] = newDetector;
+//    changed_ = true;
 
-    spectrum_detectors_.clear();
-    for (auto &q: sink_metadata_.detectors)
-      spectrum_detectors_.add_a(q);
-//    det_table_model_.update();
-    open_close_locks();
-  }
+//    spectrum_detectors_.clear();
+//    for (auto &q: sink_metadata_.detectors)
+//      spectrum_detectors_.add_a(q);
+////    det_table_model_.update();
+//    open_close_locks();
+//  }
 }
 
 void DialogSpectrum::on_pushDetRename_clicked()
 {
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
-  bool ok;
-  QString text = QInputDialog::getText(this, "Rename Detector",
-                                       "Detector name:", QLineEdit::Normal,
-                                       QString::fromStdString(spectrum_detectors_.get(i).name()),
-                                       &ok);
-  if (ok && !text.isEmpty())
-  {
-    if (i < static_cast<int>(sink_metadata_.detectors.size()))
-    {
-      sink_metadata_.detectors[i].set_name(text.toStdString());
-      changed_ = true;
+//  bool ok;
+//  QString text = QInputDialog::getText(this, "Rename Detector",
+//                                       "Detector name:", QLineEdit::Normal,
+//                                       QString::fromStdString(spectrum_detectors_.get(i).name()),
+//                                       &ok);
+//  if (ok && !text.isEmpty())
+//  {
+//    if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//    {
+//      sink_metadata_.detectors[i].set_name(text.toStdString());
+//      changed_ = true;
 
-      spectrum_detectors_.clear();
-      for (auto &q: sink_metadata_.detectors)
-        spectrum_detectors_.add_a(q);
-//      det_table_model_.update();
-      open_close_locks();
-    }
-  }
+//      spectrum_detectors_.clear();
+//      for (auto &q: sink_metadata_.detectors)
+//        spectrum_detectors_.add_a(q);
+////      det_table_model_.update();
+//      open_close_locks();
+//    }
+//  }
 }
 
 void DialogSpectrum::on_pushDelete_clicked()
@@ -275,78 +276,78 @@ void DialogSpectrum::on_pushAnalyse_clicked()
 
 void DialogSpectrum::on_pushDetFromDB_clicked()
 {
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
-  if (i < static_cast<int>(sink_metadata_.detectors.size()))
-  {
-    Detector newdet = detectors_.get(sink_metadata_.detectors[i]);
-    sink_metadata_.detectors[i] = newdet;
-    changed_ = true;
+//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  {
+//    Detector newdet = detectors_.get(sink_metadata_.detectors[i]);
+//    sink_metadata_.detectors[i] = newdet;
+//    changed_ = true;
 
-    spectrum_detectors_.clear();
-    for (auto &q: sink_metadata_.detectors)
-      spectrum_detectors_.add_a(q);
-//    det_table_model_.update();
-    open_close_locks();
-  }
+//    spectrum_detectors_.clear();
+//    for (auto &q: sink_metadata_.detectors)
+//      spectrum_detectors_.add_a(q);
+////    det_table_model_.update();
+//    open_close_locks();
+//  }
 }
 
 void DialogSpectrum::on_pushDetToDB_clicked()
 {
-  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  int i = ixl.front().row();
+//  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
+//  if (ixl.empty())
+//    return;
+//  int i = ixl.front().row();
 
-  if (i < static_cast<int>(sink_metadata_.detectors.size()))
-  {
-    Detector newdet = sink_metadata_.detectors[i];
+//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  {
+//    Detector newdet = sink_metadata_.detectors[i];
 
-    if (!detectors_.has_a(newdet)) {
-      bool ok;
-      QString text = QInputDialog::getText(this, "New Detector",
-                                           "Detector name:", QLineEdit::Normal,
-                                           QString::fromStdString(newdet.name()),
-                                           &ok);
+//    if (!detectors_.has_a(newdet)) {
+//      bool ok;
+//      QString text = QInputDialog::getText(this, "New Detector",
+//                                           "Detector name:", QLineEdit::Normal,
+//                                           QString::fromStdString(newdet.name()),
+//                                           &ok);
 
-      if (!ok)
-        return;
+//      if (!ok)
+//        return;
 
-      if (!text.isEmpty()) {
-        if (text.toStdString() != newdet.name())
-          newdet.set_name(text.toStdString());
+//      if (!text.isEmpty()) {
+//        if (text.toStdString() != newdet.name())
+//          newdet.set_name(text.toStdString());
 
-        if (detectors_.has_a(newdet)) {
-          QMessageBox::StandardButton reply = QMessageBox::question(this, "Replace existing?",
-                                        "Detector " + text + " already exists. Replace?",
-                                         QMessageBox::Yes|QMessageBox::No);
-          if (reply == QMessageBox::No)
-            return;
-          else {
-            detectors_.replace(newdet);
-            if (sink_metadata_.detectors[i].name() != newdet.name())
-            {
-              sink_metadata_.detectors[i] = newdet;
-              changed_ = true;
-//              updateData();
-            }
-          }
-        } else
-          detectors_.replace(newdet);
-      }
-    } else {
-      QMessageBox::StandardButton reply = QMessageBox::question(this, "Replace existing?",
-                                    "Detector " + QString::fromStdString(newdet.name()) + " already exists. Replace?",
-                                     QMessageBox::Yes|QMessageBox::No);
-      if (reply == QMessageBox::No)
-        return;
-      else
-        detectors_.replace(newdet);
-    }
-  }
+//        if (detectors_.has_a(newdet)) {
+//          QMessageBox::StandardButton reply = QMessageBox::question(this, "Replace existing?",
+//                                        "Detector " + text + " already exists. Replace?",
+//                                         QMessageBox::Yes|QMessageBox::No);
+//          if (reply == QMessageBox::No)
+//            return;
+//          else {
+//            detectors_.replace(newdet);
+//            if (sink_metadata_.detectors[i].name() != newdet.name())
+//            {
+//              sink_metadata_.detectors[i] = newdet;
+//              changed_ = true;
+////              updateData();
+//            }
+//          }
+//        } else
+//          detectors_.replace(newdet);
+//      }
+//    } else {
+//      QMessageBox::StandardButton reply = QMessageBox::question(this, "Replace existing?",
+//                                    "Detector " + QString::fromStdString(newdet.name()) + " already exists. Replace?",
+//                                     QMessageBox::Yes|QMessageBox::No);
+//      if (reply == QMessageBox::No)
+//        return;
+//      else
+//        detectors_.replace(newdet);
+//    }
+//  }
 }
 
 void DialogSpectrum::on_spinDets_valueChanged(int arg1)
