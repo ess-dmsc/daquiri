@@ -43,19 +43,22 @@ protected:
   double   count_rate_ {10};
   double   lambda_ {0};
   double   dead_ {0};
-  double   peak_center_ {0.5};
-  double   peak_spread_ {1.0};
 
   int dummy_selection_{0};
 
-  std::string vname1 {"v1"}, vname2 {"v2"};
+  size_t val_count_ {1};
+  std::vector<std::string> vnames_;
+  std::vector<double> centers_;
+  std::vector<double> spreads_;
+  std::vector<std::normal_distribution<double>> dists_;
 
   EventModel model_hit;
+
   uint32_t  resolution_ {0};
   int       event_interval_ {150};
 
   // runtime
-  std::normal_distribution<double> dist_;
+//  std::normal_distribution<double> dist_;
   std::default_random_engine gen_;
 
   uint64_t clock_ {0};
@@ -64,7 +67,7 @@ protected:
   Status get_status(int16_t chan, StatusType t);
   void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
-  uint16_t generate();
+  uint16_t generate(size_t i);
 
   void add_dummy_settings();
 

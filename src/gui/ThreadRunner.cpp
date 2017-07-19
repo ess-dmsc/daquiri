@@ -372,11 +372,10 @@ Setting get_profile()
 
   default_settings.set(Setting::integer("MockProducer/SpillInterval", 5));
   default_settings.set(Setting::integer("MockProducer/Resolution", 16));
-  default_settings.set(Setting::text("MockProducer/ValName1", "energy"));
-  default_settings.set(Setting::floating("MockProducer/PeakCenter", 50));
-  default_settings.set(Setting::floating("MockProducer/PeakSpread", 2500));
   default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
   default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
+
+  default_settings.set(Setting::integer("MockProducer/ValCount", 1));
 
   auto profile = Engine::singleton().pull_settings();
   profile.set(Setting::text("Profile description",
