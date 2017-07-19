@@ -224,7 +224,7 @@ void FormPlot2D::on_pushDetails_clicked()
   if (!someSpectrum)
     return;
 
-  DialogSpectrum* newSpecDia = new DialogSpectrum(someSpectrum->metadata(),
+  ConsumerDialog* newSpecDia = new ConsumerDialog(someSpectrum->metadata(),
                                                   std::vector<Detector>(), dummy_, true, false, this);
   connect(newSpecDia, SIGNAL(delete_spectrum()), this, SLOT(spectrumDetailsDelete()));
   connect(newSpecDia, SIGNAL(analyse()), this, SLOT(analyse()));

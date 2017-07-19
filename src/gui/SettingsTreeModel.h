@@ -8,50 +8,50 @@
 
 using namespace DAQuiri;
 
-class TreeItem
+class SettingsTreeItem
 {
 public:
-    explicit TreeItem(const Setting &data, TreeItem *parent = 0);
-    ~TreeItem();
+    explicit SettingsTreeItem(const Setting &data, SettingsTreeItem *parent = 0);
+    ~SettingsTreeItem();
 
     bool replace_data(const Setting &data);
 
-    TreeItem *child(int number);
+    SettingsTreeItem *child(int number);
     int childCount() const;
     int columnCount() const;
     QVariant display_data(int column) const;
     QVariant edit_data(int column) const;
     bool is_editable(int column) const;
 //    bool insertChildren(int position, int count, int columns);
-    TreeItem *parent();
+    SettingsTreeItem *parent();
 //    bool removeChildren(int position, int count);
     int childNumber() const;
     bool setData(int column, const QVariant &value);
     Setting rebuild();
 
 private:
-    QVector<TreeItem*> childItems;
+    QVector<SettingsTreeItem*> childItems;
     Setting itemData;
-    TreeItem *parentItem;
+    SettingsTreeItem *parentItem;
 };
 
 
-class TreeSettings : public QAbstractItemModel
+class SettingsTreeModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 private:
   Setting data_;
-  TreeItem *getItem(const QModelIndex &index) const;
-  TreeItem *rootItem;
+  SettingsTreeItem *getItem(const QModelIndex &index) const;
+  SettingsTreeItem *rootItem;
 
   bool show_read_only_;
   bool show_address_;
   bool edit_read_only_;
 
 public:
-  explicit TreeSettings(QObject *parent = 0);
-  ~TreeSettings();
+  explicit SettingsTreeModel(QObject *parent = 0);
+  ~SettingsTreeModel();
 
   QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;

@@ -5,16 +5,16 @@
 #include "SelectorWidget.h"
 
 namespace Ui {
-class FormOscilloscope;
+class Oscilloscope;
 }
 
-class FormOscilloscope : public QWidget
+class Oscilloscope : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit FormOscilloscope(QWidget *parent = 0);
-  ~FormOscilloscope();
+  explicit Oscilloscope(QWidget *parent = 0);
+  ~Oscilloscope();
 
 signals:
   void refresh_oscil();
@@ -38,7 +38,7 @@ public slots:
   void updateMenu(std::vector<DAQuiri::Detector>);
   
 private:
-  Ui::FormOscilloscope *ui;
+  Ui::Oscilloscope *ui;
   OscilData traces_;
   std::vector<Detector> channels_;
 

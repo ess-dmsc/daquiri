@@ -12,16 +12,16 @@
 
 
 namespace Ui {
-class FormListDaq;
+class ListModeForm;
 }
 
-class FormListDaq : public QWidget
+class ListModeForm : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit FormListDaq(ThreadRunner&, QWidget *parent = 0);
-  ~FormListDaq();
+  explicit ListModeForm(ThreadRunner&, QWidget *parent = 0);
+  ~ListModeForm();
 
 signals:
   void toggleIO(bool);
@@ -41,7 +41,7 @@ protected:
   void closeEvent(QCloseEvent*);
 
 private:
-  Ui::FormListDaq     *ui;
+  Ui::ListModeForm     *ui;
   ThreadRunner        &runner_thread_;
   bool my_run_;
   Interruptor interruptor_;
@@ -57,8 +57,8 @@ private:
   Container<DAQuiri::Detector> spill_detectors_;
 
 //  TableDetectors det_table_model_;
-  TreeSettings               attr_model_;
-  DAQuiriSpecialDelegate     attr_delegate_;
+  SettingsTreeModel               attr_model_;
+  SettingDelegate     attr_delegate_;
 
 
   void displayHit(int idx);

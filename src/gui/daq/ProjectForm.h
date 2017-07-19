@@ -7,22 +7,22 @@
 #include "ThreadPlotSignal.h"
 
 namespace Ui {
-class FormMcaDaq;
+class ProjectForm;
 }
 
-class FormMcaDaq : public QWidget
+class ProjectForm : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit FormMcaDaq(ThreadRunner&,
+  explicit ProjectForm(ThreadRunner&,
                       Container<DAQuiri::Detector>&,
                       std::vector<DAQuiri::Detector>&,
                       DAQuiri::ProjectPtr,
                       QWidget *parent = 0);
 
   void replot();
-  ~FormMcaDaq();
+  ~ProjectForm();
 
 signals:
   void toggleIO(bool);
@@ -59,7 +59,7 @@ private slots:
   void projectOpen();
 
 private:
-  Ui::FormMcaDaq *ui;
+  Ui::ProjectForm *ui;
   ThreadRunner               &runner_thread_;
   Container<DAQuiri::Detector> &detectors_;
   std::vector<DAQuiri::Detector> &current_dets_;

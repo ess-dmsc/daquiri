@@ -9,19 +9,19 @@
 #include "consumer_metadata.h"
 
 namespace Ui {
-class DialogSpectraTemplates;
-class DialogSpectrumTemplate;
+class ConsumerTemplatesForm;
+class ConsumerDialogTemplate;
 }
 
 
-class TableSpectraTemplates : public QAbstractTableModel
+class ConsumerTemplatesTableModel : public QAbstractTableModel
 {
   Q_OBJECT
 private:
   Container<DAQuiri::ConsumerMetadata> &templates_;
 
 public:
-  TableSpectraTemplates(Container<DAQuiri::ConsumerMetadata>& templates, QObject *parent = 0);
+  ConsumerTemplatesTableModel(Container<DAQuiri::ConsumerMetadata>& templates, QObject *parent = 0);
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -32,23 +32,23 @@ public:
 };
 
 
-class DialogSpectraTemplates : public QDialog
+class ConsumerTemplatesForm : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit DialogSpectraTemplates(Container<DAQuiri::ConsumerMetadata> &newdb,
+  explicit ConsumerTemplatesForm(Container<DAQuiri::ConsumerMetadata> &newdb,
                                   std::vector<DAQuiri::Detector> current_dets,
                                   QString savedir, QWidget *parent = 0);
-  ~DialogSpectraTemplates();
+  ~ConsumerTemplatesForm();
 
 private:
-  Ui::DialogSpectraTemplates *ui;
+  Ui::ConsumerTemplatesForm *ui;
 
   Container<DAQuiri::ConsumerMetadata> &templates_;
 
-  DAQuiriSpecialDelegate      special_delegate_;
-  TableSpectraTemplates         table_model_;
+  SettingDelegate      special_delegate_;
+  ConsumerTemplatesTableModel         table_model_;
   QItemSelectionModel selection_model_;
 
   QString root_dir_;

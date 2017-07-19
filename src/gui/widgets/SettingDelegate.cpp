@@ -23,12 +23,12 @@
 using namespace color_widgets;
 using namespace DAQuiri;
 
-void DAQuiriSpecialDelegate::set_detectors(const Container<Detector> &detectors)
+void SettingDelegate::set_detectors(const Container<Detector> &detectors)
 {
   detectors_ = detectors;
 }
 
-void DAQuiriSpecialDelegate::paint(QPainter *painter,
+void SettingDelegate::paint(QPainter *painter,
                                    const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
@@ -57,7 +57,7 @@ void DAQuiriSpecialDelegate::paint(QPainter *painter,
   }
   else if (itemData.is(SettingType::pattern))
   {
-    DAQuiriPatternEditor pat(itemData.pattern(), 20, 8);
+    PatternWidget pat(itemData.pattern(), 20, 8);
     pat.setEnabled(!itemData.metadata().has_flag("readonly"));
     if (option.state & QStyle::State_Selected)
       painter->fillRect(option.rect, option.palette.highlight());
@@ -133,7 +133,7 @@ void DAQuiriSpecialDelegate::paint(QPainter *painter,
   }
 }
 
-QSize DAQuiriSpecialDelegate::sizeHint(const QStyleOptionViewItem &option,
+QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 {
   if (!index.data().canConvert<Setting>())
@@ -159,7 +159,7 @@ QSize DAQuiriSpecialDelegate::sizeHint(const QStyleOptionViewItem &option,
   }
   else if (itemData.is(SettingType::pattern))
   {
-    DAQuiriPatternEditor pattern(itemData.pattern(), 20, 8);
+    PatternWidget pattern(itemData.pattern(), 20, 8);
     return pattern.sizeHint();
   }
   else if (itemData.is(SettingType::duration))
@@ -185,7 +185,7 @@ QSize DAQuiriSpecialDelegate::sizeHint(const QStyleOptionViewItem &option,
   return QStyledItemDelegate::sizeHint(option, index);
 }
 
-QWidget *DAQuiriSpecialDelegate::createEditor(QWidget *parent,
+QWidget *SettingDelegate::createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
 
@@ -232,7 +232,7 @@ QWidget *DAQuiriSpecialDelegate::createEditor(QWidget *parent,
   }
   else if (set.is(SettingType::pattern))
   {
-    DAQuiriPatternEditor *editor = new DAQuiriPatternEditor(parent);
+    PatternWidget *editor = new PatternWidget(parent);
     editor->set_pattern(set.pattern(), 20, 8);
     return editor;
   }
@@ -281,7 +281,7 @@ QWidget *DAQuiriSpecialDelegate::createEditor(QWidget *parent,
   return QStyledItemDelegate::createEditor(parent, option, index);
 }
 
-void DAQuiriSpecialDelegate::setEditorData(QWidget *editor,
+void SettingDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
   if (!index.data(Qt::EditRole).canConvert<Setting>())
@@ -339,11 +339,11 @@ void DAQuiriSpecialDelegate::setEditorData(QWidget *editor,
     QStyledItemDelegate::setEditorData(editor, index);
 }
 
-void DAQuiriSpecialDelegate::setModelData(QWidget *editor,
+void SettingDelegate::setModelData(QWidget *editor,
                                           QAbstractItemModel *model,
                                           const QModelIndex &index) const
 {
-  if (DAQuiriPatternEditor *pe = qobject_cast<DAQuiriPatternEditor*>(editor))
+  if (PatternWidget *pe = qobject_cast<PatternWidget*>(editor))
     model->setData(index, QVariant::fromValue(pe->pattern()), Qt::EditRole);
   else if (QComboBox *cb = qobject_cast<QComboBox*>(editor))
     model->setData(index, cb->currentData(), Qt::EditRole);
@@ -369,7 +369,7 @@ void DAQuiriSpecialDelegate::setModelData(QWidget *editor,
     QStyledItemDelegate::setModelData(editor, model, index);
 }
 
-void DAQuiriSpecialDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void SettingDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   editor->setGeometry(option.rect);
 }

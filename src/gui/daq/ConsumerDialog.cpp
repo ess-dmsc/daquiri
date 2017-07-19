@@ -9,7 +9,7 @@
 
 using namespace DAQuiri;
 
-DialogSpectrum::DialogSpectrum(ConsumerMetadata sink_metadata,
+ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
                                bool has_sink_parent,
@@ -23,7 +23,7 @@ DialogSpectrum::DialogSpectrum(ConsumerMetadata sink_metadata,
   has_sink_parent_(has_sink_parent),
   attr_model_(this),
   detectors_(detDB),
-  ui(new Ui::DialogSpectrum)
+  ui(new Ui::ConsumerDialog)
 {
   ui->setupUi(this);
   ui->labelWarning->setVisible(false);
@@ -88,17 +88,17 @@ DialogSpectrum::DialogSpectrum(ConsumerMetadata sink_metadata,
   updateData();
 }
 
-DialogSpectrum::~DialogSpectrum()
+ConsumerDialog::~ConsumerDialog()
 {
   delete ui;
 }
 
-void DialogSpectrum::det_selection_changed(QItemSelection, QItemSelection)
+void ConsumerDialog::det_selection_changed(QItemSelection, QItemSelection)
 {
   toggle_push();
 }
 
-void DialogSpectrum::updateData()
+void ConsumerDialog::updateData()
 {
   ui->comboType->setCurrentText(QString::fromStdString(sink_metadata_.type()));
 
@@ -119,7 +119,7 @@ void DialogSpectrum::updateData()
   open_close_locks();
 }
 
-void DialogSpectrum::open_close_locks() {
+void ConsumerDialog::open_close_locks() {
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
   ui->spinDets->setEnabled(lockit || !has_sink_parent_);
@@ -140,13 +140,13 @@ void DialogSpectrum::open_close_locks() {
   toggle_push();
 }
 
-void DialogSpectrum::push_settings()
+void ConsumerDialog::push_settings()
 {
   sink_metadata_.overwrite_all_attributes(attr_model_.get_tree());
   changed_ = true;
 }
 
-void DialogSpectrum::toggle_push()
+void ConsumerDialog::toggle_push()
 {
   ui->pushDetEdit->setEnabled(false);
   ui->pushDetRename->setEnabled(false);
@@ -171,12 +171,12 @@ void DialogSpectrum::toggle_push()
 //  }
 }
 
-void DialogSpectrum::on_pushLock_clicked()
+void ConsumerDialog::on_pushLock_clicked()
 {
   open_close_locks();
 }
 
-void DialogSpectrum::on_buttonBox_accepted()
+void ConsumerDialog::on_buttonBox_accepted()
 {
   if (!changed_)
     reject();
@@ -196,12 +196,12 @@ void DialogSpectrum::on_buttonBox_accepted()
   }
 }
 
-void DialogSpectrum::on_buttonBox_rejected()
+void ConsumerDialog::on_buttonBox_rejected()
 {
   reject();
 }
 
-void DialogSpectrum::on_pushDetEdit_clicked()
+void ConsumerDialog::on_pushDetEdit_clicked()
 {
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
@@ -213,7 +213,7 @@ void DialogSpectrum::on_pushDetEdit_clicked()
 //  newDet->exec();
 }
 
-void DialogSpectrum::changeDet(Detector newDetector)
+void ConsumerDialog::changeDet(Detector newDetector)
 {
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
@@ -233,7 +233,7 @@ void DialogSpectrum::changeDet(Detector newDetector)
 //  }
 }
 
-void DialogSpectrum::on_pushDetRename_clicked()
+void ConsumerDialog::on_pushDetRename_clicked()
 {
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
@@ -261,7 +261,7 @@ void DialogSpectrum::on_pushDetRename_clicked()
 //  }
 }
 
-void DialogSpectrum::on_pushDetFromDB_clicked()
+void ConsumerDialog::on_pushDetFromDB_clicked()
 {
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
@@ -282,7 +282,7 @@ void DialogSpectrum::on_pushDetFromDB_clicked()
 //  }
 }
 
-void DialogSpectrum::on_pushDetToDB_clicked()
+void ConsumerDialog::on_pushDetToDB_clicked()
 {
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
@@ -337,7 +337,7 @@ void DialogSpectrum::on_pushDetToDB_clicked()
 //  }
 }
 
-void DialogSpectrum::on_spinDets_valueChanged(int arg1)
+void ConsumerDialog::on_spinDets_valueChanged(int arg1)
 {
   Setting pat = sink_metadata_.get_attribute("pattern_add");
 
@@ -350,7 +350,7 @@ void DialogSpectrum::on_spinDets_valueChanged(int arg1)
 }
 
 
-void DialogSpectrum::on_comboType_activated(const QString &arg1)
+void ConsumerDialog::on_comboType_activated(const QString &arg1)
 {
   ConsumerMetadata md = ConsumerFactory::singleton().create_prototype(arg1.toStdString());
   if (md != ConsumerMetadata())

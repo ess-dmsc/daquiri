@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DialogSpectraTemplates</class>
- <widget class="QDialog" name="DialogSpectraTemplates">
+ <class>ConsumerTemplatesForm</class>
+ <widget class="QDialog" name="ConsumerTemplatesForm">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -465,7 +465,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogSpectraTemplates</receiver>
+   <receiver>ConsumerTemplatesForm</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -481,7 +481,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogSpectraTemplates</receiver>
+   <receiver>ConsumerTemplatesForm</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

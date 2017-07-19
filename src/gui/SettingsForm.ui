@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FormSystemSettings</class>
- <widget class="QWidget" name="FormSystemSettings">
+ <class>SettingsForm</class>
+ <widget class="QWidget" name="SettingsForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -297,7 +297,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="FormOscilloscope" name="formOscilloscope" native="true">
+     <widget class="Oscilloscope" name="Oscil" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -340,7 +340,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FormOscilloscope</class>
+   <class>Oscilloscope</class>
    <extends>QWidget</extends>
    <header>Oscilloscope.h</header>
    <container>1</container>

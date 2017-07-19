@@ -87,7 +87,7 @@ daquiri::daquiri(QWidget *parent) :
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
   connect(ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
 
-  main_tab_ = new FormSystemSettings(runner_thread_, detectors_, this);
+  main_tab_ = new SettingsForm(runner_thread_, detectors_, this);
   ui->tabs->addTab(main_tab_, "DAQ");
 //  ui->tabs->addTab(main_tab_, main_tab_->windowTitle());
   ui->tabs->setTabIcon(ui->tabs->count() - 1, QIcon(":/icons/oxy/16/applications_systemg.png"));
@@ -280,7 +280,7 @@ bool daquiri::hasTab(QString tofind)
 
 void daquiri::open_list()
 {
-  FormListDaq *newListForm = new FormListDaq(runner_thread_, this);
+  ListModeForm *newListForm = new ListModeForm(runner_thread_, this);
   addClosableTab(newListForm, "Close");
 
   connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
@@ -302,7 +302,7 @@ void daquiri::openNewProject()
 
 void daquiri::open_project(DAQuiri::ProjectPtr proj)
 {
-  FormMcaDaq *newSpectraForm = new FormMcaDaq(runner_thread_, detectors_,
+  ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
                                               current_dets_,
                                               proj, this);
   connect(newSpectraForm, SIGNAL(requestClose(QWidget*)), this, SLOT(closeTab(QWidget*)));

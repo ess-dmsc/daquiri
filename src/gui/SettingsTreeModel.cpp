@@ -7,7 +7,7 @@
 Q_DECLARE_METATYPE(Setting)
 Q_DECLARE_METATYPE(boost::posix_time::time_duration)
 
-TreeItem::TreeItem(const Setting &data, TreeItem *parent)
+SettingsTreeItem::SettingsTreeItem(const Setting &data, SettingsTreeItem *parent)
 {
   parentItem = parent;
   itemData = data;
@@ -16,11 +16,11 @@ TreeItem::TreeItem(const Setting &data, TreeItem *parent)
   {
     childItems.resize(itemData.branches.size());
     for (size_t i=0; i < itemData.branches.size(); ++i)
-      childItems[i] = new TreeItem(itemData.branches.get(i), this);
+      childItems[i] = new SettingsTreeItem(itemData.branches.get(i), this);
   }
 }
 
-bool TreeItem::replace_data(const Setting &data)
+bool SettingsTreeItem::replace_data(const Setting &data)
 {
   itemData = data;
 
@@ -47,7 +47,7 @@ bool TreeItem::replace_data(const Setting &data)
       qDeleteAll(childItems);
       childItems.resize(itemData.branches.size());
       for (int i=0; i < itemData.branches.size(); ++i)
-        childItems[i] = new TreeItem(itemData.branches.get(i), this);
+        childItems[i] = new SettingsTreeItem(itemData.branches.get(i), this);
     } else {
       for (int i=0; i < itemData.branches.size(); ++i) {
         Setting s = itemData.branches.get(i);
@@ -55,42 +55,42 @@ bool TreeItem::replace_data(const Setting &data)
           childItems[i]->eat_data(itemData.branches.get(i));
         else {
           delete childItems.takeAt(i);
-          childItems[i] = new TreeItem(itemData.branches.get(i), this);
+          childItems[i] = new SettingsTreeItem(itemData.branches.get(i), this);
         }
       }
     }*/
 }
 
-TreeItem::~TreeItem()
+SettingsTreeItem::~SettingsTreeItem()
 {
   parentItem == nullptr;
   qDeleteAll(childItems);
 }
 
-TreeItem *TreeItem::child(int number)
+SettingsTreeItem *SettingsTreeItem::child(int number)
 {
   return childItems.value(number);
 }
 
-int TreeItem::childCount() const
+int SettingsTreeItem::childCount() const
 {
   return childItems.count();
 }
 
-int TreeItem::childNumber() const
+int SettingsTreeItem::childNumber() const
 {
   if (parentItem && !parentItem->childItems.empty())
-    return parentItem->childItems.indexOf(const_cast<TreeItem*>(this));
+    return parentItem->childItems.indexOf(const_cast<SettingsTreeItem*>(this));
 
   return 0;
 }
 
-int TreeItem::columnCount() const
+int SettingsTreeItem::columnCount() const
 {
   return 6; //name, indices, value, units, address, description
 }
 
-QVariant TreeItem::display_data(int column) const
+QVariant SettingsTreeItem::display_data(int column) const
 {
   if (column == 0)
   {
@@ -133,7 +133,7 @@ QVariant TreeItem::display_data(int column) const
 }
 
 
-QVariant TreeItem::edit_data(int column) const
+QVariant SettingsTreeItem::edit_data(int column) const
 {
   if (column == 2)
     return QVariant::fromValue(itemData);
@@ -149,7 +149,7 @@ QVariant TreeItem::edit_data(int column) const
     return QVariant();
 }
 
-bool TreeItem::is_editable(int column) const
+bool SettingsTreeItem::is_editable(int column) const
 {
   if ((column == 1)  && (itemData.metadata().get_num("chans", 0) > 0))
     return true;
@@ -166,7 +166,7 @@ bool TreeItem::is_editable(int column) const
 
 
 
-/*bool TreeItem::insertChildren(int position, int count, int columns)
+/*bool SettingsTreeItem::insertChildren(int position, int count, int columns)
 {
   if (position < 0 || position > childItems.size())
     return false;
@@ -183,7 +183,7 @@ bool TreeItem::is_editable(int column) const
     newsetting.name = name;
     newsetting.metadata.setting_type = type;
     itemData.branches.add(newsetting);
-    TreeItem *item = new TreeItem(newsetting, this);
+    SettingsTreeItem *item = new SettingsTreeItem(newsetting, this);
     childItems.insert(position, item);
   }
 
@@ -192,12 +192,12 @@ bool TreeItem::is_editable(int column) const
 
 */
 
-TreeItem *TreeItem::parent()
+SettingsTreeItem *SettingsTreeItem::parent()
 {
   return parentItem;
 }
 
-Setting TreeItem::rebuild()
+Setting SettingsTreeItem::rebuild()
 {
   Setting root = itemData;
 
@@ -207,7 +207,7 @@ Setting TreeItem::rebuild()
   return root;
 }
 
-/*bool TreeItem::removeChildren(int position, int count)
+/*bool SettingsTreeItem::removeChildren(int position, int count)
 {
   if (position < 0 || position + count > childItems.size())
     return false;
@@ -220,7 +220,7 @@ Setting TreeItem::rebuild()
 
 */
 
-bool TreeItem::setData(int column, const QVariant &value)
+bool SettingsTreeItem::setData(int column, const QVariant &value)
 {
   if ((column == 1)  && (itemData.metadata().get_num("chans", 0) > 0))
   {
@@ -313,37 +313,37 @@ bool TreeItem::setData(int column, const QVariant &value)
 
 
 
-TreeSettings::TreeSettings(QObject *parent)
+SettingsTreeModel::SettingsTreeModel(QObject *parent)
   : QAbstractItemModel(parent), show_address_(true)
 {
-  rootItem = new TreeItem(Setting());
+  rootItem = new SettingsTreeItem(Setting());
   show_read_only_ = true;
   edit_read_only_ = false;
 }
 
-TreeSettings::~TreeSettings()
+SettingsTreeModel::~SettingsTreeModel()
 {
   delete rootItem;
 }
 
-void TreeSettings::set_edit_read_only(bool edit_ro)
+void SettingsTreeModel::set_edit_read_only(bool edit_ro)
 {
   edit_read_only_ = edit_ro;
   emit layoutChanged();
 }
 
-void TreeSettings::set_show_read_only(bool show_ro)
+void SettingsTreeModel::set_show_read_only(bool show_ro)
 {
   show_read_only_ = show_ro;
 }
 
-void TreeSettings::set_show_address_(bool show_ad)
+void SettingsTreeModel::set_show_address_(bool show_ad)
 {
   show_address_ = show_ad;
   emit layoutChanged();
 }
 
-int TreeSettings::columnCount(const QModelIndex & /* parent */) const
+int SettingsTreeModel::columnCount(const QModelIndex & /* parent */) const
 {
   if (show_address_)
     return rootItem->columnCount();
@@ -351,11 +351,11 @@ int TreeSettings::columnCount(const QModelIndex & /* parent */) const
     return rootItem->columnCount() - 1;
 }
 
-QVariant TreeSettings::data(const QModelIndex &index, int role) const
+QVariant SettingsTreeModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
-  TreeItem *item = getItem(index);
+  SettingsTreeItem *item = getItem(index);
 
   int row = index.row();
   int col = index.column();
@@ -388,12 +388,12 @@ QVariant TreeSettings::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-Qt::ItemFlags TreeSettings::flags(const QModelIndex &index) const
+Qt::ItemFlags SettingsTreeModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
     return 0;
 
-  TreeItem *item = getItem(index);
+  SettingsTreeItem *item = getItem(index);
   if (edit_read_only_ && (index.column() == 2))
     return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
   else if (item->is_editable(index.column()))
@@ -402,18 +402,18 @@ Qt::ItemFlags TreeSettings::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-TreeItem *TreeSettings::getItem(const QModelIndex &index) const
+SettingsTreeItem *SettingsTreeModel::getItem(const QModelIndex &index) const
 {
   if (index.isValid())
   {
-    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
+    SettingsTreeItem *item = static_cast<SettingsTreeItem*>(index.internalPointer());
     if (item)
       return item;
   }
   return rootItem;
 }
 
-QVariant TreeSettings::headerData(int section, Qt::Orientation orientation,
+QVariant SettingsTreeModel::headerData(int section, Qt::Orientation orientation,
                                   int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
@@ -436,23 +436,23 @@ QVariant TreeSettings::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-QModelIndex TreeSettings::index(int row, int column, const QModelIndex &parent) const
+QModelIndex SettingsTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
   if (parent.isValid() && parent.column() != 0)
     return QModelIndex();
 
-  TreeItem *parentItem = getItem(parent);
+  SettingsTreeItem *parentItem = getItem(parent);
 
-  TreeItem *childItem = parentItem->child(row);
+  SettingsTreeItem *childItem = parentItem->child(row);
   if (childItem)
     return createIndex(row, column, childItem);
   else
     return QModelIndex();
 }
 
-/*bool TreeSettings::insertRows(int position, int rows, const QModelIndex &parent)
+/*bool SettingsTreeModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
-  TreeItem *parentItem = getItem(parent);
+  SettingsTreeItem *parentItem = getItem(parent);
   bool success;
 
   beginInsertRows(parent, position, position + rows - 1);
@@ -462,12 +462,12 @@ QModelIndex TreeSettings::index(int row, int column, const QModelIndex &parent) 
   return success;
 }*/
 
-QModelIndex TreeSettings::parent(const QModelIndex &index) const
+QModelIndex SettingsTreeModel::parent(const QModelIndex &index) const
 {
   if (!index.isValid())
     return QModelIndex();
 
-  TreeItem *childItem = getItem(index);
+  SettingsTreeItem *childItem = getItem(index);
 
   if (!childItem)
     return QModelIndex();
@@ -475,7 +475,7 @@ QModelIndex TreeSettings::parent(const QModelIndex &index) const
   if (childItem == 0x0)
     return QModelIndex();
 
-  TreeItem *parentItem = childItem->parent();
+  SettingsTreeItem *parentItem = childItem->parent();
 
   if (parentItem == rootItem)
     return QModelIndex();
@@ -497,9 +497,9 @@ QModelIndex TreeSettings::parent(const QModelIndex &index) const
   return createIndex(parentItem->childNumber(), 0, parentItem);
 }
 
-/*bool TreeSettings::removeRows(int position, int rows, const QModelIndex &parent)
+/*bool SettingsTreeModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
-  TreeItem *parentItem = getItem(parent);
+  SettingsTreeItem *parentItem = getItem(parent);
   bool success = true;
 
   beginRemoveRows(parent, position, position + rows - 1);
@@ -509,9 +509,9 @@ QModelIndex TreeSettings::parent(const QModelIndex &index) const
   return success;
 }*/
 
-int TreeSettings::rowCount(const QModelIndex &parent) const
+int SettingsTreeModel::rowCount(const QModelIndex &parent) const
 {
-  TreeItem *parentItem = getItem(parent);
+  SettingsTreeItem *parentItem = getItem(parent);
 
   if (parentItem != nullptr)
     return parentItem->childCount();
@@ -519,12 +519,12 @@ int TreeSettings::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-bool TreeSettings::setData(const QModelIndex &index, const QVariant &value, int role)
+bool SettingsTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
   if (role != Qt::EditRole)
     return false;
 
-  TreeItem *item = getItem(index);
+  SettingsTreeItem *item = getItem(index);
   bool result = item->setData(index.column(), value);
 
   if (result)
@@ -550,12 +550,12 @@ bool TreeSettings::setData(const QModelIndex &index, const QVariant &value, int 
   return result;
 }
 
-const Setting & TreeSettings::get_tree()
+const Setting & SettingsTreeModel::get_tree()
 {
   return data_;
 }
 
-bool TreeSettings::setHeaderData(int section, Qt::Orientation orientation,
+bool SettingsTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                  const QVariant &value, int role)
 {
   if (role != Qt::EditRole || orientation != Qt::Horizontal)
@@ -573,7 +573,7 @@ bool TreeSettings::setHeaderData(int section, Qt::Orientation orientation,
 }
 
 
-void TreeSettings::update(const Setting &data)
+void SettingsTreeModel::update(const Setting &data)
 {
   data_ = data;
   data_.cull_hidden();
@@ -588,7 +588,7 @@ void TreeSettings::update(const Setting &data)
 //    DBG << "deleting root node";
     beginResetModel();
     delete rootItem;
-    rootItem = new TreeItem(data_);
+    rootItem = new SettingsTreeItem(data_);
     endResetModel();
   }
 

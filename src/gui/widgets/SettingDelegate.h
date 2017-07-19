@@ -14,11 +14,11 @@ Q_DECLARE_METATYPE(DAQuiri::Setting)
 Q_DECLARE_METATYPE(boost::posix_time::time_duration)
 
 
-class DAQuiriSpecialDelegate : public QStyledItemDelegate
+class SettingDelegate : public QStyledItemDelegate
 {
   Q_OBJECT
 public:
-  DAQuiriSpecialDelegate(QObject *parent = 0)
+  SettingDelegate(QObject *parent = 0)
     : QStyledItemDelegate(parent) {}
 
   void paint(QPainter *painter,

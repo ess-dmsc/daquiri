@@ -4,9 +4,9 @@
 #include <QSettings>
 
 
-FormOscilloscope::FormOscilloscope(QWidget *parent)
+Oscilloscope::Oscilloscope(QWidget *parent)
   : QWidget(parent)
-  , ui(new Ui::FormOscilloscope)
+  , ui(new Ui::Oscilloscope)
 {
   ui->setupUi(this);
 
@@ -23,17 +23,17 @@ FormOscilloscope::FormOscilloscope(QWidget *parent)
   connect(ui->selectorChannels, SIGNAL(itemToggled(SelectorItem)), this, SLOT(channelToggled(SelectorItem)));
 }
 
-FormOscilloscope::~FormOscilloscope()
+Oscilloscope::~Oscilloscope()
 {
   delete ui;
 }
 
-void FormOscilloscope::closeEvent(QCloseEvent *event)
+void Oscilloscope::closeEvent(QCloseEvent *event)
 {
   event->accept();
 }
 
-void FormOscilloscope::updateMenu(std::vector<DAQuiri::Detector> dets)
+void Oscilloscope::updateMenu(std::vector<DAQuiri::Detector> dets)
 {
   channels_ = dets;
 
@@ -74,12 +74,12 @@ void FormOscilloscope::updateMenu(std::vector<DAQuiri::Detector> dets)
   }
 }
 
-void FormOscilloscope::channelToggled(SelectorItem)
+void Oscilloscope::channelToggled(SelectorItem)
 {
   replot();
 }
 
-void FormOscilloscope::channelDetails(SelectorItem item)
+void Oscilloscope::channelDetails(SelectorItem item)
 {
   int i = item.data.toInt();
   QString text;
@@ -92,18 +92,18 @@ void FormOscilloscope::channelDetails(SelectorItem item)
   ui->widgetPlot->setTitle(text);
 }
 
-void FormOscilloscope::toggle_push(bool enable, DAQuiri::ProducerStatus status)
+void Oscilloscope::toggle_push(bool enable, DAQuiri::ProducerStatus status)
 {
   bool online = (status & ProducerStatus::can_oscil);
   ui->pushOscilRefresh->setEnabled(enable && online);
 }
 
-void FormOscilloscope::on_pushOscilRefresh_clicked()
+void Oscilloscope::on_pushOscilRefresh_clicked()
 {
   emit refresh_oscil();
 }
 
-void FormOscilloscope::oscil_complete(DAQuiri::OscilData traces)
+void Oscilloscope::oscil_complete(DAQuiri::OscilData traces)
 {
   if (!this->isVisible())
     return;
@@ -115,7 +115,7 @@ void FormOscilloscope::oscil_complete(DAQuiri::OscilData traces)
   replot();
 }
 
-void FormOscilloscope::replot()
+void Oscilloscope::replot()
 {
   ui->widgetPlot->clearAll();
 
@@ -145,13 +145,13 @@ void FormOscilloscope::replot()
   ui->widgetPlot->tightenX();
 }
 
-void FormOscilloscope::on_pushShowAll_clicked()
+void Oscilloscope::on_pushShowAll_clicked()
 {
   ui->selectorChannels->show_all();
   replot();
 }
 
-void FormOscilloscope::on_pushHideAll_clicked()
+void Oscilloscope::on_pushHideAll_clicked()
 {
   ui->selectorChannels->hide_all();
   replot();

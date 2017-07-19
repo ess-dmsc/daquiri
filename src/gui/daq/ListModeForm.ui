@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FormListDaq</class>
- <widget class="QWidget" name="FormListDaq">
+ <class>ListModeForm</class>
+ <widget class="QWidget" name="ListModeForm">
   <property name="geometry">
    <rect>
     <x>0</x>

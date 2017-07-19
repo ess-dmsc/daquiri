@@ -8,7 +8,7 @@
 
 using namespace DAQuiri;
 
-class TableChanSettings : public QAbstractTableModel
+class SettingsTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 private:
@@ -20,7 +20,7 @@ private:
     std::set<std::string> scalable_units_;
 
 public:
-    TableChanSettings(QObject *parent = 0);
+    SettingsTableModel(QObject *parent = 0);
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

@@ -12,7 +12,7 @@
 
 using namespace DAQuiri;
 
-FormMcaDaq::FormMcaDaq(ThreadRunner &thread, Container<Detector>& detectors,
+ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
                        std::vector<Detector>& current_dets,
                        ProjectPtr proj, QWidget *parent) :
   QWidget(parent),
@@ -22,7 +22,7 @@ FormMcaDaq::FormMcaDaq(ThreadRunner &thread, Container<Detector>& detectors,
   detectors_(detectors),
   current_dets_(current_dets),
   my_run_(false),
-  ui(new Ui::FormMcaDaq)
+  ui(new Ui::ProjectForm)
 {
   ui->setupUi(this);
 
@@ -59,11 +59,11 @@ FormMcaDaq::FormMcaDaq(ThreadRunner &thread, Container<Detector>& detectors,
   loadSettings();
 }
 
-FormMcaDaq::~FormMcaDaq()
+ProjectForm::~ProjectForm()
 {
 }
 
-void FormMcaDaq::closeEvent(QCloseEvent *event)
+void ProjectForm::closeEvent(QCloseEvent *event)
 {
   if (my_run_ && runner_thread_.running())
   {
@@ -97,7 +97,7 @@ void FormMcaDaq::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void FormMcaDaq::loadSettings() {
+void ProjectForm::loadSettings() {
   QSettings settings_;
 
   settings_.beginGroup("Program");
@@ -130,7 +130,7 @@ void FormMcaDaq::loadSettings() {
   on_pushEnable2d_clicked();
 }
 
-void FormMcaDaq::saveSettings() {
+void ProjectForm::saveSettings() {
   QSettings settings_;
 
   settings_.beginGroup("Program");
@@ -157,7 +157,7 @@ void FormMcaDaq::saveSettings() {
   settings_.endGroup();
 }
 
-void FormMcaDaq::toggle_push(bool enable, ProducerStatus status) {
+void ProjectForm::toggle_push(bool enable, ProducerStatus status) {
   bool online = (status & ProducerStatus::can_run);
   bool nonempty = !project_->empty();
 
@@ -171,7 +171,7 @@ void FormMcaDaq::toggle_push(bool enable, ProducerStatus status) {
   ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
 }
 
-void FormMcaDaq::clearGraphs() //rename this
+void ProjectForm::clearGraphs() //rename this
 {
   project_->clear();
   newProject();
@@ -182,7 +182,7 @@ void FormMcaDaq::clearGraphs() //rename this
   project_->activate();
 }
 
-void FormMcaDaq::update_plots()
+void ProjectForm::update_plots()
 {
   //ui->statusBar->showMessage("Updating plots");
 
@@ -222,12 +222,12 @@ void FormMcaDaq::update_plots()
   }
 
   //ui->statusBar->showMessage("Spectra acquisition in progress...");
-//  DBG << "<FormMcaDaq> Gui-side plotting " << guiside.ms() << " ms";
+//  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
   this->setCursor(Qt::ArrowCursor);
 }
 
 
-void FormMcaDaq::projectSave()
+void ProjectForm::projectSave()
 {
   if (project_->changed() && (project_->identity() != "New project")) {
     int reply = QMessageBox::warning(this, "Save?",
@@ -242,7 +242,7 @@ void FormMcaDaq::projectSave()
     projectSaveAs();
 }
 
-void FormMcaDaq::projectSaveAs()
+void ProjectForm::projectSaveAs()
 {
   QString formats = "qpx project file (*.qpx)";
 
@@ -258,14 +258,14 @@ void FormMcaDaq::projectSaveAs()
   data_directory_ = path_of_file(fileName);
 }
 
-void FormMcaDaq::on_pushEditSpectra_clicked()
+void ProjectForm::on_pushEditSpectra_clicked()
 {
-  DialogSpectraTemplates* newDialog = new DialogSpectraTemplates(spectra_templates_, current_dets_,
+  ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
                                                                  profile_directory_, this);
   newDialog->exec();
 }
 
-void FormMcaDaq::on_pushMcaStart_clicked()
+void ProjectForm::on_pushMcaStart_clicked()
 {
   if (!project_->empty()) {
     int reply = QMessageBox::warning(this, "Continue?",
@@ -276,14 +276,14 @@ void FormMcaDaq::on_pushMcaStart_clicked()
     else
       start_DAQ();
   } else {
-    DialogSpectraTemplates* newDialog = new DialogSpectraTemplates(spectra_templates_, current_dets_,
+    ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
                                                                    profile_directory_, this);
     connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
     newDialog->exec();
   }
 }
 
-void FormMcaDaq::start_DAQ()
+void ProjectForm::start_DAQ()
 {
   if (project_->empty() && spectra_templates_.empty())
     return;
@@ -309,7 +309,7 @@ void FormMcaDaq::start_DAQ()
 }
 
 
-void FormMcaDaq::projectOpen()
+void ProjectForm::projectOpen()
 {
   QString formats = "qpx project file (*.qpx)";
 
@@ -346,30 +346,30 @@ void FormMcaDaq::projectOpen()
   this->setCursor(Qt::ArrowCursor);
 }
 
-void FormMcaDaq::updateSpectraUI()
+void ProjectForm::updateSpectraUI()
 {
   ui->Plot2d->updateUI();
   ui->Plot1d->setSpectra(project_);
 }
 
-void FormMcaDaq::newProject()
+void ProjectForm::newProject()
 {
   ui->Plot2d->setSpectra(project_);
   ui->Plot2d->update_plot(true);
   ui->Plot1d->setSpectra(project_);
 }
 
-void FormMcaDaq::on_pushMcaStop_clicked()
+void ProjectForm::on_pushMcaStop_clicked()
 {
   ui->pushMcaStop->setEnabled(false);
   //LINFO << "MCA acquisition interrupted by user";
   interruptor_.store(true);
 }
 
-void FormMcaDaq::run_completed()
+void ProjectForm::run_completed()
 {
   if (my_run_) {
-    //LINFO << "FormMcaDaq received signal for run completed";
+    //LINFO << "ProjectForm received signal for run completed";
     ui->pushMcaStop->setEnabled(false);
     my_run_ = false;
 
@@ -379,11 +379,11 @@ void FormMcaDaq::run_completed()
   }
 }
 
-void FormMcaDaq::replot() {
+void ProjectForm::replot() {
   update_plots();
 }
 
-void FormMcaDaq::on_pushEnable2d_clicked()
+void ProjectForm::on_pushEnable2d_clicked()
 {
   if (ui->pushEnable2d->isChecked()) {
     ui->Plot2d->show();
@@ -393,13 +393,13 @@ void FormMcaDaq::on_pushEnable2d_clicked()
   ui->line_sep2d->setVisible(ui->pushEnable2d->isChecked());
 }
 
-void FormMcaDaq::on_pushForceRefresh_clicked()
+void ProjectForm::on_pushForceRefresh_clicked()
 {
   updateSpectraUI();
   update_plots();
 }
 
-//void FormMcaDaq::on_pushDetails_clicked()
+//void ProjectForm::on_pushDetails_clicked()
 //{
 ////  for (auto &q : project_->get_sinks())
 ////    DBG << "\n" << q.first << "=" << q.second->debug();
@@ -409,7 +409,7 @@ void FormMcaDaq::on_pushForceRefresh_clicked()
 //  DaqInfo->exec();
 //}
 
-void FormMcaDaq::on_toggleIndefiniteRun_clicked()
+void ProjectForm::on_toggleIndefiniteRun_clicked()
 {
    ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 }

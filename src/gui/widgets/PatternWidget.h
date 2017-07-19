@@ -13,16 +13,18 @@
 
 Q_DECLARE_METATYPE(DAQuiri::Pattern)
 
-class DAQuiriPatternEditor : public QWidget
+class PatternWidget : public QWidget
 {
   Q_OBJECT
 public:
-  DAQuiriPatternEditor(QWidget *parent = 0);
+  PatternWidget(QWidget *parent = 0);
 
-  DAQuiriPatternEditor(DAQuiri::Pattern pattern = DAQuiri::Pattern(), double size = 25, size_t wrap = 0)
+  PatternWidget(DAQuiri::Pattern pattern = DAQuiri::Pattern(),
+                double size = 25, size_t wrap = 0)
   {set_pattern(pattern, size, wrap);}
 
-  void set_pattern(DAQuiri::Pattern pattern = DAQuiri::Pattern(), double size = 25, size_t wrap = 0);
+  void set_pattern(DAQuiri::Pattern pattern = DAQuiri::Pattern(),
+                   double size = 25, size_t wrap = 0);
 
   QSize sizeHint() const Q_DECL_OVERRIDE;
   DAQuiri::Pattern pattern() const;

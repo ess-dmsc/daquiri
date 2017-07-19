@@ -53,7 +53,7 @@ private:
   LogEmitter        my_emitter_;
   LogStreamBuffer   text_buffer_;
 
-  FormSystemSettings* main_tab_ {nullptr};
+  SettingsForm* main_tab_ {nullptr};
 
   bool gui_enabled_;
 

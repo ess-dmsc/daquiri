@@ -13,19 +13,19 @@
 #include "ThreadRunner.h"
 
 namespace Ui {
-class FormSystemSettings;
+class SettingsForm;
 }
 
-class FormSystemSettings : public QWidget
+class SettingsForm : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit FormSystemSettings(ThreadRunner&,
+  explicit SettingsForm(ThreadRunner&,
                               Container<Detector>&,
                               QWidget *parent = 0);
   Setting get_tree() {return dev_settings_;}
-  ~FormSystemSettings();
+  ~SettingsForm();
 
   void exit();
 
@@ -79,7 +79,7 @@ private slots:
   void on_pushExpandAll_clicked();
 
 private:
-  Ui::FormSystemSettings *ui;
+  Ui::SettingsForm *ui;
 
   DAQuiri::ProducerStatus current_status_;
   Container<Detector>     &detectors_;
@@ -88,13 +88,13 @@ private:
 
   std::vector<DAQuiri::Detector>   channels_;
   QTableView*             viewTableSettings;
-  TableChanSettings       table_settings_model_;
-  DAQuiriSpecialDelegate  table_settings_delegate_;
+  SettingsTableModel       table_settings_model_;
+  SettingDelegate  table_settings_delegate_;
 
   Setting                 dev_settings_;
-  QTreeView*              viewTreeSettings;
-  TreeSettings            tree_settings_model_;
-  DAQuiriSpecialDelegate  tree_delegate_;
+  QTreeView*              viewSettingsTreeModel;
+  SettingsTreeModel            tree_settings_model_;
+  SettingDelegate  tree_delegate_;
 
   QMenu detectorOptions;
 

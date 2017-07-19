@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FormOscilloscope</class>
- <widget class="QWidget" name="FormOscilloscope">
+ <class>Oscilloscope</class>
+ <widget class="QWidget" name="Oscilloscope">
   <property name="geometry">
    <rect>
     <x>0</x>

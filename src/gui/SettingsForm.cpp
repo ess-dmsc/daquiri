@@ -7,7 +7,7 @@
 #include <QSettings>
 #include <QTimer>
 
-FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
+SettingsForm::SettingsForm(ThreadRunner& thread,
                                        Container<Detector>& detectors,
                                        QWidget *parent) :
   QWidget(parent),
@@ -17,10 +17,10 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
   table_settings_model_(this),
   editing_(false),
   exiting(false),
-  ui(new Ui::FormSystemSettings)
+  ui(new Ui::SettingsForm)
 {
   ui->setupUi(this);
-  ui->formOscilloscope->setVisible(false);
+  ui->Oscil->setVisible(false);
 
   this->setWindowTitle("DAQ Settings");
 
@@ -29,18 +29,18 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
   connect(&runner_thread_, SIGNAL(bootComplete()), this, SLOT(post_boot()));
 
   connect(&runner_thread_, SIGNAL(oscilReadOut(DAQuiri::OscilData)),
-          ui->formOscilloscope, SLOT(oscil_complete(DAQuiri::OscilData)));
+          ui->Oscil, SLOT(oscil_complete(DAQuiri::OscilData)));
 
-  connect(ui->formOscilloscope, SIGNAL(refresh_oscil()), this, SLOT(refresh_oscil()));
+  connect(ui->Oscil, SIGNAL(refresh_oscil()), this, SLOT(refresh_oscil()));
 
   current_status_ = DAQuiri::ProducerStatus::dead;
   tree_settings_model_.update(dev_settings_);
 
-  viewTreeSettings = new QTreeView(this);
-  ui->tabsSettings->addTab(viewTreeSettings, "Settings tree");
-  viewTreeSettings->setModel(&tree_settings_model_);
-  viewTreeSettings->setItemDelegate(&tree_delegate_);
-  viewTreeSettings->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  viewSettingsTreeModel = new QTreeView(this);
+  ui->tabsSettings->addTab(viewSettingsTreeModel, "Settings tree");
+  viewSettingsTreeModel->setModel(&tree_settings_model_);
+  viewSettingsTreeModel->setItemDelegate(&tree_delegate_);
+  viewSettingsTreeModel->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   tree_delegate_.set_detectors(detectors_);
   connect(&tree_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
   connect(&tree_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)), this,
@@ -93,17 +93,17 @@ FormSystemSettings::FormSystemSettings(ThreadRunner& thread,
 //    QTimer::singleShot(50, this, SLOT(choose_profiles()));
 }
 
-void FormSystemSettings::exit() {
+void SettingsForm::exit() {
   exiting = true;
 }
 
-void FormSystemSettings::update(const Setting &tree, const std::vector<DAQuiri::Detector> &channels, DAQuiri::ProducerStatus status) {
+void SettingsForm::update(const Setting &tree, const std::vector<DAQuiri::Detector> &channels, DAQuiri::ProducerStatus status) {
   bool oscil = (status & DAQuiri::ProducerStatus::can_oscil);
   if (oscil) {
-    ui->formOscilloscope->setVisible(true);
-    ui->formOscilloscope->updateMenu(channels);
+    ui->Oscil->setVisible(true);
+    ui->Oscil->updateMenu(channels);
   } else
-    ui->formOscilloscope->setVisible(false);
+    ui->Oscil->setVisible(false);
 
   bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
   bool can_gain_match = false;
@@ -122,7 +122,7 @@ void FormSystemSettings::update(const Setting &tree, const std::vector<DAQuiri::
 
   if (editing_)
   {
-//    DBG << "<FormSystemSettings> ignoring update";
+//    DBG << "<SettingsForm> ignoring update";
     return;
   }
 
@@ -131,7 +131,7 @@ void FormSystemSettings::update(const Setting &tree, const std::vector<DAQuiri::
 
 //  DBG << "tree received " << dev_settings_.branches.size();
 
-  viewTreeSettings->clearSelection();
+  viewSettingsTreeModel->clearSelection();
   //viewTableSettings->clearSelection();
 
   tree_settings_model_.update(dev_settings_);
@@ -141,16 +141,16 @@ void FormSystemSettings::update(const Setting &tree, const std::vector<DAQuiri::
   viewTableSettings->horizontalHeader()->setStretchLastSection(true);
 }
 
-void FormSystemSettings::begin_editing() {
+void SettingsForm::begin_editing() {
   editing_ = true;
 }
 
-void FormSystemSettings::stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint) {
+void SettingsForm::stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint) {
   editing_ = false;
 }
 
 
-void FormSystemSettings::push_settings() {
+void SettingsForm::push_settings() {
   editing_ = false;
   dev_settings_ = tree_settings_model_.get_tree();
 
@@ -159,13 +159,13 @@ void FormSystemSettings::push_settings() {
   runner_thread_.do_push_settings(dev_settings_);
 }
 
-void FormSystemSettings::ask_binary_tree(Setting set, QModelIndex index)
+void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
 {
   if (set.metadata().enum_map().empty())
     return;
 
   editing_ = true;
-  BinaryChecklist *editor = new BinaryChecklist(set, qobject_cast<QWidget *> (parent()));
+  BinaryWidget *editor = new BinaryWidget(set, qobject_cast<QWidget *> (parent()));
   editor->setModal(true);
   editor->exec();
 
@@ -174,13 +174,13 @@ void FormSystemSettings::ask_binary_tree(Setting set, QModelIndex index)
   editing_ = false;
 }
 
-void FormSystemSettings::ask_binary_table(Setting set, QModelIndex index)
+void SettingsForm::ask_binary_table(Setting set, QModelIndex index)
 {
   if (set.metadata().enum_map().empty())
     return;
 
   editing_ = true;
-  BinaryChecklist *editor = new BinaryChecklist(set, qobject_cast<QWidget *> (parent()));
+  BinaryWidget *editor = new BinaryWidget(set, qobject_cast<QWidget *> (parent()));
   editor->setModal(true);
   editor->exec();
 
@@ -189,7 +189,7 @@ void FormSystemSettings::ask_binary_table(Setting set, QModelIndex index)
   editing_ = false;
 }
 
-void FormSystemSettings::ask_execute_table(Setting command, QModelIndex index)
+void SettingsForm::ask_execute_table(Setting command, QModelIndex index)
 {
   editing_ = true;
 
@@ -205,7 +205,7 @@ void FormSystemSettings::ask_execute_table(Setting command, QModelIndex index)
 }
 
 
-void FormSystemSettings::ask_execute_tree(Setting command, QModelIndex index) {
+void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
   editing_ = true;
 
   QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
@@ -219,7 +219,7 @@ void FormSystemSettings::ask_execute_tree(Setting command, QModelIndex index) {
   editing_ = false;
 }
 
-void FormSystemSettings::push_from_table(Setting setting)
+void SettingsForm::push_from_table(Setting setting)
 {
   editing_ = false;
 
@@ -230,7 +230,7 @@ void FormSystemSettings::push_from_table(Setting setting)
   runner_thread_.do_set_setting(setting, Match::id | Match::indices);
 }
 
-void FormSystemSettings::chose_detector(int chan, std::string name)
+void SettingsForm::chose_detector(int chan, std::string name)
 {
   editing_ = false;
   Detector det = detectors_.get(Detector(name));
@@ -241,14 +241,14 @@ void FormSystemSettings::chose_detector(int chan, std::string name)
   runner_thread_.do_set_detector(chan, det);
 }
 
-void FormSystemSettings::refresh() {
+void SettingsForm::refresh() {
 
   emit statusText("Updating settings...");
   emit toggleIO(false);
   runner_thread_.do_refresh_settings();
 }
 
-void FormSystemSettings::closeEvent(QCloseEvent *event) {
+void SettingsForm::closeEvent(QCloseEvent *event) {
   if (exiting) {
     saveSettings();
     event->accept();
@@ -258,8 +258,8 @@ void FormSystemSettings::closeEvent(QCloseEvent *event) {
   return;
 }
 
-void FormSystemSettings::toggle_push(bool enable, DAQuiri::ProducerStatus status) {
-  ui->formOscilloscope->toggle_push(enable, status);
+void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status) {
+  ui->Oscil->toggle_push(enable, status);
 
 //  bool online = (status & DAQuiri::ProducerStatus::can_run);
 
@@ -271,10 +271,10 @@ void FormSystemSettings::toggle_push(bool enable, DAQuiri::ProducerStatus status
 
   if (enable) {
     viewTableSettings->setEditTriggers(QAbstractItemView::AllEditTriggers);
-    viewTreeSettings->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    viewSettingsTreeModel->setEditTriggers(QAbstractItemView::AllEditTriggers);
   } else {
     viewTableSettings->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    viewTreeSettings->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    viewSettingsTreeModel->setEditTriggers(QAbstractItemView::NoEditTriggers);
   }
 
   ui->bootButton->setEnabled(enable);
@@ -295,30 +295,30 @@ void FormSystemSettings::toggle_push(bool enable, DAQuiri::ProducerStatus status
   current_status_ = status;
 }
 
-void FormSystemSettings::loadSettings() {
+void SettingsForm::loadSettings() {
   QSettings settings;
   settings.beginGroup("Program");
   ui->checkShowRO->setChecked(settings.value("settings_table_show_readonly", true).toBool());
   on_checkShowRO_clicked();
 
   if (settings.value("settings_tab_tree", true).toBool())
-    ui->tabsSettings->setCurrentWidget(viewTreeSettings);
+    ui->tabsSettings->setCurrentWidget(viewSettingsTreeModel);
   else
     ui->tabsSettings->setCurrentWidget(viewTableSettings);
 }
 
-void FormSystemSettings::saveSettings()
+void SettingsForm::saveSettings()
 {
   QSettings settings;
   if (current_status_ & DAQuiri::ProducerStatus::booted)
     chan_settings_to_det_DB();
   settings.beginGroup("Program");
   settings.setValue("settings_table_show_readonly", ui->checkShowRO->isChecked());
-  settings.setValue("settings_tab_tree", (ui->tabsSettings->currentWidget() == viewTreeSettings));
+  settings.setValue("settings_tab_tree", (ui->tabsSettings->currentWidget() == viewSettingsTreeModel));
   settings.setValue("boot_on_startup", bool(current_status_ & DAQuiri::ProducerStatus::booted));
 }
 
-void FormSystemSettings::chan_settings_to_det_DB()
+void SettingsForm::chan_settings_to_det_DB()
 {
   for (auto &q : channels_)
   {
@@ -334,7 +334,7 @@ void FormSystemSettings::chan_settings_to_det_DB()
 }
 
 
-void FormSystemSettings::updateDetDB()
+void SettingsForm::updateDetDB()
 {
   tree_delegate_.set_detectors(detectors_);
   table_settings_delegate_.set_detectors(detectors_);
@@ -346,18 +346,18 @@ void FormSystemSettings::updateDetDB()
   viewTableSettings->resizeColumnsToContents();
 }
 
-FormSystemSettings::~FormSystemSettings()
+SettingsForm::~SettingsForm()
 {
   delete ui;
 }
 
-void FormSystemSettings::post_boot()
+void SettingsForm::post_boot()
 {
   apply_detector_presets(); //make this optional?
 }
 
 
-void FormSystemSettings::apply_detector_presets()
+void SettingsForm::apply_detector_presets()
 {
   emit statusText("Applying detector optimizations...");
   emit toggleIO(false);
@@ -370,7 +370,7 @@ void FormSystemSettings::apply_detector_presets()
   runner_thread_.do_set_detectors(update);
 }
 
-void FormSystemSettings::on_pushSettingsRefresh_clicked()
+void SettingsForm::on_pushSettingsRefresh_clicked()
 {
   editing_ = false;
   emit statusText("Refreshing settings_...");
@@ -378,7 +378,7 @@ void FormSystemSettings::on_pushSettingsRefresh_clicked()
   runner_thread_.do_refresh_settings();
 }
 
-void FormSystemSettings::open_detector_DB()
+void SettingsForm::open_detector_DB()
 {
 //  WidgetDetectors *det_widget = new WidgetDetectors(this);
 //  det_widget->setData(detectors_);
@@ -386,9 +386,9 @@ void FormSystemSettings::open_detector_DB()
 //  det_widget->exec();
 }
 
-void FormSystemSettings::on_checkShowRO_clicked()
+void SettingsForm::on_checkShowRO_clicked()
 {
-  //viewTreeSettings->clearSelection();
+  //viewSettingsTreeModel->clearSelection();
   //viewTableSettings->clearSelection();
 
   table_settings_model_.set_show_read_only(ui->checkShowRO->isChecked());
@@ -398,7 +398,7 @@ void FormSystemSettings::on_checkShowRO_clicked()
   tree_settings_model_.update(dev_settings_);
 }
 
-void FormSystemSettings::on_bootButton_clicked()
+void SettingsForm::on_bootButton_clicked()
 {
   if (ui->bootButton->text() == "Boot system")
   {
@@ -418,37 +418,37 @@ void FormSystemSettings::on_bootButton_clicked()
   }
 }
 
-void FormSystemSettings::on_spinRefreshFrequency_valueChanged(int arg1)
+void SettingsForm::on_spinRefreshFrequency_valueChanged(int arg1)
 {
   runner_thread_.set_idle_refresh_frequency(arg1);
 }
 
-void FormSystemSettings::on_pushChangeProfile_clicked()
+void SettingsForm::on_pushChangeProfile_clicked()
 {
   choose_profiles();
 }
 
-void FormSystemSettings::choose_profiles()
+void SettingsForm::choose_profiles()
 {
 //  WidgetProfiles *profiles = new WidgetProfiles(this);
 //  connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
 //  profiles->exec();
 }
 
-void FormSystemSettings::profile_chosen()
+void SettingsForm::profile_chosen()
 {
   emit toggleIO(false);
   runner_thread_.do_initialize();
 }
 
-void FormSystemSettings::refresh_oscil()
+void SettingsForm::refresh_oscil()
 {
   emit statusText("Getting traces...");
   emit toggleIO(false);
   runner_thread_.do_oscil();
 }
 
-void FormSystemSettings::on_pushExpandAll_clicked()
+void SettingsForm::on_pushExpandAll_clicked()
 {
-  viewTreeSettings->expandAll();
+  viewSettingsTreeModel->expandAll();
 }

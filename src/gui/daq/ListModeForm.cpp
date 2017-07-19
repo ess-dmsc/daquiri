@@ -9,9 +9,9 @@
 
 using namespace DAQuiri;
 
-FormListDaq::FormListDaq(ThreadRunner &thread, QWidget *parent) :
+ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent) :
   QWidget(parent),
-  ui(new Ui::FormListDaq),
+  ui(new Ui::ListModeForm),
   runner_thread_(thread),
   attr_model_(this),
   interruptor_(false),
@@ -80,7 +80,7 @@ FormListDaq::FormListDaq(ThreadRunner &thread, QWidget *parent) :
 //  ui->tableHitValues->setVisible(false);
 }
 
-void FormListDaq::loadSettings() {
+void ListModeForm::loadSettings() {
   QSettings settings_;
 
   settings_.beginGroup("ListDaq");
@@ -88,7 +88,7 @@ void FormListDaq::loadSettings() {
   settings_.endGroup();
 }
 
-void FormListDaq::saveSettings() {
+void ListModeForm::saveSettings() {
   QSettings settings_;
 
   settings_.beginGroup("ListDaq");
@@ -96,18 +96,18 @@ void FormListDaq::saveSettings() {
   settings_.endGroup();
 }
 
-void FormListDaq::toggle_push(bool enable, ProducerStatus status) {
+void ListModeForm::toggle_push(bool enable, ProducerStatus status) {
   bool online = (status & ProducerStatus::can_run);
   ui->pushListStart->setEnabled(enable && online);
   ui->timeDuration->setEnabled(enable && online);
 }
 
-FormListDaq::~FormListDaq()
+ListModeForm::~ListModeForm()
 {
   delete ui;
 }
 
-void FormListDaq::closeEvent(QCloseEvent *event) {
+void ListModeForm::closeEvent(QCloseEvent *event) {
   if (my_run_ && runner_thread_.running()) {
     int reply = QMessageBox::warning(this, "Ongoing data acquisition",
                                      "Terminate?",
@@ -137,7 +137,7 @@ void FormListDaq::closeEvent(QCloseEvent *event) {
   event->accept();
 }
 
-void FormListDaq::displayHit(int idx)
+void ListModeForm::displayHit(int idx)
 {
   ui->tracePlot->clearGraphs();
 
@@ -219,7 +219,7 @@ void FormListDaq::displayHit(int idx)
   ui->tracePlot->replot();
 }
 
-void FormListDaq::displayStats(int idx)
+void ListModeForm::displayStats(int idx)
 {
   if ( (idx < 0) || (idx >= static_cast<int>(stats_.size())))
   {
@@ -249,7 +249,7 @@ void FormListDaq::displayStats(int idx)
   ui->labelStatsInfo->setText(QString::fromStdString(info));
 }
 
-void FormListDaq::on_pushListStart_clicked()
+void ListModeForm::on_pushListStart_clicked()
 {
   if (!list_data_.empty())
   {
@@ -278,14 +278,14 @@ void FormListDaq::on_pushListStart_clicked()
   runner_thread_.do_list(interruptor_, duration);
 }
 
-void FormListDaq::on_pushListStop_clicked()
+void ListModeForm::on_pushListStop_clicked()
 {
   ui->pushListStop->setEnabled(false);
   LINFO << "List acquisition interrupted by user";
   interruptor_.store(true);
 }
 
-void FormListDaq::list_completed(ListData newEvents) {
+void ListModeForm::list_completed(ListData newEvents) {
   if (my_run_) {
     list_data_ = newEvents;
 
@@ -301,7 +301,7 @@ void FormListDaq::list_completed(ListData newEvents) {
   }
 }
 
-void FormListDaq::spillSelectionChanged(int row)
+void ListModeForm::spillSelectionChanged(int row)
 {
   this->setCursor(Qt::WaitCursor);
   hits_.clear();
@@ -427,7 +427,7 @@ void FormListDaq::spillSelectionChanged(int row)
   this->setCursor(Qt::ArrowCursor);
 }
 
-void FormListDaq::event_selection_changed(QItemSelection, QItemSelection)
+void ListModeForm::event_selection_changed(QItemSelection, QItemSelection)
 {
   int idx = -1;
   if (!ui->tableHits->selectionModel()->selectedIndexes().empty())
@@ -435,7 +435,7 @@ void FormListDaq::event_selection_changed(QItemSelection, QItemSelection)
   displayHit(idx);
 }
 
-void FormListDaq::stats_selection_changed(QItemSelection, QItemSelection) {
+void ListModeForm::stats_selection_changed(QItemSelection, QItemSelection) {
   int idx = -1;
   if (!ui->tableStats->selectionModel()->selectedIndexes().empty())
     idx = ui->tableStats->selectionModel()->selectedIndexes().first().row();

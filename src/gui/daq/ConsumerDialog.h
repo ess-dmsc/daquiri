@@ -8,21 +8,21 @@
 #include "consumer_metadata.h"
 
 namespace Ui {
-class DialogSpectrum;
+class ConsumerDialog;
 }
 
-class DialogSpectrum : public QDialog
+class ConsumerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DialogSpectrum(DAQuiri::ConsumerMetadata sink_metadata,
+    explicit ConsumerDialog(DAQuiri::ConsumerMetadata sink_metadata,
                             std::vector<DAQuiri::Detector> current_detectors,
                             Container<DAQuiri::Detector>& detDB,
                             bool has_sink_parent,
                             bool allow_edit_type,
                             QWidget *parent = 0);
-    ~DialogSpectrum();
+    ~ConsumerDialog();
 
     DAQuiri::ConsumerMetadata product() { return sink_metadata_; }
 
@@ -45,11 +45,11 @@ private slots:
     void on_comboType_activated(const QString &arg1);
 
 private:
-    Ui::DialogSpectrum *ui;
+    Ui::ConsumerDialog *ui;
     DAQuiri::ConsumerMetadata sink_metadata_;
 
-    TreeSettings               attr_model_;
-    DAQuiriSpecialDelegate         attr_delegate_;
+    SettingsTreeModel               attr_model_;
+    SettingDelegate         attr_delegate_;
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_detectors_;

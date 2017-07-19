@@ -189,7 +189,7 @@ void FormPlot1D::on_pushFullInfo_clicked()
   if (!someSpectrum)
     return;
 
-  DialogSpectrum* newSpecDia = new DialogSpectrum(someSpectrum->metadata(), std::vector<Detector>(), detectors_, true, false, this);
+  ConsumerDialog* newSpecDia = new ConsumerDialog(someSpectrum->metadata(), std::vector<Detector>(), detectors_, true, false, this);
   connect(newSpecDia, SIGNAL(delete_spectrum()), this, SLOT(spectrumDetailsDelete()));
   if (newSpecDia->exec() == QDialog::Accepted)
   {

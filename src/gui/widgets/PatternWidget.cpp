@@ -6,7 +6,7 @@
 #include "custom_logger.h"
 
 
-void DAQuiriPatternEditor::set_pattern(DAQuiri::Pattern pattern, double size, size_t wrap)
+void PatternWidget::set_pattern(DAQuiri::Pattern pattern, double size, size_t wrap)
 {
   threshold_ = pattern.threshold();
   pattern_.clear();
@@ -28,7 +28,7 @@ void DAQuiriPatternEditor::set_pattern(DAQuiri::Pattern pattern, double size, si
   inner = QRectF(4, 4, size_ - 8, size_ - 8);
 }
 
-DAQuiri::Pattern DAQuiriPatternEditor::pattern() const
+DAQuiri::Pattern PatternWidget::pattern() const
 {
   DAQuiri::Pattern pt;
   pt.set_gates(pattern_);
@@ -36,7 +36,7 @@ DAQuiri::Pattern DAQuiriPatternEditor::pattern() const
   return pt;
 }
 
-int DAQuiriPatternEditor::flagAtPosition(int x, int y)
+int PatternWidget::flagAtPosition(int x, int y)
 {
   if ((sizeHint().width() == 0) || (wrap_ <= 0))
     return -1;
@@ -51,7 +51,7 @@ int DAQuiriPatternEditor::flagAtPosition(int x, int y)
   return flag;
 }
 
-void DAQuiriPatternEditor::setFlag(int count)
+void PatternWidget::setFlag(int count)
 {
   if ((count > -1) && (count < static_cast<int>(pattern_.size())))
   {
@@ -59,12 +59,12 @@ void DAQuiriPatternEditor::setFlag(int count)
   }
 }
 
-QSize DAQuiriPatternEditor::sizeHint() const
+QSize PatternWidget::sizeHint() const
 {
   return QSize(wrap_ * size_ + 40, rows_ * size_);
 }
 
-void DAQuiriPatternEditor::paint(QPainter *painter, const QRect &rect,
+void PatternWidget::paint(QPainter *painter, const QRect &rect,
                                  const QPalette &palette) const
 {
   painter->save();
@@ -142,7 +142,7 @@ void DAQuiriPatternEditor::paint(QPainter *painter, const QRect &rect,
 
 ////Editor/////////////
 
-DAQuiriPatternEditor::DAQuiriPatternEditor(QWidget *parent)
+PatternWidget::PatternWidget(QWidget *parent)
   : QWidget(parent)
 {
   setMouseTracking(true);
@@ -150,14 +150,14 @@ DAQuiriPatternEditor::DAQuiriPatternEditor(QWidget *parent)
   set_pattern();
 }
 
-void DAQuiriPatternEditor::paintEvent(QPaintEvent *)
+void PatternWidget::paintEvent(QPaintEvent *)
 {
   QPainter painter(this);
   paint(&painter, rect(), this->palette());
 }
 
 
-void DAQuiriPatternEditor::mouseReleaseEvent(QMouseEvent *event)
+void PatternWidget::mouseReleaseEvent(QMouseEvent *event)
 {
   int flag = flagAtPosition(event->x(), event->y());
 
@@ -168,7 +168,7 @@ void DAQuiriPatternEditor::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
-void DAQuiriPatternEditor::wheelEvent(QWheelEvent *event)
+void PatternWidget::wheelEvent(QWheelEvent *event)
 {
   if (!event->angleDelta().isNull())
   {

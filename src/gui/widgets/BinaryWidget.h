@@ -6,12 +6,12 @@
 #include <QComboBox>
 #include "setting.h"
 
-class BinaryChecklist : public QDialog
+class BinaryWidget : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit BinaryChecklist(DAQuiri::Setting setting, QWidget *parent = 0);
+  explicit BinaryWidget(DAQuiri::Setting setting, QWidget *parent = 0);
   DAQuiri::Setting get_setting() {return setting_;}
 
 private slots:

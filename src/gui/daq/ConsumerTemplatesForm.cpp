@@ -6,23 +6,23 @@
 
 using namespace DAQuiri;
 
-TableSpectraTemplates::TableSpectraTemplates(Container<ConsumerMetadata>& templates, QObject *parent)
+ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(Container<ConsumerMetadata>& templates, QObject *parent)
   : QAbstractTableModel(parent),
     templates_(templates)
 {
 }
 
-int TableSpectraTemplates::rowCount(const QModelIndex & /*parent*/) const
+int ConsumerTemplatesTableModel::rowCount(const QModelIndex & /*parent*/) const
 {
   return templates_.size();
 }
 
-int TableSpectraTemplates::columnCount(const QModelIndex & /*parent*/) const
+int ConsumerTemplatesTableModel::columnCount(const QModelIndex & /*parent*/) const
 {
   return 6;
 }
 
-QVariant TableSpectraTemplates::data(const QModelIndex &index, int role) const
+QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) const
 {
   int row = index.row();
   int col = index.column();
@@ -66,7 +66,7 @@ QVariant TableSpectraTemplates::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-QVariant TableSpectraTemplates::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ConsumerTemplatesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (role == Qt::DisplayRole)
   {
@@ -93,14 +93,14 @@ QVariant TableSpectraTemplates::headerData(int section, Qt::Orientation orientat
   return QVariant();
 }
 
-void TableSpectraTemplates::update() {
+void ConsumerTemplatesTableModel::update() {
   QModelIndex start_ix = createIndex( 0, 0 );
   QModelIndex end_ix = createIndex(templates_.size(), columnCount());
   emit dataChanged( start_ix, end_ix );
   emit layoutChanged();
 }
 
-Qt::ItemFlags TableSpectraTemplates::flags(const QModelIndex &index) const
+Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 {
   Qt::ItemFlags myflags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | QAbstractTableModel::flags(index) & ~Qt::ItemIsSelectable;
   return myflags;
@@ -111,11 +111,11 @@ Qt::ItemFlags TableSpectraTemplates::flags(const QModelIndex &index) const
 
 
 
-DialogSpectraTemplates::DialogSpectraTemplates(Container<ConsumerMetadata> &newdb,
+ConsumerTemplatesForm::ConsumerTemplatesForm(Container<ConsumerMetadata> &newdb,
                                                std::vector<Detector> current_dets,
                                                QString savedir, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::DialogSpectraTemplates),
+  ui(new Ui::ConsumerTemplatesForm),
   table_model_(newdb),
   selection_model_(&table_model_),
   templates_(newdb),
@@ -145,16 +145,16 @@ DialogSpectraTemplates::DialogSpectraTemplates(Container<ConsumerMetadata> &newd
   ui->spectraSetupView->resizeRowsToContents();
 }
 
-DialogSpectraTemplates::~DialogSpectraTemplates()
+ConsumerTemplatesForm::~ConsumerTemplatesForm()
 {
   delete ui;
 }
 
-void DialogSpectraTemplates::selection_changed(QItemSelection, QItemSelection) {
+void ConsumerTemplatesForm::selection_changed(QItemSelection, QItemSelection) {
   toggle_push();
 }
 
-void DialogSpectraTemplates::toggle_push() {
+void ConsumerTemplatesForm::toggle_push() {
   if (selection_model_.selectedIndexes().empty()) {
     ui->pushEdit->setEnabled(false);
     ui->pushDelete->setEnabled(false);
@@ -184,7 +184,7 @@ void DialogSpectraTemplates::toggle_push() {
 
 }
 
-void DialogSpectraTemplates::on_pushImport_clicked()
+void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
   QString fileName = QFileDialog::getOpenFileName(this, "Load template spectra",
@@ -202,7 +202,7 @@ void DialogSpectraTemplates::on_pushImport_clicked()
   }
 }
 
-void DialogSpectraTemplates::on_pushExport_clicked()
+void ConsumerTemplatesForm::on_pushExport_clicked()
 {
   QString fileName = CustomSaveFileDialog(this, "Save template spectra",
                                           root_dir_, "Template set (*.tem)");
@@ -213,10 +213,10 @@ void DialogSpectraTemplates::on_pushExport_clicked()
   }
 }
 
-void DialogSpectraTemplates::on_pushNew_clicked()
+void ConsumerTemplatesForm::on_pushNew_clicked()
 {
   Container<Detector> fakeDetDB;
-  DialogSpectrum* newDialog = new DialogSpectrum(ConsumerMetadata(), current_dets_, fakeDetDB, false, true, this);
+  ConsumerDialog* newDialog = new ConsumerDialog(ConsumerMetadata(), current_dets_, fakeDetDB, false, true, this);
   if (newDialog->exec())
   {
     templates_.add_a(newDialog->product());
@@ -226,14 +226,14 @@ void DialogSpectraTemplates::on_pushNew_clicked()
   }
 }
 
-void DialogSpectraTemplates::on_pushEdit_clicked()
+void ConsumerTemplatesForm::on_pushEdit_clicked()
 {
   QModelIndexList ixl = ui->spectraSetupView->selectionModel()->selectedRows();
   if (ixl.empty())
     return;
   int i = ixl.front().row();
   Container<Detector> fakeDetDB;
-  DialogSpectrum* newDialog = new DialogSpectrum(templates_.get(i), current_dets_, fakeDetDB, false, true, this);
+  ConsumerDialog* newDialog = new ConsumerDialog(templates_.get(i), current_dets_, fakeDetDB, false, true, this);
   if (newDialog->exec())
   {
     templates_.replace(i, newDialog->product());
@@ -243,12 +243,12 @@ void DialogSpectraTemplates::on_pushEdit_clicked()
   }
 }
 
-void DialogSpectraTemplates::selection_double_clicked(QModelIndex)
+void ConsumerTemplatesForm::selection_double_clicked(QModelIndex)
 {
   on_pushEdit_clicked();
 }
 
-void DialogSpectraTemplates::on_pushDelete_clicked()
+void ConsumerTemplatesForm::on_pushDelete_clicked()
 {
   QModelIndexList ixl = ui->spectraSetupView->selectionModel()->selectedRows();
   if (ixl.empty())
@@ -269,13 +269,13 @@ void DialogSpectraTemplates::on_pushDelete_clicked()
   toggle_push();
 }
 
-void DialogSpectraTemplates::on_pushSetDefault_clicked()
+void ConsumerTemplatesForm::on_pushSetDefault_clicked()
 {
   //ask sure?
 //  templates_.write_xml(root_dir_.toStdString() + "/default_sinks.tem");
 }
 
-void DialogSpectraTemplates::on_pushUseDefault_clicked()
+void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 {
   //ask sure?
   templates_.clear();
@@ -286,7 +286,7 @@ void DialogSpectraTemplates::on_pushUseDefault_clicked()
   toggle_push();
 }
 
-void DialogSpectraTemplates::on_pushClear_clicked()
+void ConsumerTemplatesForm::on_pushClear_clicked()
 {
   templates_.clear();
   selection_model_.reset();
@@ -294,7 +294,7 @@ void DialogSpectraTemplates::on_pushClear_clicked()
   toggle_push();
 }
 
-void DialogSpectraTemplates::on_pushUp_clicked()
+void ConsumerTemplatesForm::on_pushUp_clicked()
 {
   QModelIndexList ixl = ui->spectraSetupView->selectionModel()->selectedRows();
   if (ixl.empty())
@@ -306,7 +306,7 @@ void DialogSpectraTemplates::on_pushUp_clicked()
   toggle_push();
 }
 
-void DialogSpectraTemplates::on_pushDown_clicked()
+void ConsumerTemplatesForm::on_pushDown_clicked()
 {
   QModelIndexList ixl = ui->spectraSetupView->selectionModel()->selectedRows();
   if (ixl.empty())

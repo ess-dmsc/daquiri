@@ -9,7 +9,7 @@
 
 using namespace DAQuiri;
 
-BinaryChecklist::BinaryChecklist(Setting setting, QWidget *parent) :
+BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
   QDialog(parent),
   setting_(setting)
 {
@@ -209,7 +209,7 @@ BinaryChecklist::BinaryChecklist(Setting setting, QWidget *parent) :
   setLayout(total);
 }
 
-void BinaryChecklist::change_setting()
+void BinaryWidget::change_setting()
 {
   std::bitset<64> bs;
   for (size_t i=0; i < boxes_.size(); ++i)

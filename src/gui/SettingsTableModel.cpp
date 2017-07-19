@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include "qt_util.h"
 
-TableChanSettings::TableChanSettings(QObject *parent)
+SettingsTableModel::SettingsTableModel(QObject *parent)
   : QAbstractTableModel(parent)
 {
   show_read_only_ = true;
@@ -14,12 +14,12 @@ TableChanSettings::TableChanSettings(QObject *parent)
   scalable_units_.insert("Hz");
 }
 
-void TableChanSettings::set_show_read_only(bool show_ro) {
+void SettingsTableModel::set_show_read_only(bool show_ro) {
   show_read_only_ = show_ro;
 }
 
 
-int TableChanSettings::rowCount(const QModelIndex & /*parent*/) const
+int SettingsTableModel::rowCount(const QModelIndex & /*parent*/) const
 {
 //  if ((channels_.size() > 0) && (!consolidated_list_.branches.empty()))
     return consolidated_list_.branches.size() + 1;
@@ -27,13 +27,13 @@ int TableChanSettings::rowCount(const QModelIndex & /*parent*/) const
 //    return 0;
 }
 
-int TableChanSettings::columnCount(const QModelIndex & /*parent*/) const
+int SettingsTableModel::columnCount(const QModelIndex & /*parent*/) const
 {
   int num = 3 + channels_.size();
   return num;
 }
 
-QVariant TableChanSettings::data(const QModelIndex &index, int role) const
+QVariant SettingsTableModel::data(const QModelIndex &index, int role) const
 {
   int row = index.row();
   int col = index.column();
@@ -180,7 +180,7 @@ QVariant TableChanSettings::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-QVariant TableChanSettings::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SettingsTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (role == Qt::DisplayRole)
   {
@@ -213,7 +213,7 @@ QVariant TableChanSettings::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-void TableChanSettings::update(const std::vector<Detector> &settings)
+void SettingsTableModel::update(const std::vector<Detector> &settings)
 {
   channels_ = settings;
   if (!show_read_only_)
@@ -245,7 +245,7 @@ void TableChanSettings::update(const std::vector<Detector> &settings)
   emit layoutChanged();
 }
 
-Qt::ItemFlags TableChanSettings::flags(const QModelIndex &index) const
+Qt::ItemFlags SettingsTableModel::flags(const QModelIndex &index) const
 {
   int row = index.row();
   int col = index.column();
@@ -278,7 +278,7 @@ Qt::ItemFlags TableChanSettings::flags(const QModelIndex &index) const
   return QAbstractTableModel::flags(index);
 }
 
-bool TableChanSettings::setData(const QModelIndex & index, const QVariant & value, int role)
+bool SettingsTableModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
   int row = index.row();
   int col = index.column();
