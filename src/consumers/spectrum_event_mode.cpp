@@ -41,6 +41,11 @@ SpectrumEventMode::SpectrumEventMode()
   coinc_window.set_val("min", 0);
   attributes.branches.add(coinc_window);
 
+  SettingMeta val_name("value_name", SettingType::text);
+  val_name.set_flag("preset");
+  val_name.set_val("description", "Name of event value to bin");
+  attributes.branches.add(val_name);
+
   SettingMeta pattern_coinc("pattern_coinc", SettingType::pattern);
   pattern_coinc.set_flag("preset");
   pattern_coinc.set_val("description", "Coincidence pattern");
@@ -66,6 +71,7 @@ bool SpectrumEventMode::_initialize()
 {
   Spectrum::_initialize();
 
+  val_name_ = metadata_.get_attribute("value_name").get_text();
   pattern_coinc_ = metadata_.get_attribute("pattern_coinc").pattern();
   pattern_anti_ = metadata_.get_attribute("pattern_anti").pattern();
   pattern_add_ = metadata_.get_attribute("pattern_add").pattern();
@@ -198,10 +204,10 @@ void SpectrumEventMode::_push_stats(const Status& newBlock)
 
   Spectrum::_push_stats(newBlock);
 
-  if (newBlock.channel() >= static_cast<int16_t>(energy_idx_.size()))
-    energy_idx_.resize(newBlock.channel() + 1, -1);
-  if (newBlock.event_model().name_to_val.count("energy"))
-    energy_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at("energy");
+  if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
+    value_idx_.resize(newBlock.channel() + 1, -1);
+  if (newBlock.event_model().name_to_val.count(val_name_))
+    value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
 
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_), false);
 }

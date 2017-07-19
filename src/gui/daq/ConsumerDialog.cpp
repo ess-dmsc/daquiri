@@ -65,25 +65,6 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
     col.set_text(generateColor().name(QColor::HexArgb).toStdString());
     sink_metadata_.set_attribute(col);
   }
-  else
-  {
-    ConsumerMetadata md = ConsumerFactory::singleton().create_prototype(sink_metadata.type());
-    if (md != ConsumerMetadata())
-    {
-//      for (auto s : sink_metadata_.attributes())
-//        md.set_attribute(s);
-      md.detectors = sink_metadata.detectors;
-
-      sink_metadata_ = md;
-    }
-    else
-    {
-      QMessageBox msgBox;
-      msgBox.setText("Bad data sink type");
-      msgBox.exec();
-      reject();
-    }
-  }
 
   updateData();
 }
@@ -110,8 +91,14 @@ void ConsumerDialog::updateData()
   Setting pat = sink_metadata_.get_attribute("pattern_add");
   ui->spinDets->setValue(pat.pattern().gates().size());
 
-  QString descr = QString::fromStdString(sink_metadata_.type_description()) + "\n"
-      + "dimensions = " + QString::number(sink_metadata_.dimensions()) + "\n";
+  QString descr;
+  auto sptr = ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
+  if (sptr)
+  {
+    auto md = sptr->metadata();
+    descr = QString::fromStdString(md.type_description())
+          + "   dimensions=" + QString::number(md.dimensions()) + "\n";
+  }
 
   ui->labelDescription->setText(descr);
 

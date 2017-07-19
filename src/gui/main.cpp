@@ -1,6 +1,10 @@
 #include "daquiri.h"
 #include <QApplication>
-#include <vector>
+
+#include <QSettings>
+#include <QDir>
+#include "json_file.h"
+#include "custom_logger.h"
 
 int main(int argc, char *argv[])
 {

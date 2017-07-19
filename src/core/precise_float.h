@@ -44,10 +44,10 @@ inline std::string to_string(const PreciseFloat pf)
 
 
 #ifdef PF_DEC_FLOAT
-#define QPX_FLOAT_PRECISION 16
+#define FLOAT_PRECISION 16
 #define PF_MP 1
 #include <boost/multiprecision/cpp_dec_float.hpp>
-typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<QPX_FLOAT_PRECISION> > PreciseFloat;
+typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<FLOAT_PRECISION> > PreciseFloat;
 #endif
 
 #ifdef PF_MP128

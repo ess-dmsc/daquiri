@@ -286,10 +286,7 @@ bool SettingsTreeItem::setData(int column, const QVariant &value)
     itemData.set_text(value.toString().toStdString());
   else if (itemData.is(SettingType::pattern)
       && (value.canConvert<Pattern>()))
-  {
-    Pattern qpxPattern = qvariant_cast<Pattern>(value);
-    itemData.set_pattern(qpxPattern);
-  }
+    itemData.set_pattern(qvariant_cast<Pattern>(value));
   else if (itemData.is(SettingType::dir)
       && (value.type() == QVariant::String))
     itemData.set_text(value.toString().toStdString());

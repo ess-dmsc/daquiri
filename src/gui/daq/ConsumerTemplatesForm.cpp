@@ -3,6 +3,7 @@
 #include "ConsumerDialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include "json_file.h"
 
 using namespace DAQuiri;
 
@@ -154,8 +155,10 @@ void ConsumerTemplatesForm::selection_changed(QItemSelection, QItemSelection) {
   toggle_push();
 }
 
-void ConsumerTemplatesForm::toggle_push() {
-  if (selection_model_.selectedIndexes().empty()) {
+void ConsumerTemplatesForm::toggle_push()
+{
+  if (selection_model_.selectedIndexes().empty())
+  {
     ui->pushEdit->setEnabled(false);
     ui->pushDelete->setEnabled(false);
     ui->pushUp->setEnabled(false);
@@ -164,7 +167,8 @@ void ConsumerTemplatesForm::toggle_push() {
     ui->pushDelete->setEnabled(true);
   }
 
-  if (selection_model_.selectedRows().size() == 1) {
+  if (selection_model_.selectedRows().size() == 1)
+  {
     ui->pushEdit->setEnabled(true);
     QModelIndexList ixl = selection_model_.selectedRows();
     if (ixl.front().row() > 0)
@@ -191,8 +195,9 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
                                                   root_dir_, "Template set (*.tem)");
   if (validateFile(this, fileName, false))
   {
-    LINFO << "Reading templates from xml file " << fileName.toStdString();
-//    templates_.read_xml(fileName.toStdString());
+    LINFO << "Reading templates from file " << fileName.toStdString();
+    templates_ = from_json_file(fileName.toStdString());
+
     selection_model_.reset();
     table_model_.update();
     toggle_push();
@@ -208,8 +213,8 @@ void ConsumerTemplatesForm::on_pushExport_clicked()
                                           root_dir_, "Template set (*.tem)");
   if (validateFile(this, fileName, true))
   {
-    LINFO << "Writing templates to xml file " << fileName.toStdString();
-//    templates_.write_xml(fileName.toStdString());
+    LINFO << "Writing templates to file " << fileName.toStdString();
+    to_json_file(templates_, fileName.toStdString());
   }
 }
 
@@ -272,14 +277,13 @@ void ConsumerTemplatesForm::on_pushDelete_clicked()
 void ConsumerTemplatesForm::on_pushSetDefault_clicked()
 {
   //ask sure?
-//  templates_.write_xml(root_dir_.toStdString() + "/default_sinks.tem");
+  to_json_file(templates_, root_dir_.toStdString() + "/default_sinks.tem");
 }
 
 void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 {
   //ask sure?
-  templates_.clear();
-//  templates_.read_xml(root_dir_.toStdString() + "/default_sinks.tem");
+  templates_ = from_json_file(root_dir_.toStdString() + "/default_sinks.tem");
 
   selection_model_.reset();
   table_model_.update();

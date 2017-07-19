@@ -5,6 +5,8 @@
 #include "custom_logger.h"
 
 #include "mock_producer.h"
+#include "json_file.h"
+#include <boost/filesystem.hpp>
 
 ThreadRunner::ThreadRunner(QObject *parent) :
   QThread(parent),
@@ -264,14 +266,26 @@ void ThreadRunner::run()
     {
       QSettings settings;
       settings.beginGroup("Program");
-//      QString settings_directory = settings.value("settings_directory", QDir::homePath() + "/qpx/settings").toString();
-//      QString profile_directory = settings.value("profile_directory", "").toString();
+//      QString settings_directory = settings_.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
+      QString profile_directory = settings.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
       bool boot = settings.value("boot_on_startup", false).toBool();
-//      engine_.initialize(profile_directory.toStdString() + "/profile.set", settings_directory.toStdString());
+
+      auto path = profile_directory.toStdString() + "/profile.set";
+
+      DBG << "Will load from " << path;
+
+      json profile;
+      if (boost::filesystem::exists(path))
+        profile = from_json_file(path);
+      if (profile.empty())
+        profile = get_profile();
 
       json defs;
       defs["MockProducer"] = json();
-      engine_.initialize(get_profile(), defs);
+
+//      engine_.initialize(profile_directory.toStdString() + "/profile.set", settings_directory.toStdString());
+
+      engine_.initialize(profile, defs);
 
       if (boot)
       {
@@ -358,6 +372,22 @@ void ThreadRunner::run()
     }
     running_.store(false);
   }
+
+  QSettings settings;
+  settings.beginGroup("Program");
+  QString profile_directory = settings.value("profile_directory",
+                                             QDir::homePath() + "/daquiri/settings").toString();
+
+
+  auto path = profile_directory.toStdString() + "/profile.set";
+
+  DBG << "Will save to " << path;
+
+  auto dev_settings = DAQuiri::Engine::singleton().pull_settings();
+  dev_settings.condense();
+  dev_settings.strip_metadata();
+  to_json_file(dev_settings, path);
+
 }
 
 
@@ -375,7 +405,7 @@ Setting get_profile()
   default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
   default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
 
-  default_settings.set(Setting::integer("MockProducer/ValCount", 1));
+  default_settings.set(Setting::integer("MockProducer/ValCount", 3));
 
   auto profile = Engine::singleton().pull_settings();
   profile.set(Setting::text("Profile description",

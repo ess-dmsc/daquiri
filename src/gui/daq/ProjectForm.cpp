@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <boost/filesystem.hpp>
 #include <QMessageBox>
+#include "json_file.h"
 
 using namespace DAQuiri;
 
@@ -39,7 +40,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
 //  ui->Plot1d->setDetDB(detectors_);
 
-  menuLoad.addAction(QIcon(":/icons/oxy/16/document_open.png"), "Open qpx project", this, SLOT(projectOpen()));
+  menuLoad.addAction(QIcon(":/icons/oxy/16/document_open.png"), "Open daquiri project", this, SLOT(projectOpen()));
   ui->toolOpen->setMenu(&menuLoad);
 
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save.png"), "Save project", this, SLOT(projectSave()));
@@ -93,15 +94,17 @@ void ProjectForm::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void ProjectForm::loadSettings() {
+void ProjectForm::loadSettings()
+{
   QSettings settings_;
 
   settings_.beginGroup("Program");
-  profile_directory_ = settings_.value("profile_directory", QDir::homePath() + "/qpx/settings").toString();
-  data_directory_ = settings_.value("save_directory", QDir::homePath() + "/qpx/data").toString();
+  profile_directory_ = settings_.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
+  data_directory_ = settings_.value("save_directory", QDir::homePath() + "/daquiri/data").toString();
   settings_.endGroup();
 
-//  spectra_templates_.read_xml(profile_directory_.toStdString() + "/default_sinks.tem");
+  spectra_templates_ =
+      from_json_file(profile_directory_.toStdString() + "/default_sinks.tem");
 
   settings_.beginGroup("McaDaq");
   ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
@@ -111,7 +114,8 @@ void ProjectForm::loadSettings() {
   settings_.endGroup();
 }
 
-void ProjectForm::saveSettings() {
+void ProjectForm::saveSettings()
+{
   QSettings settings_;
 
   settings_.beginGroup("Program");
@@ -125,7 +129,8 @@ void ProjectForm::saveSettings() {
   settings_.endGroup();
 }
 
-void ProjectForm::toggle_push(bool enable, ProducerStatus status) {
+void ProjectForm::toggle_push(bool enable, ProducerStatus status)
+{
   bool online = (status & ProducerStatus::can_run);
   bool nonempty = !project_->empty();
 
@@ -204,7 +209,7 @@ void ProjectForm::projectSave()
 
 void ProjectForm::projectSaveAs()
 {
-  QString formats = "qpx project file (*.qpx)";
+  QString formats = "daquiri project file (*.daq)";
 
   QString fileName = CustomSaveFileDialog(this, "Save project",
                                           data_directory_, formats);
@@ -271,7 +276,7 @@ void ProjectForm::start_DAQ()
 
 void ProjectForm::projectOpen()
 {
-  QString formats = "qpx project file (*.qpx)";
+  QString formats = "daquiri project file (*.daq)";
 
   QString fileName = QFileDialog::getOpenFileName(this, "Load project",
                                                   data_directory_, formats);

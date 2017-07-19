@@ -52,7 +52,7 @@ void Spectrum1DEvent::_init_from_file(std::string filename)
 
 void Spectrum1DEvent::bin_event(const Event& e)
 {
-  uint16_t en = e.value(energy_idx_.at(e.channel())).val(bits_);
+  uint16_t en = e.value(value_idx_.at(e.channel())).val(bits_);
   if ((en < cutoff_bin_) || (en >= spectrum_.size()))
     return;
 
@@ -66,9 +66,9 @@ void Spectrum1DEvent::bin_event(const Event& e)
 bool Spectrum1DEvent::event_relevant(const Event& e) const
 {
   return (SpectrumEventMode::channel_relevant(e.channel()) &&
-          (e.channel() < static_cast<int16_t>(energy_idx_.size())) &&
-          (energy_idx_.at(e.channel()) >= 0) &&
-          (e.value(energy_idx_.at(e.channel())).val(bits_) >= cutoff_logic_[e.channel()]));
+          (e.channel() < static_cast<int16_t>(value_idx_.size())) &&
+          (value_idx_.at(e.channel()) >= 0) &&
+          (e.value(value_idx_.at(e.channel())).val(bits_) >= cutoff_logic_[e.channel()]));
 
 }
 
