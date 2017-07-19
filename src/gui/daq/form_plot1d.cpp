@@ -44,17 +44,21 @@ FormPlot1D::~FormPlot1D()
 void FormPlot1D::setSpectra(ProjectPtr new_set)
 {
   reset_content();
-  mySpectra = new_set;
+  project_ = new_set;
+
+//  ui->Plot2d->setSpectra(project_);
+//  ui->Plot2d->update_plot(true);
+
   updateUI();
 }
 
 void FormPlot1D::spectrumLooksChanged(SelectorItem item)
 {
-  SinkPtr someSpectrum = mySpectra->get_sink(item.data.toLongLong());
+  SinkPtr someSpectrum = project_->get_sink(item.data.toLongLong());
   if (someSpectrum)
     someSpectrum->set_attribute(Setting::boolean("visible", item.visible));
   reset_content();
-  mySpectra->activate();
+  project_->activate();
 }
 
 void FormPlot1D::spectrumDoubleclicked(SelectorItem /*item*/)
@@ -66,7 +70,7 @@ void FormPlot1D::spectrumDetails(SelectorItem /*item*/)
 {
   SelectorItem itm = spectraSelector->selected();
 
-  SinkPtr someSpectrum = mySpectra->get_sink(itm.data.toLongLong());
+  SinkPtr someSpectrum = project_->get_sink(itm.data.toLongLong());
 
   ConsumerMetadata md;
 
@@ -118,10 +122,16 @@ void FormPlot1D::spectrumDetails(SelectorItem /*item*/)
 void FormPlot1D::reset_content()
 {
   nonempty_ = false;
-  ui->mcaPlot->clearAll();
-  ui->mcaPlot->replotExtras();
-  ui->mcaPlot->tightenX();
-  ui->mcaPlot->replot();
+
+  spectra_.clear();
+  ui->area->closeAllSubWindows();
+
+//  ui->Plot2d->reset_content(); //is this necessary?
+
+//  ui->mcaPlot->clearAll();
+//  ui->mcaPlot->replotExtras();
+//  ui->mcaPlot->tightenX();
+//  ui->mcaPlot->replot();
 }
 
 void FormPlot1D::update_plot()
@@ -131,51 +141,34 @@ void FormPlot1D::update_plot()
 
   int numvisible {0};
 
-  ui->mcaPlot->clearPrimary();
-  for (auto &q: mySpectra->get_sinks(1))
+  for (auto &q: project_->get_sinks(1))
   {
-    if (!q.second)
+    if (!q.second || !q.second->metadata().get_attribute("visible").triggered())
       continue;
 
-    ConsumerMetadata md = q.second->metadata();
-
-    if (!md.get_attribute("visible").triggered())
-      continue;
-
-    double rescale  = md.get_attribute("rescale").get_number();
-
-    QVector<double> x = QVector<double>::fromStdVector(q.second->axis_values(0));
-
-    std::shared_ptr<EntryList> spectrum_data =
-        std::move(q.second->data_range({{0, x.size()}}));
-
-    QPlot::HistMap1D hist;
-    for (auto it : *spectrum_data)
+    QPlot::Multi1D* spectrum;
+    if (spectra_.count(q.first))
+      spectrum = spectra_[q.first];
+    else
     {
-      double xx = x[it.first[0]];
-      double yy = to_double( it.second ) * rescale;
-      hist[xx] = yy;
+      spectrum = new QPlot::Multi1D();
+      spectrum->setAttribute(Qt::WA_DeleteOnClose);
+      ui->area->addSubWindow(spectrum);
+      spectra_[q.first] = spectrum;
+      spectrum->show();
+      DBG << "Adding subwindow " << q.first;
     }
 
-    if (hist.empty())
-      continue;
+    update_plot(spectrum, q.second);
 
     numvisible++;
-
-    auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
-    ui->mcaPlot->addGraph(hist, pen);
   }
-
-  replot_markers();
-
-  std::string new_label = boost::algorithm::trim_copy(mySpectra->identity());
-  ui->mcaPlot->setTitle(QString::fromStdString(new_label));
 
   spectrumDetails(SelectorItem());
 
   if (!nonempty_ && (numvisible > 0))
   {
-    ui->mcaPlot->zoomOut();
+//    ui->mcaPlot->zoomOut();
     nonempty_ = (numvisible > 0);
   }
 
@@ -183,14 +176,50 @@ void FormPlot1D::update_plot()
   this->setCursor(Qt::ArrowCursor);
 }
 
+void FormPlot1D::update_plot(QPlot::Multi1D* plot, DAQuiri::SinkPtr data)
+{
+  plot->clearPrimary();
+
+  ConsumerMetadata md = data->metadata();
+
+  double rescale  = md.get_attribute("rescale").get_number();
+  auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
+
+  QVector<double> x = QVector<double>::fromStdVector(data->axis_values(0));
+
+  std::shared_ptr<EntryList> spectrum_data =
+      std::move(data->data_range({{0, x.size()}}));
+
+  QPlot::HistMap1D hist;
+  for (auto it : *spectrum_data)
+  {
+    double xx = x[it.first[0]];
+    double yy = to_double( it.second ) * rescale;
+    hist[xx] = yy;
+  }
+
+  if (!hist.empty())
+  {
+    plot->addGraph(hist, pen);
+    plot->replotExtras();
+    plot->replot();
+  }
+
+  std::string new_label = md.get_attribute("name").get_text();
+  plot->setTitle(QString::fromStdString(new_label).trimmed());
+  plot->zoomOut();
+}
+
+
 void FormPlot1D::on_pushFullInfo_clicked()
 {  
-  SinkPtr someSpectrum = mySpectra->get_sink(spectraSelector->selected().data.toLongLong());
+  SinkPtr someSpectrum = project_->get_sink(spectraSelector->selected().data.toLongLong());
   if (!someSpectrum)
     return;
 
-  ConsumerDialog* newSpecDia = new ConsumerDialog(someSpectrum->metadata(), std::vector<Detector>(), detectors_, true, false, this);
-  connect(newSpecDia, SIGNAL(delete_spectrum()), this, SLOT(spectrumDetailsDelete()));
+  ConsumerDialog* newSpecDia =
+      new ConsumerDialog(someSpectrum->metadata(), std::vector<Detector>(),
+                         detectors_, true, false, this);
   if (newSpecDia->exec() == QDialog::Accepted)
   {
     ConsumerMetadata md = newSpecDia->product();
@@ -202,7 +231,7 @@ void FormPlot1D::on_pushFullInfo_clicked()
 
 void FormPlot1D::spectrumDetailsDelete()
 {
-  mySpectra->delete_sink(spectraSelector->selected().data.toLongLong());
+  project_->delete_sink(spectraSelector->selected().data.toLongLong());
 
   updateUI();
 }
@@ -213,7 +242,7 @@ void FormPlot1D::updateUI()
   QVector<SelectorItem> items;
   QSet<QString> dets;
 
-  for (auto &q : mySpectra->get_sinks(1))
+  for (auto &q : project_->get_sinks(1))
   {
     ConsumerMetadata md;
     if (q.second != nullptr)
@@ -229,13 +258,9 @@ void FormPlot1D::updateUI()
     new_spectrum.visible = md.get_attribute("visible").triggered();
 
     items.push_back(new_spectrum);
+
+//    ui->Plot2d->updateUI();
   }
-
-
-  menuEffCal.clear();
-
-  for (auto &q : dets)
-    menuEffCal.addAction(q);
 
   spectraSelector->setItems(items);
   spectraSelector->setSelected(chosen.text);
@@ -245,18 +270,8 @@ void FormPlot1D::updateUI()
   ui->toolColors->setEnabled(spectraSelector->items().size());
   ui->toolDelete->setEnabled(spectraSelector->items().size());
 
-  mySpectra->activate();
+  project_->activate();
 }
-
-void FormPlot1D::replot_markers()
-{
-  QList<QPlot::Marker1D> markers;
-
-  ui->mcaPlot->setMarkers(markers);
-  ui->mcaPlot->replotExtras();
-  ui->mcaPlot->replot();
-}
-
 
 void FormPlot1D::showAll()
 {
@@ -264,11 +279,11 @@ void FormPlot1D::showAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = mySpectra->get_sink(q.data.toLongLong());
+    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
       someSpectrum->set_attribute(Setting::boolean("visible", true));
   }
-  mySpectra->activate();
+  project_->activate();
 }
 
 void FormPlot1D::hideAll()
@@ -277,11 +292,11 @@ void FormPlot1D::hideAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = mySpectra->get_sink(q.data.toLongLong());
+    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
       someSpectrum->set_attribute(Setting::boolean("visible", false));
   }
-  mySpectra->activate();
+  project_->activate();
 }
 
 void FormPlot1D::randAll()
@@ -289,7 +304,7 @@ void FormPlot1D::randAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = mySpectra->get_sink(q.data.toLongLong());
+    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (!someSpectrum)
       continue;
     auto col = generateColor().name(QColor::HexArgb).toStdString();
@@ -298,29 +313,9 @@ void FormPlot1D::randAll()
   updateUI();
 }
 
-void FormPlot1D::set_scale_type(QString sct)
-{
-  ui->mcaPlot->setScaleType(sct);
-}
-
-void FormPlot1D::set_plot_style(QString stl)
-{
-  ui->mcaPlot->setPlotStyle(stl);
-}
-
-QString FormPlot1D::scale_type()
-{
-  return ui->mcaPlot->scaleType();
-}
-
-QString FormPlot1D::plot_style()
-{
-  return ui->mcaPlot->plotStyle();
-}
-
 void FormPlot1D::deleteSelected()
 {
-  mySpectra->delete_sink(spectraSelector->selected().data.toLongLong());
+  project_->delete_sink(spectraSelector->selected().data.toLongLong());
   updateUI();
 }
 
@@ -329,7 +324,7 @@ void FormPlot1D::deleteShown()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
     if (q.visible)
-      mySpectra->delete_sink(q.data.toLongLong());
+      project_->delete_sink(q.data.toLongLong());
   updateUI();
 }
 
@@ -338,6 +333,11 @@ void FormPlot1D::deleteHidden()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
     if (!q.visible)
-      mySpectra->delete_sink(q.data.toLongLong());
+      project_->delete_sink(q.data.toLongLong());
   updateUI();
+}
+
+void FormPlot1D::on_pushTile_clicked()
+{
+  ui->area->tileSubWindows();
 }

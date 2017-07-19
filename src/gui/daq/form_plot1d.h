@@ -23,13 +23,7 @@ public:
 
   void update_plot();
 
-  void replot_markers();
   void reset_content();
-
-  void set_scale_type(QString);
-  void set_plot_style(QString);
-  QString scale_type();
-  QString plot_style();
 
 private slots:
   void spectrumDetailsDelete();
@@ -48,20 +42,24 @@ private slots:
   void deleteShown();
   void deleteHidden();
 
+  void on_pushTile_clicked();
+
 private:
 
   Ui::FormPlot1D *ui;
 
   Container<DAQuiri::Detector> detectors_;
 
-  DAQuiri::ProjectPtr mySpectra;
+  DAQuiri::ProjectPtr project_;
+
+  QMap<int64_t, QPlot::Multi1D*> spectra_;
 
   SelectorWidget *spectraSelector;
 
   QMenu menuColors;
   QMenu menuDelete;
-  QMenu menuEffCal;
 
   bool nonempty_{false};
 
+  void update_plot(QPlot::Multi1D*, DAQuiri::SinkPtr);
 };

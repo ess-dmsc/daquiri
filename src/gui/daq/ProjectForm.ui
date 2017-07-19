@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
-    <height>590</height>
+    <width>1509</width>
+    <height>819</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,6 +26,22 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item row="1" column="0">
+    <widget class="FormPlot1D" name="Plot1d" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>500</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="leftMargin">
@@ -444,99 +460,12 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushEnable2d">
-         <property name="minimumSize">
-          <size>
-           <width>35</width>
-           <height>35</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>35</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Show/hide matrix</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/icons/qpx.xpm</normaloff>:/icons/qpx.xpm</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item>
       <widget class="Line" name="line_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="PlotLayout">
-     <property name="spacing">
-      <number>3</number>
-     </property>
-     <item>
-      <widget class="FormPlot1D" name="Plot1d" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>500</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="Line" name="line_sep2d">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="FormPlot2D" name="Plot2d" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>300</width>
-         <height>0</height>
-        </size>
        </property>
       </widget>
      </item>
@@ -549,12 +478,6 @@
    <class>TimeDurationWidget</class>
    <extends>QWidget</extends>
    <header>TimeDurationWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>FormPlot2D</class>
-   <extends>QWidget</extends>
-   <header>form_plot2d.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

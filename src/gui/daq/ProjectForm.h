@@ -47,7 +47,6 @@ private slots:
   void newProject();
   void updateSpectraUI();
 
-  void on_pushEnable2d_clicked();
   void on_pushForceRefresh_clicked();
 
 //  void on_pushDetails_clicked();

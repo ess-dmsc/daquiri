@@ -39,10 +39,6 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
 //  ui->Plot1d->setDetDB(detectors_);
 
-  //2d
-  ui->Plot2d->setSpectra(project_);
-//  ui->Plot2d->setDetDB(detectors_);
-
   menuLoad.addAction(QIcon(":/icons/oxy/16/document_open.png"), "Open qpx project", this, SLOT(projectOpen()));
   ui->toolOpen->setMenu(&menuLoad);
 
@@ -111,23 +107,8 @@ void ProjectForm::loadSettings() {
   ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
   ui->toggleIndefiniteRun->setChecked(settings_.value("run_indefinite", false).toBool());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
-  ui->pushEnable2d->setChecked(settings_.value("2d_visible", true).toBool());
-
-  settings_.beginGroup("McaPlot");
-  ui->Plot1d->set_scale_type(settings_.value("scale_type", "Logarithmic").toString());
-  ui->Plot1d->set_plot_style(settings_.value("plot_style", "Step center").toString());
-  settings_.endGroup();
-
-  settings_.beginGroup("MatrixPlot");
-  ui->Plot2d->set_zoom(settings_.value("zoom", 50).toDouble());
-  ui->Plot2d->set_gradient(settings_.value("gradient", "Hot").toString());
-  ui->Plot2d->set_scale_type(settings_.value("scale_type", "Logarithmic").toString());
-  ui->Plot2d->set_show_legend(settings_.value("show_legend", false).toBool());
-  settings_.endGroup();
 
   settings_.endGroup();
-
-  on_pushEnable2d_clicked();
 }
 
 void ProjectForm::saveSettings() {
@@ -140,19 +121,6 @@ void ProjectForm::saveSettings() {
   settings_.beginGroup("McaDaq");
   settings_.setValue("run_secs", QVariant::fromValue(ui->timeDuration->total_seconds()));
   settings_.setValue("run_indefinite", ui->toggleIndefiniteRun->isChecked());
-  settings_.setValue("2d_visible", ui->pushEnable2d->isChecked());
-
-  settings_.beginGroup("McaPlot");
-  settings_.setValue("scale_type", ui->Plot1d->scale_type());
-  settings_.setValue("plot_style", ui->Plot1d->plot_style());
-  settings_.endGroup();
-
-  settings_.beginGroup("MatrixPlot");
-  settings_.setValue("zoom", ui->Plot2d->zoom());
-  settings_.setValue("gradient", ui->Plot2d->gradient());
-  settings_.setValue("scale_type", ui->Plot2d->scale_type());
-  settings_.setValue("show_legend", ui->Plot2d->show_legend());
-  settings_.endGroup();
 
   settings_.endGroup();
 }
@@ -176,8 +144,6 @@ void ProjectForm::clearGraphs() //rename this
   project_->clear();
   newProject();
   ui->Plot1d->reset_content();
-
-  ui->Plot2d->reset_content(); //is this necessary?
 
   project_->activate();
 }
@@ -208,12 +174,6 @@ void ProjectForm::update_plots()
   }
 
   ui->pushEditSpectra->setVisible(project_->empty());
-
-  if (ui->Plot2d->isVisible())
-  {
-    this->setCursor(Qt::WaitCursor);
-    ui->Plot2d->update_plot();
-  }
 
   if (ui->Plot1d->isVisible())
   {
@@ -348,14 +308,11 @@ void ProjectForm::projectOpen()
 
 void ProjectForm::updateSpectraUI()
 {
-  ui->Plot2d->updateUI();
   ui->Plot1d->setSpectra(project_);
 }
 
 void ProjectForm::newProject()
 {
-  ui->Plot2d->setSpectra(project_);
-  ui->Plot2d->update_plot(true);
   ui->Plot1d->setSpectra(project_);
 }
 
@@ -379,18 +336,9 @@ void ProjectForm::run_completed()
   }
 }
 
-void ProjectForm::replot() {
-  update_plots();
-}
-
-void ProjectForm::on_pushEnable2d_clicked()
+void ProjectForm::replot()
 {
-  if (ui->pushEnable2d->isChecked()) {
-    ui->Plot2d->show();
-    update_plots();
-  } else
-    ui->Plot2d->hide();
-  ui->line_sep2d->setVisible(ui->pushEnable2d->isChecked());
+  update_plots();
 }
 
 void ProjectForm::on_pushForceRefresh_clicked()
