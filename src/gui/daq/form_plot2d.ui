@@ -141,7 +141,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/qpxres.qrc">
+          <iconset resource="../resources/icons.qrc">
            <normaloff>:/icons/oxy/16/help_about.png</normaloff>:/icons/oxy/16/help_about.png</iconset>
          </property>
          <property name="iconSize">
@@ -179,7 +179,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/qpxres.qrc">
+          <iconset resource="../resources/icons.qrc">
            <normaloff>:/icons/oxy/16/editcut.png</normaloff>:/icons/oxy/16/editcut.png</iconset>
          </property>
          <property name="iconSize">
@@ -204,20 +204,20 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>SelectorWidget</class>
+   <extends>QWidget</extends>
+   <header>SelectorWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QPlot::Plot2D</class>
    <extends>QWidget</extends>
    <header>QPlot2D.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>SelectorWidget</class>
-   <extends>QWidget</extends>
-   <header>widget_selector.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/qpxres.qrc"/>
+  <include location="../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

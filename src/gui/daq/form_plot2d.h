@@ -4,7 +4,7 @@
 #include <project.h>
 #include "QPlot2D.h"
 #include "QPlotAppearance.h"
-#include "widget_selector.h"
+#include "SelectorWidget.h"
 //#include <unordered_map>
 
 namespace Ui {

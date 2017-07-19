@@ -16,8 +16,8 @@ public:
 
   void write_settings_bulk(Setting &set) override;
   void read_settings_bulk(Setting &set) const override;
-  bool boot() override;
-  bool die() override;
+  void boot() override;
+  void die() override;
 
   bool daq_start(SpillQueue out_queue) override;
   bool daq_stop() override;

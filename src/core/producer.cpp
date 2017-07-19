@@ -3,7 +3,7 @@
 
 namespace DAQuiri {
 
-bool Producer::initialize(const json& definitions)
+void Producer::initialize(const json& definitions)
 {
   if (!definitions.empty())
     for (auto it : definitions)
@@ -13,10 +13,7 @@ bool Producer::initialize(const json& definitions)
   {
     DBG << "<Producer> " << this->device_name()
         << " failed to load setting definitions";
-    return false;
   }
-
-  return true;
 }
 
 json Producer::setting_definitions() const

@@ -40,9 +40,9 @@ public:
 
   virtual std::string device_name() const {return std::string();}
 
-  virtual bool initialize(const json& definitions);
-  virtual bool boot() {return false;}
-  virtual bool die() {status_ = ProducerStatus::dead; return true;}
+  virtual void initialize(const json& definitions);
+  virtual void boot() = 0;
+  virtual void die() = 0;
 
   virtual void write_settings_bulk(Setting &/*set*/) {}
   virtual void read_settings_bulk(Setting &/*set*/) const {}

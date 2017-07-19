@@ -63,7 +63,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset>
+          <iconset resource="../resources/icons.qrc">
            <normaloff>:/icons/show16.png</normaloff>:/icons/show16.png</iconset>
          </property>
          <property name="iconSize">
@@ -101,7 +101,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources/qpxres.qrc">
+          <iconset resource="../resources/icons.qrc">
            <normaloff>:/icons/oxy/16/emptytrash.png</normaloff>:/icons/oxy/16/emptytrash.png</iconset>
          </property>
          <property name="iconSize">
@@ -139,7 +139,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/qpxres.qrc">
+          <iconset resource="../resources/icons.qrc">
            <normaloff>:/icons/oxy/16/help_about.png</normaloff>:/icons/oxy/16/help_about.png</iconset>
          </property>
          <property name="iconSize">
@@ -297,7 +297,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/qpxres.qrc"/>
+  <include location="../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

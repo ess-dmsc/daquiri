@@ -18,8 +18,8 @@
 
 #include "project.h"
 
-#include "form_list_daq.h"
-#include "form_mca_daq.h"
+#include "ListModeForm.h"
+#include "ProjectForm.h"
 
 //#include "qt_util.h"
 

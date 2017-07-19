@@ -1,6 +1,6 @@
 #include "form_plot2d.h"
 #include "ui_form_plot2d.h"
-#include "dialog_spectrum.h"
+#include "ConsumerDialog.h"
 #include "custom_timer.h"
 
 using namespace DAQuiri;

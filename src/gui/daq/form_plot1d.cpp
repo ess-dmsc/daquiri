@@ -1,6 +1,6 @@
 #include "form_plot1d.h"
 #include "ui_form_plot1d.h"
-#include "dialog_spectrum.h"
+#include "ConsumerDialog.h"
 #include "custom_timer.h"
 #include "boost/algorithm/string.hpp"
 #include "QHist.h"

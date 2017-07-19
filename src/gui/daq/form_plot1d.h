@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <project.h>
-#include "widget_selector.h"
+#include "SelectorWidget.h"
 #include "QPlot1D.h"
 
 namespace Ui {

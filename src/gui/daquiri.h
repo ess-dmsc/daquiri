@@ -10,7 +10,7 @@
 
 #include "producer.h"
 
-#include "form_system_settings.h"
+#include "SettingsForm.h"
 
 
 namespace Ui {

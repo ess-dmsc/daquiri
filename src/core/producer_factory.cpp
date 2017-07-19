@@ -8,10 +8,10 @@ ProducerPtr ProducerFactory::create_type(std::string type, const json &profile)
   auto it = constructors.find(type);
   if (it != constructors.end())
     instance = ProducerPtr(it->second());
-  if (instance.operator bool() &&
-      instance->initialize(profile))
-    return instance;
-  return ProducerPtr();
+  if (!instance)
+    return ProducerPtr();
+  instance->initialize(profile);
+  return instance;
 }
 
 void ProducerFactory::register_type(std::string name,

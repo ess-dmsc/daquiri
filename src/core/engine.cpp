@@ -80,22 +80,11 @@ void Engine::boot()
   while (!uniqueLock.try_lock())
     wait_ms(SLEEP_TIME_MS);
 
-  bool success = false;
   for (auto &q : devices_)
-    if ((q.second != nullptr) &&
-        (q.second->status() & ProducerStatus::can_boot))
-    {
-      success |= q.second->boot();
-      //DBG << "daq_start > " << q.second->device_name();
-    }
+    if (q.second)
+      q.second->boot();
 
-  if (success)
-  {
-    LINFO << "<Engine> Boot successful";
-    //settings_.value_int = 2;
-    _get_all_settings();
-  } else
-    LINFO << "<Engine> Boot failed";
+  _get_all_settings();
 }
 
 void Engine::die()
@@ -109,12 +98,9 @@ void Engine::die()
 void Engine::_die()
 {
   for (auto &q : devices_)
-    if ((q.second != nullptr) &&
-        (q.second->status() & ProducerStatus::booted))
-    {
+    if (q.second)
       q.second->die();
-      //DBG << "die > " << q.second->device_name();
-    }
+
   _get_all_settings();
 }
 

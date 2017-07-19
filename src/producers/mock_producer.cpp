@@ -261,14 +261,6 @@ void MockProducer::add_dummy_settings()
 
 }
 
-
-bool MockProducer::die()
-{
-  status_ = ProducerStatus::loaded;
-  return true;
-}
-
-
 MockProducer::~MockProducer()
 {
   daq_stop();
@@ -375,12 +367,12 @@ void MockProducer::write_settings_bulk(Setting &set)
       / count_rate_;
 }
 
-bool MockProducer::boot()
+void MockProducer::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
     WARN << "<MockProducer> Cannot boot MockProducer. Failed flag check (can_boot == 0)";
-    return false;
+    return;
   }
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -393,7 +385,12 @@ bool MockProducer::boot()
                                            peak_spread_);
   clock_ = 0;
   status_ = ProducerStatus::loaded | ProducerStatus::booted | ProducerStatus::can_run;
-  return true;
+}
+
+void MockProducer::die()
+{
+  LINFO << "<MockProducer> Die mock producer";
+  status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
 void MockProducer::worker_run(MockProducer* callback,
