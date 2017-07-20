@@ -26,7 +26,7 @@ Image2D::Image2D()
   pattern_add.set_val("chans", 1);
   base_options.branches.add(pattern_add);
 
-  metadata_ = ConsumerMetadata("2DValues", "Values-based 2D spectrum", 2);
+  metadata_ = ConsumerMetadata("Image2D", "Values-based 2D spectrum", 2);
   metadata_.overwrite_all_attributes(base_options);
 }
 

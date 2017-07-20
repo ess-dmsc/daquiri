@@ -1,6 +1,7 @@
 #include "spectrum2D.h"
 
 #include "custom_logger.h"
+#include "ascii_tree.h"
 
 Spectrum2D::Spectrum2D()
 {
@@ -248,18 +249,27 @@ void Spectrum2D::_load_data(H5CC::Group& g)
 
 std::string Spectrum2D::_data_debug(const std::string &prepend) const
 {
+  double maximum {0};
+  for (auto &b : spectrum_)
+    maximum = std::max(maximum, to_double(b.second));
+
+  std::string representation(ASCII_grayscale94);
   std::stringstream ss;
 
-//  uint64_t total  = static_cast<uint64_t>(total_count_);
-//  uint64_t nstars = 100;
+  uint16_t res = pow(2, bits_);
 
-//  for (uint32_t i = 0; i < maxchan_; i++)
-//  {
-//    long double val = static_cast<long double>(spectrum_[i]);
-//    if (val)
-//      ss << prepend << i << ": " <<
-//            std::string(val*nstars/total,'*') << "\n";
-//  }
+  ss << "Maximum=" << maximum << "\n";
+  for (uint16_t i = 0; i < res; i++)
+  {
+    for (uint16_t j = 0; j < res; j++)
+    {
+      uint16_t v = 0;
+      if (spectrum_.count(std::pair<uint16_t, uint16_t>(i,j)))
+        v = spectrum_.at(std::pair<uint16_t, uint16_t>(i,j));
+      ss << representation[v / maximum * 93];
+    }
+    ss << "\n";
+  }
 
   return ss.str();
 }

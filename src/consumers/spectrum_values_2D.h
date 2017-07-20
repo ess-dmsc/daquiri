@@ -11,7 +11,7 @@ public:
   { return new Image2D(*this); }
 
 protected:
-  std::string my_type() const override {return "2DValues";}
+  std::string my_type() const override {return "Image2D";}
 
   bool _initialize() override;
   void _init_from_file(std::string name) override;

@@ -27,9 +27,14 @@
 #include "mock_producer.h"
 #include "producer_factory.h"
 #include "spectrum_events_1D.h"
+#include "spectrum_events_2D.h"
+#include "spectrum_values_2D.h"
+
 #include "consumer_factory.h"
 static ProducerRegistrar<MockProducer> reg1("MockProducer");
 static ConsumerRegistrar<Spectrum1DEvent> reg2("1DEvent");
+static ConsumerRegistrar<Spectrum2DEvent> reg3("2DEvent");
+static ConsumerRegistrar<Image2D> reg4("Image2D");
 
 daquiri::daquiri(QWidget *parent) :
   QMainWindow(parent),

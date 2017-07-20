@@ -6,6 +6,7 @@
 #include "QHist.h"
 #include "qt_util.h"
 #include "Consumer1D.h"
+#include "Consumer2D.h"
 
 using namespace DAQuiri;
 
@@ -142,21 +143,34 @@ void FormPlot1D::update_plot()
 
   int numvisible {0};
 
-  for (auto &q: project_->get_sinks(1))
+  for (auto &q : spectraSelector->items())
   {
-    if (!q.second || !q.second->metadata().get_attribute("visible").triggered())
+    int64_t id = q.data.toLongLong();
+    ConsumerPtr cons = project_->get_sink(id);
+
+    if (!cons)
       continue;
 
-    if (spectra_.count(q.first))
-      spectra_[q.first]->update();
+    if (!q.visible)
+      continue;
+
+    if (spectra_.count(id))
+      spectra_[id]->update();
     else
     {
-      auto spectrum = new Consumer1D();
+      AbstractConsumerWidget* spectrum;
+      if (cons->dimensions() == 1)
+        spectrum = new Consumer1D();
+      else if (cons->dimensions() == 2)
+        spectrum = new Consumer2D();
+      else
+        continue;
+
       spectrum->setAttribute(Qt::WA_DeleteOnClose);
       ui->area->addSubWindow(spectrum);
-      spectra_[q.first] = spectrum;
+      spectra_[id] = spectrum;
       spectrum->show();
-      spectrum->setConsumer(q.second);
+      spectrum->setConsumer(cons);
     }
 
     numvisible++;
@@ -203,16 +217,15 @@ void FormPlot1D::updateUI()
 {
   SelectorItem chosen = spectraSelector->selected();
   QVector<SelectorItem> items;
-  QSet<QString> dets;
 
-  for (auto &q : project_->get_sinks(1))
+  for (auto &q : project_->get_sinks())
   {
-    ConsumerMetadata md;
-    if (q.second != nullptr)
-      md = q.second->metadata();
+    if (!q.second ||
+        (q.second->dimensions() < 1) ||
+        (q.second->dimensions() > 2))
+      continue;
 
-    if (!md.detectors.empty())
-      dets.insert(QString::fromStdString(md.detectors.front().name()));
+    ConsumerMetadata md = q.second->metadata();
 
     SelectorItem new_spectrum;
     new_spectrum.text = QString::fromStdString(md.get_attribute("name").get_text());
@@ -239,8 +252,7 @@ void FormPlot1D::updateUI()
 void FormPlot1D::showAll()
 {
   spectraSelector->show_all();
-  QVector<SelectorItem> items = spectraSelector->items();
-  for (auto &q : items)
+  for (auto &q : spectraSelector->items())
   {
     ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
@@ -252,8 +264,7 @@ void FormPlot1D::showAll()
 void FormPlot1D::hideAll()
 {
   spectraSelector->hide_all();
-  QVector<SelectorItem> items = spectraSelector->items();
-  for (auto &q : items)
+  for (auto &q : spectraSelector->items())
   {
     ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
@@ -264,8 +275,7 @@ void FormPlot1D::hideAll()
 
 void FormPlot1D::randAll()
 {
-  QVector<SelectorItem> items = spectraSelector->items();
-  for (auto &q : items)
+  for (auto &q : spectraSelector->items())
   {
     ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (!someSpectrum)
@@ -284,8 +294,7 @@ void FormPlot1D::deleteSelected()
 
 void FormPlot1D::deleteShown()
 {
-  QVector<SelectorItem> items = spectraSelector->items();
-  for (auto &q : items)
+  for (auto &q : spectraSelector->items())
     if (q.visible)
       project_->delete_sink(q.data.toLongLong());
   updateUI();
@@ -293,8 +302,7 @@ void FormPlot1D::deleteShown()
 
 void FormPlot1D::deleteHidden()
 {
-  QVector<SelectorItem> items = spectraSelector->items();
-  for (auto &q : items)
+  for (auto &q : spectraSelector->items())
     if (!q.visible)
       project_->delete_sink(q.data.toLongLong());
   updateUI();

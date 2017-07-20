@@ -35,11 +35,14 @@ void Consumer1D::update()
       std::move(consumer_->data_range({{0, x.size()}}));
 
   QPlot::HistMap1D hist;
-  for (auto it : *spectrum_data)
+  if (spectrum_data)
   {
-    double xx = x[it.first[0]];
-    double yy = to_double( it.second ) * rescale;
-    hist[xx] = yy;
+    for (auto it : *spectrum_data)
+    {
+      double xx = x[it.first[0]];
+      double yy = to_double( it.second ) * rescale;
+      hist[xx] = yy;
+    }
   }
 
   if (!hist.empty())

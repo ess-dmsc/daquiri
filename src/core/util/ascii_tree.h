@@ -11,3 +11,7 @@
 #define k_branch_mid_B "\u2523\u2501"
 #define k_branch_end_B "\u2517\u2501"
 #define k_branch_pre_B "\u2503 "
+
+#define ASCII_grayscale94 " .`:,;'_^\"></-!~=)(|j?}{][ti+l7v1%yrfcJ32uIC$zwo96sngaT5qpkYVOL40&mG8*xhedbZUSAQPFDXWK#RNEHBM@"
+#define ASCII_grayscale70 " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
+#define ASCII_grayscale10 " .:-=+*#%@"
