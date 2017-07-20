@@ -15,7 +15,7 @@ protected:
   int64_t current_index_ {0};
 
   //data
-  std::map<int64_t, SinkPtr> sinks_;
+  std::map<int64_t, ConsumerPtr> sinks_;
   std::list<Spill> spills_;
 
   //saveability
@@ -32,7 +32,7 @@ public:
 
   //populate one of these ways
   void set_prototypes(const Container<ConsumerMetadata>&);
-  int64_t add_sink(SinkPtr sink);
+  int64_t add_sink(ConsumerPtr sink);
   int64_t add_sink(ConsumerMetadata prototype);
 
   void save();
@@ -63,9 +63,9 @@ public:
   std::list<Spill> spills() const;
   
   //get sinks
-  SinkPtr get_sink(int64_t idx);
-  std::map<int64_t, SinkPtr> get_sinks(int32_t dimensions = -1);
-  std::map<int64_t, SinkPtr> get_sinks(std::string type);
+  ConsumerPtr get_sink(int64_t idx);
+  std::map<int64_t, ConsumerPtr> get_sinks(int32_t dimensions = -1);
+  std::map<int64_t, ConsumerPtr> get_sinks(std::string type);
 
   void to_h5(H5CC::Group &group) const;
   void from_h5(H5CC::Group &group, bool with_sinks, bool with_full_sinks);

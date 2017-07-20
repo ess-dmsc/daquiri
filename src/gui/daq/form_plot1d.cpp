@@ -5,6 +5,7 @@
 #include "boost/algorithm/string.hpp"
 #include "QHist.h"
 #include "qt_util.h"
+#include "Consumer1D.h"
 
 using namespace DAQuiri;
 
@@ -54,7 +55,7 @@ void FormPlot1D::setSpectra(ProjectPtr new_set)
 
 void FormPlot1D::spectrumLooksChanged(SelectorItem item)
 {
-  SinkPtr someSpectrum = project_->get_sink(item.data.toLongLong());
+  ConsumerPtr someSpectrum = project_->get_sink(item.data.toLongLong());
   if (someSpectrum)
     someSpectrum->set_attribute(Setting::boolean("visible", item.visible));
   reset_content();
@@ -70,7 +71,7 @@ void FormPlot1D::spectrumDetails(SelectorItem /*item*/)
 {
   SelectorItem itm = spectraSelector->selected();
 
-  SinkPtr someSpectrum = project_->get_sink(itm.data.toLongLong());
+  ConsumerPtr someSpectrum = project_->get_sink(itm.data.toLongLong());
 
   ConsumerMetadata md;
 
@@ -87,10 +88,10 @@ void FormPlot1D::spectrumDetails(SelectorItem /*item*/)
   double real = md.get_attribute("real_time").duration().total_milliseconds() * 0.001;
   double live = md.get_attribute("live_time").duration().total_milliseconds() * 0.001;
 
-  Setting tothits = md.get_attribute("total_hits");
+  double total_count = md.get_attribute("total_count").get_number();
   double rate_total = 0;
   if (live > 0)
-    rate_total = tothits.get_number() / live; // total count rate corrected for dead time
+    rate_total = total_count / live; // total count rate corrected for dead time
 
   double dead = 100;
   if (real > 0)
@@ -110,7 +111,7 @@ void FormPlot1D::spectrumDetails(SelectorItem /*item*/)
   QString infoText =
       "<nobr>" + itm.text + "(" + QString::fromStdString(type) + ", " + QString::number(bits) + "bits)</nobr><br/>"
       "<nobr>" + detstr + "</nobr><br/>"
-      "<nobr>Count: " + QString::number(tothits.get_number()) + "</nobr><br/>"
+      "<nobr>Count: " + QString::number(total_count) + "</nobr><br/>"
       "<nobr>Rate (inst/total): " + QString::number(rate_inst) + "cps / " + QString::number(rate_total) + "cps</nobr><br/>"
       "<nobr>Live / real:  " + QString::number(live) + "s / " + QString::number(real) + "s</nobr><br/>"
       "<nobr>Dead:  " + QString::number(dead) + "%</nobr><br/>";
@@ -146,20 +147,17 @@ void FormPlot1D::update_plot()
     if (!q.second || !q.second->metadata().get_attribute("visible").triggered())
       continue;
 
-    QPlot::Multi1D* spectrum;
     if (spectra_.count(q.first))
-      spectrum = spectra_[q.first];
+      spectra_[q.first]->update();
     else
     {
-      spectrum = new QPlot::Multi1D();
+      auto spectrum = new Consumer1D();
       spectrum->setAttribute(Qt::WA_DeleteOnClose);
       ui->area->addSubWindow(spectrum);
       spectra_[q.first] = spectrum;
       spectrum->show();
-      DBG << "Adding subwindow " << q.first;
+      spectrum->setConsumer(q.second);
     }
-
-    update_plot(spectrum, q.second);
 
     numvisible++;
   }
@@ -176,44 +174,9 @@ void FormPlot1D::update_plot()
   this->setCursor(Qt::ArrowCursor);
 }
 
-void FormPlot1D::update_plot(QPlot::Multi1D* plot, DAQuiri::SinkPtr data)
-{
-  plot->clearPrimary();
-
-  ConsumerMetadata md = data->metadata();
-
-  double rescale  = md.get_attribute("rescale").get_number();
-  auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
-
-  QVector<double> x = QVector<double>::fromStdVector(data->axis_values(0));
-
-  std::shared_ptr<EntryList> spectrum_data =
-      std::move(data->data_range({{0, x.size()}}));
-
-  QPlot::HistMap1D hist;
-  for (auto it : *spectrum_data)
-  {
-    double xx = x[it.first[0]];
-    double yy = to_double( it.second ) * rescale;
-    hist[xx] = yy;
-  }
-
-  if (!hist.empty())
-  {
-    plot->addGraph(hist, pen);
-    plot->replotExtras();
-    plot->replot();
-  }
-
-  std::string new_label = md.get_attribute("name").get_text();
-  plot->setTitle(QString::fromStdString(new_label).trimmed());
-  plot->zoomOut();
-}
-
-
 void FormPlot1D::on_pushFullInfo_clicked()
 {  
-  SinkPtr someSpectrum = project_->get_sink(spectraSelector->selected().data.toLongLong());
+  ConsumerPtr someSpectrum = project_->get_sink(spectraSelector->selected().data.toLongLong());
   if (!someSpectrum)
     return;
 
@@ -279,7 +242,7 @@ void FormPlot1D::showAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
+    ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
       someSpectrum->set_attribute(Setting::boolean("visible", true));
   }
@@ -292,7 +255,7 @@ void FormPlot1D::hideAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
+    ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (someSpectrum)
       someSpectrum->set_attribute(Setting::boolean("visible", false));
   }
@@ -304,7 +267,7 @@ void FormPlot1D::randAll()
   QVector<SelectorItem> items = spectraSelector->items();
   for (auto &q : items)
   {
-    SinkPtr someSpectrum = project_->get_sink(q.data.toLongLong());
+    ConsumerPtr someSpectrum = project_->get_sink(q.data.toLongLong());
     if (!someSpectrum)
       continue;
     auto col = generateColor().name(QColor::HexArgb).toStdString();

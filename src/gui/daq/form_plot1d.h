@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QWidget>
+#include <QMenu>
 #include <project.h>
 #include "SelectorWidget.h"
-#include "QPlot1D.h"
+#include "AbstractConsumerWidget.h"
 
 namespace Ui {
 class FormPlot1D;
@@ -52,7 +53,7 @@ private:
 
   DAQuiri::ProjectPtr project_;
 
-  QMap<int64_t, QPlot::Multi1D*> spectra_;
+  QMap<int64_t, AbstractConsumerWidget*> spectra_;
 
   SelectorWidget *spectraSelector;
 
@@ -60,6 +61,4 @@ private:
   QMenu menuDelete;
 
   bool nonempty_{false};
-
-  void update_plot(QPlot::Multi1D*, DAQuiri::SinkPtr);
 };

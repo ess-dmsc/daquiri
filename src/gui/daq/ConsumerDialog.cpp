@@ -169,7 +169,7 @@ void ConsumerDialog::on_buttonBox_accepted()
     reject();
   else
   {
-    SinkPtr newsink = ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
+    ConsumerPtr newsink = ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
 
     if (!newsink)
     {

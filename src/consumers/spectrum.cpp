@@ -44,6 +44,11 @@ void Spectrum::_recalc_axes()
   axes_.resize(metadata_.dimensions());
 }
 
+bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
+{
+  return (channel < static_cast<int16_t>(idx.size())) && (idx.at(channel) >= 0);
+}
+
 void Spectrum::_push_stats(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))

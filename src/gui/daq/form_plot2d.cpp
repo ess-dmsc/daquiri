@@ -105,7 +105,7 @@ void FormPlot2D::choose_spectrum(SelectorItem /*item*/)
 
   current_spectrum_ = itm.data.toLongLong();
 
-  std::map<int64_t, SinkPtr> spectra = mySpectra->get_sinks(2);
+  std::map<int64_t, ConsumerPtr> spectra = mySpectra->get_sinks(2);
 
   for (auto &q : spectra)
     q.second->set_attribute(Setting::boolean("visible",(q.first == current_spectrum_)));
@@ -163,7 +163,7 @@ void FormPlot2D::update_plot(bool force)
 
     SelectorItem itm = ui->spectrumSelector->selected();
 
-    SinkPtr some_spectrum = mySpectra->get_sink(itm.data.toLongLong());
+    ConsumerPtr some_spectrum = mySpectra->get_sink(itm.data.toLongLong());
 
     ui->pushDetails->setEnabled(some_spectrum && true);
     zoom_2d = new_zoom;
@@ -220,7 +220,7 @@ void FormPlot2D::update_plot(bool force)
 
 void FormPlot2D::on_pushDetails_clicked()
 {
-  SinkPtr someSpectrum = mySpectra->get_sink(ui->spectrumSelector->selected().data.toLongLong());
+  ConsumerPtr someSpectrum = mySpectra->get_sink(ui->spectrumSelector->selected().data.toLongLong());
   if (!someSpectrum)
     return;
 
@@ -243,7 +243,7 @@ void FormPlot2D::spectrumDetailsDelete()
   updateUI();
 
 //  QString name = ui->spectrumSelector->selected().text;
-//  std::list<SinkPtr> spectra = mySpectra->spectra(2, -1);
+//  std::list<ConsumerPtr> spectra = mySpectra->spectra(2, -1);
 
 //  for (auto &q : spectra) {
 //    Setting vis = q->metadata().get_attribute("visible"));

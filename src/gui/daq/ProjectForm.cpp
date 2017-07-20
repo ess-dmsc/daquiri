@@ -11,6 +11,8 @@
 #include <QMessageBox>
 #include "json_file.h"
 
+#include <QCloseEvent>
+
 using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,

@@ -28,4 +28,6 @@ protected:
   std::map<int, boost::posix_time::time_duration> real_times_;
   std::map<int, boost::posix_time::time_duration> live_times_;
   Status recent_start_, recent_end_;
+
+  static bool value_relevant(int16_t channel, const std::vector<int>& idx);
 };

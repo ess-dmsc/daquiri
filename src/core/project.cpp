@@ -122,7 +122,7 @@ std::vector<std::string> Project::types() const
   return output;
 }
 
-SinkPtr Project::get_sink(int64_t idx)
+ConsumerPtr Project::get_sink(int64_t idx)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
   //threadsafe so long as sink implemented as thread-safe
@@ -133,7 +133,7 @@ SinkPtr Project::get_sink(int64_t idx)
     return nullptr;
 }
 
-std::map<int64_t, SinkPtr> Project::get_sinks(int32_t dimensions)
+std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
   //threadsafe so long as sink implemented as thread-safe
@@ -141,19 +141,19 @@ std::map<int64_t, SinkPtr> Project::get_sinks(int32_t dimensions)
   if (dimensions == -1)
     return sinks_;
 
-  std::map<int64_t, SinkPtr> ret;
+  std::map<int64_t, ConsumerPtr> ret;
   for (auto &q: sinks_)
     if (q.second->dimensions() == dimensions)
       ret.insert(q);
   return ret;
 }
 
-std::map<int64_t, SinkPtr> Project::get_sinks(std::string type)
+std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
   //threadsafe so long as sink implemented as thread-safe
   
-  std::map<int64_t, SinkPtr> ret;
+  std::map<int64_t, ConsumerPtr> ret;
   for (auto &q: sinks_)
     if (q.second->type() == type)
       ret.insert(q);
@@ -164,7 +164,7 @@ std::map<int64_t, SinkPtr> Project::get_sinks(std::string type)
 
 //client should activate replot after loading all files, as loading multiple
 // sink might create a long queue of plot update signals
-int64_t Project::add_sink(SinkPtr sink)
+int64_t Project::add_sink(ConsumerPtr sink)
 {
   if (!sink)
     return 0;
@@ -180,7 +180,7 @@ int64_t Project::add_sink(SinkPtr sink)
 int64_t Project::add_sink(ConsumerMetadata prototype)
 {
   boost::unique_lock<boost::mutex> lock(mutex_);
-  SinkPtr sink = ConsumerFactory::singleton().create_from_prototype(prototype);
+  ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototype);
   if (!sink)
     return 0;
   sinks_[++current_index_] = sink;
@@ -217,7 +217,7 @@ void Project::set_prototypes(const Container<ConsumerMetadata>& prototypes)
   {
 //    DBG << "Creating sink " << prototypes.get(i).debug();
 
-    SinkPtr sink = ConsumerFactory::singleton().create_from_prototype(prototypes.get(i));
+    ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototypes.get(i));
     if (sink)
     {
       sinks_[++current_index_] = sink;
@@ -348,7 +348,7 @@ void Project::from_h5(H5CC::Group &group, bool with_sinks, bool with_full_sinks)
         continue;
       }
 
-      SinkPtr sink = ConsumerFactory::singleton().create_from_h5(sg, with_full_sinks);
+      ConsumerPtr sink = ConsumerFactory::singleton().create_from_h5(sg, with_full_sinks);
       if (!sink)
         WARN << "<Project> Could not parse sink";
       else

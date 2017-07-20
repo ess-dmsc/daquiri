@@ -162,7 +162,9 @@ void ConsumerMetadata::set_det_limit(uint16_t limit)
 
 bool ConsumerMetadata::chan_relevant(uint16_t chan) const
 {
-  for (const Setting &s : attributes_.branches)
+  auto allpatterns = attributes_.find_all(Setting({"", SettingType::pattern}),Match::stype);
+
+  for (const Setting &s : allpatterns)
     if ((s.metadata().type() == SettingType::pattern) &&
         (s.pattern().relevant(chan)))
       return true;

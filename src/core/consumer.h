@@ -95,6 +95,6 @@ protected:
   { return std::string(); }
 };
 
-typedef std::shared_ptr<Consumer> SinkPtr;
+typedef std::shared_ptr<Consumer> ConsumerPtr;
 
 }

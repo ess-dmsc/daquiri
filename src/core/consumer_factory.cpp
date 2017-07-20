@@ -3,41 +3,41 @@
 
 namespace DAQuiri {
 
-SinkPtr ConsumerFactory::create_type(std::string type)
+ConsumerPtr ConsumerFactory::create_type(std::string type)
 {
   auto it = constructors.find(type);
   if(it != constructors.end())
-    return SinkPtr(it->second());
+    return ConsumerPtr(it->second());
   else
-    return SinkPtr();
+    return ConsumerPtr();
 }
 
-SinkPtr ConsumerFactory::create_copy(SinkPtr other)
+ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other)
 {
-  return SinkPtr(other->clone());
+  return ConsumerPtr(other->clone());
 }
 
-SinkPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem)
+ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem)
 {
 //  DBG << "<ConsumerFactory> creating " << tem.type();
-  SinkPtr instance = create_type(tem.type());
+  ConsumerPtr instance = create_type(tem.type());
   if (instance && instance->from_prototype(tem))
     return instance;
-  return SinkPtr();
+  return ConsumerPtr();
 }
 
-SinkPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata)
+ConsumerPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata)
 {
   if (!group.has_attribute("type"))
-    return SinkPtr();
+    return ConsumerPtr();
 
 //  DBG << "<ConsumerFactory> making " << root.attribute("type").value();
 
-  SinkPtr instance = create_type(group.read_attribute<std::string>("type"));
+  ConsumerPtr instance = create_type(group.read_attribute<std::string>("type"));
   if (instance && instance->load(group, withdata))
     return instance;
 
-  return SinkPtr();
+  return ConsumerPtr();
 }
 
 ConsumerMetadata ConsumerFactory::create_prototype(std::string type)

@@ -108,10 +108,10 @@ bool SpectrumEventMode::_initialize()
 
 void SpectrumEventMode::_init_from_file(std::string name)
 {
-  metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_), false);
-  metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_), false);
-  metadata_.set_attribute(Setting("pattern_anti", pattern_anti_), false);
-  metadata_.set_attribute(Setting("pattern_add", pattern_add_), false);
+  metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_));
+  metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_));
+  metadata_.set_attribute(Setting("pattern_anti", pattern_anti_));
+  metadata_.set_attribute(Setting("pattern_add", pattern_add_));
 
   Spectrum::_init_from_file(name);
 }
@@ -126,7 +126,9 @@ bool SpectrumEventMode::channel_relevant(int16_t channel) const
 
 bool SpectrumEventMode::event_relevant(const Event& e) const
 {
-  return this->channel_relevant(e.channel());
+  const auto& c = e.channel();
+  return (this->channel_relevant(c) &&
+          value_relevant(c, value_idx_));
 }
 
 void SpectrumEventMode::_push_event(const Event& new_event)
@@ -216,6 +218,19 @@ void SpectrumEventMode::_push_stats(const Status& newBlock)
 void SpectrumEventMode::_flush()
 {
   Spectrum::_flush();
+
+  Coincidence evt;
+  while (!backlog.empty())
+  {
+    backlog.pop_front();
+    if (validate_coincidence(evt))
+    {
+      recent_count_++;
+      total_coincidences_++;
+      this->add_coincidence(evt);
+    }
+  }
+
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_), false);
 }
 

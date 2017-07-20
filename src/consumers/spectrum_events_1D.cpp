@@ -50,6 +50,13 @@ void Spectrum1DEvent::_init_from_file(std::string filename)
   SpectrumEventMode::_init_from_file(name);
 }
 
+bool Spectrum1DEvent::event_relevant(const Event& e) const
+{
+  const auto& c = e.channel();
+  return SpectrumEventMode::event_relevant(e) &&
+      (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
+}
+
 void Spectrum1DEvent::bin_event(const Event& e)
 {
   uint16_t en = e.value(value_idx_.at(e.channel())).val(bits_);
@@ -61,15 +68,6 @@ void Spectrum1DEvent::bin_event(const Event& e)
 
   if (en > maxchan_)
     maxchan_ = en;
-}
-
-bool Spectrum1DEvent::event_relevant(const Event& e) const
-{
-  return (SpectrumEventMode::channel_relevant(e.channel()) &&
-          (e.channel() < static_cast<int16_t>(value_idx_.size())) &&
-          (value_idx_.at(e.channel()) >= 0) &&
-          (e.value(value_idx_.at(e.channel())).val(bits_) >= cutoff_logic_[e.channel()]));
-
 }
 
 void Spectrum1DEvent::add_coincidence(const Coincidence& c)

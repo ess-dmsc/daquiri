@@ -16,10 +16,10 @@ class ConsumerFactory {
   void register_type(ConsumerMetadata tt, std::function<Consumer*(void)> typeConstructor);
   const std::vector<std::string> types();
   
-  SinkPtr create_type(std::string type);
-  SinkPtr create_from_prototype(const ConsumerMetadata& tem);
-  SinkPtr create_from_h5(H5CC::Group &group, bool withdata = true);
-  SinkPtr create_copy(SinkPtr other);
+  ConsumerPtr create_type(std::string type);
+  ConsumerPtr create_from_prototype(const ConsumerMetadata& tem);
+  ConsumerPtr create_from_h5(H5CC::Group &group, bool withdata = true);
+  ConsumerPtr create_copy(ConsumerPtr other);
 
   ConsumerMetadata create_prototype(std::string type);
 
