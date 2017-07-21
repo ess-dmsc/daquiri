@@ -18,6 +18,11 @@ public:
     update();
   }
 
+  inline DAQuiri::ConsumerPtr consumer() const
+  {
+    return consumer_;
+  }
+
   virtual void update() = 0;
 
 protected:

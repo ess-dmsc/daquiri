@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item row="1" column="0">
-    <widget class="FormPlot1D" name="Plot1d" native="true">
+    <widget class="ProjectView" name="Plot1d" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -481,9 +481,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>FormPlot1D</class>
+   <class>ProjectView</class>
    <extends>QWidget</extends>
-   <header>form_plot1d.h</header>
+   <header>ProjectView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

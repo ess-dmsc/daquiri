@@ -162,7 +162,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   while (set.branches.has_a(Setting({"MockProducer/Value", SettingType::stem})))
     set.branches.remove_a(Setting({"MockProducer/Value", SettingType::stem}));
 
-  for (size_t i=0; i < val_count_; ++i)
+  for (int i=0; i < int(val_count_); ++i)
   {
     Setting v = get_rich_setting("MockProducer/Value");
     v.set_indices({i});

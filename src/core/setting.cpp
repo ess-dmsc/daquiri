@@ -807,14 +807,15 @@ void to_json(json& j, const Setting &s)
   j["type"] = to_string(s.metadata_.type());
 
   if (s.metadata_.meaningful())
-    j["metadata_"] = s.metadata_;
+    j["metadata"] = s.metadata_;
 
   if (!s.indices_.empty())
     j["indices"] = s.indices_;
 
   if (s.is(SettingType::stem))
   {
-    j["branches"] = s.branches;
+    if (!s.branches.empty())
+      j["branches"] = s.branches;
     if (!s.value_text.empty())
       j["reference"] = s.value_text;
   }
@@ -829,8 +830,8 @@ void from_json(const json& j, Setting &s)
 
   s.metadata_ = SettingMeta(j["id"], from_string(j["type"]));
 
-  if (j.count("metadata_"))
-    s.metadata_ = j["metadata_"];
+  if (j.count("metadata"))
+    s.metadata_ = j["metadata"];
 
   if (j.count("indices"))
     for (auto it : j["indices"])
@@ -840,7 +841,8 @@ void from_json(const json& j, Setting &s)
   {
     if (j.count("reference"))
       s.value_text = j["reference"];
-    s.branches = j["branches"];
+    if (j.count("branches"))
+      s.branches = j["branches"];
   } else
     s.val_from_json(j["value"]);
 }

@@ -88,7 +88,10 @@ inline void to_json(json& j, const Pattern &s)
 inline void from_json(const json& j, Pattern &s)
 {
   s.set_threshold(j["threshold"]);
-  s.set_gates(j["gates"]);
+  std::vector<bool> gates;
+  for (auto g : j["gates"])
+    gates.push_back(g);
+  s.set_gates(gates);
 }
 
 }

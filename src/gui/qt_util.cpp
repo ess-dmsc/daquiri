@@ -107,6 +107,13 @@ QColor generateColor()
   return QColor::fromHsv(H, S, V, A);
 }
 
+QColor inverseColor(QColor c)
+{
+  return QColor::fromRgb(255 - c.red(),
+                         255 - c.green(),
+                         255 - c.blue());
+}
+
 QDateTime fromBoostPtime(boost::posix_time::ptime bpt)
 {
   std::string bpt_iso = boost::posix_time::to_iso_extended_string(bpt);

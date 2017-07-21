@@ -3,6 +3,7 @@
 
 #include "SelectorWidget.h"
 #include "custom_logger.h"
+#include "qt_util.h"
 
 SelectorWidget::SelectorWidget(QWidget *parent)
   : QWidget(parent)
@@ -11,8 +12,8 @@ SelectorWidget::SelectorWidget(QWidget *parent)
   setAutoFillBackground(true);
   max_wide = 3; //make this a parameter
   rect_w_ = 140;
-  rect_h_ = 20;
-  border = 3;
+  rect_h_ = 25;
+  border = 5;
   selected_ = -1;
   height_total = 0;
 
@@ -101,29 +102,50 @@ void SelectorWidget::paintEvent(QPaintEvent *evt)
 
   painter.setRenderHint(QPainter::Antialiasing, true);
   painter.setPen(QPen(Qt::white));
-  painter.setFont(QFont("Helvetica", 10, QFont::Normal));
+  painter.setFont(QFont("Helvetica", 11, QFont::Normal));
 
-  for (int i=0; i < my_items_.size(); i++) {
+  for (int i=0; i < my_items_.size(); i++)
+  {
     int cur_high = i / max_wide;
     int cur_wide = i % max_wide;
     painter.resetTransform();
-    painter.translate(rect().x() + cur_wide*rect_w_, rect().y() + cur_high*rect_h_);
+    painter.translate(rect().x() + cur_wide*rect_w_,
+                      rect().y() + cur_high*rect_h_);
 
+    QColor backg;
+    QColor foreg;
     if (my_items_[i].visible)
-      painter.setBrush(my_items_[i].color);
+    {
+      backg = my_items_[i].color;
+      foreg = Qt::white; //inverseColor(backg);
+    }
     else
-      painter.setBrush(Qt::black);
+    {
+      backg.setRgb(0,0,0,0);
+      foreg = Qt::white;
+    }
+
+    if (backg.alpha() < 255)
+    {
+      QBrush b;
+      b.setTexture(QPixmap(QStringLiteral(":/color_widgets/alphaback.png")));
+      painter.fillRect(inner, b);
+    }
+
+    painter.setBrush(backg);
     painter.setPen(Qt::NoPen);
     painter.drawRect(inner);
 
-    painter.setPen(QPen(Qt::white, 1));
-    painter.drawText(inner, Qt::AlignLeft, QString(" ") + my_items_[i].text);
+    painter.setPen(QPen(foreg, 1));
+    painter.drawText(inner, Qt::AlignLeft | Qt::AlignBottom,
+                     QString(" ") + my_items_[i].text);
 
-    if (i == selected_) {
+    if (i == selected_)
+    {
       painter.setBrush(Qt::NoBrush);
       painter.setPen(QPen(Qt::white, border));
       painter.drawRect(outer);
-      painter.setPen(QPen(Qt::black, 1));
+      painter.setPen(QPen(Qt::black, border/2));
       painter.drawRect(outer);
     }
   }

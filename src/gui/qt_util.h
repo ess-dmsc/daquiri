@@ -16,6 +16,8 @@ bool validateFile(QWidget* parent, QString, bool);
 
 QColor generateColor();
 
+QColor inverseColor(QColor);
+
 QDateTime fromBoostPtime(boost::posix_time::ptime);
 
 boost::posix_time::ptime fromQDateTime(QDateTime);

@@ -1,5 +1,7 @@
 #include "spill.h"
 
+#include "custom_logger.h"
+
 namespace DAQuiri {
 
 bool Spill::empty()
@@ -59,7 +61,10 @@ void from_json(const json& j, Spill& s)
     }
 
   if (j.count("state"))
+  {
+    DBG << "Will extract " << j["state"].dump(2);
     s.state = j["state"];
+  }
 
   if (j.count("detectors"))
     for (auto it : j["detectors"])

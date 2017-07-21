@@ -89,15 +89,14 @@ void SettingDelegate::paint(QPainter *painter,
     else if (itemData.is(SettingType::color))
     {
       QColor c(QString::fromStdString(itemData.get_text()));
-      QBrush b;
-      b.setTexture(QPixmap(QStringLiteral(":/color_widgets/alphaback.png")));
       if (c.alpha() < 255)
+      {
+        QBrush b;
+        b.setTexture(QPixmap(QStringLiteral(":/color_widgets/alphaback.png")));
         painter->fillRect(option.rect, b);
+      }
       painter->fillRect(option.rect, c);
-      QColor inverse = QColor::fromRgb(255 - c.red(),
-                                       255 - c.green(),
-                                       255 - c.blue());
-      painter->setPen(QPen(inverse, 4));
+      painter->setPen(QPen(inverseColor(c), 4));
       QFont f = painter->font();
       f.setBold(true);
       painter->setFont(f);

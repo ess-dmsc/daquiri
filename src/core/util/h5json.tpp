@@ -106,11 +106,12 @@ template<typename T> void from_json(const json& j, H5CC::Groupoid<T>& g)
     {
       dataset_from_json(it.value(), name, g);
     }
-    else if (it.value().is_number() ||
-             it.value().is_boolean() ||
-             it.value().is_string() ||
-             it.value().count("___options") ||
-             it.value().count("___choice"))
+    else if (!it.value().is_array() &&
+             (it.value().is_number() ||
+              it.value().is_boolean() ||
+              it.value().is_string() ||
+              it.value().count("___options") ||
+              it.value().count("___choice")))
     {
       attribute_from_json(it.value(), name, g);
     }

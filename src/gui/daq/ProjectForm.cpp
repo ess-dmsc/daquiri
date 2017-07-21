@@ -150,8 +150,7 @@ void ProjectForm::clearGraphs() //rename this
 {
   project_->clear();
   newProject();
-  ui->Plot1d->reset_content();
-
+  ui->Plot1d->setSpectra(project_); //wrong!!!!
   project_->activate();
 }
 
@@ -185,7 +184,7 @@ void ProjectForm::update_plots()
   if (ui->Plot1d->isVisible())
   {
     this->setCursor(Qt::WaitCursor);
-    ui->Plot1d->update_plot();
+    ui->Plot1d->update_plots();
   }
 
   //ui->statusBar->showMessage("Spectra acquisition in progress...");
@@ -260,7 +259,8 @@ void ProjectForm::start_DAQ()
   emit toggleIO(false);
   ui->pushMcaStop->setEnabled(true);
 
-  if (project_->empty()) {
+  if (project_->empty())
+  {
     clearGraphs();
     project_->set_prototypes(spectra_templates_);
     newProject();
@@ -268,7 +268,7 @@ void ProjectForm::start_DAQ()
 //  project_->activate();
 
   my_run_ = true;
-  ui->Plot1d->reset_content();
+  ui->Plot1d->setSpectra(project_);
   uint64_t duration = ui->timeDuration->total_seconds();
   if (ui->toggleIndefiniteRun->isChecked())
     duration = 0;

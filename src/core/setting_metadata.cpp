@@ -267,7 +267,7 @@ void to_json(json& j, const SettingMeta &s)
   j["type"] = to_string(s.type_);
 
   if (!s.contents_.empty())
-    j["contents_"] = s.contents_;
+    j["contents"] = s.contents_;
 
   if (s.is(SettingType::binary) ||
       s.is(SettingType::indicator) ||
