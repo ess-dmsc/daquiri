@@ -137,8 +137,8 @@ void SelectorWidget::paintEvent(QPaintEvent *evt)
     painter.drawRect(inner);
 
     painter.setPen(QPen(foreg, 1));
-    painter.drawText(inner, Qt::AlignLeft | Qt::AlignBottom,
-                     QString(" ") + my_items_[i].text);
+    painter.drawText(inner, Qt::AlignLeft | Qt::AlignVCenter,
+                     QString("  ") + my_items_[i].text);
 
     if (i == selected_)
     {

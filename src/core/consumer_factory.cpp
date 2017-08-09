@@ -53,7 +53,7 @@ void ConsumerFactory::register_type(ConsumerMetadata tt, std::function<Consumer*
 {
   constructors[tt.type()] = typeConstructor;
   prototypes[tt.type()] = tt;
-  LINFO << "<ConsumerFactory> registered '" << tt.type() << "'";
+  INFO << "<ConsumerFactory> registered '" << tt.type() << "'";
 }
 
 const std::vector<std::string> ConsumerFactory::types()

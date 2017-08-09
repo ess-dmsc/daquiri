@@ -322,7 +322,7 @@ void SettingsForm::chan_settings_to_det_DB()
 {
   for (auto &q : channels_)
   {
-    if (q.name() == "none")
+    if (q.id() == "none")
       continue;
     Detector det = detectors_.get(q);
     if (det != Detector())
@@ -404,7 +404,7 @@ void SettingsForm::on_bootButton_clicked()
   {
     emit toggleIO(false);
     emit statusText("Booting...");
-//    LINFO << "Booting system...";
+//    INFO << "Booting system...";
 
     runner_thread_.do_boot();
   }
@@ -413,7 +413,7 @@ void SettingsForm::on_bootButton_clicked()
     emit toggleIO(false);
     emit statusText("Shutting down...");
 
-//    LINFO << "Shutting down";
+//    INFO << "Shutting down";
     runner_thread_.do_shutdown();
   }
 }

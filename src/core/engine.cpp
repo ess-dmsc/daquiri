@@ -11,7 +11,7 @@ namespace DAQuiri {
 
 //int Engine::print_version()
 //{
-//  LINFO << "<DAQuiri> " << Engine::version();
+//  INFO << "<DAQuiri> " << Engine::version();
 //}
 
 //std::string Engine::version()
@@ -62,7 +62,7 @@ void Engine::initialize(const json &profile, const json &definitions)
   _get_all_settings();
 
   Setting descr = tree.find(Setting("Profile description"));
-  LINFO << "<Engine> Welcome to " << descr.get_text();
+  INFO << "<Engine> Welcome to " << descr.get_text();
 }
 
 Engine::~Engine()
@@ -134,7 +134,7 @@ void Engine::_push_settings(const Setting& newsettings)
 {
   settings_ = newsettings;
   _write_settings_bulk();
-//  LINFO << "settings pushed branches = " << settings_.branches.size();
+//  INFO << "settings pushed branches = " << settings_.branches.size();
 }
 
 void Engine::read_settings_bulk()
@@ -166,7 +166,7 @@ void Engine::_read_settings_bulk()
         Setting det(SettingMeta("Detector",
                                 SettingType::detector,
                                 "Detector " + std::to_string(i)));
-        det.set_text(detectors_[i].name());
+        det.set_text(detectors_[i].id());
         det.set_indices({int32_t(i)});
         set.branches.add_a(det);
       }
@@ -288,7 +288,7 @@ void Engine::set_detector(size_t ch, Detector det)
       {
         if (q.has_index(ch))
         {
-          q.set_text(detectors_[ch].name());
+          q.set_text(detectors_[ch].id());
           load_optimization(ch);
         }
       }
@@ -382,9 +382,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     wait_ms(SLEEP_TIME_MS);
 
   if (timeout > 0)
-    LINFO << "<Engine> Starting acquisition scheduled for " << timeout << " seconds";
+    INFO << "<Engine> Starting acquisition scheduled for " << timeout << " seconds";
   else
-    LINFO << "<Engine> Starting acquisition for indefinite run";
+    INFO << "<Engine> Starting acquisition for indefinite run";
 
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
@@ -411,10 +411,10 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       if (timeout > 0)
-        LINFO << "  RUNNING Elapsed: " << total_timer.done()
+        INFO << "  RUNNING Elapsed: " << total_timer.done()
                 << "  ETA: " << total_timer.ETA();
       else
-        LINFO << "  RUNNING Elapsed: " << total_timer.done();
+        INFO << "  RUNNING Elapsed: " << total_timer.done();
 
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
@@ -440,7 +440,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   wait_ms(500);
 
   builder.join();
-  LINFO << "<Engine> Acquisition finished";
+  INFO << "<Engine> Acquisition finished";
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
@@ -458,9 +458,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     wait_ms(SLEEP_TIME_MS);
 
   if (timeout > 0)
-    LINFO << "<Engine> List mode acquisition scheduled for " << timeout << " seconds";
+    INFO << "<Engine> List mode acquisition scheduled for " << timeout << " seconds";
   else
-    LINFO << "<Engine> List mode acquisition indefinite run";
+    INFO << "<Engine> List mode acquisition indefinite run";
 
   Spill* one_spill;
   ListData result;
@@ -487,7 +487,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     wait_ms(500);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
-      LINFO << "  RUNNING Elapsed: " << total_timer.done()
+      INFO << "  RUNNING Elapsed: " << total_timer.done()
               << "  ETA: " << total_timer.ETA();
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);

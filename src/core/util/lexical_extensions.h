@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 inline std::string to_max_precision(double number)
 {

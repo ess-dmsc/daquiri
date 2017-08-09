@@ -241,7 +241,7 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
     editor->addItem("none", "none");
     for (size_t i=0; i < detectors_.size(); i++)
     {
-      QString name = QString::fromStdString(detectors_.get(i).name());
+      QString name = QString::fromStdString(detectors_.get(i).id());
       editor->addItem(name, name);
     }
     return editor;

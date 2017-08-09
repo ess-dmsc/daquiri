@@ -281,7 +281,7 @@ void ListModeForm::on_pushListStart_clicked()
 void ListModeForm::on_pushListStop_clicked()
 {
   ui->pushListStop->setEnabled(false);
-  LINFO << "List acquisition interrupted by user";
+  INFO << "List acquisition interrupted by user";
   interruptor_.store(true);
 }
 
@@ -390,7 +390,7 @@ void ListModeForm::spillSelectionChanged(int row)
 
     std::string det = std::to_string(chan);
     if ((chan > -1) && (chan < static_cast<int>(dets_.size())))
-      det += " (" + dets_[chan].name() + ")";
+      det += " (" + dets_[chan].id() + ")";
 
     add_to_table(ui->tableHits, i, 0, det);
     add_to_table(ui->tableHits, i, 1, hit.timestamp().debug() );

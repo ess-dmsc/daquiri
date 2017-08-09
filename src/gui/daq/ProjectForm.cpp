@@ -215,7 +215,7 @@ void ProjectForm::projectSaveAs()
   QString fileName = CustomSaveFileDialog(this, "Save project",
                                           data_directory_, formats);
   if (validateFile(this, fileName, true)) {
-    LINFO << "Writing project to " << fileName.toStdString();
+    INFO << "Writing project to " << fileName.toStdString();
     this->setCursor(Qt::WaitCursor);
     project_->save_as(fileName.toStdString());
     update_plots();
@@ -299,7 +299,7 @@ void ProjectForm::projectOpen()
   }
 
   //toggle_push(false, false);
-  LINFO << "Reading spectra from file " << fileName.toStdString();
+  INFO << "Reading spectra from file " << fileName.toStdString();
   this->setCursor(Qt::WaitCursor);
   clearGraphs();
 
@@ -326,14 +326,14 @@ void ProjectForm::newProject()
 void ProjectForm::on_pushMcaStop_clicked()
 {
   ui->pushMcaStop->setEnabled(false);
-  //LINFO << "MCA acquisition interrupted by user";
+  //INFO << "MCA acquisition interrupted by user";
   interruptor_.store(true);
 }
 
 void ProjectForm::run_completed()
 {
   if (my_run_) {
-    //LINFO << "ProjectForm received signal for run completed";
+    //INFO << "ProjectForm received signal for run completed";
     ui->pushMcaStop->setEnabled(false);
     my_run_ = false;
 

@@ -292,6 +292,9 @@ void from_json(const json& j, SettingMeta &s)
   if (j.count("flags"))
     for (auto it : j["flags"])
       s.flags_.insert(it.get<std::string>());
+
+  if (j.count("contents"))
+    s.contents_ = j["contents"];
 }
 
 }

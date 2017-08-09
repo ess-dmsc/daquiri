@@ -49,7 +49,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(g_custom_logger,
 
 #define TRC BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kTrace)
 #define DBG BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kDebug)
-#define LINFO BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kInfo)
+#define INFO BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kInfo)
 #define WARN BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kWarning)
 #define ERR BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kError)
 #define CRIT BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kCritical)

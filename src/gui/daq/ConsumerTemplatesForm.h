@@ -47,9 +47,9 @@ private:
 
   Container<DAQuiri::ConsumerMetadata> &templates_;
 
-  SettingDelegate      special_delegate_;
-  ConsumerTemplatesTableModel         table_model_;
-  QItemSelectionModel selection_model_;
+  SettingDelegate             special_delegate_;
+  ConsumerTemplatesTableModel table_model_;
+  QItemSelectionModel         selection_model_;
 
   QString root_dir_;
   std::vector<DAQuiri::Detector> current_dets_;

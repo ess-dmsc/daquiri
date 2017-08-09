@@ -8,15 +8,15 @@ Detector::Detector()
   settings_ = Setting(SettingMeta("", SettingType::stem));
 }
 
-Detector::Detector(std::string name)
+Detector::Detector(std::string id)
   : Detector()
 {
-  name_ = name;
+  id_ = id;
 }
 
-std::string Detector::name() const
+std::string Detector::id() const
 {
-  return name_;
+  return id_;
 }
 
 std::string Detector::type() const
@@ -29,9 +29,9 @@ std::list<Setting> Detector::optimizations() const
   return settings_.branches.data();
 }
 
-void Detector::set_name(const std::string& n)
+void Detector::set_id(const std::string& n)
 {
-  name_ = n;
+  id_ = n;
 }
 
 void Detector::set_type(const std::string& t)
@@ -61,10 +61,32 @@ void Detector::clear_optimizations()
   settings_ = Setting(SettingMeta("Optimizations", SettingType::stem));
 }
 
+void Detector::set_calibration(const Calibration& c)
+{
+  calibrations_.replace(c);
+}
+
+Calibration Detector::get_calibration(CalibID from, CalibID to) const
+{
+  Calibration ret;
+  for (auto c : calibrations_)
+  {
+    if (!c.from().compare(from))
+      continue;
+    if (!c.to().compare(to))
+      continue;
+    if ((from.bits > 16) && (c.from().bits < ret.from().bits))
+      continue;
+    if ((to.bits > 16) && (c.to().bits < ret.to().bits))
+      continue;
+    ret = c;
+  }
+  return ret;
+}
 
 bool Detector::operator== (const Detector& other) const
 {
-  return ((name_ == other.name_) &&
+  return ((id_ == other.id_) &&
           (type_ == other.type_) &&
           (settings_ == other.settings_));
 }
@@ -77,7 +99,7 @@ bool Detector::operator!= (const Detector& other) const
 std::string Detector::debug(std::string prepend) const
 {
   std::stringstream ss;
-  ss << name_ << "(" << type_ << ")\n";
+  ss << id_ << "(" << type_ << ")\n";
   ss << prepend << k_branch_end << settings_.debug(prepend + "  ");
   return ss.str();
 }
@@ -90,7 +112,7 @@ void to_json(json& j, const Detector &s)
 json Detector::to_json(bool options) const
 {
   json j;
-  j["name"] = name_;
+  j["id"] = id_;
   j["type"] = type_;
   if (options && !settings_.branches.empty())
     j["optimizations"] = settings_;
@@ -99,8 +121,10 @@ json Detector::to_json(bool options) const
 
 void from_json(const json& j, Detector &s)
 {
-  s.name_ = j["name"];
-  s.type_ = j["type"];
+  if (j.count("id"))
+    s.id_ = j["id"];
+  if (j.count("type"))
+    s.type_ = j["type"];
   if (j.count("optimizations"))
     s.settings_ = j["optimizations"];
 }

@@ -261,7 +261,7 @@ void MockProducer::boot()
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-  LINFO << "<MockProducer> Booting mock producer"
+  INFO << "<MockProducer> Booting mock producer"
         << " resolution=" << resolution_ << " rate=" << count_rate_ << "cps";
 //        << " with peak at " << peak_center_ << "%   stdev=" << peak_spread_;
 
@@ -272,7 +272,7 @@ void MockProducer::boot()
 
 void MockProducer::die()
 {
-  LINFO << "<MockProducer> Die mock producer";
+  INFO << "<MockProducer> Die mock producer";
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 

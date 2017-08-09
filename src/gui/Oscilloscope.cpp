@@ -59,10 +59,10 @@ void Oscilloscope::updateMenu(std::vector<DAQuiri::Detector> dets)
       changed = true;
     }
 
-    if (my_channels[i].text != QString::fromStdString(dets[i].name()))
+    if (my_channels[i].text != QString::fromStdString(dets[i].id()))
     {
       my_channels[i].data = QVariant::fromValue(i);
-      my_channels[i].text = QString::fromStdString(dets[i].name());
+      my_channels[i].text = QString::fromStdString(dets[i].id());
       my_channels[i].color = palette[i % palette.size()];
       changed = true;
     }
@@ -86,7 +86,7 @@ void Oscilloscope::channelDetails(SelectorItem item)
   if ((i > -1) && (i < static_cast<int32_t>(traces_.size())))
   {
     Detector det = channels_.at(i);
-    text += QString::fromStdString(det.name());
+    text += QString::fromStdString(det.id());
     text += " (" + QString::fromStdString(det.type()) + ")";
   }
   ui->widgetPlot->setTitle(text);

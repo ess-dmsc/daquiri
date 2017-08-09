@@ -154,7 +154,7 @@ void Spectrum1D::_append(const Entry& e)
 void Spectrum1D::_save_data(H5CC::Group& g) const
 {
   std::vector<long double> d(maxchan_);
-  for (uint32_t i = 0; i < maxchan_; i++)
+  for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<long double>(spectrum_[i]);
   auto dset = g.require_dataset<long double>("data", {maxchan_});
   dset.write(d);
@@ -172,12 +172,15 @@ void Spectrum1D::_load_data(H5CC::Group& g)
   std::vector<long double> rdata(shape.dim(0));
   dset.read(rdata, {rdata.size()}, {0});
 
-  spectrum_.clear();
-  spectrum_.resize(rdata.size(), PreciseFloat(0));
+  if (spectrum_.size() < rdata.size())
+  {
+    spectrum_.clear();
+    spectrum_.resize(rdata.size(), PreciseFloat(0));
+  }
   for (size_t i = 0; i < rdata.size(); i++)
     spectrum_[i] = PreciseFloat(rdata[i]);
 
-  maxchan_ = rdata.size();
+  maxchan_ = rdata.size() - 1;
 }
 
 std::string Spectrum1D::_data_debug(const std::string &prepend) const
@@ -189,7 +192,7 @@ std::string Spectrum1D::_data_debug(const std::string &prepend) const
   if (!nstars)
     nstars = 100;
 
-  for (uint32_t i = 0; i < maxchan_; i++)
+  for (uint32_t i = 0; i <= maxchan_; i++)
   {
     long double val = static_cast<long double>(spectrum_[i]);
     if (val)

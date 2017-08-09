@@ -80,7 +80,7 @@ QVariant SettingsTableModel::data(const QModelIndex &index, int role) const
       }
       else if (col <= static_cast<int>(channels_.size()))
       {
-        Setting det = Setting::detector("", channels_[col-1].name());
+        Setting det = Setting::detector("", channels_[col-1].id());
         det.add_indices({col-1});
         return QVariant::fromValue(det);
       } else
@@ -119,7 +119,7 @@ QVariant SettingsTableModel::data(const QModelIndex &index, int role) const
   else if (role == Qt::EditRole) {
     if ((row == 0) && (col > 0) && (col <= static_cast<int>(channels_.size())))
     {
-      Setting det = Setting::detector("", channels_[col-1].name());
+      Setting det = Setting::detector("", channels_[col-1].id());
       return QVariant::fromValue(det);
     }
     else if (row != 0)

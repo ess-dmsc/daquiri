@@ -195,7 +195,7 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
                                                   root_dir_, "Template set (*.tem)");
   if (validateFile(this, fileName, false))
   {
-    LINFO << "Reading templates from file " << fileName.toStdString();
+    INFO << "Reading templates from file " << fileName.toStdString();
     templates_ = from_json_file(fileName.toStdString());
 
     selection_model_.reset();
@@ -213,7 +213,7 @@ void ConsumerTemplatesForm::on_pushExport_clicked()
                                           root_dir_, "Template set (*.tem)");
   if (validateFile(this, fileName, true))
   {
-    LINFO << "Writing templates to file " << fileName.toStdString();
+    INFO << "Writing templates to file " << fileName.toStdString();
     to_json_file(templates_, fileName.toStdString());
   }
 }

@@ -18,7 +18,7 @@ void ProducerFactory::register_type(std::string name,
                                     std::function<Producer*(void)> typeConstructor)
 {
   constructors[name] = typeConstructor;
-  LINFO << "<ProducerFactory> registered '" << name << "'";
+  INFO << "<ProducerFactory> registered '" << name << "'";
 }
 
 const std::vector<std::string> ProducerFactory::types()

@@ -29,7 +29,7 @@ private slots:
   void selectorItemSelected(SelectorItem);
   void selectorItemDoubleclicked(SelectorItem);
 
-  void on_pushFullInfo_clicked();
+  void on_pushFulINFO_clicked();
 
   void showAll();
   void hideAll();

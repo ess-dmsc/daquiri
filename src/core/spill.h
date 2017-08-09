@@ -9,18 +9,18 @@ namespace DAQuiri {
 
 struct Spill
 {
-public:
-  boost::posix_time::ptime   time
+  public:
+    boost::posix_time::ptime   time
     {boost::posix_time::microsec_clock::universal_time()};
-  std::vector<char>          data; // raw from device
-  std::list<Event>         events; // parsed
-  std::map<int16_t, Status> stats; // per channel
-  std::vector<Detector> detectors; // per channel
-  Setting                   state;
+    std::vector<char>          data; // raw from device
+    std::list<Event>         events; // parsed
+    std::map<int16_t, Status> stats; // per channel
+    std::vector<Detector> detectors; // per channel
+    Setting                   state;
 
-public:
-  bool empty();
-  std::string to_string() const;
+  public:
+    bool empty();
+    std::string to_string() const;
 };
 
 typedef std::shared_ptr<Spill> SpillPtr;
