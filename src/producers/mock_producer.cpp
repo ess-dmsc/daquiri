@@ -175,11 +175,6 @@ void MockProducer::read_settings_bulk(Setting &set) const
     set.branches.add_a(v);
   }
 
-//  set.set(Setting::floating("MockProducer/PeakCenter", peak_center_*100));
-//  set.set(Setting::floating("MockProducer/PeakSpread", peak_spread_));
-//  set.set(Setting::text("MockProducer/ValName1", vname1));
-//  set.set(Setting::text("MockProducer/ValName2", vname2));
-
   set.set(Setting::indicator("MockProducer/DummySettings/Indicator", dummy_selection_));
 }
 

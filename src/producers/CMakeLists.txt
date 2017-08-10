@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(producers CXX)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+
+find_package(LibRDKafka)
+if(NOT LIBRDKAFKA_FOUND)
+    message(FATAL_ERROR "Unable to proceed as librdkafka could not be found.")
+endif()
+
 file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES *.cpp)
 file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS *.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")

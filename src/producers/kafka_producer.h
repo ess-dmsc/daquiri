@@ -3,15 +3,17 @@
 #include "producer.h"
 #include <random>
 
+#include <librdkafka/rdkafkacpp.h>
+
 using namespace DAQuiri;
 
-class MockProducer : public Producer
+class KafkaProducer : public Producer
 {
 public:
-  MockProducer();
-  ~MockProducer();
+  KafkaProducer();
+  ~KafkaProducer();
 
-  static std::string plugin_name() {return "MockProducer";}
+  static std::string plugin_name() {return "KafkaProducer";}
   std::string device_name() const override {return plugin_name();}
 
   void write_settings_bulk(Setting &set) override;
@@ -25,39 +27,27 @@ public:
 
 private:
   //no copying
-  void operator=(MockProducer const&);
-  MockProducer(const MockProducer&);
+  void operator=(KafkaProducer const&);
+  KafkaProducer(const KafkaProducer&);
 
   //Acquisition threads, use as static functors
-  static void worker_run(MockProducer* callback, SpillQueue spill_queue);
+  static void worker_run(KafkaProducer* callback, SpillQueue spill_queue);
 
 protected:
   boost::atomic<int> run_status_ {0};
   boost::thread *runner_ {nullptr};
 
+  //Kafka
+  std::unique_ptr<RdKafka::KafkaConsumer> consumer_;
+
   // cached params
+  std::string broker_;
+  std::string topic_;
+
   uint16_t bits_ {6};
   uint32_t spill_interval_ {5};
-  double   count_rate_ {10};
-  double   lambda_ {0};
-  double   dead_ {0};
-
-  int dummy_selection_{0};
-
-  size_t val_count_ {1};
-  std::vector<std::string> vnames_;
-  std::vector<double> centers_;
-  std::vector<double> spreads_;
-  std::vector<std::normal_distribution<double>> dists_;
 
   EventModel model_hit;
-
-  uint32_t  resolution_ {0};
-  int       event_interval_ {150};
-
-  // runtime
-//  std::normal_distribution<double> dist_;
-  std::default_random_engine gen_;
 
   uint64_t clock_ {0};
 
@@ -65,8 +55,4 @@ protected:
   Status get_status(int16_t chan, StatusType t);
   void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
-  uint16_t generate(size_t i);
-
-  void add_dummy_settings();
-
 };
