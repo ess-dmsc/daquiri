@@ -12,12 +12,25 @@ typedef std::pair<std::vector<size_t>, PreciseFloat> Entry;
 typedef std::list<Entry> EntryList;
 typedef std::pair<size_t, size_t> Pair;
 
+struct DataAxis
+{
+    DataAxis() {}
+    DataAxis(Calibration c, size_t resolution);
+    DataAxis(Calibration c, size_t resolution, uint16_t bits);
+
+    std::string label() const;
+    std::string debug() const;
+    Pair bounds() const;
+
+    Calibration calibration;
+    std::vector<double> domain;
+};
 
 class Consumer
 {
 protected:
   ConsumerMetadata metadata_;
-  std::vector<std::vector<double> > axes_;
+  std::vector<DataAxis> axes_;
 
   mutable boost::shared_mutex shared_mutex_;
   mutable boost::mutex unique_mutex_;
@@ -50,7 +63,7 @@ public:
   void append(const Entry&);
 
   //retrieve axis-values for given dimension (can be precalculated energies)
-  std::vector<double> axis_values(uint16_t dimension) const;
+  DataAxis axis(uint16_t dimension) const;
 
   //ConsumerMetadata
   ConsumerMetadata metadata() const;

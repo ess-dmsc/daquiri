@@ -9,6 +9,57 @@
 
 namespace DAQuiri {
 
+DataAxis::DataAxis(Calibration c, size_t resolution)
+{
+  calibration = c;
+  domain.resize(resolution);
+  for (size_t i=0; i < resolution; ++i)
+    domain[i] = calibration.transform(i);
+}
+
+DataAxis::DataAxis(Calibration c, size_t resolution, uint16_t bits)
+{
+  calibration = c;
+  domain.resize(resolution);
+  for (size_t i=0; i < resolution; ++i)
+    domain[i] = calibration.transform(i, bits);
+}
+
+Pair DataAxis::bounds() const
+{
+  return Pair(0, domain.size());
+}
+
+std::string DataAxis::label() const
+{
+//  if (!calibration.valid())
+//    return "undefined axis";
+  std::stringstream ss;
+  if (!calibration.to().value.empty())
+    ss << calibration.to().value;
+  else
+    ss << calibration.from().value;
+  if (!calibration.to().units.empty())
+    ss << " (" << calibration.to().units << ")";
+  else
+    ss << " (" << calibration.from().bits << " bits)";
+  return ss.str();
+}
+
+std::string DataAxis::debug() const
+{
+  std::stringstream ss;
+  ss << "domain_size=" << domain.size();
+  if (domain.size())
+    ss << " [" << domain[0]
+       << "-" << domain[domain.size()-1]
+       << "]";
+  if (calibration.valid())
+    ss << " " << calibration.debug();
+  return ss.str();
+}
+
+
 Consumer::Consumer()
 {
   Setting attributes = metadata_.attributes();
@@ -129,14 +180,14 @@ void Consumer::flush()
   this->_flush();
 }
 
-std::vector<double> Consumer::axis_values(uint16_t dimension) const
+DataAxis Consumer::axis(uint16_t dimension) const
 {
   boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
   
   if (dimension < axes_.size())
     return axes_[dimension];
   else
-    return std::vector<double>();
+    return DataAxis();
 }
 
 bool Consumer::changed() const
@@ -199,22 +250,16 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
     {
       ss << prepend << k_branch_pre_B
          << (((i+1) == axes_.size()) ? k_branch_end_B : k_branch_mid_B)
-         << i << "   size=" << axes_.at(i).size();
-      if (axes_.at(i).size())
-      {
-        ss << " [" << axes_.at(i)[0]
-           << "-" << axes_.at(i)[axes_.at(i).size()-1]
-           << "]";
-      }
-      ss << "\n";
+         << i << "   " << axes_.at(i).debug()
+         << "\n";
     }
   }
-  ss << prepend << k_branch_mid_B << metadata_.debug(prepend + k_branch_pre_B, verbose);
+  ss << prepend << k_branch_mid_B
+     << metadata_.debug(prepend + k_branch_pre_B, verbose);
   ss << prepend << k_branch_end_B << "Data:\n"
      << this->_data_debug(prepend + "  ");
   return ss.str();
 }
-
 
 
 //change stuff

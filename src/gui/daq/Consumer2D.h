@@ -27,10 +27,6 @@ private:
 
   double zoom_ {1.0};
 
-  uint32_t resolution_x_ {0};
-  uint32_t resolution_y_ {0};
-
-
   QMenu *crop_menu_;
   QLabel *crop_label_;
   QSlider *crop_slider_;

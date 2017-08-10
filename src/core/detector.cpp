@@ -71,9 +71,9 @@ Calibration Detector::get_calibration(CalibID from, CalibID to) const
   Calibration ret;
   for (auto c : calibrations_)
   {
-    if (!c.from().compare(from))
+    if (from.valid() && !c.from().compare(from))
       continue;
-    if (!c.to().compare(to))
+    if (to.valid() && !c.to().compare(to))
       continue;
     if ((from.bits > 16) && (c.from().bits < ret.from().bits))
       continue;
@@ -82,6 +82,21 @@ Calibration Detector::get_calibration(CalibID from, CalibID to) const
     ret = c;
   }
   return ret;
+}
+
+Calibration Detector::get_preferred_calibration(CalibID from, CalibID to) const
+{
+  auto ret = get_calibration(from, to);
+  if (ret.valid())
+    return ret;
+  CalibID f = from;
+  CalibID t = to;
+  f.bits = 99;
+  t.bits = 99;
+  ret = get_calibration(from, to);
+  if (ret.valid())
+    return ret;
+  return Calibration(from, to);
 }
 
 bool Detector::operator== (const Detector& other) const

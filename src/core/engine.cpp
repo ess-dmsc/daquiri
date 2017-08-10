@@ -191,6 +191,9 @@ void Engine::write_settings_bulk()
 
 void Engine::_write_settings_bulk()
 {
+  auto det = settings_.find(Setting::stem("Detectors"));
+  if (!det)
+    settings_.branches.add(Setting::stem("Detectors"));
   for (auto &set : settings_.branches)
   {
     if (set.id() == "Detectors")
@@ -202,7 +205,7 @@ void Engine::_write_settings_bulk()
 
 void Engine::rebuild_structure(Setting &set)
 {
-  Setting totaldets = set.find({"Total detectors"});
+  Setting totaldets = set.find(Setting::integer("Total detectors", 0));
   int oldtotal = detectors_.size();
   int newtotal = totaldets.get_number();
   if (newtotal < 0)

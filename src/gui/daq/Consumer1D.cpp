@@ -2,6 +2,9 @@
 #include <QVBoxLayout>
 #include "QHist.h"
 
+#include "custom_logger.h"
+
+
 using namespace DAQuiri;
 
 Consumer1D::Consumer1D(QWidget *parent)
@@ -29,10 +32,11 @@ void Consumer1D::update()
   double rescale  = md.get_attribute("rescale").get_number();
   auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
 
-  QVector<double> x = QVector<double>::fromStdVector(consumer_->axis_values(0));
+  DataAxis axis = consumer_->axis(0);
+  QVector<double> x = QVector<double>::fromStdVector(axis.domain);
 
   std::shared_ptr<EntryList> spectrum_data =
-      std::move(consumer_->data_range({{0, x.size()}}));
+      std::move(consumer_->data_range({axis.bounds()}));
 
   QPlot::HistMap1D hist;
   if (spectrum_data)
@@ -52,9 +56,14 @@ void Consumer1D::update()
     plot_->replot();
   }
 
+  plot_->setAxisLabels(QString::fromStdString(axis.label()), "count");
+
   std::string new_label = md.get_attribute("name").get_text();
 //  plot_->setTitle(QString::fromStdString(new_label).trimmed());
   plot_->zoomOut();
+
+//  DBG << new_label << "   " <<  axis.debug();
+
 
   setWindowTitle(QString::fromStdString(new_label).trimmed());
 }

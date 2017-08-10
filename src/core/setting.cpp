@@ -491,6 +491,11 @@ Setting Setting::detector(std::string sid, std::string val)
   return ret;
 }
 
+Setting Setting::stem(std::string sid)
+{
+  return Setting(SettingMeta(sid, SettingType::stem));
+}
+
 void Setting::set_text(std::string val)
 {
   value_text = val;

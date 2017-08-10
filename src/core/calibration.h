@@ -12,6 +12,10 @@ struct CalibID
     std::string units;
     uint16_t bits {0};
 
+    CalibID() {}
+    CalibID(std::string det, std::string val,
+            std::string unit, uint16_t b);
+
     bool valid() const;
     bool operator== (const CalibID& other) const;
     std::string debug() const;

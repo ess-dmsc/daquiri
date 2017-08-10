@@ -4,6 +4,14 @@
 
 namespace DAQuiri {
 
+CalibID::CalibID(std::string det, std::string val,
+                 std::string unit, uint16_t b)
+  : detector(det)
+  , value(val)
+  , units(unit)
+  , bits(b)
+{}
+
 bool CalibID::valid() const
 {
   return (!detector.empty() ||

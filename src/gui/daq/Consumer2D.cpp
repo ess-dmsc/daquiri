@@ -57,8 +57,6 @@ void Consumer2D::reset_content()
   //DBG << "reset content";
   plot_->clearAll();
   plot_->replot();
-  resolution_x_ = 0;
-  resolution_y_ = 0;
 }
 
 void Consumer2D::update()
@@ -75,16 +73,14 @@ void Consumer2D::update()
 
 //  bool buffered = md.get_attribute("buffered").triggered();
 //  PreciseFloat total = md.get_attribute("total_count").get_number();
-  uint16_t bits = md.get_attribute("resolution").selection();
-  uint32_t res_x = pow(2,bits) * zoom_;
-  uint32_t res_y = res_x;
 
-  bool zoomout = (res_x != resolution_x_) || (res_y != resolution_y_);
+  DataAxis axis_x = consumer_->axis(0);
+  DataAxis axis_y = consumer_->axis(1);
 
-  resolution_x_ = res_x;
-  resolution_y_ = res_y;
+  uint32_t res_x = axis_x.bounds().second * zoom_;
+  uint32_t res_y = axis_y.bounds().second * zoom_;
 
-  if (!resolution_x_ || !resolution_y_)
+  if (!res_x || !res_y)
   {
     plot_->clearAll();
     plot_->replot();
@@ -94,7 +90,7 @@ void Consumer2D::update()
 
   double rescale  = md.get_attribute("rescale").get_number();
   std::shared_ptr<EntryList> spectrum_data =
-      std::move(consumer_->data_range({{0, resolution_x_}, {0, resolution_y_}}));
+      std::move(consumer_->data_range({{0, res_x}, {0, res_y}}));
 
   QPlot::HistList2D hist;
   if (spectrum_data)
@@ -106,10 +102,10 @@ void Consumer2D::update()
   if (!hist.empty())
   {
     plot_->clearExtras();
-    plot_->updatePlot(resolution_x_ + 1, resolution_y_ + 1, hist);
+    plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->setAxes(
-          "", 0, resolution_x_+1,
-          "", 0, resolution_y_+1,
+          QString::fromStdString(axis_x.label()), 0, res_x+1,
+          QString::fromStdString(axis_y.label()), 0, res_y+1,
           "Event count");
     plot_->replotExtras();
     plot_->replot();
@@ -119,8 +115,8 @@ void Consumer2D::update()
 //  plot_->setTitle(QString::fromStdString(new_label).trimmed());
   setWindowTitle(QString::fromStdString(new_label).trimmed());
 
-  if (zoomout)
-    plot_->zoomOut();
+//  setAxisLabels(QString::fromStdString(axis.label()), "count");
+
 
   //  DBG << "<Plot2D> plotting took " << guiside.ms() << " ms";
 }

@@ -17,6 +17,7 @@ protected:
 
   bool _initialize() override;
   void _init_from_file(std::string name) override;
+  void _recalc_axes() override;
 
   //event processing
   bool event_relevant(const Event&) const override;

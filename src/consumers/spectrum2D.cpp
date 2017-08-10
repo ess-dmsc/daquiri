@@ -85,23 +85,8 @@ void Spectrum2D::_recalc_axes()
 {
   Spectrum::_recalc_axes();
 
-  size_t res = pow(2,bits_);
-  axes_[0].resize(res);
-  axes_[1].resize(res);
-  for (size_t i=0; i < res; ++i)
-    axes_[1][i] = axes_[0][i] = i;
-
-  if (axes_.size() != metadata_.detectors.size())
-    return;
-
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
-  {
-//    Calibration this_calib = metadata_.detectors[i].best_calib(bits_);
-//    uint32_t res = pow(2,bits_);
-//    axes_[i].resize(res, 0.0);
-//    for (uint32_t j=0; j<res; j++)
-//      axes_[i][j] = this_calib.transform(j, bits_);
-  }
+  axes_[1] = axes_[0] =
+      DataAxis(Calibration(), pow(2,bits_), bits_);
 }
 
 PreciseFloat Spectrum2D::_data(std::initializer_list<size_t> list) const

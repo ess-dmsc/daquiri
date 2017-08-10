@@ -51,6 +51,24 @@ void Image2D::_init_from_file(std::string filename)
   Spectrum2D::_init_from_file(name);
 }
 
+void Image2D::_recalc_axes()
+{
+  Spectrum2D::_recalc_axes();
+
+  if (axes_.size() != metadata_.detectors.size())
+    return;
+
+  for (size_t i=0; i < metadata_.detectors.size(); ++i)
+  {
+    auto det = metadata_.detectors[i];
+    std::string valname = (i == 0) ? x_name_ : y_name_;
+    CalibID from(det.id(), valname, "", bits_);
+    CalibID to("", valname, "", 0);
+    auto calib = det.get_preferred_calibration(from, to);
+    axes_[i] = DataAxis(calib, pow(2,bits_), bits_);
+  }
+}
+
 void Image2D::_push_stats(const Status& manifest)
 {
   if (!this->channel_relevant(manifest.channel()))

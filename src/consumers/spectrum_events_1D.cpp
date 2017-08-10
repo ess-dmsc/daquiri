@@ -50,6 +50,24 @@ void Spectrum1DEvent::_init_from_file(std::string filename)
   SpectrumEventMode::_init_from_file(name);
 }
 
+void Spectrum1DEvent::_recalc_axes()
+{
+  Spectrum1D::_recalc_axes();
+
+  if (axes_.size() != metadata_.detectors.size())
+    return;
+
+  for (size_t i=0; i < metadata_.detectors.size(); ++i)
+  {
+    auto det = metadata_.detectors[i];
+    CalibID from(det.id(), val_name_, "", bits_);
+    CalibID to("", val_name_, "", 0);
+    auto calib = det.get_preferred_calibration(from, to);
+    DBG << "Adopted calibration " << calib.debug();
+    axes_[i] = DataAxis(calib, pow(2,bits_), bits_);
+  }
+}
+
 bool Spectrum1DEvent::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();

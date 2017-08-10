@@ -49,7 +49,7 @@ public:
   static Setting file(std::string sid, std::string val);
   static Setting dir(std::string sid, std::string val);
   static Setting detector(std::string sid, std::string val);
-
+  static Setting stem(std::string sid);
 
   // id, type, metadata
   explicit operator bool() const;
