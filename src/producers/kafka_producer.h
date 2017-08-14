@@ -51,8 +51,11 @@ protected:
 
   uint64_t clock_ {0};
 
-  Spill* get_spill(StatusType t, double seconds);
   Status get_status(int16_t chan, StatusType t);
   void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
+
+  Spill* listenForMessage();
+  Spill* messageConsume(std::shared_ptr<RdKafka::Message> msg);
+  Spill* create_spill(StatusType t);
 };

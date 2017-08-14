@@ -164,11 +164,11 @@ void KafkaProducer::boot()
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);
 
-  conf->set("group.id", "nexus_stream_consumer", error_str);
-  conf->set("enable.auto.commit", "false", error_str);
-  conf->set("enable.auto.offset.store", "false", error_str);
-  conf->set("offset.store.method", "none", error_str);
-  conf->set("auto.offset.reset", "largest", error_str);
+//  conf->set("group.id", "nexus_stream_consumer", error_str);
+//  conf->set("enable.auto.commit", "false", error_str);
+//  conf->set("enable.auto.offset.store", "false", error_str);
+//  conf->set("offset.store.method", "none", error_str);
+//  conf->set("auto.offset.reset", "largest", error_str);
 
   consumer_ = std::unique_ptr<RdKafka::KafkaConsumer>(
         RdKafka::KafkaConsumer::create(conf.get(), error_str));
@@ -182,8 +182,7 @@ void KafkaProducer::boot()
   INFO << "Created consumer " << consumer_->name();
 
   // Start consumer for topic+partition at start offset
-  std::vector<std::string> topics = {topic_};
-  RdKafka::ErrorCode resp = consumer_->subscribe(topics);
+  RdKafka::ErrorCode resp = consumer_->subscribe({topic_});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
     ERR << "Failed to start consumer: " << RdKafka::err2str(resp);
@@ -217,13 +216,16 @@ void KafkaProducer::worker_run(KafkaProducer* callback,
 
   CustomTimer timer(true);
 
-  spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
+  spill_queue->enqueue(callback->create_spill(StatusType::start));
+
   while (callback->run_status_.load() != 2)
   {
-    boost::this_thread::sleep(boost::posix_time::seconds(callback->spill_interval_));
-    spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
+    auto spill = callback->listenForMessage();
+    if (spill)
+      spill_queue->enqueue(spill);
   }
-  spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));
+
+  spill_queue->enqueue(callback->create_spill(StatusType::stop));
 
   callback->run_status_.store(3);
 }
@@ -239,25 +241,11 @@ void KafkaProducer::add_hit(Spill& spill)
   clock_ += 1;
 }
 
-Spill* KafkaProducer::get_spill(StatusType t, double seconds)
+Spill* KafkaProducer::create_spill(StatusType t)
 {
   int16_t chan0 {0};
-
   Spill* spill = new Spill();
-
-  if (t == StatusType::running)
-  {
-//    DBG << "Will make hits for " << (rate * spill_interval_);
-
-    for (uint32_t i=0; i< (spill_interval_); i++)
-      add_hit(*spill);
-
-//    DBG << "Added " << spill->events.size() << " events to spill";
-
-  }
-
   spill->stats[chan0] = get_status(chan0, t);
-
   return spill;
 }
 
@@ -274,4 +262,54 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
   status.set_value("native_time", duration);
 
   return status;
+}
+
+Spill* KafkaProducer::listenForMessage()
+{
+  std::shared_ptr<RdKafka::Message> msg{consumer_->consume(spill_interval_ * 1000)};
+
+  DBG << "event timestamp: " << msg->timestamp().timestamp;
+  //  message_length_ += msg->len();
+  //  n_messages_++;
+
+  if (msg->err() == RdKafka::ERR__TIMED_OUT)
+  {
+    return nullptr;
+  }
+  else if (msg->err() == RdKafka::ERR__PARTITION_EOF)
+  {
+    ERR << "consumer: " << RdKafka::err2str(msg->err());
+    return nullptr;
+  }
+  else if (msg->err() != RdKafka::ERR_NO_ERROR)
+  {
+    WARN << "Failed to consume:" << RdKafka::err2str(msg->err());
+    if (msg->len() == 0)
+      WARN << "Warning: message received had 0 length payload!";
+    if (msg->key())
+      WARN << "Key: " << *msg->key();
+
+    //  auto result = mp.process_message((char *)msg->payload(), msg->len());
+    //  return result;
+      //    message.assign(static_cast<const char *>(msg->payload()),
+      //                   static_cast<int>(msg->len()));
+    return messageConsume(msg);
+  }
+  else
+  {
+    ERR << "Consume failed: " << msg->errstr();
+    return nullptr;
+  }
+}
+
+Spill* KafkaProducer::messageConsume(std::shared_ptr<RdKafka::Message> msg)
+{
+  Spill* ret {nullptr};
+  if (msg->len() > 0)
+  {
+    ret = create_spill(StatusType::running);
+
+    //do flatbuffer stuff here
+  }
+  return ret;
 }
