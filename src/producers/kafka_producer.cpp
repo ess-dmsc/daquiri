@@ -3,6 +3,9 @@
 
 #include "custom_logger.h"
 
+#include "ev42_events_generated.h"
+#include "mon_efu_generated.h"
+
 //#include "producer_factory.h"
 //static ProducerRegistrar<KafkaProducer> registrar("KafkaProducer");
 
@@ -16,12 +19,6 @@ KafkaProducer::KafkaProducer()
   si.set_val("units", "s");
   add_definition(si);
 
-  SettingMeta res(mp + "Resolution", SettingType::integer, "Resolution");
-  res.set_val("min", 4);
-  res.set_val("max", 16);
-  res.set_val("units", "bits");
-  add_definition(res);
-
   SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
   tm.set_val("min", 1);
   tm.set_val("units", "ns");
@@ -32,18 +29,30 @@ KafkaProducer::KafkaProducer()
   td.set_val("units", "1/ns");
   add_definition(td);
 
-  SettingMeta broker(mp + "Broker", SettingType::text, "Kafka Broker URL");
+  SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka Broker URL");
   add_definition(broker);
 
-  SettingMeta topic(mp + "Topic", SettingType::text, "Kafka Topic");
+  SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka Topic");
   add_definition(topic);
+
+  SettingMeta pi(mp + "KafkaPollInterval", SettingType::integer, "Kafka poll interval");
+  pi.set_val("min", 1);
+  pi.set_val("max", 1000000);
+  pi.set_val("units", "ms");
+  add_definition(pi);
+
+  SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
+  add_definition(det_type);
 
   SettingMeta root("KafkaProducer", SettingType::stem);
   root.set_enum(0, mp + "SpillInterval");
   root.set_enum(1, mp + "Resolution");
   root.set_enum(2, mp + "TimebaseMult");
   root.set_enum(3, mp + "TimebaseDiv");
-  //  root.set_enum(9, mp + "Value");
+  root.set_enum(4, mp + "KafkaBroker");
+  root.set_enum(5, mp + "KafkaTopic");
+  root.set_enum(6, mp + "PollInterval");
+  root.set_enum(7, mp + "DetectorType");
 
   add_definition(root);
 
@@ -108,11 +117,12 @@ void KafkaProducer::read_settings_bulk(Setting &set) const
   if (set.id() != device_name())
     return;
   set.set(Setting::integer("KafkaProducer/SpillInterval", spill_interval_));
-  set.set(Setting::integer("KafkaProducer/Resolution", bits_));
   set.set(Setting::integer("KafkaProducer/TimebaseMult", model_hit.timebase.multiplier()));
   set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit.timebase.divider()));
-  set.set(Setting::text("KafkaProducer/Broker", broker_));
-  set.set(Setting::text("KafkaProducer/Topic", topic_));
+  set.set(Setting::text("KafkaProducer/KafkaBroker", broker_));
+  set.set(Setting::text("KafkaProducer/KafkaTopic", topic_));
+
+  set.set(Setting::text("KafkaProducer/DetectorType", detector_type_));
 }
 
 
@@ -124,15 +134,18 @@ void KafkaProducer::write_settings_bulk(Setting &set)
   set.enrich(setting_definitions_, true);
 
   spill_interval_ = set.find({"KafkaProducer/SpillInterval"}).get_number();
-  bits_ = set.find({"KafkaProducer/Resolution"}).get_number();
 
   model_hit = EventModel();
   model_hit.timebase = TimeBase(set.find({"KafkaProducer/TimebaseMult"}).get_number(),
                                 set.find({"KafkaProducer/TimebaseDiv"}).get_number());
+  model_hit.add_value("pixid", 16);
 
 
-  broker_ = set.find({"KafkaProducer/Broker"}).get_text();
-  topic_ = set.find({"KafkaProducer/Topic"}).get_text();
+  broker_ = set.find({"KafkaProducer/KafkaBroker"}).get_text();
+  topic_ = set.find({"KafkaProducer/KafkaTopic"}).get_text();
+  poll_interval_ = set.find({"KafkaProducer/KafkaPollInterval"}).get_number();
+
+  detector_type_ = set.find({"KafkaProducer/DetectorType"}).get_text();
 }
 
 void KafkaProducer::boot()
@@ -230,17 +243,6 @@ void KafkaProducer::worker_run(KafkaProducer* callback,
   callback->run_status_.store(3);
 }
 
-void KafkaProducer::add_hit(Spill& spill)
-{
-  int16_t chan0 {0};
-
-  Event h(chan0, model_hit);
-  h.set_native_time(clock_);
-
-  spill.events.push_back(h);
-  clock_ += 1;
-}
-
 Spill* KafkaProducer::create_spill(StatusType t)
 {
   int16_t chan0 {0};
@@ -267,7 +269,7 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
 Spill* KafkaProducer::listenForMessage()
 {
   std::shared_ptr<RdKafka::Message> message
-  {consumer_->consume(spill_interval_ * 1000)};
+  {consumer_->consume(poll_interval_)};
 
   switch (message->err())
   {
@@ -326,9 +328,44 @@ Spill* KafkaProducer::messageConsume(std::shared_ptr<RdKafka::Message> msg)
   Spill* ret {nullptr};
   if (msg->len() > 0)
   {
-    ret = create_spill(StatusType::running);
+    auto em = GetEventMessage(msg->payload());
+    std::string name = em->source_name()->str();
+    ulong id = em->message_id();
+    uint64_t pulse_time = em->pulse_time();
+    auto t_len = em->time_of_flight()->Length();
+    auto p_len = em->detector_id()->Length();
 
-    //do flatbuffer stuff here
+    if (detector_type_ != name)
+    {
+      DBG << "Bad detector type " << name << " id=" << id << " pulse=" << pulse_time;
+      return ret;
+    }
+
+    if ((t_len != p_len) || !t_len)
+    {
+      DBG << "Empty buffer " << name << " id=" << id << " pulse=" << pulse_time;
+      return ret;
+    }
+
+    DBG << "Good buffer " << name << " id=" << id << " pulse=" << pulse_time;
+
+    ret = create_spill(StatusType::running);
+    int16_t chan0 {0};
+
+    uint64_t time_high = pulse_time << 32;
+    for (auto i=0; i < t_len; ++i)
+    {
+      uint64_t time = em->time_of_flight()->Get(i);
+      time |= time_high;
+
+      Event h(chan0, model_hit);
+      h.set_native_time(time);
+      h.set_value(0, em->detector_id()->Get(i));
+
+      ret->events.push_back(h);
+
+      clock_ = std::max(clock_, time);
+    }
   }
   return ret;
 }

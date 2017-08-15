@@ -43,16 +43,15 @@ protected:
   // cached params
   std::string broker_;
   std::string topic_;
+  int poll_interval_ {1};
 
-  uint16_t bits_ {6};
   uint32_t spill_interval_ {5};
 
+  std::string detector_type_;
   EventModel model_hit;
-
   uint64_t clock_ {0};
 
   Status get_status(int16_t chan, StatusType t);
-  void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
 
   Spill* listenForMessage();
