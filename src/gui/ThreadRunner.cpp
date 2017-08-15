@@ -266,9 +266,10 @@ void ThreadRunner::run()
     {
       QSettings settings;
       settings.beginGroup("Program");
-//      QString settings_directory = settings_.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
-      QString profile_directory = settings.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
       bool boot = settings.value("boot_on_startup", false).toBool();
+      QString profile_directory
+          = settings.value("profile_directory",
+                           QDir::homePath() + "/daquiri/settings").toString();
 
       auto path = profile_directory.toStdString() + "/profile.set";
 
@@ -277,15 +278,10 @@ void ThreadRunner::run()
       json profile;
       if (boost::filesystem::exists(path))
         profile = from_json_file(path);
-      if (profile.empty())
-        profile = get_profile();
+//      if (profile.empty())
+//        profile = default_profile();
 
-      json defs;
-      defs["MockProducer"] = json();
-
-//      engine_.initialize(profile_directory.toStdString() + "/profile.set", settings_directory.toStdString());
-
-      engine_.initialize(profile, defs);
+      engine_.initialize(profile, json());
 
       if (boot)
       {
@@ -375,24 +371,23 @@ void ThreadRunner::run()
 
   QSettings settings;
   settings.beginGroup("Program");
-  QString profile_directory = settings.value("profile_directory",
-                                             QDir::homePath() + "/daquiri/settings").toString();
+  QString profile_directory = settings.value("profile_directory","").toString();
 
-
-  auto path = profile_directory.toStdString() + "/profile.set";
-
-  DBG << "Will save to " << path;
-
-  auto dev_settings = DAQuiri::Engine::singleton().pull_settings();
-  dev_settings.condense();
-  dev_settings.strip_metadata();
-  to_json_file(dev_settings, path);
+  if (!profile_directory.isEmpty())
+  {
+    auto path = profile_directory.toStdString() + "/profile.set";
+    DBG << "Will save to " << path;
+    auto dev_settings = DAQuiri::Engine::singleton().pull_settings();
+    dev_settings.condense();
+    dev_settings.strip_metadata();
+    to_json_file(dev_settings, path);
+  }
 
 }
 
 
 
-Setting get_profile()
+Setting default_profile()
 {
   Setting default_settings({MockProducer().device_name(),
                                      SettingType::stem});
@@ -400,16 +395,7 @@ Setting get_profile()
   dummy.write_settings_bulk(default_settings);
   dummy.read_settings_bulk(default_settings);
 
-  default_settings.set(Setting::integer("MockProducer/SpillInterval", 5));
-  default_settings.set(Setting::integer("MockProducer/Resolution", 16));
-  default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
-  default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
-
-  default_settings.set(Setting::integer("MockProducer/ValCount", 3));
-
   auto profile = Engine::singleton().pull_settings();
-  profile.set(Setting::text("Profile description",
-                            "Test profile for Mock Producer"));
   profile.branches.add(default_settings);
 
   return profile;

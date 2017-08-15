@@ -47,9 +47,10 @@ void Engine::initialize(const json &profile, const json &definitions)
     if (q.id() != "Detectors")
     {
 //      DBG << "Will try to load " << q.get_text();
-      if (!definitions.count(q.id()))
-        continue;
-      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.id()));
+//      if (!definitions.count(q.id()))
+//        continue;
+//      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.id()));
+      ProducerPtr device = pf.create_type(q.id(), json());
       if (device)
       {
         DBG << "<Engine> Success loading " << device->device_name();

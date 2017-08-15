@@ -1,7 +1,7 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
 //#include "widget_detectors.h"
-//#include "widget_profiles.h"
+#include "Profiles.h"
 #include "BinaryWidget.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -430,9 +430,9 @@ void SettingsForm::on_pushChangeProfile_clicked()
 
 void SettingsForm::choose_profiles()
 {
-//  WidgetProfiles *profiles = new WidgetProfiles(this);
-//  connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
-//  profiles->exec();
+  WidgetProfiles *profiles = new WidgetProfiles(this);
+  connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
+  profiles->exec();
 }
 
 void SettingsForm::profile_chosen()

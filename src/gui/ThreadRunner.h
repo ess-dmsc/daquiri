@@ -86,4 +86,4 @@ private:
   DAQuiri::ProducerStatus recent_status_;
 };
 
-Setting get_profile();
+Setting default_profile();
