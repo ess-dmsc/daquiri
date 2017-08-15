@@ -43,7 +43,7 @@ KafkaProducer::KafkaProducer()
   root.set_enum(1, mp + "Resolution");
   root.set_enum(2, mp + "TimebaseMult");
   root.set_enum(3, mp + "TimebaseDiv");
-//  root.set_enum(9, mp + "Value");
+  //  root.set_enum(9, mp + "Value");
 
   add_definition(root);
 
@@ -164,11 +164,11 @@ void KafkaProducer::boot()
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);
 
-//  conf->set("group.id", "nexus_stream_consumer", error_str);
-//  conf->set("enable.auto.commit", "false", error_str);
-//  conf->set("enable.auto.offset.store", "false", error_str);
-//  conf->set("offset.store.method", "none", error_str);
-//  conf->set("auto.offset.reset", "largest", error_str);
+  //  conf->set("group.id", "nexus_stream_consumer", error_str);
+  //  conf->set("enable.auto.commit", "false", error_str);
+  //  conf->set("enable.auto.offset.store", "false", error_str);
+  //  conf->set("offset.store.method", "none", error_str);
+  //  conf->set("auto.offset.reset", "largest", error_str);
 
   consumer_ = std::unique_ptr<RdKafka::KafkaConsumer>(
         RdKafka::KafkaConsumer::create(conf.get(), error_str));
@@ -209,7 +209,7 @@ void KafkaProducer::die()
 }
 
 void KafkaProducer::worker_run(KafkaProducer* callback,
-                              SpillQueue spill_queue)
+                               SpillQueue spill_queue)
 {
   DBG << "<KafkaProducer> Starting run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns";
@@ -266,40 +266,59 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
 
 Spill* KafkaProducer::listenForMessage()
 {
-  std::shared_ptr<RdKafka::Message> msg{consumer_->consume(spill_interval_ * 1000)};
+  std::shared_ptr<RdKafka::Message> message
+  {consumer_->consume(spill_interval_ * 1000)};
 
-  DBG << "event timestamp: " << msg->timestamp().timestamp;
-  //  message_length_ += msg->len();
-  //  n_messages_++;
-
-  if (msg->err() == RdKafka::ERR__TIMED_OUT)
+  switch (message->err())
   {
+  case RdKafka::ERR__TIMED_OUT:
+    return nullptr;
+
+  case RdKafka::ERR_NO_ERROR:
+    //    msg_cnt++;
+    //    msg_bytes += message->len();
+    DBG << "Read msg at offset " << message->offset();
+    RdKafka::MessageTimestamp ts;
+    ts = message->timestamp();
+    if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
+    {
+      std::string tsname = "?";
+      if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_CREATE_TIME)
+        tsname = "create time";
+      else if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_LOG_APPEND_TIME)
+        tsname = "log append time";
+      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
+    }
+
+    if (message->key())
+      DBG << "Key: " << *message->key();
+
+    return messageConsume(message);
+
+  case RdKafka::ERR__PARTITION_EOF:
+    /* Last message */
+    //    if (exit_eof && ++eof_cnt == partition_cnt)
+    //      WARN << "%% EOF reached for all " << partition_cnt <<
+    //                   " partition(s)";
+    WARN << "Partition EOF error: " << message->errstr();
+    return nullptr;
+
+  case RdKafka::ERR__UNKNOWN_TOPIC:
+    WARN << "Unknown topic: " << message->errstr();
+    return nullptr;
+
+  case RdKafka::ERR__UNKNOWN_PARTITION:
+    WARN << "Unknown partition: " << message->errstr();
+    return nullptr;
+
+  default:
+    /* Errors */
+    WARN << "Consume failed: " << message->errstr();
+    //    WARN << "Failed to consume:" << RdKafka::err2str(msg->err());
     return nullptr;
   }
-  else if (msg->err() == RdKafka::ERR__PARTITION_EOF)
-  {
-    ERR << "consumer: " << RdKafka::err2str(msg->err());
-    return nullptr;
-  }
-  else if (msg->err() != RdKafka::ERR_NO_ERROR)
-  {
-    WARN << "Failed to consume:" << RdKafka::err2str(msg->err());
-    if (msg->len() == 0)
-      WARN << "Warning: message received had 0 length payload!";
-    if (msg->key())
-      WARN << "Key: " << *msg->key();
 
-    //  auto result = mp.process_message((char *)msg->payload(), msg->len());
-    //  return result;
-      //    message.assign(static_cast<const char *>(msg->payload()),
-      //                   static_cast<int>(msg->len()));
-    return messageConsume(msg);
-  }
-  else
-  {
-    ERR << "Consume failed: " << msg->errstr();
-    return nullptr;
-  }
+  return nullptr;
 }
 
 Spill* KafkaProducer::messageConsume(std::shared_ptr<RdKafka::Message> msg)
