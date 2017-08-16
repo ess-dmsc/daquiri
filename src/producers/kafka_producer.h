@@ -54,7 +54,7 @@ protected:
   Status get_status(int16_t chan, StatusType t);
   static void make_trace(Event& h, uint16_t baseline);
 
-  Spill* listenForMessage();
-  Spill* messageConsume(std::shared_ptr<RdKafka::Message> msg);
+  Spill* get_message();
+  Spill* process_message(std::shared_ptr<RdKafka::Message> msg);
   Spill* create_spill(StatusType t);
 };

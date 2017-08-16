@@ -52,7 +52,7 @@ KafkaProducer::KafkaProducer()
   root.set_enum(3, mp + "TimebaseDiv");
   root.set_enum(4, mp + "KafkaBroker");
   root.set_enum(5, mp + "KafkaTopic");
-  root.set_enum(6, mp + "PollInterval");
+  root.set_enum(6, mp + "KafkaPollInterval");
   root.set_enum(7, mp + "DetectorType");
 
   add_definition(root);
@@ -124,6 +124,7 @@ void KafkaProducer::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit.timebase.divider()));
   set.set(Setting::text("KafkaProducer/KafkaBroker", broker_));
   set.set(Setting::text("KafkaProducer/KafkaTopic", topic_));
+  set.set(Setting::integer("KafkaProducer/KafkaPollInterval", poll_interval_));
 
   set.set(Setting::text("KafkaProducer/DetectorType", detector_type_));
 }
@@ -220,6 +221,7 @@ void KafkaProducer::die()
     // Wait for RdKafka to decommission, avoids complaints of memory leak from
     // valgrind etc.
     RdKafka::wait_destroyed(5000);
+    consumer_.reset();
   }
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
@@ -236,7 +238,7 @@ void KafkaProducer::worker_run(KafkaProducer* callback,
 
   while (callback->run_status_.load() != 2)
   {
-    auto spill = callback->listenForMessage();
+    auto spill = callback->get_message();
     if (spill)
       spill_queue->enqueue(spill);
   }
@@ -269,7 +271,7 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
   return status;
 }
 
-Spill* KafkaProducer::listenForMessage()
+Spill* KafkaProducer::get_message()
 {
   std::shared_ptr<RdKafka::Message> message
   {consumer_->consume(poll_interval_)};
@@ -298,7 +300,7 @@ Spill* KafkaProducer::listenForMessage()
     if (message->key())
       DBG << "Key: " << *message->key();
 
-    return messageConsume(message);
+    return process_message(message);
 
   case RdKafka::ERR__PARTITION_EOF:
     /* Last message */
@@ -326,7 +328,7 @@ Spill* KafkaProducer::listenForMessage()
   return nullptr;
 }
 
-Spill* KafkaProducer::messageConsume(std::shared_ptr<RdKafka::Message> msg)
+Spill* KafkaProducer::process_message(std::shared_ptr<RdKafka::Message> msg)
 {
   Spill* ret {nullptr};
   if (msg->len() > 0)

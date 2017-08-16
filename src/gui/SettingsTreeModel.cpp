@@ -116,7 +116,7 @@ QVariant SettingsTreeItem::display_data(int column) const
     return QVariant::fromValue(itemData);
   }
   else if (column == 3)
-    return QString::fromStdString(itemData.metadata().get_string("unit",""));
+    return QString::fromStdString(itemData.metadata().get_string("units",""));
   else if (column == 4)
   {
     QString text;
