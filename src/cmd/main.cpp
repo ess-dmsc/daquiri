@@ -1,18 +1,18 @@
 #include "engine.h"
 
-#include "mock_producer.h"
-#include "producer_factory.h"
-
-#include "spectrum_events_1D.h"
-#include "image_2D.h"
-#include "consumer_factory.h"
-
 #include "custom_logger.h"
 #include "lexical_extensions.h"
 
-static ProducerRegistrar<MockProducer> reg1("MockProducer");
-static ConsumerRegistrar<Spectrum1DEvent> reg2("1DEvent");
-static ConsumerRegistrar<Image2D> reg3("Image2D");
+#include "consumer_factory.h"
+#include "producer_factory.h"
+
+#include "mock_producer.h"
+DAQUIRI_REGISTER_PRODUCER(MockProducer)
+
+#include "spectrum_events_1D.h"
+#include "image_2D.h"
+DAQUIRI_REGISTER_CONSUMER(Spectrum1DEvent)
+DAQUIRI_REGISTER_CONSUMER(Image2D)
 
 Setting get_profile();
 Container<ConsumerMetadata> get_prototypes();

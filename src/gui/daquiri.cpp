@@ -27,17 +27,17 @@
 #include "spectrum_events_1D.h"
 #include "spectrum_events_2D.h"
 #include "image_2D.h"
-static ConsumerRegistrar<Spectrum1DEvent> cons1("1DEvent");
-static ConsumerRegistrar<Spectrum2DEvent> cons2("2DEvent");
-static ConsumerRegistrar<Image2D> cons3("Image2D");
+DAQUIRI_REGISTER_CONSUMER(Spectrum1DEvent)
+DAQUIRI_REGISTER_CONSUMER(Spectrum2DEvent)
+DAQUIRI_REGISTER_CONSUMER(Image2D)
 
 #include "producer_factory.h"
 #include "mock_producer.h"
 #include "ess_stream.h"
 #include "dummy_device.h"
-static ProducerRegistrar<MockProducer> prod1("MockProducer");
-static ProducerRegistrar<ESSStream> prod2("ESSStream");
-static ProducerRegistrar<DummyDevice> prod3("DummyDevice");
+DAQUIRI_REGISTER_PRODUCER(DummyDevice)
+DAQUIRI_REGISTER_PRODUCER(MockProducer)
+DAQUIRI_REGISTER_PRODUCER(ESSStream)
 
 daquiri::daquiri(QWidget *parent)
   : QMainWindow(parent)

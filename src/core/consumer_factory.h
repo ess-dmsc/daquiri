@@ -2,6 +2,7 @@
 
 #include "consumer.h"
 #include "H5CC_Group.h"
+#include "unique_mangle.h"
 
 namespace DAQuiri {
 
@@ -36,11 +37,14 @@ class ConsumerFactory {
 template<class T>
 class ConsumerRegistrar {
 public:
-  ConsumerRegistrar(std::string)
+  ConsumerRegistrar()
   {
     ConsumerFactory::singleton().register_type(T().metadata(),
                                          [](void) -> Consumer * { return new T();});
   }
 };
+
+#define DAQUIRI_REGISTER_CONSUMER(T) static DAQuiri::ConsumerRegistrar< T >\
+  UNIQUE_MANGLE(MangledDAQuiriConsumerReg) ;
 
 }

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "producer.h"
+#include "unique_mangle.h"
 
 namespace DAQuiri {
 
@@ -30,11 +31,14 @@ private:
 template<class T>
 class ProducerRegistrar {
 public:
-  ProducerRegistrar(std::string)
+  ProducerRegistrar()
   {
     ProducerFactory::singleton().register_type(T::plugin_name(),
                                                [](void) -> Producer * { return new T();});
   }
 };
+
+#define DAQUIRI_REGISTER_PRODUCER(T) static DAQuiri::ProducerRegistrar< T >\
+  UNIQUE_MANGLE(MangledDAQuiriProducerReg) ;
 
 }
