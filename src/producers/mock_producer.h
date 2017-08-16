@@ -14,8 +14,8 @@ public:
   static std::string plugin_name() {return "MockProducer";}
   std::string device_name() const override {return plugin_name();}
 
-  void write_settings_bulk(Setting &set) override;
-  void read_settings_bulk(Setting &set) const override;
+  void write_settings_bulk(const Setting&) override;
+  void read_settings_bulk(Setting&) const override;
   void boot() override;
   void die() override;
 
@@ -66,7 +66,4 @@ protected:
   void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
   uint16_t generate(size_t i);
-
-  void add_dummy_settings();
-
 };

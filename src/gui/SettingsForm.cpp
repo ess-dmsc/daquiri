@@ -541,7 +541,7 @@ void SettingsForm::on_pushRemoveProducer_clicked()
       Setting set = qvariant_cast<Setting>(ixl.data(Qt::EditRole));
       DBG << "selected " << set.debug();
 
-      if (set.is(SettingType::stem))
+      if (set.is(SettingType::stem) && set.metadata().has_flag("producer"))
       {
         settings_tree_.erase(set, Match::id);
         json profile = settings_tree_;

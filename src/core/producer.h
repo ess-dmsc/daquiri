@@ -44,7 +44,7 @@ public:
   virtual void boot() = 0;
   virtual void die() = 0;
 
-  virtual void write_settings_bulk(Setting &/*set*/) {}
+  virtual void write_settings_bulk(const Setting &/*set*/) {}
   virtual void read_settings_bulk(Setting &/*set*/) const {}
   virtual void get_all_settings() {}
 

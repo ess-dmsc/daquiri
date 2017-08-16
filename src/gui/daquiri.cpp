@@ -23,20 +23,21 @@
 
 //#include "qt_util.h"
 
-
-#include "producer_factory.h"
+#include "consumer_factory.h"
 #include "spectrum_events_1D.h"
 #include "spectrum_events_2D.h"
 #include "spectrum_values_2D.h"
+static ConsumerRegistrar<Spectrum1DEvent> cons1("1DEvent");
+static ConsumerRegistrar<Spectrum2DEvent> cons2("2DEvent");
+static ConsumerRegistrar<Image2D> cons3("Image2D");
 
-#include "consumer_factory.h"
+#include "producer_factory.h"
 #include "mock_producer.h"
 #include "kafka_producer.h"
-static ProducerRegistrar<MockProducer> reg1("MockProducer");
-static ProducerRegistrar<KafkaProducer> reg2("KafkaProducer");
-static ConsumerRegistrar<Spectrum1DEvent> reg3("1DEvent");
-static ConsumerRegistrar<Spectrum2DEvent> reg4("2DEvent");
-static ConsumerRegistrar<Image2D> reg5("Image2D");
+#include "dummy_device.h"
+static ProducerRegistrar<MockProducer> prod1("MockProducer");
+static ProducerRegistrar<KafkaProducer> prod2("KafkaProducer");
+static ProducerRegistrar<DummyDevice> prod3("DummyDevice");
 
 daquiri::daquiri(QWidget *parent)
   : QMainWindow(parent)

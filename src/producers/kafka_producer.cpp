@@ -45,6 +45,7 @@ KafkaProducer::KafkaProducer()
   add_definition(det_type);
 
   SettingMeta root("KafkaProducer", SettingType::stem);
+  root.set_flag("producer");
   root.set_enum(0, mp + "SpillInterval");
   root.set_enum(1, mp + "Resolution");
   root.set_enum(2, mp + "TimebaseMult");
@@ -116,6 +117,8 @@ void KafkaProducer::read_settings_bulk(Setting &set) const
 {
   if (set.id() != device_name())
     return;
+  set.enrich(setting_definitions_, true);
+
   set.set(Setting::integer("KafkaProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("KafkaProducer/TimebaseMult", model_hit.timebase.multiplier()));
   set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit.timebase.divider()));
@@ -126,11 +129,11 @@ void KafkaProducer::read_settings_bulk(Setting &set) const
 }
 
 
-void KafkaProducer::write_settings_bulk(Setting &set)
+void KafkaProducer::write_settings_bulk(const Setting& settings)
 {
-  if (set.id() != device_name())
+  if (settings.id() != device_name())
     return;
-
+  auto set = settings;
   set.enrich(setting_definitions_, true);
 
   spill_interval_ = set.find({"KafkaProducer/SpillInterval"}).get_number();
@@ -158,7 +161,7 @@ void KafkaProducer::boot()
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-  INFO << "<KafkaProducer> Booting mock producer";
+  INFO << "<KafkaProducer> Booting";
 
   std::string error_str;
 
@@ -210,7 +213,7 @@ void KafkaProducer::boot()
 
 void KafkaProducer::die()
 {
-  INFO << "<KafkaProducer> Die mock producer";
+  INFO << "<KafkaProducer> Shutting down";
   if (consumer_)
   {
     consumer_->close();
