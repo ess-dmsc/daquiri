@@ -120,8 +120,8 @@ void KafkaProducer::read_settings_bulk(Setting &set) const
   set.enrich(setting_definitions_, true);
 
   set.set(Setting::integer("KafkaProducer/SpillInterval", spill_interval_));
-  set.set(Setting::integer("KafkaProducer/TimebaseMult", model_hit.timebase.multiplier()));
-  set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit.timebase.divider()));
+  set.set(Setting::integer("KafkaProducer/TimebaseMult", model_hit_.timebase.multiplier()));
+  set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit_.timebase.divider()));
   set.set(Setting::text("KafkaProducer/KafkaBroker", broker_));
   set.set(Setting::text("KafkaProducer/KafkaTopic", topic_));
   set.set(Setting::integer("KafkaProducer/KafkaPollInterval", poll_interval_));
@@ -139,10 +139,10 @@ void KafkaProducer::write_settings_bulk(const Setting& settings)
 
   spill_interval_ = set.find({"KafkaProducer/SpillInterval"}).get_number();
 
-  model_hit = EventModel();
-  model_hit.timebase = TimeBase(set.find({"KafkaProducer/TimebaseMult"}).get_number(),
+  model_hit_ = EventModel();
+  model_hit_.timebase = TimeBase(set.find({"KafkaProducer/TimebaseMult"}).get_number(),
                                 set.find({"KafkaProducer/TimebaseDiv"}).get_number());
-  model_hit.add_value("pixid", 16);
+  model_hit_.add_value("pixid", 16);
 
 
   broker_ = set.find({"KafkaProducer/KafkaBroker"}).get_text();
@@ -230,7 +230,7 @@ void KafkaProducer::worker_run(KafkaProducer* callback,
                                SpillQueue spill_queue)
 {
   DBG << "<KafkaProducer> Starting run   "
-      << "  timebase " << callback->model_hit.timebase.debug() << "ns";
+      << "  timebase " << callback->model_hit_.timebase.debug() << "ns";
 
   CustomTimer timer(true);
 
@@ -261,12 +261,13 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
   Status status;
   status.set_type(t);
   status.set_channel(chan);
-  status.set_model(model_hit);
+  status.set_model(model_hit_);
   status.set_time(boost::posix_time::microsec_clock::universal_time());
 
   double duration = clock_;
 
   status.set_value("native_time", duration);
+  status.set_value("buf_id", buf_id_);
 
   return status;
 }
@@ -334,43 +335,93 @@ Spill* KafkaProducer::process_message(std::shared_ptr<RdKafka::Message> msg)
   if (msg->len() > 0)
   {
     auto em = GetEventMessage(msg->payload());
-    std::string name = em->source_name()->str();
+
     ulong id = em->message_id();
-    uint64_t pulse_time = em->pulse_time();
+    if (id < buf_id_)
+      WARN << "Buffer ID" << id << "out of order "  << debug(*em);
+    buf_id_ = std::max(buf_id_, id);
+
+    if (detector_type_ != em->source_name()->str())
+    {
+      DBG << "Bad detector type " << debug(*em);
+      return ret;
+    }
+
     auto t_len = em->time_of_flight()->Length();
     auto p_len = em->detector_id()->Length();
-
-    if (detector_type_ != name)
-    {
-      DBG << "Bad detector type " << name << " id=" << id << " pulse=" << pulse_time;
-      return ret;
-    }
-
     if ((t_len != p_len) || !t_len)
     {
-      DBG << "Empty buffer " << name << " id=" << id << " pulse=" << pulse_time;
+      DBG << "Empty buffer " << debug(*em);
       return ret;
     }
 
-    DBG << "Good buffer " << name << " id=" << id << " pulse=" << pulse_time;
+    DBG << "Good buffer " << debug(*em);
 
     ret = create_spill(StatusType::running);
     int16_t chan0 {0};
 
-    uint64_t time_high = pulse_time << 32;
+    uint64_t time_high = em->pulse_time();
+    time_high = time_high << 32;
     for (auto i=0; i < t_len; ++i)
     {
       uint64_t time = em->time_of_flight()->Get(i);
       time |= time_high;
-
-      Event h(chan0, model_hit);
-      h.set_native_time(time);
-      h.set_value(0, em->detector_id()->Get(i));
-
-      ret->events.push_back(h);
-
       clock_ = std::max(clock_, time);
+
+      Event e(chan0, model_hit_);
+      e.set_native_time(time_high);
+      interpret_id(e, em->detector_id()->Get(i));
+
+      ret->events.push_back(e);
     }
   }
   return ret;
 }
+
+void KafkaProducer::interpret_id(Event& e, size_t val)
+{
+  e.set_value(0, val);
+}
+
+std::string KafkaProducer::debug(const EventMessage& em)
+{
+  std::stringstream ss;
+
+  ss << em.source_name()->str() << " #" << em.message_id()
+     << " time=" << em.pulse_time()
+     << " tof_size=" << em.time_of_flight()->Length()
+     << " det_size=" << em.detector_id()->Length();
+
+  return ss.str();
+}
+
+
+
+void GeometryInterpreter::add_dimension(std::string name, size_t size)
+{
+  names_.push_back(name);
+  if (bounds_.empty())
+    bounds_.push_front(1);
+  bounds_.push_front(size * bounds_.front());
+}
+
+EventModel GeometryInterpreter::model(const TimeBase& tb)
+{
+  EventModel ret;
+  ret.timebase = tb;
+  for (auto n : names_)
+    ret.add_value(n, 16);
+  if (bounds_.size())
+    bounds_.pop_front();
+}
+
+void GeometryInterpreter::interpret_id(Event& e, size_t val)
+{
+  size_t i = 0;
+  for (auto b : bounds_)
+  {
+    e.set_value(i++, val / b);
+    val = val % b;
+  }
+}
+

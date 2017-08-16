@@ -7,6 +7,21 @@
 
 using namespace DAQuiri;
 
+class EventMessage;
+
+class GeometryInterpreter
+{
+  public:
+    GeometryInterpreter() {}
+    void add_dimension(std::string name, size_t size);
+    EventModel model(const TimeBase& tb);
+    void interpret_id(Event& e, size_t val);
+
+  private:
+    std::vector<std::string> names_;
+    std::list<size_t> bounds_;
+};
+
 class KafkaProducer : public Producer
 {
 public:
@@ -48,8 +63,10 @@ protected:
   uint32_t spill_interval_ {5};
 
   std::string detector_type_;
-  EventModel model_hit;
+  EventModel model_hit_;
+
   uint64_t clock_ {0};
+  uint64_t buf_id_ {0};
 
   Status get_status(int16_t chan, StatusType t);
   static void make_trace(Event& h, uint16_t baseline);
@@ -57,4 +74,7 @@ protected:
   Spill* get_message();
   Spill* process_message(std::shared_ptr<RdKafka::Message> msg);
   Spill* create_spill(StatusType t);
+
+  std::string debug(const EventMessage&);
+  void interpret_id(Event& e, size_t val);
 };
