@@ -1,4 +1,4 @@
-#include "spectrum_values_2D.h"
+#include "image_2D.h"
 
 #include "custom_logger.h"
 #include <boost/filesystem.hpp>

@@ -1,34 +1,20 @@
 #pragma once
 
 #include "producer.h"
-#include <random>
-
+#include "ess_geometry.h"
 #include <librdkafka/rdkafkacpp.h>
 
 using namespace DAQuiri;
 
 class EventMessage;
 
-class GeometryInterpreter
-{
-  public:
-    GeometryInterpreter() {}
-    void add_dimension(std::string name, size_t size);
-    EventModel model(const TimeBase& tb);
-    void interpret_id(Event& e, size_t val);
-
-  private:
-    std::vector<std::string> names_;
-    std::list<size_t> bounds_;
-};
-
-class KafkaProducer : public Producer
+class ESSStream : public Producer
 {
 public:
-  KafkaProducer();
-  ~KafkaProducer();
+  ESSStream();
+  ~ESSStream();
 
-  static std::string plugin_name() {return "KafkaProducer";}
+  static std::string plugin_name() {return "ESSStream";}
   std::string device_name() const override {return plugin_name();}
 
   void write_settings_bulk(const Setting&) override;
@@ -42,11 +28,11 @@ public:
 
 private:
   //no copying
-  void operator=(KafkaProducer const&);
-  KafkaProducer(const KafkaProducer&);
+  void operator=(ESSStream const&);
+  ESSStream(const ESSStream&);
 
   //Acquisition threads, use as static functors
-  static void worker_run(KafkaProducer* callback, SpillQueue spill_queue);
+  static void worker_run(ESSStream* callback, SpillQueue spill_queue);
 
 protected:
   boost::atomic<int> run_status_ {0};

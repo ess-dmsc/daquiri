@@ -26,17 +26,17 @@
 #include "consumer_factory.h"
 #include "spectrum_events_1D.h"
 #include "spectrum_events_2D.h"
-#include "spectrum_values_2D.h"
+#include "image_2D.h"
 static ConsumerRegistrar<Spectrum1DEvent> cons1("1DEvent");
 static ConsumerRegistrar<Spectrum2DEvent> cons2("2DEvent");
 static ConsumerRegistrar<Image2D> cons3("Image2D");
 
 #include "producer_factory.h"
 #include "mock_producer.h"
-#include "kafka_producer.h"
+#include "ess_stream.h"
 #include "dummy_device.h"
 static ProducerRegistrar<MockProducer> prod1("MockProducer");
-static ProducerRegistrar<KafkaProducer> prod2("KafkaProducer");
+static ProducerRegistrar<ESSStream> prod2("ESSStream");
 static ProducerRegistrar<DummyDevice> prod3("DummyDevice");
 
 daquiri::daquiri(QWidget *parent)

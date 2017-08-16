@@ -1,4 +1,4 @@
-#include "kafka_producer.h"
+#include "ess_stream.h"
 #include "custom_timer.h"
 
 #include "custom_logger.h"
@@ -7,11 +7,11 @@
 #include "mon_efu_generated.h"
 
 //#include "producer_factory.h"
-//static ProducerRegistrar<KafkaProducer> registrar("KafkaProducer");
+//static ProducerRegistrar<ESSStream> registrar("ESSStream");
 
-KafkaProducer::KafkaProducer()
+ESSStream::ESSStream()
 {
-  std::string mp {"KafkaProducer/"};
+  std::string mp {"ESSStream/"};
 
   SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
   si.set_val("min", 1);
@@ -44,7 +44,7 @@ KafkaProducer::KafkaProducer()
   SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
   add_definition(det_type);
 
-  SettingMeta root("KafkaProducer", SettingType::stem);
+  SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
   root.set_enum(0, mp + "SpillInterval");
   root.set_enum(1, mp + "Resolution");
@@ -60,7 +60,7 @@ KafkaProducer::KafkaProducer()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-KafkaProducer::~KafkaProducer()
+ESSStream::~ESSStream()
 {
   daq_stop();
   if (runner_ != nullptr)
@@ -71,7 +71,7 @@ KafkaProducer::~KafkaProducer()
   die();
 }
 
-bool KafkaProducer::daq_start(SpillQueue out_queue)
+bool ESSStream::daq_start(SpillQueue out_queue)
 {
   if (run_status_.load() > 0)
     return false;
@@ -86,7 +86,7 @@ bool KafkaProducer::daq_start(SpillQueue out_queue)
   return true;
 }
 
-bool KafkaProducer::daq_stop()
+bool ESSStream::daq_stop()
 {
   if (run_status_.load() == 0)
     return false;
@@ -106,63 +106,63 @@ bool KafkaProducer::daq_stop()
   return true;
 }
 
-bool KafkaProducer::daq_running()
+bool ESSStream::daq_running()
 {
   if (run_status_.load() == 3)
     daq_stop();
   return (run_status_.load() > 0);
 }
 
-void KafkaProducer::read_settings_bulk(Setting &set) const
+void ESSStream::read_settings_bulk(Setting &set) const
 {
   if (set.id() != device_name())
     return;
   set.enrich(setting_definitions_, true);
 
-  set.set(Setting::integer("KafkaProducer/SpillInterval", spill_interval_));
-  set.set(Setting::integer("KafkaProducer/TimebaseMult", model_hit_.timebase.multiplier()));
-  set.set(Setting::integer("KafkaProducer/TimebaseDiv", model_hit_.timebase.divider()));
-  set.set(Setting::text("KafkaProducer/KafkaBroker", broker_));
-  set.set(Setting::text("KafkaProducer/KafkaTopic", topic_));
-  set.set(Setting::integer("KafkaProducer/KafkaPollInterval", poll_interval_));
+  set.set(Setting::integer("ESSStream/SpillInterval", spill_interval_));
+  set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
+  set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
+  set.set(Setting::text("ESSStream/KafkaBroker", broker_));
+  set.set(Setting::text("ESSStream/KafkaTopic", topic_));
+  set.set(Setting::integer("ESSStream/KafkaPollInterval", poll_interval_));
 
-  set.set(Setting::text("KafkaProducer/DetectorType", detector_type_));
+  set.set(Setting::text("ESSStream/DetectorType", detector_type_));
 }
 
 
-void KafkaProducer::write_settings_bulk(const Setting& settings)
+void ESSStream::write_settings_bulk(const Setting& settings)
 {
   if (settings.id() != device_name())
     return;
   auto set = settings;
   set.enrich(setting_definitions_, true);
 
-  spill_interval_ = set.find({"KafkaProducer/SpillInterval"}).get_number();
+  spill_interval_ = set.find({"ESSStream/SpillInterval"}).get_number();
 
   model_hit_ = EventModel();
-  model_hit_.timebase = TimeBase(set.find({"KafkaProducer/TimebaseMult"}).get_number(),
-                                set.find({"KafkaProducer/TimebaseDiv"}).get_number());
+  model_hit_.timebase = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
+                                set.find({"ESSStream/TimebaseDiv"}).get_number());
   model_hit_.add_value("pixid", 16);
 
 
-  broker_ = set.find({"KafkaProducer/KafkaBroker"}).get_text();
-  topic_ = set.find({"KafkaProducer/KafkaTopic"}).get_text();
-  poll_interval_ = set.find({"KafkaProducer/KafkaPollInterval"}).get_number();
+  broker_ = set.find({"ESSStream/KafkaBroker"}).get_text();
+  topic_ = set.find({"ESSStream/KafkaTopic"}).get_text();
+  poll_interval_ = set.find({"ESSStream/KafkaPollInterval"}).get_number();
 
-  detector_type_ = set.find({"KafkaProducer/DetectorType"}).get_text();
+  detector_type_ = set.find({"ESSStream/DetectorType"}).get_text();
 }
 
-void KafkaProducer::boot()
+void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<KafkaProducer> Cannot boot KafkaProducer. Failed flag check (can_boot == 0)";
+    WARN << "<ESSStream> Cannot boot ESSStream. Failed flag check (can_boot == 0)";
     return;
   }
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-  INFO << "<KafkaProducer> Booting";
+  INFO << "<ESSStream> Booting";
 
   std::string error_str;
 
@@ -212,9 +212,9 @@ void KafkaProducer::boot()
   status_ = ProducerStatus::loaded | ProducerStatus::booted | ProducerStatus::can_run;
 }
 
-void KafkaProducer::die()
+void ESSStream::die()
 {
-  INFO << "<KafkaProducer> Shutting down";
+  INFO << "<ESSStream> Shutting down";
   if (consumer_)
   {
     consumer_->close();
@@ -226,10 +226,10 @@ void KafkaProducer::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void KafkaProducer::worker_run(KafkaProducer* callback,
+void ESSStream::worker_run(ESSStream* callback,
                                SpillQueue spill_queue)
 {
-  DBG << "<KafkaProducer> Starting run   "
+  DBG << "<ESSStream> Starting run   "
       << "  timebase " << callback->model_hit_.timebase.debug() << "ns";
 
   CustomTimer timer(true);
@@ -248,7 +248,7 @@ void KafkaProducer::worker_run(KafkaProducer* callback,
   callback->run_status_.store(3);
 }
 
-Spill* KafkaProducer::create_spill(StatusType t)
+Spill* ESSStream::create_spill(StatusType t)
 {
   int16_t chan0 {0};
   Spill* spill = new Spill();
@@ -256,7 +256,7 @@ Spill* KafkaProducer::create_spill(StatusType t)
   return spill;
 }
 
-Status KafkaProducer::get_status(int16_t chan, StatusType t)
+Status ESSStream::get_status(int16_t chan, StatusType t)
 {
   Status status;
   status.set_type(t);
@@ -272,7 +272,7 @@ Status KafkaProducer::get_status(int16_t chan, StatusType t)
   return status;
 }
 
-Spill* KafkaProducer::get_message()
+Spill* ESSStream::get_message()
 {
   std::shared_ptr<RdKafka::Message> message
   {consumer_->consume(poll_interval_)};
@@ -329,7 +329,7 @@ Spill* KafkaProducer::get_message()
   return nullptr;
 }
 
-Spill* KafkaProducer::process_message(std::shared_ptr<RdKafka::Message> msg)
+Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
 {
   Spill* ret {nullptr};
   if (msg->len() > 0)
@@ -378,12 +378,12 @@ Spill* KafkaProducer::process_message(std::shared_ptr<RdKafka::Message> msg)
   return ret;
 }
 
-void KafkaProducer::interpret_id(Event& e, size_t val)
+void ESSStream::interpret_id(Event& e, size_t val)
 {
   e.set_value(0, val);
 }
 
-std::string KafkaProducer::debug(const EventMessage& em)
+std::string ESSStream::debug(const EventMessage& em)
 {
   std::stringstream ss;
 
@@ -394,34 +394,3 @@ std::string KafkaProducer::debug(const EventMessage& em)
 
   return ss.str();
 }
-
-
-
-void GeometryInterpreter::add_dimension(std::string name, size_t size)
-{
-  names_.push_back(name);
-  if (bounds_.empty())
-    bounds_.push_front(1);
-  bounds_.push_front(size * bounds_.front());
-}
-
-EventModel GeometryInterpreter::model(const TimeBase& tb)
-{
-  EventModel ret;
-  ret.timebase = tb;
-  for (auto n : names_)
-    ret.add_value(n, 16);
-  if (bounds_.size())
-    bounds_.pop_front();
-}
-
-void GeometryInterpreter::interpret_id(Event& e, size_t val)
-{
-  size_t i = 0;
-  for (auto b : bounds_)
-  {
-    e.set_value(i++, val / b);
-    val = val % b;
-  }
-}
-

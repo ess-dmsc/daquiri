@@ -4,7 +4,7 @@
 #include "producer_factory.h"
 
 #include "spectrum_events_1D.h"
-#include "spectrum_values_2D.h"
+#include "image_2D.h"
 #include "consumer_factory.h"
 
 #include "custom_logger.h"
