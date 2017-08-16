@@ -5,7 +5,7 @@
 Spectrum1D::Spectrum1D()
 {
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata("1D", "1D Spectrum", 1);
+  metadata_ = ConsumerMetadata("", "1D Spectrum", 1);
 
   SettingMeta app("appearance", SettingType::color);
   app.set_val("description", "Plot appearance");

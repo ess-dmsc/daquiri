@@ -67,7 +67,3 @@ CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 set(${PROJECT_NAME}_LIBRARIES
     ${PROJECT_NAME}
     PARENT_SCOPE)
-
-#set(${PROJECT_NAME}_LIBRARIES
-#    -Wl,--whole-archive ${PROJECT_NAME} -Wl,--no-whole-archive
-#    PARENT_SCOPE)

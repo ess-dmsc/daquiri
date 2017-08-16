@@ -6,7 +6,7 @@
 Spectrum2D::Spectrum2D()
 {
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata("2D", "2D Spectrum", 2);
+  metadata_ = ConsumerMetadata("", "2D Spectrum", 2);
 
   SettingMeta resm("resolution", SettingType::menu);
   resm.set_flag("preset");

@@ -38,7 +38,7 @@ public:
   }
 };
 
-#define DAQUIRI_REGISTER_PRODUCER(T) static DAQuiri::ProducerRegistrar< T >\
+#define DAQUIRI_REGISTER_PRODUCER(T) DAQuiri::ProducerRegistrar< T >\
   UNIQUE_MANGLE(MangledDAQuiriProducerReg) ;
 
 }

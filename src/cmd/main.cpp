@@ -3,16 +3,10 @@
 #include "custom_logger.h"
 #include "lexical_extensions.h"
 
-#include "consumer_factory.h"
+#include "consumers_autoreg.h"
+#include "producers_autoreg.h"
+
 #include "producer_factory.h"
-
-#include "mock_producer.h"
-DAQUIRI_REGISTER_PRODUCER(MockProducer)
-
-#include "spectrum_events_1D.h"
-#include "image_2D.h"
-DAQUIRI_REGISTER_CONSUMER(Spectrum1DEvent)
-DAQUIRI_REGISTER_CONSUMER(Image2D)
 
 Setting get_profile();
 Container<ConsumerMetadata> get_prototypes();
@@ -21,6 +15,8 @@ void define_value(Engine& e, uint16_t num,
 
 int main(int argc, char **argv)
 {
+  producers_autoreg();
+
   int duration = 1;
   std::string durstr;
   if (argc > 1)
@@ -69,20 +65,22 @@ int main(int argc, char **argv)
 
 Setting get_profile()
 {
-  Setting default_settings({MockProducer().device_name(),
-                                     SettingType::stem});
-  MockProducer dummy;
-  dummy.write_settings_bulk(default_settings);
-  dummy.read_settings_bulk(default_settings);
+  auto profile = Engine::singleton().pull_settings();
+  profile.set(Setting::text("Profile description",
+                            "Test profile for Mock Producer"));
+
+  auto dummy = ProducerFactory::singleton().create_type("MockProducer", json());
+  if (!dummy)
+    return profile;
+
+  Setting default_settings({dummy->device_name(), SettingType::stem});
+  dummy->write_settings_bulk(default_settings);
+  dummy->read_settings_bulk(default_settings);
 
   default_settings.set(Setting::integer("MockProducer/SpillInterval", 5));
   default_settings.set(Setting::integer("MockProducer/Resolution", 16));
   default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
   default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
-
-  auto profile = Engine::singleton().pull_settings();
-  profile.set(Setting::text("Profile description",
-                            "Test profile for Mock Producer"));
   profile.branches.add(default_settings);
 
   return profile;

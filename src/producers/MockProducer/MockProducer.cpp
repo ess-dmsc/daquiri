@@ -1,10 +1,7 @@
-#include "mock_producer.h"
+#include "MockProducer.h"
 #include "custom_timer.h"
 
 #include "custom_logger.h"
-
-//#include "producer_factory.h"
-//static ProducerRegistrar<MockProducer> registrar("MockProducer");
 
 MockProducer::MockProducer()
 {

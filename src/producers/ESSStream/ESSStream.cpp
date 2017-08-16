@@ -1,13 +1,10 @@
-#include "ess_stream.h"
+#include "ESSStream.h"
 #include "custom_timer.h"
 
 #include "custom_logger.h"
 
 #include "ev42_events_generated.h"
 #include "mon_efu_generated.h"
-
-//#include "producer_factory.h"
-//static ProducerRegistrar<ESSStream> registrar("ESSStream");
 
 ESSStream::ESSStream()
 {

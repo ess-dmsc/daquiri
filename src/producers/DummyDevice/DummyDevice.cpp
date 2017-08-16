@@ -1,9 +1,6 @@
-#include "dummy_device.h"
+#include "DummyDevice.h"
 
 #include "custom_logger.h"
-
-//#include "producer_factory.h"
-//static ProducerRegistrar<DummyDevice> registrar("DummyDevice");
 
 DummyDevice::DummyDevice()
 {

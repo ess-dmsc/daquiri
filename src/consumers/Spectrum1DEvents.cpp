@@ -1,15 +1,13 @@
-#include "spectrum_events_1D.h"
+#include "Spectrum1DEvents.h"
 #include <boost/filesystem.hpp>
 
 #include "custom_logger.h"
 
-//#include "consumer_factory.h"
-//static ConsumerRegistrar<Spectrum1DEvent> registrar("1DEvent");
 
-Spectrum1DEvent::Spectrum1DEvent()
+Spectrum1DEvents::Spectrum1DEvents()
 {
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata("1DEvent", "Event mode 1D spectrum", 1);
+  metadata_ = ConsumerMetadata(my_type(), "Event mode 1D spectrum", 1);
 
   SettingMeta cutoff_bin("cutoff_bin", SettingType::integer);
   cutoff_bin.set_val("description", "Hits rejected below minimum energy (after coincidence logic)");
@@ -20,7 +18,7 @@ Spectrum1DEvent::Spectrum1DEvent()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Spectrum1DEvent::_initialize()
+bool Spectrum1DEvents::_initialize()
 {
   SpectrumEventMode::_initialize();
   Spectrum1D::_initialize();
@@ -30,7 +28,7 @@ bool Spectrum1DEvent::_initialize()
   return true;
 }
 
-void Spectrum1DEvent::_init_from_file(std::string filename)
+void Spectrum1DEvents::_init_from_file(std::string filename)
 {
   pattern_coinc_.resize(1);
   pattern_coinc_.set_gates(std::vector<bool>({true}));
@@ -50,7 +48,7 @@ void Spectrum1DEvent::_init_from_file(std::string filename)
   SpectrumEventMode::_init_from_file(name);
 }
 
-void Spectrum1DEvent::_recalc_axes()
+void Spectrum1DEvents::_recalc_axes()
 {
   Spectrum1D::_recalc_axes();
 
@@ -68,14 +66,14 @@ void Spectrum1DEvent::_recalc_axes()
   }
 }
 
-bool Spectrum1DEvent::event_relevant(const Event& e) const
+bool Spectrum1DEvents::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return SpectrumEventMode::event_relevant(e) &&
       (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
 }
 
-void Spectrum1DEvent::bin_event(const Event& e)
+void Spectrum1DEvents::bin_event(const Event& e)
 {
   uint16_t en = e.value(value_idx_.at(e.channel())).val(bits_);
   if ((en < cutoff_bin_) || (en >= spectrum_.size()))
@@ -88,7 +86,7 @@ void Spectrum1DEvent::bin_event(const Event& e)
     maxchan_ = en;
 }
 
-void Spectrum1DEvent::add_coincidence(const Coincidence& c)
+void Spectrum1DEvents::add_coincidence(const Coincidence& c)
 {
   for (auto &e : c.hits())
     if (pattern_add_.relevant(e.first))

@@ -4,7 +4,6 @@
 #include "ThreadRunner.h"
 #include "custom_logger.h"
 
-#include "mock_producer.h"
 #include "json_file.h"
 #include <boost/filesystem.hpp>
 
@@ -372,14 +371,8 @@ void ThreadRunner::save_profile()
 
 Setting default_profile()
 {
-  Setting default_settings({MockProducer().device_name(),
-                                     SettingType::stem});
-  MockProducer dummy;
-  dummy.write_settings_bulk(default_settings);
-  dummy.read_settings_bulk(default_settings);
-
   auto profile = Engine::singleton().pull_settings();
-  profile.branches.add(default_settings);
-
+  profile.set(Setting::text("Profile description",
+                            "No description"));
   return profile;
 }

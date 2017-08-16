@@ -23,22 +23,6 @@
 
 //#include "qt_util.h"
 
-#include "consumer_factory.h"
-#include "spectrum_events_1D.h"
-#include "spectrum_events_2D.h"
-#include "image_2D.h"
-DAQUIRI_REGISTER_CONSUMER(Spectrum1DEvent)
-DAQUIRI_REGISTER_CONSUMER(Spectrum2DEvent)
-DAQUIRI_REGISTER_CONSUMER(Image2D)
-
-#include "producer_factory.h"
-#include "mock_producer.h"
-#include "ess_stream.h"
-#include "dummy_device.h"
-DAQUIRI_REGISTER_PRODUCER(DummyDevice)
-DAQUIRI_REGISTER_PRODUCER(MockProducer)
-DAQUIRI_REGISTER_PRODUCER(ESSStream)
-
 daquiri::daquiri(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::daquiri)

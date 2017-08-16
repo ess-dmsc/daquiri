@@ -1,19 +1,16 @@
-#include "spectrum_events_2D.h"
+#include "Spectrum2DEvents.h"
 #include <boost/filesystem.hpp>
 
 #include "custom_logger.h"
 
-//#include "consumer_factory.h"
-//static ConsumerRegistrar<Spectrum2DEvent> registrar("1DEvent");
-
-Spectrum2DEvent::Spectrum2DEvent()
+Spectrum2DEvents::Spectrum2DEvents()
 {
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata("2DEvent", "Event mode 2D spectrum", 1);
+  metadata_ = ConsumerMetadata(my_type(), "Event mode 2D spectrum", 1);
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Spectrum2DEvent::_initialize()
+bool Spectrum2DEvents::_initialize()
 {
   SpectrumEventMode::_initialize();
   Spectrum2D::_initialize();
@@ -26,7 +23,7 @@ bool Spectrum2DEvent::_initialize()
 
   if (adds != 2)
   {
-    WARN << "<Spectrum2DEvent> Cannot initialize. Add pattern must have 2 selected channels.";
+    WARN << "<Spectrum2DEvents> Cannot initialize. Add pattern must have 2 selected channels.";
     return false;
   }
 
@@ -44,7 +41,7 @@ bool Spectrum2DEvent::_initialize()
   return true;
 }
 
-void Spectrum2DEvent::_init_from_file(std::string filename)
+void Spectrum2DEvents::_init_from_file(std::string filename)
 {
   pattern_coinc_.resize(2);
   pattern_coinc_.set_gates(std::vector<bool>({true, true}));
@@ -64,7 +61,7 @@ void Spectrum2DEvent::_init_from_file(std::string filename)
   SpectrumEventMode::_init_from_file(name);
 }
 
-void Spectrum2DEvent::_recalc_axes()
+void Spectrum2DEvents::_recalc_axes()
 {
   Spectrum2D::_recalc_axes();
 
@@ -81,14 +78,14 @@ void Spectrum2DEvent::_recalc_axes()
   }
 }
 
-bool Spectrum2DEvent::event_relevant(const Event& e) const
+bool Spectrum2DEvents::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return SpectrumEventMode::event_relevant(e) &&
       (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
 }
 
-void Spectrum2DEvent::add_coincidence(const Coincidence& c)
+void Spectrum2DEvents::add_coincidence(const Coincidence& c)
 {
   std::list<uint16_t> l0, l1;
   for (auto &e : c.hits())

@@ -1,10 +1,7 @@
-#include "image_2D.h"
+#include "Image2D.h"
 
 #include "custom_logger.h"
 #include <boost/filesystem.hpp>
-
-//#include "consumer_factory.h"
-//static ConsumerRegistrar<Image2D> registrar("1DEvent");
 
 Image2D::Image2D()
 {
@@ -26,7 +23,7 @@ Image2D::Image2D()
   pattern_add.set_val("chans", 1);
   base_options.branches.add(pattern_add);
 
-  metadata_ = ConsumerMetadata("Image2D", "Values-based 2D spectrum", 2);
+  metadata_ = ConsumerMetadata(my_type(), "Values-based 2D spectrum", 2);
   metadata_.overwrite_all_attributes(base_options);
 }
 
