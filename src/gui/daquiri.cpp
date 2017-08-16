@@ -24,29 +24,30 @@
 //#include "qt_util.h"
 
 
-#include "mock_producer.h"
 #include "producer_factory.h"
 #include "spectrum_events_1D.h"
 #include "spectrum_events_2D.h"
 #include "spectrum_values_2D.h"
 
 #include "consumer_factory.h"
+#include "mock_producer.h"
+#include "kafka_producer.h"
 static ProducerRegistrar<MockProducer> reg1("MockProducer");
-static ConsumerRegistrar<Spectrum1DEvent> reg2("1DEvent");
-static ConsumerRegistrar<Spectrum2DEvent> reg3("2DEvent");
-static ConsumerRegistrar<Image2D> reg4("Image2D");
+static ProducerRegistrar<KafkaProducer> reg2("KafkaProducer");
+static ConsumerRegistrar<Spectrum1DEvent> reg3("1DEvent");
+static ConsumerRegistrar<Spectrum2DEvent> reg4("2DEvent");
+static ConsumerRegistrar<Image2D> reg5("Image2D");
 
-daquiri::daquiri(QWidget *parent) :
-  QMainWindow(parent),
-  ui(new Ui::daquiri),
-  my_emitter_(),
-  log_stream_(),
-  text_buffer_(log_stream_, my_emitter_)
+daquiri::daquiri(QWidget *parent)
+  : QMainWindow(parent)
+  , ui(new Ui::daquiri)
+  , my_emitter_()
+  , log_stream_()
+  , text_buffer_(log_stream_, my_emitter_)
 {
   detectors_.add(Detector("D1"));
   detectors_.add(Detector("D2"));
   detectors_.add(Detector("D3"));
-  detectors_.add(Detector("D4"));
 
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<DAQuiri::Detector>>("std::vector<DAQuiri::Detector>");
@@ -60,8 +61,10 @@ daquiri::daquiri(QWidget *parent) :
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 
-  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
-          this, SLOT(update_settings(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
+  connect(&runner_thread_,
+          SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
+          this,
+          SLOT(update_settings(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
 
   loadSettings();
 
@@ -191,7 +194,7 @@ void daquiri::add_log_text(QString line)
   ui->logBox->append(line);
 }
 
-void daquiri::update_settings(Setting /*sets*/,
+void daquiri::update_settings(DAQuiri::Setting /*sets*/,
                               std::vector<DAQuiri::Detector> channels,
                               DAQuiri::ProducerStatus status)
 {

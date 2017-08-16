@@ -84,5 +84,7 @@
         <file>oxy/16/text_csv.png</file>
         <file>oxy/16/view_split_top_bottom.png</file>
         <file>oxy/16/view_split_left_right.png</file>
+        <file>format-indent-more.png</file>
+        <file>format-justify-fill.png</file>
     </qresource>
 </RCC>

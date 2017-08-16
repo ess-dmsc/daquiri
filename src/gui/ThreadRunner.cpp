@@ -14,11 +14,6 @@ ThreadRunner::ThreadRunner(QObject *parent) :
   terminating_(false),
   running_(false)
 {
-  spectra_ = nullptr;
-  interruptor_ = nullptr;
-  action_ = kNone;
-  flag_ = false;
-  match_conditions_ = Match::id;
   idle_refresh_.store(false);
   idle_refresh_frequency_.store(1);
   start(HighPriority);
@@ -79,15 +74,16 @@ void ThreadRunner::do_run(ProjectPtr spectra, boost::atomic<bool> &interruptor, 
   }
   QMutexLocker locker(&mutex_);
   terminating_.store(false);
-  spectra_ = spectra;
+  project_ = spectra;
   interruptor_ = &interruptor;
   timeout_ = timeout;
-  action_ = kMCA;
+  action_ = kAcquire;
   if (!isRunning())
     start(HighPriority);
 }
 
-void ThreadRunner::do_initialize()
+void ThreadRunner::do_initialize(const json& profile,
+                                 bool and_boot)
 {
   if (running_.load())
   {
@@ -96,7 +92,9 @@ void ThreadRunner::do_initialize()
   }
   QMutexLocker locker(&mutex_);
   terminating_.store(false);
+  profile_ = profile;
   action_ = kInitialize;
+  and_boot_ = and_boot;
   if (!isRunning())
     start(HighPriority);
 }
@@ -243,13 +241,13 @@ void ThreadRunner::run()
     if (action_ != kNone)
       running_.store(true);
 
-    if (action_ == kMCA)
+    if (action_ == kAcquire)
     {
       engine_.get_all_settings();
       emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(),
                            engine_.status() ^ DAQuiri::ProducerStatus::can_run); //turn off can_run
       interruptor_->store(false);
-      engine_.acquire(spectra_, *interruptor_, timeout_);
+      engine_.acquire(project_, *interruptor_, timeout_);
       action_ = kSettingsRefresh;
       emit runComplete();
     }
@@ -264,29 +262,12 @@ void ThreadRunner::run()
     }
     else if (action_ == kInitialize)
     {
-      QSettings settings;
-      settings.beginGroup("Program");
-      bool boot = settings.value("boot_on_startup", false).toBool();
-      QString profile_directory
-          = settings.value("profile_directory",
-                           QDir::homePath() + "/daquiri/settings").toString();
+      engine_.initialize(profile_, json());
 
-      auto path = profile_directory.toStdString() + "/profile.set";
-
-      DBG << "Will load from " << path;
-
-      json profile;
-      if (boost::filesystem::exists(path))
-        profile = from_json_file(path);
-//      if (profile.empty())
-//        profile = default_profile();
-
-      engine_.initialize(profile, json());
-
-      if (boot)
-      {
+      if (and_boot_)
         action_ = kBoot;
-      } else {
+      else
+      {
         action_ = kNone;
         emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
       }
@@ -369,6 +350,11 @@ void ThreadRunner::run()
     running_.store(false);
   }
 
+  save_profile();
+}
+
+void ThreadRunner::save_profile()
+{
   QSettings settings;
   settings.beginGroup("Program");
   QString profile_directory = settings.value("profile_directory","").toString();
@@ -377,15 +363,12 @@ void ThreadRunner::run()
   {
     auto path = profile_directory.toStdString() + "/profile.set";
     DBG << "Will save to " << path;
-    auto dev_settings = DAQuiri::Engine::singleton().pull_settings();
+    auto dev_settings = engine_.pull_settings();
     dev_settings.condense();
     dev_settings.strip_metadata();
     to_json_file(dev_settings, path);
   }
-
 }
-
-
 
 Setting default_profile()
 {

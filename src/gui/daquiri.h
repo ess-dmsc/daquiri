@@ -72,7 +72,7 @@ protected:
   void closeEvent(QCloseEvent*);
 
 private slots:
-  void update_settings(Setting,
+  void update_settings(DAQuiri::Setting,
                        std::vector<DAQuiri::Detector>,
                        DAQuiri::ProducerStatus);
   void toggleIO(bool);

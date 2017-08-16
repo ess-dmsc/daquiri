@@ -15,7 +15,7 @@ using namespace DAQuiri;
 
 enum RunnerAction {
   kBoot, kShutdown, kPushSettings, kSetSetting,
-  kSetDetector, kSetDetectors, kList, kMCA, kOscil,
+  kSetDetector, kSetDetectors, kList, kAcquire, kOscil,
   kInitialize, kSettingsRefresh, kOptimize, kTerminate, kNone
   };
 
@@ -30,7 +30,7 @@ public:
   void set_idle_refresh_frequency(int);
 
 
-  void do_initialize();
+  void do_initialize(const json &profile, bool and_boot);
   void do_boot();
   void do_shutdown();
   void do_push_settings(const Setting &tree);
@@ -63,14 +63,14 @@ protected:
 private:
   Engine &engine_;
   QMutex mutex_;
-  RunnerAction action_;
+  RunnerAction action_ {kNone};
   boost::atomic<bool> running_;
   boost::atomic<bool> idle_refresh_;
   boost::atomic<int> idle_refresh_frequency_;
 
 
-  ProjectPtr spectra_;
-  boost::atomic<bool>* interruptor_;
+  ProjectPtr project_;
+  boost::atomic<bool>* interruptor_ {nullptr};
   boost::atomic<bool> terminating_;
 
   uint64_t timeout_;
@@ -79,11 +79,15 @@ private:
   Detector det_;
   int chan_;
   Setting tree_, one_setting_;
-  Match match_conditions_;
+  Match match_conditions_ {Match::id};
 
-  bool flag_;
+  json profile_;
+  bool and_boot_ {false};
 
   DAQuiri::ProducerStatus recent_status_;
+
+
+  void save_profile();
 };
 
 Setting default_profile();

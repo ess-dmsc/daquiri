@@ -6,7 +6,6 @@
 #include <QDir>
 #include "project.h"
 #include <boost/algorithm/string.hpp>
-//#include "form_daq_settings.h"
 #include "qt_util.h"
 
 #include "json_file.h"
@@ -128,7 +127,7 @@ void WidgetProfiles::update_profiles()
   for (auto &q : subdirs)
   {
     QDir dir2(settings_directory + "/profiles/" + q);
-    DBG << "Checking profile path " << dir2.path().toStdString();
+//    DBG << "Checking profile path " << dir2.path().toStdString();
 
     QStringList nameFilter("profile.set");
 

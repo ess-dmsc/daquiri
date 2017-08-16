@@ -24,14 +24,16 @@ public:
   explicit SettingsForm(ThreadRunner&,
                               Container<Detector>&,
                               QWidget *parent = 0);
-  Setting get_tree() {return dev_settings_;}
+  Setting get_tree() {return settings_tree_;}
   ~SettingsForm();
 
   void exit();
 
 public slots:
   void refresh();
-  void update(const Setting &tree, const std::vector<DAQuiri::Detector> &channelsupdate, DAQuiri::ProducerStatus);
+  void update(const DAQuiri::Setting &tree,
+              const std::vector<DAQuiri::Detector> &channelsupdate,
+              DAQuiri::ProducerStatus);
 
 signals:
   void toggleIO(bool);
@@ -78,23 +80,28 @@ private slots:
 
   void on_pushExpandAll_clicked();
 
-private:
+  void on_pushAddProducer_clicked();
+
+  void on_pushRemoveProducer_clicked();
+
+  private:
   Ui::SettingsForm *ui;
 
   DAQuiri::ProducerStatus current_status_;
   Container<Detector>     &detectors_;
   ThreadRunner            &runner_thread_;
-  bool editing_;
+  bool editing_ {false};
+  bool exiting_ {false};
 
-  std::vector<DAQuiri::Detector>   channels_;
-  QTableView*             viewTableSettings;
-  SettingsTableModel       table_settings_model_;
-  SettingDelegate  table_settings_delegate_;
+  std::vector<DAQuiri::Detector> settings_table_;
+  QTableView*                    table_settings_view_;
+  SettingsTableModel             table_settings_model_;
+  SettingDelegate                table_settings_delegate_;
 
-  Setting                 dev_settings_;
-  QTreeView*              viewSettingsTreeModel;
-  SettingsTreeModel            tree_settings_model_;
-  SettingDelegate  tree_delegate_;
+  Setting           settings_tree_;
+  QTreeView*        tree_settings_view_;
+  SettingsTreeModel tree_settings_model_;
+  SettingDelegate   tree_delegate_;
 
   QMenu detectorOptions;
 
@@ -102,5 +109,4 @@ private:
   void saveSettings();
   void chan_settings_to_det_DB();
 
-  bool exiting;
 };

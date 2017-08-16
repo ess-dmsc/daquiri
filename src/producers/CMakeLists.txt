@@ -29,6 +29,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   ${h5cc_LIBRARIES}
   ${core_LIBRARIES}
+  ${LibRDKafka_LIBRARIES}
 )
 
 # Expose public includes
