@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(producers CXX)
 
-file(GLOB ${PROJECT_NAME}_sources *.cpp)
+set(autoreg_source ${PROJECT_BINARY_DIR}/producers_autoreg.cpp)
+
 file(GLOB ${PROJECT_NAME}_headers *.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_headers}")
 
 add_library(
   ${PROJECT_NAME}
-  ${${PROJECT_NAME}_sources}
+  ${autoreg_source}
   ${${PROJECT_NAME}_headers}
 )
 
@@ -17,23 +18,24 @@ include_directories(
   PRIVATE ${core_INCLUDE_DIRS}
 )
 
-add_subdirectory(DummyDevice)
-LIST(APPEND prod_LIBRARIES DummyDevice)
-include_directories(${PROJECT_NAME} PUBLIC ${DummyDevice_INCLUDE_DIRS})
+foreach(prod ${DAQuiri_enabled_producers})
+  add_subdirectory(${prod})
+  include_directories(${PROJECT_NAME} PUBLIC ${${prod}_INCLUDE_DIRS})
+  set(prod_reg_includes "${prod_reg_includes} #include \"${prod}.h\"\n")
+  set(prod_reg_cmds "${prod_reg_cmds}  DAQUIRI_REGISTER_PRODUCER(${prod})\n")
+endforeach(prod)
 
-add_subdirectory(MockProducer)
-LIST(APPEND prod_LIBRARIES MockProducer)
-include_directories(${PROJECT_NAME} PUBLIC ${MockProducer_INCLUDE_DIRS})
-
-add_subdirectory(ESSStream)
-LIST(APPEND prod_LIBRARIES ESSStream)
-include_directories(${PROJECT_NAME} PUBLIC ${ESSStream_INCLUDE_DIRS})
-
+file(WRITE ${autoreg_source} "#include \"producers_autoreg.h\"\n")
+file(APPEND ${autoreg_source} "#include \"producer_factory.h\"\n\n")
+file(APPEND ${autoreg_source} ${prod_reg_includes})
+file(APPEND ${autoreg_source} "\nvoid producers_autoreg()\n{\n")
+file(APPEND ${autoreg_source} ${prod_reg_cmds})
+file(APPEND ${autoreg_source} "}\n")
 
 target_link_libraries(
   ${PROJECT_NAME}
   ${core_LIBRARIES}
-  ${prod_LIBRARIES}
+  ${DAQuiri_enabled_producers}
 )
 
 # Expose public includes

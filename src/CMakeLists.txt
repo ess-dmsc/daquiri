@@ -35,7 +35,7 @@ endfunction(dirs_of)
 # deprecate
 add_definitions(-DBOOST_LOG_DYN_LINK)
 
-#add_subdirectory(config)
+add_subdirectory(config)
 
 # json++
 list (APPEND json_INCLUDE_DIRS
@@ -47,8 +47,13 @@ add_subdirectory(core)
 add_subdirectory(consumers)
 add_subdirectory(producers)
 
-add_subdirectory(cmd)
-add_subdirectory(gui)
+if (DAQuiri_cmd)
+  add_subdirectory(cmd)
+endif()
+
+if (DAQuiri_gui)
+  add_subdirectory(gui)
+endif()
 
 if (test)
   add_subdirectory(tests)
