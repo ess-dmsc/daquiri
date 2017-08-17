@@ -4,7 +4,7 @@
 #include "custom_logger.h"
 
 #include "ev42_events_generated.h"
-#include "mon_efu_generated.h"
+//#include "mon_efu_generated.h"
 
 ESSStream::ESSStream()
 {
@@ -41,6 +41,26 @@ ESSStream::ESSStream()
   SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
   add_definition(det_type);
 
+
+
+  SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
+  vc.set_val("min", 1);
+  vc.set_val("max", 16);
+  add_definition(vc);
+
+  SettingMeta valname(mp + "Dimension/Name", SettingType::text, "Dimension name");
+  add_definition(valname);
+
+  SettingMeta pc(mp + "Dimension/Extent", SettingType::integer, "Dimension extent");
+  pc.set_val("min", 1);
+  add_definition(pc);
+
+  SettingMeta val(mp + "Dimension", SettingType::stem);
+  val.set_enum(0, mp + "Dimension/Name");
+  val.set_enum(1, mp + "Dimension/Extent");
+  add_definition(val);
+
+
   SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
   root.set_enum(0, mp + "SpillInterval");
@@ -51,7 +71,7 @@ ESSStream::ESSStream()
   root.set_enum(5, mp + "KafkaTopic");
   root.set_enum(6, mp + "KafkaPollInterval");
   root.set_enum(7, mp + "DetectorType");
-
+  root.set_enum(8, mp + "DimensionCount");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -124,6 +144,28 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("ESSStream/KafkaPollInterval", poll_interval_));
 
   set.set(Setting::text("ESSStream/DetectorType", detector_type_));
+  set.set(Setting::integer("ESSStream/DimensionCount", integer_t(dim_count_)));
+
+  while (set.branches.has_a(Setting({"ESSStream/Dimension", SettingType::stem})))
+    set.branches.remove_a(Setting({"ESSStream/Dimension", SettingType::stem}));
+
+  for (int i=0; i < int(dim_count_); ++i)
+  {
+    Setting v = get_rich_setting("ESSStream/Dimension");
+    v.set_indices({i});
+    v.branches = get_rich_setting("ESSStream/Dimension").branches;
+    std::string name;
+    if (i < geometry_.names_.size())
+    {
+      name = geometry_.names_.at(i);
+      v.set(Setting::text("ESSStream/Dimension/Name", name));
+      v.set(Setting::integer("ESSStream/Dimension/Extent",
+                             geometry_.dimensions_.at(name)));
+    }
+    for (auto& vv : v.branches)
+      vv.set_indices({i});
+    set.branches.add_a(v);
+  }
 }
 
 
@@ -136,17 +178,37 @@ void ESSStream::write_settings_bulk(const Setting& settings)
 
   spill_interval_ = set.find({"ESSStream/SpillInterval"}).get_number();
 
-  model_hit_ = EventModel();
-  model_hit_.timebase = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
-                                set.find({"ESSStream/TimebaseDiv"}).get_number());
-  model_hit_.add_value("pixid", 16);
-
 
   broker_ = set.find({"ESSStream/KafkaBroker"}).get_text();
   topic_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   poll_interval_ = set.find({"ESSStream/KafkaPollInterval"}).get_number();
 
   detector_type_ = set.find({"ESSStream/DetectorType"}).get_text();
+
+  dim_count_ = set.find({"ESSStream/DimensionCount"}).get_number();
+  if ((dim_count_ < 1) || (dim_count_ > 16))
+    dim_count_ = 1;
+
+  geometry_ = GeometryInterpreter();
+  for (Setting v : set.branches)
+  {
+    if (v.id() != "ESSStream/Dimension")
+      continue;
+    auto indices = v.indices();
+    if (!indices.size())
+      continue;
+    size_t idx = *indices.begin();
+//    DBG << "Write idx " << idx;
+    if (idx >= dim_count_)
+      continue;
+    auto name = v.find({"ESSStream/Dimension/Name"}).get_text();
+    size_t ext = v.find({"ESSStream/Dimension/Extent"}).get_number();
+    geometry_.add_dimension(name, ext);
+  }
+
+  auto timebase = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
+                           set.find({"ESSStream/TimebaseDiv"}).get_number());
+  model_hit_ = geometry_.model(timebase);
 }
 
 void ESSStream::boot()
@@ -363,21 +425,16 @@ Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
     {
       uint64_t time = em->time_of_flight()->Get(i);
       time |= time_high;
-      clock_ = std::max(clock_, time);
 
       Event e(chan0, model_hit_);
       e.set_native_time(time_high);
-      interpret_id(e, em->detector_id()->Get(i));
-
+      geometry_.interpret_id(e, em->detector_id()->Get(i));
       ret->events.push_back(e);
+
+      clock_ = std::max(clock_, time);
     }
   }
   return ret;
-}
-
-void ESSStream::interpret_id(Event& e, size_t val)
-{
-  e.set_value(0, val);
 }
 
 std::string ESSStream::debug(const EventMessage& em)

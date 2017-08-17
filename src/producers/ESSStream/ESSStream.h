@@ -49,6 +49,8 @@ protected:
   uint32_t spill_interval_ {5};
 
   std::string detector_type_;
+  size_t dim_count_ {1};
+  GeometryInterpreter geometry_;
   EventModel model_hit_;
 
   uint64_t clock_ {0};
@@ -62,5 +64,4 @@ protected:
   Spill* create_spill(StatusType t);
 
   std::string debug(const EventMessage&);
-  void interpret_id(Event& e, size_t val);
 };

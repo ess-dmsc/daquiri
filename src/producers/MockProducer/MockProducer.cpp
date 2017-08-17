@@ -47,6 +47,7 @@ MockProducer::MockProducer()
 
   SettingMeta vc(mp + "ValueCount", SettingType::integer, "Value count");
   vc.set_val("min", 1);
+  vc.set_val("max", 16);
   add_definition(vc);
 
 
@@ -82,8 +83,6 @@ MockProducer::MockProducer()
   root.set_enum(6, mp + "TimebaseDiv");
   root.set_enum(7, mp + "Lambda");
   root.set_enum(8, mp + "ValueCount");
-//  root.set_enum(9, mp + "Value");
-
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
