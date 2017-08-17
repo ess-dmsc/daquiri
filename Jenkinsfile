@@ -28,7 +28,9 @@ node ("qt && boost && fedora") {
                 sh "HDF5_ROOT=$HDF5_ROOT \
                     CMAKE_PREFIX_PATH=$HDF5_ROOT \
                     /opt/cmake/cmake-3.7.1-Linux-x86_64/bin/cmake -DCOV=on \
-                    -DDAQuiri_enabled_producers=ESSStream ../code/src"
+                    -DDAQuiri_enabled_producers=DummyDevice\;MockProducer \
+                    -DDAQuiri_cmd=ON \
+                    ../code/src"
             }
         } catch (e) {
             failure_function(e, 'CMake failed')
