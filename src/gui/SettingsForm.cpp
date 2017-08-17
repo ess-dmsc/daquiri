@@ -423,7 +423,7 @@ void SettingsForm::on_checkShowRO_clicked()
 
 void SettingsForm::on_bootButton_clicked()
 {
-  if (ui->bootButton->text() == "Boot system")
+  if (ui->bootButton->text() == "Boot")
   {
     emit toggleIO(false);
     emit statusText("Booting...");

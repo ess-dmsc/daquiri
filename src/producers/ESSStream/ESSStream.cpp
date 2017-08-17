@@ -218,7 +218,7 @@ void ESSStream::boot()
 
   if (!conf.get())
   {
-    ERR << "Unable to created global Conf object";
+    ERR << "<ESSStream> Unable to created global Conf object";
     die();
     return;
   }
@@ -227,8 +227,7 @@ void ESSStream::boot()
   conf->set("message.max.bytes", "10000000", error_str);
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);
-
-  //  conf->set("group.id", "nexus_stream_consumer", error_str);
+  conf->set("group.id", "group0", error_str);
   //  conf->set("enable.auto.commit", "false", error_str);
   //  conf->set("enable.auto.offset.store", "false", error_str);
   //  conf->set("offset.store.method", "none", error_str);
@@ -238,18 +237,18 @@ void ESSStream::boot()
         RdKafka::KafkaConsumer::create(conf.get(), error_str));
   if (!stream_.get())
   {
-    ERR << "Failed to create consumer: " << error_str;
+    ERR << "<ESSStream> Failed to create consumer: " << error_str;
     die();
     return;
   }
 
-  INFO << "Created consumer " << stream_->name();
+  INFO << "<ESSStream> Created consumer " << stream_->name();
 
   // Start consumer for topic+partition at start offset
   RdKafka::ErrorCode resp = stream_->subscribe({kafka_topic_name_});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
-    ERR << "Failed to start consumer: " << RdKafka::err2str(resp);
+    ERR << "<ESSStream> Failed to start consumer: " << RdKafka::err2str(resp);
     die();
     return;
   }
@@ -346,7 +345,10 @@ Spill* ESSStream::get_message()
     if (message->key())
       DBG << "Key: " << *message->key();
 
-    return process_message(message);
+    DBG << "Received Kafka message " << debug(message);
+
+    return nullptr;
+//    return process_message(message);
 
   case RdKafka::ERR__PARTITION_EOF:
     /* Last message */
@@ -372,6 +374,12 @@ Spill* ESSStream::get_message()
   }
 
   return nullptr;
+}
+
+std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)
+{
+  return std::string(static_cast<const char*>(kmessage->payload()),
+                     kmessage->len());
 }
 
 Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)

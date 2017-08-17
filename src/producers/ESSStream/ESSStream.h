@@ -58,8 +58,9 @@ protected:
   static void make_trace(Event& h, uint16_t baseline);
 
   Spill* get_message();
+  std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
+
   Spill* process_message(std::shared_ptr<RdKafka::Message> msg);
   Spill* create_spill(StatusType t);
-
   std::string debug(const EventMessage&);
 };
