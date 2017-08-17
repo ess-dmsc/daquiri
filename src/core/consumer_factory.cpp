@@ -3,21 +3,21 @@
 
 namespace DAQuiri {
 
-ConsumerPtr ConsumerFactory::create_type(std::string type)
+ConsumerPtr ConsumerFactory::create_type(std::string type) const
 {
-  auto it = constructors.find(type);
-  if(it != constructors.end())
+  auto it = constructors_.find(type);
+  if(it != constructors_.end())
     return ConsumerPtr(it->second());
   else
     return ConsumerPtr();
 }
 
-ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other)
+ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other) const
 {
   return ConsumerPtr(other->clone());
 }
 
-ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem)
+ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) const
 {
 //  DBG << "<ConsumerFactory> creating " << tem.type();
   ConsumerPtr instance = create_type(tem.type());
@@ -26,7 +26,7 @@ ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem)
   return ConsumerPtr();
 }
 
-ConsumerPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata)
+ConsumerPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata) const
 {
   if (!group.has_attribute("type"))
     return ConsumerPtr();
@@ -40,26 +40,32 @@ ConsumerPtr ConsumerFactory::create_from_h5(H5CC::Group &group, bool withdata)
   return ConsumerPtr();
 }
 
-ConsumerMetadata ConsumerFactory::create_prototype(std::string type)
+ConsumerMetadata ConsumerFactory::create_prototype(std::string type) const
 {
-  auto it = prototypes.find(type);
-  if(it != prototypes.end())
+  auto it = prototypes_.find(type);
+  if(it != prototypes_.end())
     return it->second;
   else
     return ConsumerMetadata();
 }
 
-void ConsumerFactory::register_type(ConsumerMetadata tt, std::function<Consumer*(void)> typeConstructor)
+void ConsumerFactory::register_type(ConsumerMetadata tt,
+                                    std::function<Consumer*(void)> constructor)
 {
-  constructors[tt.type()] = typeConstructor;
-  prototypes[tt.type()] = tt;
-  INFO << "<ConsumerFactory> registered '" << tt.type() << "'";
+  if (constructors_.count(tt.type()))
+    INFO << "<ConsumerFactory> type '" << tt.type() << "' already registered";
+  else
+  {
+    constructors_[tt.type()] = constructor;
+    prototypes_[tt.type()] = tt;
+    INFO << "<ConsumerFactory> registered '" << tt.type() << "'";
+  }
 }
 
-const std::vector<std::string> ConsumerFactory::types()
+std::vector<std::string> ConsumerFactory::types() const
 {
   std::vector<std::string> all_types;
-  for (auto &q : constructors)
+  for (auto &q : constructors_)
     all_types.push_back(q.first);
   return all_types;
 }

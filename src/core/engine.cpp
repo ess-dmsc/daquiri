@@ -30,7 +30,7 @@ Engine::Engine()
                                        "Test profile for Mock Producer"));
 }
 
-void Engine::initialize(const json &profile, const json &definitions)
+void Engine::initialize(const json &profile)
 {
   boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
   while (!uniqueLock.try_lock())
@@ -41,20 +41,16 @@ void Engine::initialize(const json &profile, const json &definitions)
   auto& pf = ProducerFactory::singleton();
 
   _die();
-  devices_.clear();
+  producers_.clear();
   for (auto &q : tree.branches)
   {
     if (q.id() != "Detectors")
     {
-//      DBG << "Will try to load " << q.get_text();
-//      if (!definitions.count(q.id()))
-//        continue;
-//      ProducerPtr device = pf.create_type(q.id(), definitions.at(q.id()));
-      ProducerPtr device = pf.create_type(q.id(), json());
+      ProducerPtr device = pf.create_type(q.id());
       if (device)
       {
         DBG << "<Engine> Success loading " << device->device_name();
-        devices_[q.id()] = device;
+        producers_[q.id()] = device;
       }
     }
   }
@@ -81,7 +77,7 @@ void Engine::boot()
   while (!uniqueLock.try_lock())
     wait_ms(SLEEP_TIME_MS);
 
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if (q.second)
       q.second->boot();
 
@@ -98,7 +94,7 @@ void Engine::die()
 
 void Engine::_die()
 {
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if (q.second)
       q.second->die();
 
@@ -173,10 +169,10 @@ void Engine::_read_settings_bulk()
       }
 
     }
-    else if (devices_.count(set.id()))
+    else if (producers_.count(set.id()))
     {
       //DBG << "read settings bulk > " << set.id_;
-      devices_[set.id()]->read_settings_bulk(set);
+      producers_[set.id()]->read_settings_bulk(set);
     }
   }
   save_optimization();
@@ -199,8 +195,8 @@ void Engine::_write_settings_bulk()
   {
     if (set.id() == "Detectors")
       rebuild_structure(set);
-    else if (devices_.count(set.id()))
-      devices_[set.id()]->write_settings_bulk(set);
+    else if (producers_.count(set.id()))
+      producers_[set.id()]->write_settings_bulk(set);
   }
 }
 
@@ -225,7 +221,7 @@ OscilData Engine::oscilloscope()
   std::vector<Event> traces;
   traces.resize(detectors_.size());
 
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
     {
       //DBG << "oscil > " << q.second->device_name();
@@ -240,7 +236,7 @@ OscilData Engine::oscilloscope()
 bool Engine::daq_start(SpillQueue out_queue)
 {
   bool success = false;
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_start(out_queue);
@@ -252,7 +248,7 @@ bool Engine::daq_start(SpillQueue out_queue)
 bool Engine::daq_stop()
 {
   bool success = false;
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_stop();
@@ -264,7 +260,7 @@ bool Engine::daq_stop()
 bool Engine::daq_running() const
 {
   bool running = false;
-  for (auto &q : devices_)
+  for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       running |= q.second->daq_running();
@@ -357,7 +353,7 @@ void Engine::get_all_settings()
 void Engine::_get_all_settings()
 {
   aggregate_status_ = ProducerStatus(0);
-  for (auto &q : devices_)
+  for (auto &q : producers_)
   {
     q.second->get_all_settings();
     aggregate_status_ = aggregate_status_ | q.second->status();

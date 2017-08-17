@@ -14,8 +14,8 @@
 #include <QInputDialog>
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
-                                       Container<Detector>& detectors,
-                                       QWidget *parent) :
+                           Container<Detector>& detectors,
+                           QWidget *parent) :
   QWidget(parent),
   runner_thread_(thread),
   detectors_(detectors),
@@ -87,14 +87,14 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   loadSettings();
 
-//  QSettings settings;
-//  settings.beginGroup("Program");
-//  QString profile_directory = settings.value("profile_directory", "").toString();
+  //  QSettings settings;
+  //  settings.beginGroup("Program");
+  //  QString profile_directory = settings.value("profile_directory", "").toString();
 
-//  if (!profile_directory.isEmpty())
-    QTimer::singleShot(50, this, SLOT(profile_chosen()));
-//  else
-//    QTimer::singleShot(50, this, SLOT(choose_profiles()));
+  //  if (!profile_directory.isEmpty())
+  QTimer::singleShot(50, this, SLOT(profile_chosen()));
+  //  else
+  //    QTimer::singleShot(50, this, SLOT(choose_profiles()));
 }
 
 void SettingsForm::exit()
@@ -130,14 +130,14 @@ void SettingsForm::update(const DAQuiri::Setting &tree,
 
   if (editing_)
   {
-//    DBG << "<SettingsForm> ignoring update";
+    //    DBG << "<SettingsForm> ignoring update";
     return;
   }
 
   settings_tree_ = tree;
   settings_table_ = channels;
 
-//  DBG << "tree received " << settings_tree_.branches.size();
+  //  DBG << "tree received " << settings_tree_.branches.size();
 
   tree_settings_view_->clearSelection();
   //table_settings_view_->clearSelection();
@@ -244,7 +244,7 @@ void SettingsForm::chose_detector(int chan, std::string name)
 {
   editing_ = false;
   Detector det = detectors_.get(Detector(name));
-//  DBG << "det " <<  det.name() << " with sets " << det.optimizations().size();
+  //  DBG << "det " <<  det.name() << " with sets " << det.optimizations().size();
 
   emit statusText("Applying detector settings...");
   emit toggleIO(false);
@@ -274,7 +274,7 @@ void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
 {
   ui->Oscil->toggle_push(enable, status);
 
-//  bool online = (status & DAQuiri::ProducerStatus::can_run);
+  //  bool online = (status & DAQuiri::ProducerStatus::can_run);
 
   //busy status?!?!
   bool online = (status & DAQuiri::ProducerStatus::booted);
@@ -297,7 +297,7 @@ void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
   }
 
   ui->bootButton->setEnabled(enable);
-//  ui->pushOptimizeAll->setEnabled(enable && (online || offline));
+  //  ui->pushOptimizeAll->setEnabled(enable && (online || offline));
 
   if (online)
   {
@@ -389,7 +389,7 @@ void SettingsForm::apply_detector_presets()
   for (size_t i=0; i < settings_table_.size(); ++i)
     if (detectors_.has_a(settings_table_[i]))
       update[i] = detectors_.get(settings_table_[i]);
-    
+
   runner_thread_.do_set_detectors(update);
 }
 
@@ -403,10 +403,10 @@ void SettingsForm::on_pushSettingsRefresh_clicked()
 
 void SettingsForm::open_detector_DB()
 {
-//  WidgetDetectors *det_widget = new WidgetDetectors(this);
-//  det_widget->setData(detectors_);
-//  connect(det_widget, SIGNAL(detectorsUpdated()), this, SLOT(updateDetDB()));
-//  det_widget->exec();
+  //  WidgetDetectors *det_widget = new WidgetDetectors(this);
+  //  det_widget->setData(detectors_);
+  //  connect(det_widget, SIGNAL(detectorsUpdated()), this, SLOT(updateDetDB()));
+  //  det_widget->exec();
 }
 
 void SettingsForm::on_checkShowRO_clicked()
@@ -427,7 +427,7 @@ void SettingsForm::on_bootButton_clicked()
   {
     emit toggleIO(false);
     emit statusText("Booting...");
-//    INFO << "Booting system...";
+    //    INFO << "Booting system...";
 
     runner_thread_.do_boot();
   }
@@ -436,7 +436,7 @@ void SettingsForm::on_bootButton_clicked()
     emit toggleIO(false);
     emit statusText("Shutting down...");
 
-//    INFO << "Shutting down";
+    //    INFO << "Shutting down";
     runner_thread_.do_shutdown();
   }
 }
@@ -512,35 +512,39 @@ void SettingsForm::on_pushAddProducer_clicked()
   id.setWindowTitle("Add producer");
   int ret = id.exec();
 
-  if (ret == QDialog::Accepted)
-  {
-     DBG << "Selection:" << id.textValue().toStdString();
+  if (ret != QDialog::Accepted)
+    return;
 
-     auto dummy = pf.create_type(id.textValue().toStdString(), json());
-     Setting default_settings({dummy->device_name(), SettingType::stem});
-     dummy->write_settings_bulk(default_settings);
-     dummy->read_settings_bulk(default_settings);
-     settings_tree_.branches.add_a(default_settings);
+  auto default_settings = pf.default_settings(id.textValue().toStdString());
+  if (!default_settings)
+    return;
 
-     json profile = settings_tree_;
-     QSettings settings;
-     settings.beginGroup("Program");
-     bool boot = settings.value("boot_on_startup", false).toBool();
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("Producer name"),
+                                       tr("Specify unique name for producer:"),
+                                       QLineEdit::Normal, "", &ok);
+  if (!ok && text.isEmpty())
+    return;
 
-     runner_thread_.do_initialize(profile, boot);
-  }
+  default_settings.set_text(text.toStdString());
+
+  settings_tree_.branches.add_a(default_settings);
+
+  json profile = settings_tree_;
+  QSettings settings;
+  settings.beginGroup("Program");
+  bool boot = settings.value("boot_on_startup", false).toBool();
+
+  runner_thread_.do_initialize(profile, boot);
 }
 
 void SettingsForm::on_pushRemoveProducer_clicked()
 {
   auto idxs = tree_settings_view_->selectionModel()->selectedIndexes();
-  DBG << "Selected " << idxs.size();
   for (auto ixl : idxs)
     if (ixl.data(Qt::EditRole).canConvert<Setting>())
     {
       Setting set = qvariant_cast<Setting>(ixl.data(Qt::EditRole));
-      DBG << "selected " << set.debug();
-
       if (set.is(SettingType::stem) && set.metadata().has_flag("producer"))
       {
         settings_tree_.erase(set, Match::id);

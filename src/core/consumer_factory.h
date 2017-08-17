@@ -14,19 +14,20 @@ class ConsumerFactory {
     return singleton_instance;
   }
 
-  void register_type(ConsumerMetadata tt, std::function<Consumer*(void)> typeConstructor);
-  const std::vector<std::string> types();
+  void register_type(ConsumerMetadata tt,
+                     std::function<Consumer*(void)> constructor);
+  std::vector<std::string> types() const;
   
-  ConsumerPtr create_type(std::string type);
-  ConsumerPtr create_from_prototype(const ConsumerMetadata& tem);
-  ConsumerPtr create_from_h5(H5CC::Group &group, bool withdata = true);
-  ConsumerPtr create_copy(ConsumerPtr other);
+  ConsumerPtr create_type(std::string type) const;
+  ConsumerPtr create_from_prototype(const ConsumerMetadata& tem) const;
+  ConsumerPtr create_from_h5(H5CC::Group &group, bool withdata = true) const;
+  ConsumerPtr create_copy(ConsumerPtr other) const;
 
-  ConsumerMetadata create_prototype(std::string type);
+  ConsumerMetadata create_prototype(std::string type) const;
 
  private:
-  std::map<std::string, std::function<Consumer*(void)>> constructors;
-  std::map<std::string, ConsumerMetadata> prototypes;
+  std::map<std::string, std::function<Consumer*(void)>> constructors_;
+  std::map<std::string, ConsumerMetadata> prototypes_;
 
   //singleton assurance
   ConsumerFactory() {}

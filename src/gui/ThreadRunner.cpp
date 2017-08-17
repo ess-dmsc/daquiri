@@ -261,14 +261,14 @@ void ThreadRunner::run()
     }
     else if (action_ == kInitialize)
     {
-      engine_.initialize(profile_, json());
-
+      engine_.initialize(profile_);
       if (and_boot_)
         action_ = kBoot;
       else
       {
-        action_ = kNone;
-        emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+        action_ = kSettingsRefresh;
+//        action_ = kNone;
+//        emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
       }
     }
     else if (action_ == kBoot)

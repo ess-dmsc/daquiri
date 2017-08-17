@@ -26,11 +26,8 @@ int main(int argc, char **argv)
   if (duration < 1)
     duration = 1;
 
-  json defs;
-  defs["MockProducer"] = json();
-
   auto& engine = Engine::singleton();
-  engine.initialize(get_profile(), defs);
+  engine.initialize(get_profile());
   engine.boot();
 
   engine.set_setting(Setting::integer("MockProducer/ValueCount", 3), Match::id);
@@ -69,19 +66,12 @@ Setting get_profile()
   profile.set(Setting::text("Profile description",
                             "Test profile for Mock Producer"));
 
-  auto dummy = ProducerFactory::singleton().create_type("MockProducer", json());
-  if (!dummy)
-    return profile;
-
-  Setting default_settings({dummy->device_name(), SettingType::stem});
-  dummy->write_settings_bulk(default_settings);
-  dummy->read_settings_bulk(default_settings);
-
-  default_settings.set(Setting::integer("MockProducer/SpillInterval", 5));
-  default_settings.set(Setting::integer("MockProducer/Resolution", 16));
-  default_settings.set(Setting::floating("MockProducer/CountRate", 20000));
-  default_settings.set(Setting::floating("MockProducer/DeadTime", 5));
-  profile.branches.add(default_settings);
+  auto settings = ProducerFactory::singleton().default_settings("MockProducer");
+  settings.set(Setting::integer("MockProducer/SpillInterval", 5));
+  settings.set(Setting::integer("MockProducer/Resolution", 16));
+  settings.set(Setting::floating("MockProducer/CountRate", 20000));
+  settings.set(Setting::floating("MockProducer/DeadTime", 5));
+  profile.branches.add(settings);
 
   return profile;
 }

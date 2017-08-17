@@ -14,13 +14,15 @@ public:
     return singleton_instance;
   }
 
-  ProducerPtr create_type(std::string type, const json &profile);
+  void register_type(std::string name,
+                     std::function<Producer*(void)> constructor);
 
-  void register_type(std::string name, std::function<Producer*(void)> typeConstructor);
-  const std::vector<std::string> types();
+  std::vector<std::string> types() const;
+  ProducerPtr create_type(std::string type) const;
+  Setting default_settings(std::string type) const;
 
 private:
-  std::map<std::string, std::function<Producer*(void)>> constructors;
+  std::map<std::string, std::function<Producer*(void)>> constructors_;
 
   //singleton assurance
   ProducerFactory() {}

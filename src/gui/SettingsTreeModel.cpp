@@ -94,11 +94,13 @@ QVariant SettingsTreeItem::display_data(int column) const
 {
   if (column == 0)
   {
-    QString name;
-    if (!itemData.metadata().get_string("name", "").empty())
-      name = QString::fromStdString(itemData.metadata().get_string("name", ""));
-    else
+    QString name =
+        QString::fromStdString(itemData.metadata().get_string("name", ""));
+    if (name.isEmpty())
       name = QString::fromStdString(itemData.id());
+    if (itemData.is(SettingType::stem) &&
+        !itemData.get_text().empty())
+      name += " (" + QString::fromStdString(itemData.get_text()) + ")";
     return name;
   }
   else if (column == 1)

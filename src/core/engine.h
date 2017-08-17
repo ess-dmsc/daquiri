@@ -20,7 +20,7 @@ public:
     return singleton_instance;
   }
 
-  void initialize(const json& profile, const json &definitions);
+  void initialize(const json& profile);
   void boot();
   void die();
 
@@ -52,7 +52,7 @@ private:
 
   ProducerStatus aggregate_status_ {ProducerStatus(0)};
 
-  std::map<std::string, ProducerPtr> devices_;
+  std::map<std::string, ProducerPtr> producers_;
 
   Setting settings_ {SettingMeta("Engine", SettingType::stem)};
   std::vector<Detector> detectors_;
