@@ -35,7 +35,9 @@ endfunction(dirs_of)
 # deprecate
 add_definitions(-DBOOST_LOG_DYN_LINK)
 
-add_subdirectory(config)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
+  add_subdirectory(config)
+endif()
 
 # json++
 list (APPEND json_INCLUDE_DIRS
