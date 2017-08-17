@@ -27,7 +27,7 @@ node ("qt && boost && fedora") {
                 sh 'rm -rf ./*'
                 sh "HDF5_ROOT=$HDF5_ROOT \
                     CMAKE_PREFIX_PATH=$HDF5_ROOT \
-                    cmake -DCOV=on \
+                    cmake -DCOV=on -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
                     -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;ESSStream \
                     ../code/src"
             }
