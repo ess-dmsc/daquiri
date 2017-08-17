@@ -138,32 +138,30 @@ TEST(SettingMeta, Values)
   m.set_val("a", "aa");
   ASSERT_EQ(m.get_string("a", "z"), "aa");
 
-  ASSERT_EQ(m.get_num("b", int(2)), 2);
-  m.set_val("b", int(1));
-  ASSERT_EQ(m.get_num("b", int(2)), 1);
+  ASSERT_EQ(m.get_num("b", DAQuiri::integer_t(2)), 2);
+  m.set_val("b", DAQuiri::integer_t(1));
+  ASSERT_EQ(m.get_num("b", DAQuiri::integer_t(2)), 1);
 
-  ASSERT_EQ(m.get_num("c", double(2.2)), 2.2);
-  m.set_val("c", double(1.1));
-  ASSERT_EQ(m.get_num("c", double(2.2)), 1.1);
+  ASSERT_EQ(m.get_num("c", DAQuiri::floating_t(2.2)), 2.2);
+  m.set_val("c", DAQuiri::floating_t(1.1));
+  ASSERT_EQ(m.get_num("c", DAQuiri::floating_t(2.2)), 1.1);
 }
 
 TEST(SettingMeta, MinMaxStep)
 {
   DAQuiri::SettingMeta m("", DAQuiri::SettingType::floating);
 
-  ASSERT_EQ(m.min<int>(), std::numeric_limits<int>::min());
-  m.set_val("min", int(-42));
-  ASSERT_EQ(m.min<int>(), -42);
+  ASSERT_EQ(m.min<DAQuiri::integer_t>(), -std::numeric_limits<DAQuiri::integer_t>::max());
+  m.set_val("min", DAQuiri::integer_t(-42));
+  ASSERT_EQ(m.min<DAQuiri::integer_t>(), -42);
 
-  ASSERT_EQ(m.max<int>(), std::numeric_limits<int>::max());
-  m.set_val("max", int(42));
-  ASSERT_EQ(m.max<int>(), 42);
+  ASSERT_EQ(m.max<DAQuiri::integer_t>(), std::numeric_limits<DAQuiri::integer_t>::max());
+  m.set_val("max", DAQuiri::integer_t(42));
+  ASSERT_EQ(m.max<DAQuiri::integer_t>(), 42);
 
-  ASSERT_EQ(m.step<double>(), 1);
-  m.set_val("step", double(0.5));
-  ASSERT_EQ(m.step<double>(), 0.5);
-
-  ASSERT_EQ(m.value_range(), "[-42 \uFF1A 0.5 \uFF1A 42]");
+  ASSERT_EQ(m.step<DAQuiri::floating_t>(), 1);
+  m.set_val("step", DAQuiri::floating_t(0.5));
+  ASSERT_EQ(m.step<DAQuiri::floating_t>(), 0.5);
 }
 
 TEST(SettingMeta, Numeric)
