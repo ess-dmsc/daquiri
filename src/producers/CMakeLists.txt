@@ -3,7 +3,8 @@ project(producers CXX)
 
 set(autoreg_source ${PROJECT_BINARY_DIR}/producers_autoreg.cpp)
 
-set(${PROJECT_NAME}_headers producers_autoreg.h)
+list(APPEND ${PROJECT_NAME}_headers
+  ${PROJECT_SOURCE_DIR}/producers_autoreg.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_headers}")
 
 add_library(
