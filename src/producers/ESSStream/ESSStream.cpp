@@ -10,11 +10,21 @@ ESSStream::ESSStream()
 {
   std::string mp {"ESSStream/"};
 
-  SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
-  si.set_val("min", 1);
-  si.set_val("max", 1000000);
-  si.set_val("units", "s");
-  add_definition(si);
+
+  SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka broker URL");
+  add_definition(broker);
+
+  SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka topic");
+  add_definition(topic);
+
+  SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka timeout");
+  pi.set_val("min", 1);
+  pi.set_val("units", "ms");
+  add_definition(pi);
+
+  SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
+  add_definition(det_type);
+
 
   SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
   tm.set_val("min", 1);
@@ -25,22 +35,6 @@ ESSStream::ESSStream()
   td.set_val("min", 1);
   td.set_val("units", "1/ns");
   add_definition(td);
-
-  SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka Broker URL");
-  add_definition(broker);
-
-  SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka Topic");
-  add_definition(topic);
-
-  SettingMeta pi(mp + "KafkaPollInterval", SettingType::integer, "Kafka poll interval");
-  pi.set_val("min", 1);
-  pi.set_val("max", 1000000);
-  pi.set_val("units", "ms");
-  add_definition(pi);
-
-  SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
-  add_definition(det_type);
-
 
 
   SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
@@ -63,15 +57,13 @@ ESSStream::ESSStream()
 
   SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, mp + "SpillInterval");
-  root.set_enum(1, mp + "Resolution");
-  root.set_enum(2, mp + "TimebaseMult");
-  root.set_enum(3, mp + "TimebaseDiv");
-  root.set_enum(4, mp + "KafkaBroker");
-  root.set_enum(5, mp + "KafkaTopic");
-  root.set_enum(6, mp + "KafkaPollInterval");
-  root.set_enum(7, mp + "DetectorType");
-  root.set_enum(8, mp + "DimensionCount");
+  root.set_enum(0, mp + "KafkaBroker");
+  root.set_enum(1, mp + "KafkaTopic");
+  root.set_enum(2, mp + "KafkaTimeout");
+  root.set_enum(3, mp + "DetectorType");
+  root.set_enum(4, mp + "TimebaseMult");
+  root.set_enum(5, mp + "TimebaseDiv");
+  root.set_enum(6, mp + "DimensionCount");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -136,12 +128,11 @@ void ESSStream::read_settings_bulk(Setting &set) const
     return;
   set.enrich(setting_definitions_, true);
 
-  set.set(Setting::integer("ESSStream/SpillInterval", spill_interval_));
   set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
   set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
-  set.set(Setting::text("ESSStream/KafkaBroker", broker_));
-  set.set(Setting::text("ESSStream/KafkaTopic", topic_));
-  set.set(Setting::integer("ESSStream/KafkaPollInterval", poll_interval_));
+  set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
+  set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
+  set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
 
   set.set(Setting::text("ESSStream/DetectorType", detector_type_));
   set.set(Setting::integer("ESSStream/DimensionCount", integer_t(dim_count_)));
@@ -176,12 +167,9 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   auto set = settings;
   set.enrich(setting_definitions_, true);
 
-  spill_interval_ = set.find({"ESSStream/SpillInterval"}).get_number();
-
-
-  broker_ = set.find({"ESSStream/KafkaBroker"}).get_text();
-  topic_ = set.find({"ESSStream/KafkaTopic"}).get_text();
-  poll_interval_ = set.find({"ESSStream/KafkaPollInterval"}).get_number();
+  kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
+  kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
+  kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
 
   detector_type_ = set.find({"ESSStream/DetectorType"}).get_text();
 
@@ -235,7 +223,7 @@ void ESSStream::boot()
     return;
   }
 
-  conf->set("metadata.broker.list", broker_, error_str);
+  conf->set("metadata.broker.list", kafka_broker_name_, error_str);
   conf->set("message.max.bytes", "10000000", error_str);
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);
@@ -246,19 +234,19 @@ void ESSStream::boot()
   //  conf->set("offset.store.method", "none", error_str);
   //  conf->set("auto.offset.reset", "largest", error_str);
 
-  consumer_ = std::unique_ptr<RdKafka::KafkaConsumer>(
+  stream_ = std::unique_ptr<RdKafka::KafkaConsumer>(
         RdKafka::KafkaConsumer::create(conf.get(), error_str));
-  if (!consumer_.get())
+  if (!stream_.get())
   {
     ERR << "Failed to create consumer: " << error_str;
     die();
     return;
   }
 
-  INFO << "Created consumer " << consumer_->name();
+  INFO << "Created consumer " << stream_->name();
 
   // Start consumer for topic+partition at start offset
-  RdKafka::ErrorCode resp = consumer_->subscribe({topic_});
+  RdKafka::ErrorCode resp = stream_->subscribe({kafka_topic_name_});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
     ERR << "Failed to start consumer: " << RdKafka::err2str(resp);
@@ -274,13 +262,13 @@ void ESSStream::boot()
 void ESSStream::die()
 {
   INFO << "<ESSStream> Shutting down";
-  if (consumer_)
+  if (stream_)
   {
-    consumer_->close();
+    stream_->close();
     // Wait for RdKafka to decommission, avoids complaints of memory leak from
     // valgrind etc.
     RdKafka::wait_destroyed(5000);
-    consumer_.reset();
+    stream_.reset();
   }
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
@@ -290,8 +278,6 @@ void ESSStream::worker_run(ESSStream* callback,
 {
   DBG << "<ESSStream> Starting run   "
       << "  timebase " << callback->model_hit_.timebase.debug() << "ns";
-
-  CustomTimer timer(true);
 
   spill_queue->enqueue(callback->create_spill(StatusType::start));
 
@@ -334,7 +320,7 @@ Status ESSStream::get_status(int16_t chan, StatusType t)
 Spill* ESSStream::get_message()
 {
   std::shared_ptr<RdKafka::Message> message
-  {consumer_->consume(poll_interval_)};
+  {stream_->consume(kafka_timeout_)};
 
   switch (message->err())
   {

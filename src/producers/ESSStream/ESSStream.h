@@ -39,14 +39,12 @@ protected:
   boost::thread *runner_ {nullptr};
 
   //Kafka
-  std::unique_ptr<RdKafka::KafkaConsumer> consumer_;
+  std::unique_ptr<RdKafka::KafkaConsumer> stream_;
 
   // cached params
-  std::string broker_;
-  std::string topic_;
-  int poll_interval_ {1};
-
-  uint32_t spill_interval_ {5};
+  std::string kafka_broker_name_;
+  std::string kafka_topic_name_;
+  int kafka_timeout_ {1};
 
   std::string detector_type_;
   size_t dim_count_ {1};
