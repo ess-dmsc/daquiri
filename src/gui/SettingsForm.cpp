@@ -435,6 +435,9 @@ void SettingsForm::on_bootButton_clicked()
   {
     emit toggleIO(false);
     emit statusText("Shutting down...");
+    QSettings settings;
+    settings.beginGroup("Program");
+    settings.setValue("boot_on_startup", false);
 
     //    INFO << "Shutting down";
     runner_thread_.do_shutdown();

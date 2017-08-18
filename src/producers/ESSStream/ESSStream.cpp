@@ -12,9 +12,11 @@ ESSStream::ESSStream()
 
 
   SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka broker URL");
+  broker.set_flag("preset");
   add_definition(broker);
 
   SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka topic");
+  topic.set_flag("preset");
   add_definition(topic);
 
   SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka timeout");
@@ -127,12 +129,14 @@ void ESSStream::read_settings_bulk(Setting &set) const
   if (set.id() != device_name())
     return;
   set.enrich(setting_definitions_, true);
+  set.enable_if_flag(!(status_ & booted), "preset");
 
-  set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
-  set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
   set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
+
+  set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
+  set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
 
   set.set(Setting::text("ESSStream/DetectorType", detector_type_));
   set.set(Setting::integer("ESSStream/DimensionCount", integer_t(dim_count_)));
@@ -166,6 +170,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
     return;
   auto set = settings;
   set.enrich(setting_definitions_, true);
+  set.enable_if_flag(!(status_ & booted), "preset");
 
   kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
@@ -253,9 +258,9 @@ void ESSStream::boot()
     return;
   }
 
-
   clock_ = 0;
-  status_ = ProducerStatus::loaded | ProducerStatus::booted | ProducerStatus::can_run;
+  status_ = ProducerStatus::loaded |
+      ProducerStatus::booted | ProducerStatus::can_run;
 }
 
 void ESSStream::die()
@@ -329,7 +334,7 @@ Spill* ESSStream::get_message()
   case RdKafka::ERR_NO_ERROR:
     //    msg_cnt++;
     //    msg_bytes += message->len();
-    DBG << "Read msg at offset " << message->offset();
+//    DBG << "Read msg at offset " << message->offset();
     RdKafka::MessageTimestamp ts;
     ts = message->timestamp();
     if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
@@ -345,10 +350,10 @@ Spill* ESSStream::get_message()
     if (message->key())
       DBG << "Key: " << *message->key();
 
-    DBG << "Received Kafka message " << debug(message);
+//    DBG << "Received Kafka message " << debug(message);
 
-    return nullptr;
-//    return process_message(message);
+//    return nullptr;
+    return process_message(message);
 
   case RdKafka::ERR__PARTITION_EOF:
     /* Last message */
@@ -394,11 +399,11 @@ Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
       WARN << "Buffer ID" << id << "out of order "  << debug(*em);
     buf_id_ = std::max(buf_id_, id);
 
-    if (detector_type_ != em->source_name()->str())
-    {
-      DBG << "Bad detector type " << debug(*em);
-      return ret;
-    }
+//    if (detector_type_ != em->source_name()->str())
+//    {
+//      DBG << "Bad detector type " << debug(*em);
+//      return ret;
+//    }
 
     auto t_len = em->time_of_flight()->Length();
     auto p_len = em->detector_id()->Length();
@@ -408,7 +413,7 @@ Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
       return ret;
     }
 
-    DBG << "Good buffer " << debug(*em);
+//    DBG << "Good buffer " << debug(*em);
 
     ret = create_spill(StatusType::running);
     int16_t chan0 {0};

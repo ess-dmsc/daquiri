@@ -3,6 +3,8 @@
 
 void GeometryInterpreter::add_dimension(std::string name, size_t size)
 {
+  if (!size)
+    return;
   names_.push_back(name);
   dimensions_[name] = size;
   if (coefs_.empty())
@@ -21,11 +23,11 @@ EventModel GeometryInterpreter::model(const TimeBase& tb) const
 
 void GeometryInterpreter::interpret_id(Event& e, size_t val) const
 {
-  if (coefs_.empty())
+  if (coefs_.empty() || !val)
     return;
+  val--;
   size_t i = 0;
-  auto b = coefs_.begin();
-  b++;
+  auto b = coefs_.begin(); b++;
   while (b != coefs_.end())
   {
     e.set_value(i++, val / (*b));

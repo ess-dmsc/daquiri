@@ -96,8 +96,8 @@ void Image2D::_push_event(const Event& e)
   if (!this->event_relevant(e))
     return;
   const auto& c = e.channel();
-  uint16_t x = e.value(x_idx_.at(c)).val(bits_);
-  uint16_t y = e.value(y_idx_.at(c)).val(bits_);
+  uint16_t x = e.value(x_idx_.at(c)).val(e.value(x_idx_.at(c)).bits());
+  uint16_t y = e.value(y_idx_.at(c)).val(e.value(y_idx_.at(c)).bits());
   Spectrum2D::bin_pair(x,y,1);
 }
 
