@@ -28,7 +28,7 @@ struct DataAxis
 
 class Dataspace
 {
-protected:
+private:
   mutable boost::shared_mutex mutex_;
   std::vector<DataAxis> axes_;
   uint16_t dimensions_ {0};
@@ -37,18 +37,18 @@ public:
   Dataspace();
   Dataspace(uint16_t dimensions);
   Dataspace(const Dataspace& other);
-  virtual Dataspace* clone() const = 0;
+//  virtual Dataspace* clone() const = 0;
   virtual ~Dataspace() {}
+
+  void add(const Entry&);
+  //get count at coordinates in n-dimensional list
+  PreciseFloat get(std::initializer_list<size_t> list = {}) const;
+  //parameters take dimensions_ of ranges (inclusive)
+  //optimized retrieval of bulk data as list of Entries
+  std::unique_ptr<EntryList> range(std::initializer_list<Pair> list = {}) const;
 
   void load(H5CC::Group&);
   void save(H5CC::Group&) const;
-
-  //get count at coordinates in n-dimensional list
-  //optimized retrieval of bulk data as list of Entries
-  //parameters take dimensions_number of ranges (inclusive)
-  PreciseFloat data(std::initializer_list<size_t> list = {}) const;
-  std::unique_ptr<EntryList> data(std::initializer_list<Pair> list = {}) const;
-  void append(const Entry&);
 
   //retrieve axis-values for given dimension (can be precalculated energies)
   uint16_t dimensions() const;
@@ -62,12 +62,12 @@ protected:
   //////////THIS IS THE MEAT////////////////
   ///implement these to make custom types///
   //////////////////////////////////////////
-  
-  virtual void _recalc_axes() = 0;
 
-  virtual PreciseFloat _data(std::initializer_list<size_t>) const;
-  virtual std::unique_ptr<EntryList> _data(std::initializer_list<Pair>) const;
-  virtual void _append(const Entry&) = 0;
+  uint16_t _dimensions() const;
+  
+  virtual void _add(const Entry&) = 0;
+  virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;
+  virtual std::unique_ptr<EntryList> _range(std::initializer_list<Pair>) const = 0;
 
   virtual void _load(H5CC::Group&) {}
   virtual void _save(H5CC::Group&) const {}

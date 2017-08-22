@@ -77,27 +77,22 @@ Dataspace::Dataspace(const Dataspace& other)
   , axes_ (other.axes_)
 {}
 
-PreciseFloat Dataspace::data(std::initializer_list<size_t> list ) const
+PreciseFloat Dataspace::get(std::initializer_list<size_t> list) const
 {
   shared_lock lock(mutex_);
-  if (list.size() != dimensions_)
-    return 0;
-  return this->_data(list);
+  return this->_get(list);
 }
 
-std::unique_ptr<EntryList> Dataspace::data(std::initializer_list<Pair> list) const
+std::unique_ptr<EntryList> Dataspace::range(std::initializer_list<Pair> list) const
 {
   shared_lock lock(mutex_);
-  return this->_data(list);
+  return this->_range(list);
 }
 
-void Dataspace::append(const Entry& e)
+void Dataspace::add(const Entry& e)
 {
   shared_lock lock(mutex_);
-  if (dimensions_ < 1)
-    return;
-  else
-    this->_append(e);
+  this->_add(e);
 }
 
 DataAxis Dataspace::axis(uint16_t dimension) const
@@ -122,6 +117,11 @@ void Dataspace::set_axis(size_t dim, const DataAxis& ax)
 uint16_t Dataspace::dimensions() const
 {
   shared_lock lock(mutex_);
+  return _dimensions();
+}
+
+uint16_t Dataspace::_dimensions() const
+{
   return dimensions_;
 }
 
@@ -152,9 +152,7 @@ void Dataspace::load(H5CC::Group& g)
   unique_lock lock(mutex_, boost::defer_lock);
   while (!lock.try_lock())
     wait_ms(SLEEP_TIME_MS);
-
   this->_load(g);
-  this->_recalc_axes();
 }
 
 void Dataspace::save(H5CC::Group& g) const
@@ -162,19 +160,6 @@ void Dataspace::save(H5CC::Group& g) const
   shared_lock lock(mutex_);
   this->_save(g);
 }
-
-PreciseFloat Dataspace::_data(std::initializer_list<size_t>) const
-{
-  return 0;
-}
-
-std::unique_ptr<EntryList> Dataspace::_data(std::initializer_list<Pair>) const
-{
-  return nullptr;
-}
-
-void Dataspace::_append(const Entry&)
-{}
 
 std::string Dataspace::_data_debug(const std::string&) const
 {
