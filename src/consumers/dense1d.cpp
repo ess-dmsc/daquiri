@@ -30,7 +30,7 @@ PreciseFloat Dense1D::_get(std::initializer_list<size_t> list) const
   return 0;
 }
 
-std::unique_ptr<EntryList> Dense1D::_range(std::initializer_list<Pair> list) const
+EntryList Dense1D::_range(std::initializer_list<Pair> list) const
 {
   size_t min {0};
   size_t max {spectrum_.size() - 1};
@@ -40,7 +40,7 @@ std::unique_ptr<EntryList> Dense1D::_range(std::initializer_list<Pair> list) con
     max = std::min(list.begin()->second, spectrum_.size() - 1);
   }
 
-  std::unique_ptr<EntryList> result(new EntryList);
+  EntryList result(new EntryList_t);
   if (spectrum_.empty())
     return result;
 

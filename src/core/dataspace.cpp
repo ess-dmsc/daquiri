@@ -83,7 +83,7 @@ PreciseFloat Dataspace::get(std::initializer_list<size_t> list) const
   return this->_get(list);
 }
 
-std::unique_ptr<EntryList> Dataspace::range(std::initializer_list<Pair> list) const
+EntryList Dataspace::range(std::initializer_list<Pair> list) const
 {
   shared_lock lock(mutex_);
   return this->_range(list);

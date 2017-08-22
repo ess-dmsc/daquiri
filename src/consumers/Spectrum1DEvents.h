@@ -1,11 +1,8 @@
 #pragma once
 
 #include "spectrum_event_mode.h"
-#include "spectrum1D.h"
 
-class Spectrum1DEvents
-    : virtual public SpectrumEventMode
-    , virtual public Spectrum1D
+class Spectrum1DEvents : public SpectrumEventMode
 {
 public:
   Spectrum1DEvents();
@@ -17,6 +14,7 @@ protected:
 
   bool _initialize() override;
   void _init_from_file(std::string name) override;
+  void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
 
   //event processing
@@ -25,5 +23,6 @@ protected:
   virtual void bin_event(const Event&);
 
   // cached parameters:
+  uint16_t bits_ {0};
   uint32_t cutoff_bin_ {0};
 };

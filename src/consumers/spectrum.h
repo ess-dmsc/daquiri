@@ -4,15 +4,12 @@
 
 using namespace DAQuiri;
 
-class Spectrum : virtual public DAQuiri::Consumer
+class Spectrum : public Consumer
 {
 public:
   Spectrum();
 
 protected:
-  void _init_from_file(std::string name) override;
-  void _recalc_axes() override;
-
   void _push_stats(const Status&) override;
   void _flush() override;
 

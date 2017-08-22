@@ -9,11 +9,13 @@ class Sparse2D : public Dataspace
 {
 public:
   Sparse2D();
+  Sparse2D* clone() const
+  { return new Sparse2D(*this); }
 
 protected:
   void _add(const Entry&) override;
   PreciseFloat _get(std::initializer_list<size_t> list) const override;
-  std::unique_ptr<EntryList> _range(std::initializer_list<Pair> list) const override;
+  EntryList _range(std::initializer_list<Pair> list) const override;
 
   void _save(H5CC::Group&) const override;
   void _load(H5CC::Group&) override;
@@ -33,7 +35,7 @@ protected:
 
   bool is_symmetric();
 
-  void _fill_list(std::unique_ptr<EntryList>& result,
+  void _fill_list(EntryList &result,
                   size_t min0, size_t max0,
                   size_t min1, size_t max1) const;
 };

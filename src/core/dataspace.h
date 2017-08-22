@@ -9,7 +9,9 @@
 namespace DAQuiri {
 
 using Entry = std::pair<std::vector<size_t>, PreciseFloat>;
-using EntryList = std::list<Entry>;
+using EntryList_t = std::list<Entry>;
+using EntryList = std::shared_ptr<EntryList_t>;
+
 using Pair = std::pair<size_t, size_t>;
 
 struct DataAxis
@@ -37,7 +39,7 @@ public:
   Dataspace();
   Dataspace(uint16_t dimensions);
   Dataspace(const Dataspace& other);
-//  virtual Dataspace* clone() const = 0;
+  virtual Dataspace* clone() const = 0;
   virtual ~Dataspace() {}
 
   void add(const Entry&);
@@ -45,7 +47,7 @@ public:
   PreciseFloat get(std::initializer_list<size_t> list = {}) const;
   //parameters take dimensions_ of ranges (inclusive)
   //optimized retrieval of bulk data as list of Entries
-  std::unique_ptr<EntryList> range(std::initializer_list<Pair> list = {}) const;
+  EntryList range(std::initializer_list<Pair> list = {}) const;
 
   void load(H5CC::Group&);
   void save(H5CC::Group&) const;
@@ -67,7 +69,7 @@ protected:
   
   virtual void _add(const Entry&) = 0;
   virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;
-  virtual std::unique_ptr<EntryList> _range(std::initializer_list<Pair>) const = 0;
+  virtual EntryList _range(std::initializer_list<Pair>) const = 0;
 
   virtual void _load(H5CC::Group&) {}
   virtual void _save(H5CC::Group&) const {}

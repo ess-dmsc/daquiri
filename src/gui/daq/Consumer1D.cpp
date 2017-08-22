@@ -28,22 +28,26 @@ void Consumer1D::update()
   plot_->clearPrimary();
 
   ConsumerMetadata md = consumer_->metadata();
+  DataspacePtr data = consumer_->data();
 
   double rescale  = md.get_attribute("rescale").get_number();
   auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
 
-  DataAxis axis = consumer_->axis(0);
-  QVector<double> x = QVector<double>::fromStdVector(axis.domain);
+  DataAxis axis;
+  EntryList spectrum_data;
 
-  std::shared_ptr<EntryList> spectrum_data =
-      std::move(consumer_->data_range({axis.bounds()}));
+  if (data)
+  {
+    axis = data->axis(0);
+    spectrum_data = data->range({axis.bounds()});
+  }
 
   QPlot::HistMap1D hist;
   if (spectrum_data)
   {
     for (auto it : *spectrum_data)
     {
-      double xx = x[it.first[0]];
+      double xx = axis.domain[it.first[0]];
       double yy = to_double( it.second ) * rescale;
       hist[xx] = yy;
     }

@@ -70,15 +70,24 @@ void Consumer2D::update()
   //  CustomTimer guiside(true);
 
   ConsumerMetadata md = consumer_->metadata();
+  DataspacePtr data = consumer_->data();
+
+  DataAxis axis_x, axis_y;
+  EntryList spectrum_data;
+  uint32_t res_x {0};
+  uint32_t res_y {0};
 
 //  bool buffered = md.get_attribute("buffered").triggered();
 //  PreciseFloat total = md.get_attribute("total_count").get_number();
 
-  DataAxis axis_x = consumer_->axis(0);
-  DataAxis axis_y = consumer_->axis(1);
-
-  uint32_t res_x = axis_x.bounds().second * zoom_;
-  uint32_t res_y = axis_y.bounds().second * zoom_;
+  if (data)
+  {
+    axis_x = data->axis(0);
+    axis_y = data->axis(1);
+    res_x = axis_x.bounds().second * zoom_;
+    res_y = axis_y.bounds().second * zoom_;
+    spectrum_data = data->range({{0, res_x}, {0, res_y}});
+  }
 
   if (!res_x || !res_y)
   {
@@ -87,11 +96,7 @@ void Consumer2D::update()
     return;
   }
 
-
   double rescale  = md.get_attribute("rescale").get_number();
-  std::shared_ptr<EntryList> spectrum_data =
-      std::move(consumer_->data_range({{0, res_x}, {0, res_y}}));
-
   QPlot::HistList2D hist;
   if (spectrum_data)
     for (auto p : *spectrum_data)

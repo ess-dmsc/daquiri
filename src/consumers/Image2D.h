@@ -1,9 +1,8 @@
 #pragma once
 
-#include "spectrum2D.h"
+#include "spectrum.h"
 
-class Image2D
-    : virtual public Spectrum2D
+class Image2D : public Spectrum
 {
 public:
   Image2D();
@@ -15,6 +14,7 @@ protected:
 
   bool _initialize() override;
   void _init_from_file(std::string name) override;
+  void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
 
   void _push_event(const Event&) override;
@@ -28,6 +28,7 @@ protected:
   std::string x_name_;
   std::string y_name_;
   Pattern pattern_add_;
+  uint16_t downsample_ {0};
 
   //from status manifest
   std::vector<int> x_idx_;

@@ -39,7 +39,7 @@ PreciseFloat Sparse2D::_get(std::initializer_list<size_t> list) const
   return 0;
 }
 
-std::unique_ptr<EntryList> Sparse2D::_range(std::initializer_list<Pair> list) const
+EntryList Sparse2D::_range(std::initializer_list<Pair> list) const
 {
   size_t min0, min1, max0, max1;
   if (list.size() != _dimensions())
@@ -58,7 +58,7 @@ std::unique_ptr<EntryList> Sparse2D::_range(std::initializer_list<Pair> list) co
     max1 = std::max(range1.first, range1.second);
   }
 
-  std::unique_ptr<EntryList> result(new EntryList);
+  EntryList result(new EntryList_t);
 //  CustomTimer makelist(true);
 
   _fill_list(result, min0, max0, min1, max1);
@@ -66,7 +66,7 @@ std::unique_ptr<EntryList> Sparse2D::_range(std::initializer_list<Pair> list) co
   return result;
 }
 
-void Sparse2D::_fill_list(std::unique_ptr<EntryList>& result,
+void Sparse2D::_fill_list(EntryList& result,
                           size_t min0, size_t max0,
                           size_t min1, size_t max1) const
 {
