@@ -9,57 +9,6 @@
 
 namespace DAQuiri {
 
-DataAxis::DataAxis(Calibration c, size_t resolution)
-{
-  calibration = c;
-  domain.resize(resolution);
-  for (size_t i=0; i < resolution; ++i)
-    domain[i] = calibration.transform(i);
-}
-
-DataAxis::DataAxis(Calibration c, size_t resolution, uint16_t bits)
-{
-  calibration = c;
-  domain.resize(resolution);
-  for (size_t i=0; i < resolution; ++i)
-    domain[i] = calibration.transform(i, bits);
-}
-
-Pair DataAxis::bounds() const
-{
-  return Pair(0, domain.size());
-}
-
-std::string DataAxis::label() const
-{
-//  if (!calibration.valid())
-//    return "undefined axis";
-  std::stringstream ss;
-  if (!calibration.to().value.empty())
-    ss << calibration.to().value;
-  else
-    ss << calibration.from().value;
-  if (!calibration.to().units.empty())
-    ss << " (" << calibration.to().units << ")";
-  else
-    ss << " (" << calibration.from().bits << " bits)";
-  return ss.str();
-}
-
-std::string DataAxis::debug() const
-{
-  std::stringstream ss;
-  ss << "domain_size=" << domain.size();
-  if (domain.size())
-    ss << " [" << domain[0]
-       << "-" << domain[domain.size()-1]
-       << "]";
-  if (calibration.valid())
-    ss << " " << calibration.debug();
-  return ss.str();
-}
-
-
 Consumer::Consumer()
 {
   Setting attributes = metadata_.attributes();

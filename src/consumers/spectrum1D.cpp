@@ -13,6 +13,10 @@ Spectrum1D::Spectrum1D()
 
   SettingMeta resm("resolution", SettingType::menu);
   resm.set_flag("preset");
+  resm.set_enum(0, "native");
+  resm.set_enum(1, "1 bit (2)");
+  resm.set_enum(2, "2 bit (4)");
+  resm.set_enum(3, "3 bit (8)");
   resm.set_enum(4, "4 bit (16)");
   resm.set_enum(5, "5 bit (32)");
   resm.set_enum(6, "6 bit (64)");

@@ -6,25 +6,9 @@
 #include <boost/thread.hpp>
 #include "H5CC_Group.h"
 
+#include "dataspace.h"
+
 namespace DAQuiri {
-
-typedef std::pair<std::vector<size_t>, PreciseFloat> Entry;
-typedef std::list<Entry> EntryList;
-typedef std::pair<size_t, size_t> Pair;
-
-struct DataAxis
-{
-    DataAxis() {}
-    DataAxis(Calibration c, size_t resolution);
-    DataAxis(Calibration c, size_t resolution, uint16_t bits);
-
-    std::string label() const;
-    std::string debug() const;
-    Pair bounds() const;
-
-    Calibration calibration;
-    std::vector<double> domain;
-};
 
 class Consumer
 {
