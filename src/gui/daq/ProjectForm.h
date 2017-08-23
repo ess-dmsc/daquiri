@@ -70,7 +70,7 @@ private:
   DAQuiri::ProjectPtr                   project_;
 
   ThreadPlotSignal                plot_thread_;
-  boost::atomic<bool>             interruptor_;
+  DAQuiri::Interruptor            interruptor_;
 
   bool my_run_;
 

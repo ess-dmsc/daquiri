@@ -2,8 +2,6 @@
 #include "consumer_factory.h"
 #include "custom_logger.h"
 
-#include <fstream>
-
 #include "H5CC_File.h"
 #include "h5json.h"
 #include "print_exception.h"
@@ -27,19 +25,19 @@ Project::Project(const Project& other)
 
 std::string Project::identity() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   return identity_;
 }
 
 std::list<Spill> Project::spills() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   return spills_;
 }
 
 void Project::clear()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   clear_helper();
   cond_.notify_all();
 }
@@ -57,7 +55,8 @@ void Project::clear_helper()
 
 void Project::flush()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
+
   if (!sinks_.empty())
     for (auto &q: sinks_) {
       //DBG << "closing " << q->name();
@@ -67,23 +66,23 @@ void Project::flush()
 
 void Project::activate()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   ready_ = true;
   cond_.notify_all();
 }
 
 bool Project::wait_ready()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   while (!ready_)
-    cond_.wait(lock);
+    cond_.wait(ulock);
   ready_ = false;
   return true;
 }
 
 bool Project::new_data()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   bool ret = newdata_;
   newdata_ = false;
   return ret;
@@ -91,8 +90,7 @@ bool Project::new_data()
 
 bool Project::changed() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
-
+  UNIQUE_LOCK_EVENTUALLY
   for (auto &q : sinks_)
     if (q.second->changed())
       changed_ = true;
@@ -102,19 +100,19 @@ bool Project::changed() const
 
 void Project::mark_changed()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   changed_ = true;
 }
 
 bool Project::empty() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   return sinks_.empty();
 }
 
 std::vector<std::string> Project::types() const
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   std::set<std::string> my_types;
   for (auto &q: sinks_)
     my_types.insert(q.second->type());
@@ -124,9 +122,8 @@ std::vector<std::string> Project::types() const
 
 ConsumerPtr Project::get_sink(int64_t idx)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
-
   if (sinks_.count(idx))
     return sinks_.at(idx);
   else
@@ -135,7 +132,7 @@ ConsumerPtr Project::get_sink(int64_t idx)
 
 std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
   
   if (dimensions == -1)
@@ -150,7 +147,7 @@ std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions)
 
 std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
   
   std::map<int64_t, ConsumerPtr> ret;
@@ -168,7 +165,8 @@ int64_t Project::add_sink(ConsumerPtr sink)
 {
   if (!sink)
     return 0;
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
+
   sinks_[++current_index_] = sink;
   changed_ = true;
   ready_ = true;
@@ -179,7 +177,8 @@ int64_t Project::add_sink(ConsumerPtr sink)
 
 int64_t Project::add_sink(ConsumerMetadata prototype)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
+
   ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototype);
   if (!sink)
     return 0;
@@ -193,7 +192,7 @@ int64_t Project::add_sink(ConsumerMetadata prototype)
 
 void Project::delete_sink(int64_t idx)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
 
   if (!sinks_.count(idx))
     return;
@@ -210,7 +209,8 @@ void Project::delete_sink(int64_t idx)
 
 void Project::set_prototypes(const Container<ConsumerMetadata>& prototypes)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
+
   clear_helper();
 
   for (size_t i=0; i < prototypes.size(); i++)
@@ -233,7 +233,7 @@ void Project::set_prototypes(const Container<ConsumerMetadata>& prototypes)
 
 void Project::add_spill(Spill* one_spill)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
 
   for (auto &q: sinks_)
     q.second->push_spill(*one_spill);
@@ -257,7 +257,8 @@ void Project::add_spill(Spill* one_spill)
 
 void Project::save()
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
+
   if (/*changed_ && */(identity_ != "New project"))
     save_as(identity_);
 }
@@ -317,7 +318,7 @@ void Project::to_h5(H5CC::Group &group) const
 
 void Project::from_h5(H5CC::Group &group, bool with_sinks, bool with_full_sinks)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  UNIQUE_LOCK_EVENTUALLY
   clear_helper();
 
   if (group.has_group("spills"))
@@ -373,7 +374,7 @@ void Project::write_h5(std::string file_name)
     for (auto &q : sinks_)
       q.second->reset_changed();
 
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    unique_lock lock(mutex_);
     identity_ = file_name;
     cond_.notify_all();
   }
@@ -394,7 +395,7 @@ void Project::read_h5(std::string file_name,
     auto group = f.require_group("project");
     from_h5(group, with_sinks, with_full_sinks);
 
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    unique_lock lock(mutex_);
     identity_ = file_name;
     cond_.notify_all();
 //  }

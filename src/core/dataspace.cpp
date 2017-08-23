@@ -1,20 +1,5 @@
 #include "dataspace.h"
-#include "h5json.h"
 #include "ascii_tree.h"
-
-#include "custom_timer.h"
-#include "custom_logger.h"
-#include <thread>
-
-#define SLEEP_TIME_MS 200
-
-//using shared_lock = boost::shared_lock<boost::shared_mutex>;
-//using shared_lock = boost::upgrade_lock<boost::shared_mutex>;
-//using unique_lock = boost::unique_lock<boost::shared_mutex>;
-//using upgrade_lock = boost::upgrade_to_unique_lock<boost::shared_mutex>;
-
-using unique_lock = std::unique_lock<std::shared_timed_mutex>;
-using shared_lock = std::shared_lock<std::shared_timed_mutex>;
 
 namespace DAQuiri {
 
@@ -109,41 +94,31 @@ Dataspace::Dataspace(const Dataspace& other)
 
 PreciseFloat Dataspace::get(std::initializer_list<size_t> list) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return this->_get(list);
 }
 
 EntryList Dataspace::range(std::initializer_list<Pair> list) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return this->_range(list);
 }
 
 void Dataspace::recalc_axes(uint16_t bits)
 {
-//  shared_lock lock(mutex_);
-//  upgrade_lock wlock(lock);
-
-  unique_lock lock(mutex_, std::defer_lock);
-  while (!lock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_recalc_axes(bits);
 }
 
 void Dataspace::add(const Entry& e)
 {
-//  shared_lock lock(mutex_);
-//  upgrade_lock wlock(lock);
-
-  unique_lock lock(mutex_, std::defer_lock);
-  while (!lock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_add(e);
 }
 
 DataAxis Dataspace::axis(uint16_t dimension) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return _axis(dimension);
 }
 
@@ -157,15 +132,8 @@ DataAxis Dataspace::_axis(uint16_t dimension) const
 
 void Dataspace::set_axis(size_t dim, const DataAxis& ax)
 {
-//  shared_lock lock(mutex_);
-//  upgrade_lock wlock(lock);
-
-  unique_lock lock(mutex_, std::defer_lock);
-  while (!mutex_.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-
+  UNIQUE_LOCK_EVENTUALLY_ST
   _set_axis(dim, ax);
-  mutex_.unlock();
 }
 
 void Dataspace::_set_axis(size_t dim, const DataAxis& ax)
@@ -177,7 +145,7 @@ void Dataspace::_set_axis(size_t dim, const DataAxis& ax)
 
 uint16_t Dataspace::dimensions() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return _dimensions();
 }
 
@@ -188,7 +156,7 @@ uint16_t Dataspace::_dimensions() const
 
 std::string Dataspace::debug(std::string prepend) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   std::stringstream ss;
   if (axes_.empty())
     ss << prepend << k_branch_mid_B << "Axes undefined\n";
@@ -210,18 +178,13 @@ std::string Dataspace::debug(std::string prepend) const
 
 void Dataspace::load(H5CC::Group& g)
 {
-//  shared_lock lock(mutex_);
-//  upgrade_lock wlock(lock);
-
-  unique_lock lock(mutex_, std::defer_lock);
-  while (!lock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_load(g);
 }
 
 void Dataspace::save(H5CC::Group& g) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   this->_save(g);
 }
 

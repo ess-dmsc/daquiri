@@ -1,15 +1,16 @@
 #pragma once
 
 #include "consumer.h"
-#include "H5CC_Group.h"
+#include <condition_variable>
+#include <mutex>
 
 namespace DAQuiri {
 
 class Project {
 protected:
   //control
-  mutable boost::mutex mutex_;
-  boost::condition_variable cond_;
+  mutable mutex mutex_;
+  std::condition_variable cond_;
   mutable bool ready_ {false};
   mutable bool newdata_ {false};
   int64_t current_index_ {0};

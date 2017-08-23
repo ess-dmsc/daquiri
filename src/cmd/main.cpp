@@ -8,6 +8,8 @@
 
 #include "producer_factory.h"
 
+#include "custom_timer.h"
+
 Setting get_profile();
 Container<ConsumerMetadata> get_prototypes();
 void define_value(Engine& e, uint16_t num,
@@ -55,7 +57,7 @@ int main(int argc, char **argv)
     DBG << "Result[" << s.first << "]\n"
         << s.second->debug("", false);
 
-  boost::this_thread::sleep(boost::posix_time::seconds(2));
+  wait_ms(2000);
 
   return 0;
 }

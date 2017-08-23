@@ -4,6 +4,9 @@
 #include "ess_geometry.h"
 #include <librdkafka/rdkafkacpp.h>
 
+#include <atomic>
+#include <thread>
+
 using namespace DAQuiri;
 
 class EventMessage;
@@ -35,8 +38,8 @@ private:
   static void worker_run(ESSStream* callback, SpillQueue spill_queue);
 
 protected:
-  boost::atomic<int> run_status_ {0};
-  boost::thread *runner_ {nullptr};
+  std::atomic<int> run_status_ {0};
+  std::thread *runner_ {nullptr};
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;

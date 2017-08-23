@@ -109,7 +109,7 @@ bool MockProducer::daq_start(SpillQueue out_queue)
   if (runner_ != nullptr)
     delete runner_;
 
-  runner_ = new boost::thread(&worker_run, this, out_queue);
+  runner_ = new std::thread(&worker_run, this, out_queue);
 
   return true;
 }
@@ -278,7 +278,7 @@ void MockProducer::worker_run(MockProducer* callback,
   spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
   while (callback->run_status_.load() != 2)
   {
-    boost::this_thread::sleep(boost::posix_time::seconds(callback->spill_interval_));
+    wait_ms(callback->spill_interval_ * 1000);
     spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
   }
   spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));

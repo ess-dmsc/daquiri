@@ -3,14 +3,13 @@
 #include "consumer_metadata.h"
 #include "spill.h"
 #include "dataspace.h"
-#include <boost/thread.hpp>
 
 namespace DAQuiri {
 
 class Consumer
 {
 protected:
-  mutable boost::shared_mutex mutex_;
+  mutable mutex_st mutex_;
   ConsumerMetadata metadata_;
   DataspacePtr data_;
   bool changed_ {false};

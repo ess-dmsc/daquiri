@@ -1,12 +1,11 @@
 #pragma once
 
 #include <initializer_list>
-//#include <boost/thread.hpp>
-//#include <mutex>
-#include <shared_mutex>
 #include "H5CC_Group.h"
 #include "precise_float.h"
 #include "calibration.h"
+
+#include "thread_wrappers.h"
 
 namespace DAQuiri {
 
@@ -36,8 +35,7 @@ struct DataAxis
 class Dataspace
 {
 private:
-//  mutable boost::shared_mutex mutex_;
-  mutable std::shared_timed_mutex mutex_;
+  mutable mutex_st mutex_;
   std::vector<DataAxis> axes_;
   uint16_t dimensions_ {0};
 
@@ -67,14 +65,14 @@ public:
   std::string debug(std::string prepend = "") const;
 
 protected:
+  uint16_t _dimensions() const;
+  DataAxis _axis(uint16_t dimension) const;
+  void _set_axis(size_t dim, const DataAxis& ax);
+
   //////////////////////////////////////////
   //////////THIS IS THE MEAT////////////////
   ///implement these to make custom types///
   //////////////////////////////////////////
-
-  uint16_t _dimensions() const;
-  DataAxis _axis(uint16_t dimension) const;
-  void _set_axis(size_t dim, const DataAxis& ax);
 
   virtual void _add(const Entry&) = 0;
   virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;

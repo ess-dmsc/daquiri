@@ -3,9 +3,12 @@
 #include "producer_factory.h"
 #include "custom_timer.h"
 
+#include <functional>
+
 //#include "core_compiletime.h"
 
-#define SLEEP_TIME_MS 200
+#define SLEEP_TIME std::chrono::microseconds(100)
+using shared_lock = std::shared_lock<std::shared_timed_mutex>;
 
 namespace DAQuiri {
 
@@ -32,9 +35,7 @@ Engine::Engine()
 
 void Engine::initialize(const json &profile)
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   Setting tree = profile;
 
@@ -59,23 +60,21 @@ void Engine::initialize(const json &profile)
   _get_all_settings();
 
   Setting descr = tree.find(Setting("Profile description"));
-  INFO << "<Engine> Welcome to " << descr.get_text();
+  INFO << "<Engine> Welcome to " << descr.get_text(); 
 }
 
 Engine::~Engine()
 {
   die();
 
-//    Setting dev_settings = settings_;
-//    dev_settings.condense();
-//    dev_settings.strip_metadata();
+  //    Setting dev_settings = settings_;
+  //    dev_settings.condense();
+  //    dev_settings.strip_metadata();
 }
 
 void Engine::boot()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   for (auto &q : producers_)
     if (q.second)
@@ -86,9 +85,7 @@ void Engine::boot()
 
 void Engine::die()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   _die();
 }
 
@@ -103,27 +100,25 @@ void Engine::_die()
 
 ProducerStatus Engine::status() const
 {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  SHARED_LOCK_ST
   return aggregate_status_;
 }
 
 std::vector<Detector> Engine::get_detectors() const
 {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  SHARED_LOCK_ST
   return detectors_;
 }
 
 Setting Engine::pull_settings() const
 {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  SHARED_LOCK_ST
   return settings_;
 }
 
 void Engine::push_settings(const Setting& newsettings)
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   _push_settings(newsettings);
 }
 
@@ -131,14 +126,12 @@ void Engine::_push_settings(const Setting& newsettings)
 {
   settings_ = newsettings;
   _write_settings_bulk();
-//  INFO << "settings pushed branches = " << settings_.branches.size();
+  //  INFO << "settings pushed branches = " << settings_.branches.size();
 }
 
 void Engine::read_settings_bulk()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   _read_settings_bulk();
 }
 
@@ -180,9 +173,7 @@ void Engine::_read_settings_bulk()
 
 void Engine::write_settings_bulk()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   _write_settings_bulk();
 }
 
@@ -214,9 +205,7 @@ void Engine::rebuild_structure(Setting &set)
 
 OscilData Engine::oscilloscope()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST;
 
   std::vector<Event> traces;
   traces.resize(detectors_.size());
@@ -271,9 +260,7 @@ bool Engine::daq_running() const
 
 void Engine::set_detector(size_t ch, Detector det)
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   if (ch >= detectors_.size())
     return;
@@ -300,8 +287,8 @@ void Engine::save_optimization()
 {
   for (size_t i = 0; i < detectors_.size(); i++)
   {
-//    DBG << "Saving optimization channel " << i << " settings for " << detectors_[i].name_;
-//    detectors_[i].settings_ = Setting();
+    //    DBG << "Saving optimization channel " << i << " settings for " << detectors_[i].name_;
+    //    detectors_[i].settings_ = Setting();
     Setting t;
     t.set_indices({int32_t(i)});
     detectors_[i].add_optimizations(settings_.find_all(t, Match::indices));
@@ -310,10 +297,7 @@ void Engine::save_optimization()
 
 void Engine::load_optimizations()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-
+  UNIQUE_LOCK_EVENTUALLY_ST
   for (size_t i = 0; i < detectors_.size(); i++)
     load_optimization(i);
 }
@@ -333,10 +317,7 @@ void Engine::load_optimization(size_t i)
 
 void Engine::set_setting(Setting address, Match flags, bool greedy)
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-
+  UNIQUE_LOCK_EVENTUALLY_ST
   settings_.set(address, flags, greedy);
   _write_settings_bulk();
   _read_settings_bulk();
@@ -344,9 +325,7 @@ void Engine::set_setting(Setting address, Match flags, bool greedy)
 
 void Engine::get_all_settings()
 {
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   _get_all_settings();
 }
 
@@ -363,7 +342,7 @@ void Engine::_get_all_settings()
 
 void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t timeout)
 {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   if (!project)
   {
@@ -377,10 +356,6 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     return;
   }
 
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-
   if (timeout > 0)
     INFO << "<Engine> Starting acquisition scheduled for " << timeout << " seconds";
   else
@@ -389,17 +364,18 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  SynchronizedQueue<Spill*> parsedQueue;
+  SynchronizedQueue<Spill*> parsed_queue;
 
-  boost::thread builder(boost::bind(&Engine::worker_chronological, this, &parsedQueue, project));
+  std::thread builder(std::bind(&Engine::worker_chronological,
+                                this, &parsed_queue, project));
 
   Spill* spill = new Spill;
   _get_all_settings();
   spill->state = settings_;
   spill->detectors = detectors_;
-  parsedQueue.enqueue(spill);
+  parsed_queue.enqueue(spill);
 
-  if (!daq_start(&parsedQueue))
+  if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
 
   CustomTimer total_timer(timeout, true);
@@ -412,7 +388,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     {
       if (timeout > 0)
         INFO << "  RUNNING Elapsed: " << total_timer.done()
-                << "  ETA: " << total_timer.ETA();
+             << "  ETA: " << total_timer.ETA();
       else
         INFO << "  RUNNING Elapsed: " << total_timer.done();
 
@@ -431,12 +407,12 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   spill = new Spill;
   _get_all_settings();
   spill->state = settings_;
-  parsedQueue.enqueue(spill);
+  parsed_queue.enqueue(spill);
 
   wait_ms(500);
-  while (parsedQueue.size() > 0)
+  while (parsed_queue.size() > 0)
     wait_ms(500);
-  parsedQueue.stop();
+  parsed_queue.stop();
   wait_ms(500);
 
   builder.join();
@@ -445,17 +421,13 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 {
-  boost::shared_lock<boost::shared_mutex> lock(shared_mutex_);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   if (!(aggregate_status_ & ProducerStatus::can_run))
   {
     WARN << "<Engine> No devices exist that can perform acquisition";
     return ListData();
   }
-
-  boost::unique_lock<boost::mutex> uniqueLock(unique_mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
 
   if (timeout > 0)
     INFO << "<Engine> List mode acquisition scheduled for " << timeout << " seconds";
@@ -474,9 +446,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   one_spill->detectors = detectors_;
   result.push_back(SpillPtr(one_spill));
 
-  SynchronizedQueue<Spill*> parsedQueue;
+  SynchronizedQueue<Spill*> parsed_queue;
 
-  if (!daq_start(&parsedQueue))
+  if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
 
   CustomTimer total_timer(timeout, true);
@@ -488,7 +460,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       INFO << "  RUNNING Elapsed: " << total_timer.done()
-              << "  ETA: " << total_timer.ETA();
+           << "  ETA: " << total_timer.ETA();
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
@@ -504,15 +476,15 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   one_spill = new Spill;
   _get_all_settings();
   one_spill->state = settings_;
-  parsedQueue.enqueue(one_spill);
-//  result.push_back(SpillPtr(one_spill));
+  parsed_queue.enqueue(one_spill);
+  //  result.push_back(SpillPtr(one_spill));
 
   wait_ms(500);
 
-  while (parsedQueue.size() > 0)
-    result.push_back(SpillPtr(parsedQueue.dequeue()));
+  while (parsed_queue.size() > 0)
+    result.push_back(SpillPtr(parsed_queue.dequeue()));
 
-  parsedQueue.stop();
+  parsed_queue.stop();
   return result;
 }
 
@@ -520,7 +492,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
 void Engine::worker_chronological(SpillQueue data_queue,
-                        ProjectPtr project)
+                                  ProjectPtr project)
 {
   CustomTimer presort_timer;
   uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
@@ -536,13 +508,13 @@ void Engine::worker_chronological(SpillQueue data_queue,
     Spill* in_spill = data_queue->dequeue();
     if (in_spill != nullptr)
     {
-//      DBG << "Spill arrived with " << in_spill->events.size();
+      //      DBG << "Spill arrived with " << in_spill->events.size();
       current_spills.push_back(in_spill);
     }
 
-//    if (in_spill)
-//      DBG << "<Engine: worker_chronological> spill backlog " << current_spills.size()
-//             << " at arrival of " << boost::posix_time::to_iso_extended_string(in_spill->time);
+    //    if (in_spill)
+    //      DBG << "<Engine: worker_chronological> spill backlog " << current_spills.size()
+    //             << " at arrival of " << boost::posix_time::to_iso_extended_string(in_spill->time);
 
     bool empty = false;
     while (!empty)
@@ -572,7 +544,7 @@ void Engine::worker_chronological(SpillQueue data_queue,
         if (!q.second)
           empty = true;
 
-//      DBG << "Empty? " << empty;
+      //      DBG << "Empty? " << empty;
 
       Spill* out_spill = new Spill;
       presort_cycles++;
@@ -612,12 +584,12 @@ void Engine::worker_chronological(SpillQueue data_queue,
       }
       presort_timer.stop();
 
-//      DBG << "<Engine> Presort pushed " << presort_events << " events, ";
-//                               " time/hit: " << presort_timer.us()/presort_events << "us, "
-//                               " time/cycle: " << presort_timer.us()/presort_cycles  << "us, "
-//                               " compares/hit: " << double(presort_compares)/double(presort_events) << ", "
-//                               " events/cyle: " << double(presort_events)/double(presort_cycles) << ", "
-//                               " compares/cycle: " << double(presort_compares)/double(presort_cycles);
+      //      DBG << "<Engine> Presort pushed " << presort_events << " events, ";
+      //                               " time/hit: " << presort_timer.us()/presort_events << "us, "
+      //                               " time/cycle: " << presort_timer.us()/presort_cycles  << "us, "
+      //                               " compares/hit: " << double(presort_compares)/double(presort_events) << ", "
+      //                               " events/cyle: " << double(presort_events)/double(presort_cycles) << ", "
+      //                               " compares/cycle: " << double(presort_compares)/double(presort_cycles);
 
       bool noempties = false;
       while (!noempties)

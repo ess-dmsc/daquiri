@@ -1,6 +1,4 @@
 #include "sparse2d.h"
-
-#include "custom_logger.h"
 #include "ascii_tree.h"
 
 namespace DAQuiri

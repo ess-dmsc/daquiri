@@ -2,13 +2,8 @@
 #include "h5json.h"
 #include "ascii_tree.h"
 
-#include "custom_timer.h"
 #include "custom_logger.h"
-
-#define SLEEP_TIME_MS 200
-
-using shared_lock = boost::shared_lock<boost::shared_mutex>;
-using unique_lock = boost::unique_lock<boost::shared_mutex>;
+#include "custom_timer.h"
 
 namespace DAQuiri {
 
@@ -58,9 +53,7 @@ void Consumer::_init_from_file(std::string name)
 
 bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
 
   if (metadata_.type() != newtemplate.type())
     return false;
@@ -71,13 +64,12 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
   return (this->_initialize());
 //  DBG << "<Consumer::from_prototype>" << metadata_.get_attribute("name").value_text << " made with dims=" << metadata_.dimensions();
 //  DBG << "from prototype " << metadata_.debug();
+//  mutex_.unlock();
 }
 
 void Consumer::push_spill(const Spill& spill)
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_push_spill(spill);
 }
 
@@ -103,58 +95,51 @@ void Consumer::_push_spill(const Spill& spill)
 
 void Consumer::flush()
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_flush();
 }
 
 bool Consumer::changed() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return changed_;
 }
 
 void Consumer::set_detectors(const std::vector<Detector>& dets)
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-  
+  UNIQUE_LOCK_EVENTUALLY_ST
   this->_set_detectors(dets);
   changed_ = true;
 }
 
 void Consumer::reset_changed()
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   changed_ = false;
 }
 
 //accessors for various properties
 ConsumerMetadata Consumer::metadata() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return metadata_;
 }
 
 DataspacePtr Consumer::data() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return data_;
 }
 
 std::string Consumer::type() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   return my_type();
 }
 
 uint16_t Consumer::dimensions() const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   if (data_)
     return data_->dimensions();
   return 0;
@@ -162,7 +147,7 @@ uint16_t Consumer::dimensions() const
 
 std::string Consumer::debug(std::string prepend, bool verbose) const
 {
-  shared_lock lock(mutex_);
+  SHARED_LOCK_ST
   std::stringstream ss;
   ss << prepend << my_type();
   if (changed_)
@@ -181,18 +166,14 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
 
 void Consumer::set_attribute(const Setting &setting, bool greedy)
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attribute(setting, greedy);
   changed_ = true;
 }
 
 void Consumer::set_attributes(const Setting &settings)
 {
-  unique_lock uniqueLock(mutex_, boost::defer_lock);
-  while (!uniqueLock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
+  UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attributes(settings.branches.data(), true);
   changed_ = true;
 }
@@ -201,15 +182,12 @@ void Consumer::set_attributes(const Setting &settings)
 
 
 /////////////////////
-//Save and load//////
+/// Save and load ///
 /////////////////////
 
 bool Consumer::load(H5CC::Group& g, bool withdata)
 {
-  unique_lock lock(mutex_, boost::defer_lock);
-  while (!lock.try_lock())
-    wait_ms(SLEEP_TIME_MS);
-
+  UNIQUE_LOCK_EVENTUALLY_ST
   if (!g.has_group("metadata"))
     return false;
 
@@ -229,8 +207,7 @@ bool Consumer::load(H5CC::Group& g, bool withdata)
 
 bool Consumer::save(H5CC::Group& g) const
 {
-  shared_lock lock(mutex_);
-
+  SHARED_LOCK_ST
   g.write_attribute("type", this->my_type());
 
 //  json j = metadata_.to_json();

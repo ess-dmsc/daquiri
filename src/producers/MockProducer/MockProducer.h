@@ -3,6 +3,9 @@
 #include "producer.h"
 #include <random>
 
+#include <atomic>
+#include <thread>
+
 using namespace DAQuiri;
 
 class MockProducer : public Producer
@@ -32,8 +35,8 @@ private:
   static void worker_run(MockProducer* callback, SpillQueue spill_queue);
 
 protected:
-  boost::atomic<int> run_status_ {0};
-  boost::thread *runner_ {nullptr};
+  std::atomic<int> run_status_ {0};
+  std::thread *runner_ {nullptr};
 
   // cached params
   uint16_t bits_ {6};

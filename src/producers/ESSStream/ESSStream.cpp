@@ -92,7 +92,7 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   if (runner_ != nullptr)
     delete runner_;
 
-  runner_ = new boost::thread(&worker_run, this, out_queue);
+  runner_ = new std::thread(&worker_run, this, out_queue);
 
   return true;
 }

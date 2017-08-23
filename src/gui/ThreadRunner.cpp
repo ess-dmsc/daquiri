@@ -48,7 +48,7 @@ void ThreadRunner::set_idle_refresh_frequency(int secs)
 }
 
 
-void ThreadRunner::do_list(boost::atomic<bool> &interruptor, uint64_t timeout)
+void ThreadRunner::do_list(DAQuiri::Interruptor& interruptor, uint64_t timeout)
 {
   if (running_.load()) {
     WARN << "Runner busy";
@@ -64,7 +64,7 @@ void ThreadRunner::do_list(boost::atomic<bool> &interruptor, uint64_t timeout)
 }
 
 
-void ThreadRunner::do_run(ProjectPtr spectra, boost::atomic<bool> &interruptor, uint64_t timeout)
+void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor, uint64_t timeout)
 {
   if (running_.load())
   {

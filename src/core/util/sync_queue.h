@@ -1,7 +1,9 @@
 #pragma once
 
 #include <queue>	
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
+#include <condition_variable>
+#include <mutex>
 
 template <typename T>
 class SynchronizedQueue
@@ -11,7 +13,7 @@ public:
   
   inline void enqueue(const T& data)
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     
     queue_.push(data);
     
@@ -20,7 +22,7 @@ public:
   
   inline T dequeue()
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     
     while (queue_.empty() && !end_queue_)
       cond_.wait(lock);
@@ -42,13 +44,13 @@ public:
 
   inline uint32_t size()
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     return queue_.size();
   }
   
 private:
   bool end_queue_;
   std::queue<T> queue_;
-  boost::mutex mutex_;
-  boost::condition_variable cond_;
+  std::mutex mutex_;
+  std::condition_variable cond_;
 };

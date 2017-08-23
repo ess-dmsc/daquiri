@@ -38,8 +38,8 @@ public:
   void do_set_detector(int, Detector);
   void do_set_detectors(std::map<int, Detector>);
 
-  void do_list(boost::atomic<bool>&, uint64_t timeout);
-  void do_run(ProjectPtr, boost::atomic<bool>&, uint64_t timeout);
+  void do_list(Interruptor &, uint64_t timeout);
+  void do_run(ProjectPtr, Interruptor &, uint64_t timeout);
 
   void do_optimize();
   void do_oscil();
@@ -70,8 +70,8 @@ private:
 
 
   ProjectPtr project_;
-  boost::atomic<bool>* interruptor_ {nullptr};
-  boost::atomic<bool> terminating_;
+  DAQuiri::Interruptor* interruptor_ {nullptr};
+  DAQuiri::Interruptor  terminating_;
 
   uint64_t timeout_;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/thread.hpp>
-#include <boost/atomic.hpp>
+#include "thread_wrappers.h"
+#include <atomic>
 
 #include "project.h"
 #include "producer.h"
@@ -9,7 +9,7 @@
 
 namespace DAQuiri {
 
-using Interruptor = boost::atomic<bool>;
+using Interruptor = std::atomic<bool>;
 
 class Engine
 {
@@ -47,8 +47,7 @@ public:
 //  static std::string version();
 
 private:
-  mutable boost::shared_mutex shared_mutex_;
-  mutable boost::mutex unique_mutex_;
+  mutable mutex_st mutex_;
 
   ProducerStatus aggregate_status_ {ProducerStatus(0)};
 

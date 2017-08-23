@@ -2,19 +2,23 @@
 
 #include <string>
 #include <cstdint>
+#include <thread>
+#include <cmath>
 
-#include <boost/thread.hpp>
 #include <boost/timer/timer.hpp>
 
-inline static void wait_ms(int millisex) {
-  boost::this_thread::sleep(boost::posix_time::milliseconds(millisex));
+inline static void wait_ms(int millisex)
+{
+  std::this_thread::sleep_for(std::chrono::milliseconds(millisex));
 }
 
-inline static void wait_us(int microsex) {
-  boost::this_thread::sleep(boost::posix_time::microseconds(microsex));
+inline static void wait_us(int microsex)
+{
+  std::this_thread::sleep_for(std::chrono::microseconds(microsex));
 }
 
-class CustomTimer: public boost::timer::cpu_timer {
+class CustomTimer: public boost::timer::cpu_timer
+{
 private:
   const double secs = pow(10, 9);
   const double msecs = pow(10, 6);
