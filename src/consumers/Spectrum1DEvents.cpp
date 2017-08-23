@@ -4,13 +4,15 @@
 
 #include "custom_logger.h"
 
+#define kDimensions 1
+
 Spectrum1DEvents::Spectrum1DEvents()
   : SpectrumEventMode()
 {
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata(my_type(), "Event mode 1D spectrum", 1);
+  metadata_ = ConsumerMetadata(my_type(), "Event mode 1D spectrum");
 
   SettingMeta app("appearance", SettingType::color);
   app.set_val("description", "Plot appearance");
@@ -54,12 +56,7 @@ bool Spectrum1DEvents::_initialize()
   bits_ = metadata_.get_attribute("resolution").selection();
   cutoff_bin_ = metadata_.get_attribute("cutoff_bin").get_number();
 
-//  size_t size = pow(2, bits_);
-//  if (spectrum_.size() < size)
-//    spectrum_.resize(size, PreciseFloat(0));
-
   this->_recalc_axes();
-
   return true;
 }
 
@@ -86,12 +83,12 @@ void Spectrum1DEvents::_init_from_file(std::string filename)
 
 void Spectrum1DEvents::_set_detectors(const std::vector<Detector>& dets)
 {
-  metadata_.detectors.resize(metadata_.dimensions(), Detector());
+  metadata_.detectors.resize(kDimensions, Detector());
 
-  if (dets.size() == metadata_.dimensions())
+  if (dets.size() == kDimensions)
     metadata_.detectors = dets;
 
-  if (dets.size() >= metadata_.dimensions())
+  if (dets.size() >= kDimensions)
   {
     for (size_t i=0; i < dets.size(); ++i)
     {
@@ -108,7 +105,7 @@ void Spectrum1DEvents::_set_detectors(const std::vector<Detector>& dets)
 
 void Spectrum1DEvents::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), pow(2,bits_), bits_));
+  data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -119,8 +116,10 @@ void Spectrum1DEvents::_recalc_axes()
     CalibID from(det.id(), val_name_, "", bits_);
     CalibID to("", val_name_, "", 0);
     auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, pow(2,bits_), bits_));
+    data_->set_axis(i, DataAxis(calib, 0, bits_));
   }
+
+  data_->recalc_axes(bits_);
 }
 
 bool Spectrum1DEvents::event_relevant(const Event& e) const

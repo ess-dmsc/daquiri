@@ -104,7 +104,7 @@ Container<ConsumerMetadata> get_prototypes()
 
   ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Image2D");
   itype.set_attribute(Setting::text("name", "Image"));
-  itype.set_attribute(Setting::integer("resolution", 5));
+  itype.set_attribute(Setting::integer("downsample", 10));
   itype.set_attribute(Setting::text("x_name", "x"));
   itype.set_attribute(Setting::text("y_name", "y"));
   itype.set_attribute(Setting("pattern_add", Pattern(1, {true})));

@@ -97,7 +97,8 @@ void ConsumerDialog::updateData()
   {
     auto md = sptr->metadata();
     descr = QString::fromStdString(md.type_description())
-          + "   dimensions=" + QString::number(md.dimensions()) + "\n";
+//        + "   dimensions=" + QString::number(md.dimensions())
+        + "\n";
   }
 
   ui->labelDescription->setText(descr);

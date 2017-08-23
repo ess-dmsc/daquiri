@@ -7,6 +7,7 @@ class SpectrumEventMode : virtual public Spectrum
 {
 public:
   SpectrumEventMode();
+  ~SpectrumEventMode() {}
 
 protected:
   bool _initialize() override;

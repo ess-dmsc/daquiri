@@ -3,6 +3,7 @@
 #include "consumer_metadata.h"
 #include "spill.h"
 #include "dataspace.h"
+#include <boost/thread.hpp>
 
 namespace DAQuiri {
 

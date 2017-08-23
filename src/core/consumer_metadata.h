@@ -8,7 +8,7 @@ class ConsumerMetadata
 {
 public:
   ConsumerMetadata();
-  ConsumerMetadata(std::string tp, std::string descr, uint16_t dim);
+  ConsumerMetadata(std::string tp, std::string descr);
 
   // attributes
   Setting attributes() const;
@@ -23,7 +23,6 @@ public:
   //read only
   std::string type() const {return type_;}
   std::string type_description() const {return type_description_;}
-  uint16_t dimensions() const {return dimensions_;}
 
 
   void disable_presets();
@@ -43,7 +42,6 @@ private:
   //this stuff from factory, immutable upon initialization
   std::string type_ {"invalid"};
   std::string type_description_;
-  uint16_t dimensions_ {0};
 
   //can change these
   Setting attributes_ {SettingMeta("Attributes", SettingType::stem)};

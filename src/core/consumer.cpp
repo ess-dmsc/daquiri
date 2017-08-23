@@ -155,7 +155,9 @@ std::string Consumer::type() const
 uint16_t Consumer::dimensions() const
 {
   shared_lock lock(mutex_);
-  return metadata_.dimensions();
+  if (data_)
+    return data_->dimensions();
+  return 0;
 }
 
 std::string Consumer::debug(std::string prepend, bool verbose) const

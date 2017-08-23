@@ -26,6 +26,24 @@ void Sparse2D::bin_pair(const uint16_t& x, const uint16_t& y,
   max1_ = std::max(max1_, y);
 }
 
+void Sparse2D::_recalc_axes(uint16_t bits)
+{
+  auto ax0 = _axis(0);
+  auto ax1 = _axis(1);
+  if (bits)
+  {
+    ax0.expand_domain(max0_, bits);
+    ax1.expand_domain(max1_, bits);
+  }
+  else
+  {
+    ax0.expand_domain(max0_);
+    ax1.expand_domain(max1_);
+  }
+  _set_axis(0, ax0);
+  _set_axis(1, ax1);
+}
+
 PreciseFloat Sparse2D::_get(std::initializer_list<size_t> list) const
 {
   if (list.size() != _dimensions())

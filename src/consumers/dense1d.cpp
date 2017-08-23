@@ -20,6 +20,16 @@ void Dense1D::_add(const Entry& e)
   maxchan_ = std::max(maxchan_, bin);
 }
 
+void Dense1D::_recalc_axes(uint16_t bits)
+{
+  auto ax = _axis(0);
+  if (bits)
+    ax.expand_domain(maxchan_, bits);
+  else
+    ax.expand_domain(maxchan_);
+  _set_axis(0, ax);
+}
+
 PreciseFloat Dense1D::_get(std::initializer_list<size_t> list) const
 {
   if (list.size() != _dimensions())

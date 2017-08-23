@@ -4,13 +4,15 @@
 
 #include "custom_logger.h"
 
+#define kDimensions 2
+
 Spectrum2DEvents::Spectrum2DEvents()
   : SpectrumEventMode()
 {
   data_ = std::make_shared<Sparse2D>();
 
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata(my_type(), "Event mode 2D spectrum", 2);
+  metadata_ = ConsumerMetadata(my_type(), "Event mode 2D spectrum");
 
   SettingMeta resm("resolution", SettingType::menu);
   resm.set_flag("preset");
@@ -99,11 +101,11 @@ void Spectrum2DEvents::_init_from_file(std::string filename)
 
 void Spectrum2DEvents::_set_detectors(const std::vector<Detector>& dets)
 {
-  metadata_.detectors.resize(metadata_.dimensions(), Detector());
+  metadata_.detectors.resize(kDimensions, Detector());
 
-  if (dets.size() == metadata_.dimensions())
+  if (dets.size() == kDimensions)
     metadata_.detectors = dets;
-  else if (dets.size() > metadata_.dimensions())
+  else if (dets.size() > kDimensions)
   {
     int j=0;
     for (size_t i=0; i < dets.size(); ++i)
@@ -112,7 +114,7 @@ void Spectrum2DEvents::_set_detectors(const std::vector<Detector>& dets)
       {
         metadata_.detectors[j] = dets[i];
         j++;
-        if (j >= metadata_.dimensions())
+        if (j >= kDimensions)
           break;
       }
     }
@@ -123,8 +125,8 @@ void Spectrum2DEvents::_set_detectors(const std::vector<Detector>& dets)
 
 void Spectrum2DEvents::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), pow(2,bits_), bits_));
-  data_->set_axis(1, DataAxis(Calibration(), pow(2,bits_), bits_));
+  data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
+  data_->set_axis(1, DataAxis(Calibration(), 0, bits_));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -135,8 +137,10 @@ void Spectrum2DEvents::_recalc_axes()
     CalibID from(det.id(), val_name_, "", bits_);
     CalibID to("", val_name_, "", 0);
     auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, pow(2,bits_), bits_));
+    data_->set_axis(i, DataAxis(calib, 0, bits_));
   }
+
+  data_->recalc_axes(bits_);
 }
 
 bool Spectrum2DEvents::event_relevant(const Event& e) const

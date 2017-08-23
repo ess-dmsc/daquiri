@@ -4,11 +4,15 @@
 
 #include "custom_logger.h"
 
+#define kDimensions 2
+
 Image2D::Image2D()
   : Spectrum()
 {
+  data_ = std::make_shared<Sparse2D>();
+
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image", 2);
+  metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image");
 
   SettingMeta x_name("x_name", SettingType::text);
   x_name.set_flag("preset");
@@ -62,12 +66,12 @@ void Image2D::_init_from_file(std::string filename)
 
 void Image2D::_set_detectors(const std::vector<Detector>& dets)
 {
-  metadata_.detectors.resize(metadata_.dimensions(), Detector());
+  metadata_.detectors.resize(kDimensions, Detector());
 
-  if (dets.size() == metadata_.dimensions())
+  if (dets.size() == kDimensions)
     metadata_.detectors = dets;
 
-  if (dets.size() >= metadata_.dimensions())
+  if (dets.size() >= kDimensions)
   {
     for (size_t i=0; i < dets.size(); ++i)
     {
@@ -84,9 +88,8 @@ void Image2D::_set_detectors(const std::vector<Detector>& dets)
 
 void Image2D::_recalc_axes()
 {
-  uint16_t bits_ = 16;
-  data_->set_axis(0, DataAxis(Calibration(), pow(2,bits_), bits_));
-  data_->set_axis(1, DataAxis(Calibration(), pow(2,bits_), bits_));
+  data_->set_axis(0, DataAxis(Calibration(), 0));
+  data_->set_axis(1, DataAxis(Calibration(), 0));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -95,11 +98,13 @@ void Image2D::_recalc_axes()
   {
     auto det = metadata_.detectors[i];
     std::string valname = (i == 0) ? x_name_ : y_name_;
-    CalibID from(det.id(), valname, "", bits_);
+    CalibID from(det.id(), valname, "", 0);
     CalibID to("", valname, "", 0);
     auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, pow(2,bits_), bits_));
+    data_->set_axis(i, DataAxis(calib, 0));
   }
+
+  data_->recalc_axes(0);
 }
 
 void Image2D::_push_stats(const Status& manifest)
@@ -127,13 +132,13 @@ void Image2D::_flush()
 
 void Image2D::_push_event(const Event& e)
 {
-  uint16_t bits_ = 16;
-
   if (!this->event_relevant(e))
     return;
   const auto& c = e.channel();
-  uint16_t x = e.value(x_idx_.at(c)).val(bits_);
-  uint16_t y = e.value(y_idx_.at(c)).val(bits_);
+  const auto& vx = e.value(x_idx_.at(c));
+  const auto& vy = e.value(y_idx_.at(c));
+  uint16_t x = vx.val(vx.bits() - downsample_);
+  uint16_t y = vy.val(vy.bits() - downsample_);
   data_->add({{x,y},1});
 }
 

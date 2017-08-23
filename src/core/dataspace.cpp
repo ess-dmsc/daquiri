@@ -4,11 +4,17 @@
 
 #include "custom_timer.h"
 #include "custom_logger.h"
+#include <thread>
 
 #define SLEEP_TIME_MS 200
 
-using shared_lock = boost::shared_lock<boost::shared_mutex>;
-using unique_lock = boost::unique_lock<boost::shared_mutex>;
+//using shared_lock = boost::shared_lock<boost::shared_mutex>;
+//using shared_lock = boost::upgrade_lock<boost::shared_mutex>;
+//using unique_lock = boost::unique_lock<boost::shared_mutex>;
+//using upgrade_lock = boost::upgrade_to_unique_lock<boost::shared_mutex>;
+
+using unique_lock = std::unique_lock<std::shared_timed_mutex>;
+using shared_lock = std::shared_lock<std::shared_timed_mutex>;
 
 namespace DAQuiri {
 
@@ -28,9 +34,33 @@ DataAxis::DataAxis(Calibration c, size_t resolution, uint16_t bits)
     domain[i] = calibration.transform(i, bits);
 }
 
+void DataAxis::expand_domain(size_t ubound)
+{
+  if (ubound < domain.size())
+    return;
+
+  size_t oldbound = domain.size();
+  domain.resize(ubound+1);
+
+  for (size_t i=oldbound; i <= ubound; ++i)
+    domain[i] = calibration.transform(i);
+}
+
+void DataAxis::expand_domain(size_t ubound, uint16_t bits)
+{
+  if (ubound < domain.size())
+    return;
+
+  size_t oldbound = domain.size();
+  domain.resize(ubound+1);
+
+  for (size_t i=oldbound; i <= ubound; ++i)
+    domain[i] = calibration.transform(i, bits);
+}
+
 Pair DataAxis::bounds() const
 {
-  return Pair(0, domain.size());
+  return Pair(0, domain.size() - 1);
 }
 
 std::string DataAxis::label() const
@@ -89,16 +119,36 @@ EntryList Dataspace::range(std::initializer_list<Pair> list) const
   return this->_range(list);
 }
 
+void Dataspace::recalc_axes(uint16_t bits)
+{
+//  shared_lock lock(mutex_);
+//  upgrade_lock wlock(lock);
+
+  unique_lock lock(mutex_, std::defer_lock);
+  while (!lock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+  this->_recalc_axes(bits);
+}
+
 void Dataspace::add(const Entry& e)
 {
-  shared_lock lock(mutex_);
+//  shared_lock lock(mutex_);
+//  upgrade_lock wlock(lock);
+
+  unique_lock lock(mutex_, std::defer_lock);
+  while (!lock.try_lock())
+    wait_ms(SLEEP_TIME_MS);
   this->_add(e);
 }
 
 DataAxis Dataspace::axis(uint16_t dimension) const
 {
   shared_lock lock(mutex_);
-  
+  return _axis(dimension);
+}
+
+DataAxis Dataspace::_axis(uint16_t dimension) const
+{
   if (dimension < axes_.size())
     return axes_[dimension];
   else
@@ -107,12 +157,23 @@ DataAxis Dataspace::axis(uint16_t dimension) const
 
 void Dataspace::set_axis(size_t dim, const DataAxis& ax)
 {
-  unique_lock lock(mutex_, boost::defer_lock);
+//  shared_lock lock(mutex_);
+//  upgrade_lock wlock(lock);
+
+  unique_lock lock(mutex_, std::defer_lock);
+  while (!mutex_.try_lock())
+    wait_ms(SLEEP_TIME_MS);
+
+  _set_axis(dim, ax);
+  mutex_.unlock();
+}
+
+void Dataspace::_set_axis(size_t dim, const DataAxis& ax)
+{
   if (dim < axes_.size())
     axes_[dim] = ax;
 //  else throw?
 }
-
 
 uint16_t Dataspace::dimensions() const
 {
@@ -149,7 +210,10 @@ std::string Dataspace::debug(std::string prepend) const
 
 void Dataspace::load(H5CC::Group& g)
 {
-  unique_lock lock(mutex_, boost::defer_lock);
+//  shared_lock lock(mutex_);
+//  upgrade_lock wlock(lock);
+
+  unique_lock lock(mutex_, std::defer_lock);
   while (!lock.try_lock())
     wait_ms(SLEEP_TIME_MS);
   this->_load(g);

@@ -144,7 +144,8 @@ void Spectrum::_push_stats(const Status& newBlock)
 
   }
 
-  _flush();
+  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
+  this->_recalc_axes();
 }
 
 void Spectrum::_flush()

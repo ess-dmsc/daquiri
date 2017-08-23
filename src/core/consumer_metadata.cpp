@@ -6,11 +6,9 @@ namespace DAQuiri {
 ConsumerMetadata::ConsumerMetadata() {}
 
 ConsumerMetadata::ConsumerMetadata(std::string tp,
-                                   std::string descr,
-                                   uint16_t dim)
+                                   std::string descr)
   : type_(tp)
   , type_description_(descr)
-  , dimensions_(dim)
 {}
 
 bool ConsumerMetadata::shallow_equals(const ConsumerMetadata& other) const
@@ -34,7 +32,8 @@ bool ConsumerMetadata::operator== (const ConsumerMetadata& other) const
 std::string ConsumerMetadata::debug(std::string prepend, bool verbose) const
 {
   std::stringstream ss;
-  ss << type_ << " (dim=" << dimensions_ << ")\n";
+  ss << type_ << "\n";
+//     << " (dim=" << dimensions_ << ")\n";
   //ss << " " << type_description_;
   ss << prepend << k_branch_mid_B << "Detectors:\n";
   for (size_t i=0; i < detectors.size(); ++i)

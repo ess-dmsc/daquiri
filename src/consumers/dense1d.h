@@ -16,6 +16,7 @@ protected:
   void _add(const Entry&) override;
   PreciseFloat _get(std::initializer_list<size_t> list) const override;
   EntryList _range(std::initializer_list<Pair> list) const override;
+  void _recalc_axes(uint16_t bits) override;
 
   void _save(H5CC::Group&) const override;
   void _load(H5CC::Group&) override;

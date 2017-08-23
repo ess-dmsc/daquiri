@@ -1,7 +1,9 @@
 #pragma once
 
 #include <initializer_list>
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
+//#include <mutex>
+#include <shared_mutex>
 #include "H5CC_Group.h"
 #include "precise_float.h"
 #include "calibration.h"
@@ -20,6 +22,9 @@ struct DataAxis
     DataAxis(Calibration c, size_t resolution);
     DataAxis(Calibration c, size_t resolution, uint16_t bits);
 
+    void expand_domain(size_t ubound);
+    void expand_domain(size_t ubound, uint16_t bits);
+
     std::string label() const;
     std::string debug() const;
     Pair bounds() const;
@@ -31,7 +36,8 @@ struct DataAxis
 class Dataspace
 {
 private:
-  mutable boost::shared_mutex mutex_;
+//  mutable boost::shared_mutex mutex_;
+  mutable std::shared_timed_mutex mutex_;
   std::vector<DataAxis> axes_;
   uint16_t dimensions_ {0};
 
@@ -48,6 +54,7 @@ public:
   //parameters take dimensions_ of ranges (inclusive)
   //optimized retrieval of bulk data as list of Entries
   EntryList range(std::initializer_list<Pair> list = {}) const;
+  void recalc_axes(uint16_t bits);
 
   void load(H5CC::Group&);
   void save(H5CC::Group&) const;
@@ -66,10 +73,14 @@ protected:
   //////////////////////////////////////////
 
   uint16_t _dimensions() const;
-  
+  DataAxis _axis(uint16_t dimension) const;
+  void _set_axis(size_t dim, const DataAxis& ax);
+
   virtual void _add(const Entry&) = 0;
   virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;
   virtual EntryList _range(std::initializer_list<Pair>) const = 0;
+
+  virtual void _recalc_axes(uint16_t bits) = 0;
 
   virtual void _load(H5CC::Group&) {}
   virtual void _save(H5CC::Group&) const {}
