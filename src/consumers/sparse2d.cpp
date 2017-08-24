@@ -8,6 +8,12 @@ Sparse2D::Sparse2D()
   : Dataspace(2)
 {}
 
+void Sparse2D::_clear()
+{
+  total_count_ = 0;
+  spectrum_.clear();
+}
+
 void Sparse2D::_add(const Entry& e)
 {
   if ((e.first.size() != _dimensions()) || !e.second)

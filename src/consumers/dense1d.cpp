@@ -7,6 +7,12 @@ Dense1D::Dense1D()
   : Dataspace(1)
 {}
 
+void Dense1D::_clear()
+{
+  total_count_ = 0;
+  spectrum_.clear();
+}
+
 void Dense1D::_add(const Entry& e)
 {
   if ((e.first.size() != _dimensions()) || !e.second)

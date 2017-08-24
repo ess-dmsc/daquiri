@@ -110,6 +110,12 @@ void Dataspace::recalc_axes(uint16_t bits)
   this->_recalc_axes(bits);
 }
 
+void Dataspace::clear()
+{
+  UNIQUE_LOCK_EVENTUALLY_ST
+  this->_clear();
+}
+
 void Dataspace::add(const Entry& e)
 {
   UNIQUE_LOCK_EVENTUALLY_ST

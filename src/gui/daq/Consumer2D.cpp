@@ -40,6 +40,7 @@ Consumer2D::Consumer2D(QWidget *parent)
   crop_menu_ = new QMenu(this);
   crop_menu_->addAction(action);
 
+  plot_->setGradient("Spectrum2");
   plot_->setShowGradientLegend(true);
 
 
@@ -107,11 +108,11 @@ void Consumer2D::update()
   if (!hist.empty())
   {
     plot_->clearExtras();
-    plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->setAxes(
           QString::fromStdString(axis_x.label()), 0, res_x+1,
           QString::fromStdString(axis_y.label()), 0, res_y+1,
           "Event count");
+    plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->replotExtras();
     plot_->replot();
   }

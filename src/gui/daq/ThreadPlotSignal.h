@@ -3,7 +3,7 @@
 #include <QThread>
 #include <QMutex>
 #include "project.h"
-//#include "custom_logger.h"
+#include "custom_logger.h"
 
 class ThreadPlotSignal : public QThread
 {
@@ -56,6 +56,7 @@ protected:
            && project_->wait_ready())
     {
       emit plot_ready();
+//      DBG << "<ThreadPlotSignal> Plot ready";
       if (!terminating_.load())
         QThread::sleep(wait_s_.load());
     }

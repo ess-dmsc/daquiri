@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>daquiri</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources/icons.qrc">
+    <normaloff>:/icons/noun_583391_cc_b.png</normaloff>:/icons/noun_583391_cc_b.png</iconset>
+  </property>
   <property name="iconSize">
    <size>
     <width>18</width>
@@ -121,6 +125,8 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

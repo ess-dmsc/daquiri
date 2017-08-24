@@ -362,6 +362,8 @@ void ThreadRunner::save_profile()
   {
     auto path = profile_directory.toStdString() + "/profile.set";
     DBG << "Will save to " << path;
+    engine_.die();
+    engine_.get_all_settings();
     auto dev_settings = engine_.pull_settings();
     dev_settings.condense();
     dev_settings.strip_metadata();

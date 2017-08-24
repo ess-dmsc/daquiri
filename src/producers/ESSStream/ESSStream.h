@@ -48,6 +48,7 @@ protected:
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
   int kafka_timeout_ {1};
+  bool spoof_clock_ {false};
 
   std::string detector_type_;
   size_t dim_count_ {1};

@@ -38,6 +38,9 @@ ESSStream::ESSStream()
   td.set_val("units", "1/ns");
   add_definition(td);
 
+  SettingMeta sc(mp + "SpoofClock", SettingType::boolean, "Spoof clock");
+  add_definition(sc);
+
 
   SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
   vc.set_val("min", 1);
@@ -65,7 +68,8 @@ ESSStream::ESSStream()
   root.set_enum(3, mp + "DetectorType");
   root.set_enum(4, mp + "TimebaseMult");
   root.set_enum(5, mp + "TimebaseDiv");
-  root.set_enum(6, mp + "DimensionCount");
+  root.set_enum(6, mp + "SpoofClock");
+  root.set_enum(7, mp + "DimensionCount");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -138,6 +142,8 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
   set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
 
+  set.set(Setting::boolean("ESSStream/SpoofClock", spoof_clock_));
+
   set.set(Setting::text("ESSStream/DetectorType", detector_type_));
   set.set(Setting::integer("ESSStream/DimensionCount", integer_t(dim_count_)));
 
@@ -202,6 +208,8 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   auto timebase = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
                            set.find({"ESSStream/TimebaseDiv"}).get_number());
   model_hit_ = geometry_.model(timebase);
+
+  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).triggered();
 }
 
 void ESSStream::boot()
@@ -295,6 +303,7 @@ void ESSStream::worker_run(ESSStream* callback,
   spill_queue->enqueue(callback->create_spill(StatusType::stop));
 
   callback->run_status_.store(3);
+  DBG << "<ESSStream> Finished run";
 }
 
 Spill* ESSStream::create_spill(StatusType t)
@@ -360,7 +369,7 @@ Spill* ESSStream::get_message()
     //    if (exit_eof && ++eof_cnt == partition_cnt)
     //      WARN << "%% EOF reached for all " << partition_cnt <<
     //                   " partition(s)";
-    WARN << "Partition EOF error: " << message->errstr();
+    //    WARN << "Partition EOF error: " << message->errstr();
     return nullptr;
 
   case RdKafka::ERR__UNKNOWN_TOPIC:
@@ -425,10 +434,17 @@ Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
       uint64_t time = em->time_of_flight()->Get(i);
       time |= time_high;
 
-      Event e(chan0, model_hit_);
-      e.set_native_time(time_high);
-      geometry_.interpret_id(e, em->detector_id()->Get(i));
-      ret->events.push_back(e);
+      if (spoof_clock_)
+        time = clock_ + 1;
+
+      const auto& id = em->detector_id()->Get(i);
+      if (id) //must be non0?
+      {
+        Event e(chan0, model_hit_);
+        e.set_native_time(time);
+        geometry_.interpret_id(e, id);
+        ret->events.push_back(e);
+      }
 
       clock_ = std::max(clock_, time);
     }

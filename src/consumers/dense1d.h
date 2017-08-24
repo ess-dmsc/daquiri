@@ -13,6 +13,7 @@ public:
   { return new Dense1D(*this); }
 
 protected:
+  void _clear() override;
   void _add(const Entry&) override;
   PreciseFloat _get(std::initializer_list<size_t> list) const override;
   EntryList _range(std::initializer_list<Pair> list) const override;

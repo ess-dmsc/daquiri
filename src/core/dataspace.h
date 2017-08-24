@@ -53,6 +53,7 @@ public:
   //optimized retrieval of bulk data as list of Entries
   EntryList range(std::initializer_list<Pair> list = {}) const;
   void recalc_axes(uint16_t bits);
+  void clear();
 
   void load(H5CC::Group&);
   void save(H5CC::Group&) const;
@@ -77,6 +78,7 @@ protected:
   virtual void _add(const Entry&) = 0;
   virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;
   virtual EntryList _range(std::initializer_list<Pair>) const = 0;
+  virtual void _clear() = 0;
 
   virtual void _recalc_axes(uint16_t bits) = 0;
 

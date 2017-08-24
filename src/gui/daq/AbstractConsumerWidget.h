@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include "consumer.h"
+#include <QIcon>
 
 class AbstractConsumerWidget : public QWidget
 {
@@ -10,7 +11,9 @@ class AbstractConsumerWidget : public QWidget
 public:
   inline AbstractConsumerWidget(QWidget *parent = 0)
     : QWidget(parent)
-  {}
+  {
+    setWindowIcon(QIcon(":/icons/noun_583391_cc_b.png"));
+  }
 
   inline void setConsumer(DAQuiri::ConsumerPtr consumer)
   {

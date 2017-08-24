@@ -46,21 +46,25 @@ MockProducer::MockProducer()
   add_definition(lambda);
 
   SettingMeta vc(mp + "ValueCount", SettingType::integer, "Value count");
+  vc.set_flag("preset");
   vc.set_val("min", 1);
   vc.set_val("max", 16);
   add_definition(vc);
 
 
   SettingMeta valname(mp + "Value/Name", SettingType::text, "Value name");
+  valname.set_flag("preset");
   add_definition(valname);
 
   SettingMeta pc(mp + "Value/PeakCenter", SettingType::floating, "Peak center (% resolution)");
+  pc.set_flag("preset");
   pc.set_val("min", 0);
   pc.set_val("max", 100);
   pc.set_val("step", 0.1);
   add_definition(pc);
 
   SettingMeta ps(mp + "Value/PeakSpread", SettingType::floating, "Peak spread (stddev)");
+  ps.set_flag("preset");
   ps.set_val("min", 0);
   ps.set_val("step", 0.01);
   add_definition(ps);
@@ -146,6 +150,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   if (set.id() != device_name())
     return;
   set.enrich(setting_definitions_, true);
+  set.enable_if_flag(!(status_ & booted), "preset");
 
   set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
@@ -180,6 +185,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
     return;
   auto set = settings;
   set.enrich(setting_definitions_, true);
+  set.enable_if_flag(!(status_ & booted), "preset");
 
   spill_interval_ = set.find({"MockProducer/SpillInterval"}).get_number();
   bits_ = set.find({"MockProducer/Resolution"}).get_number();

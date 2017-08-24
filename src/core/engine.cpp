@@ -7,9 +7,6 @@
 
 //#include "core_compiletime.h"
 
-#define SLEEP_TIME std::chrono::microseconds(100)
-using shared_lock = std::shared_lock<std::shared_timed_mutex>;
-
 namespace DAQuiri {
 
 //int Engine::print_version()
