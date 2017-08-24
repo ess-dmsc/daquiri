@@ -20,6 +20,8 @@ public:
     return singleton_instance;
   }
 
+  static Setting default_settings();
+
   void initialize(const json& profile);
   void boot();
   void die();

@@ -468,20 +468,20 @@ void SettingsForm::profile_chosen()
   QSettings settings;
   settings.beginGroup("Program");
   bool boot = settings.value("boot_on_startup", false).toBool();
-  QString profile_directory
-      = settings.value("profile_directory",
-                       QDir::homePath() + "/daquiri/settings").toString();
-
-  auto path = profile_directory.toStdString() + "/profile.set";
-
-  DBG << "Will load from " << path;
+  auto profile_directory
+      = settings.value("profile_directory","").toString().toStdString();
 
   json profile;
-  try
+
+  if (!profile_directory.empty())
   {
-    profile = from_json_file(path);
+    DBG << "Will load profile from " << profile_directory;
+    try
+    {
+      profile = from_json_file(profile_directory + "/profile.set");
+    }
+    catch(...) {}
   }
-  catch(...) {}
 
   //      if (profile.empty())
   //        profile = default_profile();

@@ -26,9 +26,27 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
-  settings_.branches.add(Setting::text("Profile description",
-                                       "Test profile for Mock Producer"));
+  settings_ = default_settings();
 }
+
+Setting Engine::default_settings()
+{
+  Setting ret {SettingMeta("Engine", SettingType::stem)};
+  ret.branches.add(Setting::text("Profile description", "(no description)"));
+
+  SettingMeta total_det_num;
+  total_det_num = SettingMeta("Total detectors", SettingType::integer);
+  total_det_num.set_val("min", 1);
+  Setting totaldets(total_det_num);
+  totaldets.set_number(1);
+
+  auto dets = Setting::stem("Detectors");
+  dets.branches.add(totaldets);
+  ret.branches.add(dets);
+
+  return ret;
+}
+
 
 void Engine::initialize(const json &profile)
 {

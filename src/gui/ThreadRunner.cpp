@@ -370,11 +370,3 @@ void ThreadRunner::save_profile()
     to_json_file(dev_settings, path);
   }
 }
-
-Setting default_profile()
-{
-  auto profile = Engine::singleton().pull_settings();
-  profile.set(Setting::text("Profile description",
-                            "No description"));
-  return profile;
-}
