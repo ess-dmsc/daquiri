@@ -1,12 +1,33 @@
 #pragma once
 
 #include <QDialog>
-#include <QItemSelectionModel>
+#include <QItemSelection>
+#include <QDir>
 #include "setting.h"
 
 namespace Ui {
 class WidgetProfiles;
 }
+
+class ProfileDialog : public QDialog
+{
+    Q_OBJECT
+
+  public:
+    explicit ProfileDialog(QString description, QWidget *parent = 0);
+
+  signals:
+    void load();
+    void boot();
+    void remove();
+
+  private slots:
+    void clickedLoad();
+    void clickedBoot();
+    void clickedRemove();
+    void clickedCancel();
+};
+
 
 class WidgetProfiles : public QDialog
 {
@@ -22,7 +43,17 @@ class WidgetProfiles : public QDialog
   private:
     Ui::WidgetProfiles *ui;
 
-    std::vector<std::string> profile_dirs_;
+    struct ProfileEntry
+    {
+        ProfileEntry() {}
+        ProfileEntry(QDir p, QString d)
+          : path(p), description(d) {}
+
+        QDir path;
+        QString description;
+    };
+
+    QVector<ProfileEntry> profiles_;
 
     void update_profiles();
     void apply_selection(size_t i, bool boot);
@@ -32,7 +63,6 @@ class WidgetProfiles : public QDialog
     static QString current_profile_dir();
 
   private slots:
-    void selection_changed(QItemSelection,QItemSelection);
     void selection_double_clicked(QModelIndex);
     void on_pushApply_clicked();
     void on_pushApplyBoot_clicked();

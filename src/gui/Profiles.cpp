@@ -1,8 +1,8 @@
 #include "Profiles.h"
 #include "ui_Profiles.h"
 #include <QMessageBox>
+#include <QBoxLayout>
 #include <QSettings>
-#include <QDir>
 #include "qt_util.h"
 
 #include "json_file.h"
@@ -13,6 +13,65 @@
 #include "engine.h"
 
 using namespace DAQuiri;
+
+ProfileDialog::ProfileDialog(QString description, QWidget *parent)
+  : QDialog(parent)
+{
+  setWindowTitle("Profile actions");
+
+  QPushButton *buttonBoot = new QPushButton("Boot", this);
+  buttonBoot->setIcon(QIcon(":/icons/boot16.png"));
+  connect(buttonBoot, SIGNAL(clicked()), this, SLOT(clickedBoot()));
+
+  QPushButton *buttonLoad = new QPushButton("Load", this);
+  buttonLoad->setIcon(QIcon(":/icons/oxy/16/games_endturn.png"));
+  connect(buttonLoad, SIGNAL(clicked()), this, SLOT(clickedLoad()));
+
+  QPushButton *buttonRemove = new QPushButton("Remove", this);
+  buttonRemove->setIcon(QIcon(":/icons/oxy/16/editdelete.png"));
+  connect(buttonRemove, SIGNAL(clicked()), this, SLOT(clickedRemove()));
+
+  QPushButton *buttonCancel = new QPushButton("Cancel", this);
+//  buttonCancel->setIcon(QIcon(":/icons/oxy/16/editdelete.png"));
+  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(clickedCancel()));
+
+  QVBoxLayout *layout = new QVBoxLayout();
+
+  description = "Select action for\n" + description;
+
+  layout->addWidget(new QLabel(description));
+
+  layout->addWidget(buttonBoot);
+  layout->addWidget(buttonLoad);
+  layout->addWidget(buttonRemove);
+  layout->addWidget(buttonCancel);
+
+  setLayout(layout);
+}
+
+void ProfileDialog::clickedLoad()
+{
+  emit load();
+  accept();
+}
+
+void ProfileDialog::clickedBoot()
+{
+  emit boot();
+  accept();
+}
+
+void ProfileDialog::clickedRemove()
+{
+  emit remove();
+  accept();
+}
+
+void ProfileDialog::clickedCancel()
+{
+  accept();
+}
+
 
 WidgetProfiles::WidgetProfiles(QWidget *parent)
   : QDialog(parent)
@@ -27,8 +86,6 @@ WidgetProfiles::WidgetProfiles(QWidget *parent)
   ui->tableProfiles2->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tableProfiles2->setSelectionMode(QAbstractItemView::SingleSelection);
 
-  connect(ui->tableProfiles2->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-          this, SLOT(selection_changed(QItemSelection,QItemSelection)));
   connect(ui->tableProfiles2, SIGNAL(doubleClicked(QModelIndex)),
           this, SLOT(selection_double_clicked(QModelIndex)));
 
@@ -63,11 +120,8 @@ QString WidgetProfiles::current_profile_dir()
 
 void WidgetProfiles::update_profiles()
 {
-  profile_dirs_.clear();
-  std::vector<std::string> descriptions;
-
-  descriptions.push_back("(Offline mode)");
-  profile_dirs_.push_back("");
+  profiles_.clear();
+  profiles_.push_back(ProfileEntry(QDir(""), "(Offline mode)"));
 
   auto dir = profiles_dir();
   auto thisprofile = QDir(current_profile_dir());
@@ -97,33 +151,45 @@ void WidgetProfiles::update_profiles()
       continue;
     }
 
-    descriptions.push_back(tree.find({"Profile description"}, Match::id).get_text());
-    profile_dirs_.push_back(dir2.absolutePath().toStdString());
+    profiles_.push_back(
+          ProfileEntry(dir2, QS(
+                       tree.find({"Profile description"}, Match::id).get_text())));
   }
 
   ui->tableProfiles2->clear();
-  ui->tableProfiles2->setRowCount(descriptions.size());
-  ui->tableProfiles2->setColumnCount(1);
-  for (size_t i=0; i < descriptions.size(); ++i)
-    add_to_table(ui->tableProfiles2, i, 0, descriptions[i], QVariant(),
-                 (thisprofile.absolutePath().toStdString() == profile_dirs_[i]) ?
-                   QBrush(Qt::green) : QBrush(Qt::white));
-}
+  ui->tableProfiles2->setRowCount(profiles_.size() + 1);
+  ui->tableProfiles2->setColumnCount(2);
+  for (size_t i=0; i < profiles_.size(); ++i)
+  {
+    QBrush background = (thisprofile == profiles_[i].path) ?
+          QBrush(Qt::green) : QBrush(Qt::white);
 
-void WidgetProfiles::selection_changed(QItemSelection, QItemSelection)
-{
-  bool selected = !ui->tableProfiles2->selectionModel()->
-      selectedIndexes().empty();
-  ui->pushApply->setEnabled(selected);
-  ui->pushApplyBoot->setEnabled(selected);
-  ui->pushDelete->setEnabled(selected);
+    add_to_table(ui->tableProfiles2, i, 0,
+                 profiles_[i].path.dirName(),
+                 QVariant(), background);
+
+    add_to_table(ui->tableProfiles2, i, 1,
+                 profiles_[i].description,
+                 QVariant(), background);
+
+  }
+
+  QTableWidgetItem *icon_item = new QTableWidgetItem;
+  icon_item->setIcon(QIcon(":/icons/oxy/16/edit_add.png"));
+  icon_item->setFlags(icon_item->flags() ^ Qt::ItemIsEditable);
+  ui->tableProfiles2->setItem(profiles_.size(), 0, icon_item);
+
+  add_to_table(ui->tableProfiles2, profiles_.size(), 1, "CREATE NEW");
+  QFont font;
+  font.setBold(true);
+  ui->tableProfiles2->item(profiles_.size(), 1)->setFont(font);
 }
 
 void WidgetProfiles::apply_selection(size_t i, bool boot)
 {
   QSettings settings;
   settings.beginGroup("Program");
-  settings.setValue("profile_directory", QString::fromStdString(profile_dirs_[i]));
+  settings.setValue("profile_directory", profiles_[i].path.absolutePath());
   settings.setValue("boot_on_startup", boot);
 
   emit profileChosen();
@@ -132,7 +198,16 @@ void WidgetProfiles::apply_selection(size_t i, bool boot)
 
 void WidgetProfiles::selection_double_clicked(QModelIndex idx)
 {
-  apply_selection(idx.row(), true);
+  if (idx.row() == profiles_.size())
+    on_pushCreate_clicked();
+  else
+  {
+    auto mm = new ProfileDialog(profiles_[idx.row()].description, this);
+    connect(mm, SIGNAL(load()), this, SLOT(on_pushApply_clicked()));
+    connect(mm, SIGNAL(boot()), this, SLOT(on_pushApplyBoot_clicked()));
+    connect(mm, SIGNAL(remove()), this, SLOT(on_pushDelete_clicked()));
+    mm->exec();
+  }
 }
 
 void WidgetProfiles::on_pushApplyBoot_clicked()
@@ -208,9 +283,18 @@ void WidgetProfiles::on_pushCreate_clicked()
 void WidgetProfiles::on_pushDelete_clicked()
 {
   QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
-  if (ixl.empty())
+  if (ixl.empty() || !ixl.front().row())
     return;
-  QDir path(QString::fromStdString(profile_dirs_[ixl.front().row()]));
-  path.removeRecursively();
-  update_profiles();
+
+  QMessageBox msgBox;
+  msgBox.setText("Remove profile?");
+  msgBox.setInformativeText("Do you want remove this profile?");
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No
+                            /*| QMessageBox::Cancel*/);
+  msgBox.setDefaultButton(QMessageBox::No);
+  if (msgBox.exec() == QMessageBox::Yes)
+  {
+    profiles_[ixl.front().row()].path.removeRecursively();
+    update_profiles();
+  }
 }

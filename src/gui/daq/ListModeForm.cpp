@@ -163,10 +163,10 @@ void ListModeForm::displayHit(int idx)
   for (size_t i = 0; i < hit.value_count(); ++i)
   {
     if (i < model.value_names.size())
-      add_to_table(ui->tableHitValues, i, 0, model.value_names.at(i));
+      add_to_table(ui->tableHitValues, i, 0, QS(model.value_names.at(i)));
     else
-      add_to_table(ui->tableHitValues, i, 0, std::to_string(i));
-    add_to_table(ui->tableHitValues, i, 1, hit.value(i).debug());
+      add_to_table(ui->tableHitValues, i, 0, QString::number(i));
+    add_to_table(ui->tableHitValues, i, 1, QS(hit.value(i).debug()));
 
 
     if ((chan > -1) && (chan < static_cast<int>(dets_.size())))
@@ -392,9 +392,9 @@ void ListModeForm::spillSelectionChanged(int row)
     if ((chan > -1) && (chan < static_cast<int>(dets_.size())))
       det += " (" + dets_[chan].id() + ")";
 
-    add_to_table(ui->tableHits, i, 0, det);
-    add_to_table(ui->tableHits, i, 1, hit.timestamp().debug() );
-    add_to_table(ui->tableHits, i, 2, to_str_decimals(hit.timestamp().nanosecs(), 0) );
+    add_to_table(ui->tableHits, i, 0, QS(det) );
+    add_to_table(ui->tableHits, i, 1, QS(hit.timestamp().debug()) );
+    add_to_table(ui->tableHits, i, 2, QS(to_str_decimals(hit.timestamp().nanosecs(), 0)) );
   }
 
 
@@ -412,11 +412,11 @@ void ListModeForm::spillSelectionChanged(int row)
     int ch_d = s.second.channel();
     std::string ch = std::to_string(ch_i) + "(" + std::to_string(ch_d) + ")";
 
-    add_to_table(ui->tableStats, i, 0, ch);
-    add_to_table(ui->tableStats, i, 1, type_to_str(s.second.type()) );
-    add_to_table(ui->tableStats, i, 2, boost::posix_time::to_iso_extended_string(s.second.time()) );
-    add_to_table(ui->tableStats, i, 3, std::to_string(s.second.stats().size()) );
-    add_to_table(ui->tableStats, i, 4, std::to_string(s.second.event_model().value_names.size()) );
+    add_to_table(ui->tableStats, i, 0, QS(ch) );
+    add_to_table(ui->tableStats, i, 1, QS(type_to_str(s.second.type())) );
+    add_to_table(ui->tableStats, i, 2, QS(boost::posix_time::to_iso_extended_string(s.second.time())) );
+    add_to_table(ui->tableStats, i, 3, QString::number(s.second.stats().size()) );
+    add_to_table(ui->tableStats, i, 4, QString::number(s.second.event_model().value_names.size()) );
     i++;
   }
 

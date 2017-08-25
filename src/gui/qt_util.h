@@ -26,9 +26,11 @@ QString catExtensions(std::list<std::string> exts);
 
 QString catFileTypes(QStringList types);
 
-void add_to_table(QTableWidget *table,
-                  int row, int col, std::string data,
-                  QVariant value = QVariant(), QBrush background = QBrush(Qt::white));
+void add_to_table(QTableWidget *table, int row, int col,
+                  QString data, QVariant value = QVariant(),
+                  QBrush background = QBrush(Qt::white));
+
+QString QS(const std::string& s);
 
 QString path_of_file(QString filename);
 

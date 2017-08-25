@@ -177,11 +177,15 @@ QString catFileTypes(QStringList types)
   return ret;
 }
 
-void add_to_table(QTableWidget *table,
-                  int row, int col, std::string data,
-                  QVariant value, QBrush background)
+QString QS(const std::string& s)
 {
-  QTableWidgetItem * item = new QTableWidgetItem(QString::fromStdString(data));
+  return QString::fromStdString(s);
+}
+
+void add_to_table(QTableWidget *table, int row, int col,
+                  QString data, QVariant value, QBrush background)
+{
+  QTableWidgetItem * item = new QTableWidgetItem(data);
   //  item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
   item->setFlags(item->flags() ^ Qt::ItemIsEditable);
   item->setData(Qt::UserRole, value);
@@ -189,6 +193,14 @@ void add_to_table(QTableWidget *table,
   table->setItem(row, col, item);
   //  DBG << "added " << data << " and " << value.toDouble();
 }
+
+//void add_to_table(QTableWidget *table,
+//                  int row, int col, std::string data,
+//                  QVariant value, QBrush background)
+//{
+//  add_to_table(table, row, col, QString::fromStdString(data),
+//               value, background);
+//}
 
 QString path_of_file(QString filename)
 {
