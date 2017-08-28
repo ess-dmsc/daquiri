@@ -61,12 +61,12 @@ class WidgetProfiles : public QDialog
     static QString settings_dir();
     static QString profiles_dir();
     static QString current_profile_dir();
+    void create_profile();
 
   private slots:
     void selection_double_clicked(QModelIndex);
-    void on_pushApply_clicked();
-    void on_pushApplyBoot_clicked();
-    void on_OutputDirFind_clicked();
-    void on_pushCreate_clicked();
-    void on_pushDelete_clicked();
+    void on_pushSelectRoot_clicked();
+    void select_no_boot();
+    void select_and_boot();
+    void remove_profile();
 };

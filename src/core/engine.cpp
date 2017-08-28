@@ -74,8 +74,9 @@ void Engine::initialize(const json &profile)
   _push_settings(tree);
   _get_all_settings();
 
-  Setting descr = tree.find(Setting("Profile description"));
-  INFO << "<Engine> Welcome to " << descr.get_text(); 
+  std::string descr = tree.find(Setting("Profile description")).get_text();
+  if (descr.size())
+    INFO << "<Engine> Welcome to " << descr;
 }
 
 Engine::~Engine()

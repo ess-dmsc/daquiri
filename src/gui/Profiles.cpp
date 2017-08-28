@@ -145,11 +145,7 @@ void WidgetProfiles::update_profiles()
     {}
 
     if (!tree)
-    {
-      DBG << "<WidgetProfiles> No valid profile in "
-          << dir2.absolutePath().toStdString();
       continue;
-    }
 
     profiles_.push_back(
           ProfileEntry(dir2, QS(
@@ -199,18 +195,18 @@ void WidgetProfiles::apply_selection(size_t i, bool boot)
 void WidgetProfiles::selection_double_clicked(QModelIndex idx)
 {
   if (idx.row() == profiles_.size())
-    on_pushCreate_clicked();
+    create_profile();
   else
   {
     auto mm = new ProfileDialog(profiles_[idx.row()].description, this);
-    connect(mm, SIGNAL(load()), this, SLOT(on_pushApply_clicked()));
-    connect(mm, SIGNAL(boot()), this, SLOT(on_pushApplyBoot_clicked()));
-    connect(mm, SIGNAL(remove()), this, SLOT(on_pushDelete_clicked()));
+    connect(mm, SIGNAL(load()), this, SLOT(select_no_boot()));
+    connect(mm, SIGNAL(boot()), this, SLOT(select_and_boot()));
+    connect(mm, SIGNAL(remove()), this, SLOT(remove_profile()));
     mm->exec();
   }
 }
 
-void WidgetProfiles::on_pushApplyBoot_clicked()
+void WidgetProfiles::select_and_boot()
 {
   QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
   if (ixl.empty())
@@ -218,7 +214,7 @@ void WidgetProfiles::on_pushApplyBoot_clicked()
   apply_selection(ixl.front().row(), true);
 }
 
-void WidgetProfiles::on_pushApply_clicked()
+void WidgetProfiles::select_no_boot()
 {
   QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
   if (ixl.empty())
@@ -226,7 +222,7 @@ void WidgetProfiles::on_pushApply_clicked()
   apply_selection(ixl.front().row(), false);
 }
 
-void WidgetProfiles::on_OutputDirFind_clicked()
+void WidgetProfiles::on_pushSelectRoot_clicked()
 {
   QString dirName =
       QFileDialog::getExistingDirectory(this, "Open Directory", settings_dir(),
@@ -236,10 +232,15 @@ void WidgetProfiles::on_OutputDirFind_clicked()
   QSettings settings;
   settings.beginGroup("Program");
   settings.setValue("settings_directory", QDir(dirName).absolutePath());
+
+  QDir profpath(dirName + "/profiles");
+  if (!profpath.exists())
+    profpath.mkpath(".");
+
   update_profiles();
 }
 
-void WidgetProfiles::on_pushCreate_clicked()
+void WidgetProfiles::create_profile()
 {
   bool ok;
   QString text = QInputDialog::getText(this, tr("Profile directory"),
@@ -281,7 +282,7 @@ void WidgetProfiles::on_pushCreate_clicked()
   update_profiles();
 }
 
-void WidgetProfiles::on_pushDelete_clicked()
+void WidgetProfiles::remove_profile()
 {
   QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
   if (ixl.empty() || !ixl.front().row())

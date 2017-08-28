@@ -51,7 +51,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="OutputDirFind">
+      <widget class="QPushButton" name="pushSelectRoot">
        <property name="minimumSize">
         <size>
          <width>0</width>
