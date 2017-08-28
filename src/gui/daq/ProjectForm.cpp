@@ -101,8 +101,8 @@ void ProjectForm::loadSettings()
   QSettings settings_;
 
   settings_.beginGroup("Program");
-  profile_directory_ = settings_.value("profile_directory", QDir::homePath() + "/daquiri/settings").toString();
-  data_directory_ = settings_.value("save_directory", QDir::homePath() + "/daquiri/data").toString();
+  profile_directory_ = settings_.value("profile_directory", QDir::currentPath()).toString();
+  data_directory_ = settings_.value("save_directory", QDir::currentPath()).toString();
   settings_.endGroup();
 
   spectra_templates_ =

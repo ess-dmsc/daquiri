@@ -8,6 +8,8 @@ if(NOT LIBRDKAFKA_FOUND)
     message(FATAL_ERROR "Unable to proceed as librdkafka could not be found.")
 endif()
 
+#find_package(FlatBuffers REQUIRED)
+
 file(GLOB_RECURSE ${PROJECT_NAME}_SOURCES *.cpp)
 file(GLOB_RECURSE ${PROJECT_NAME}_HEADERS *.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
@@ -17,6 +19,8 @@ add_library(
   ${${PROJECT_NAME}_SOURCES}
   ${${PROJECT_NAME}_HEADERS}
 )
+
+#compile_flatbuffers_schema_to_cpp
 
 include_directories(
   ${PROJECT_NAME}

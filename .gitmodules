@@ -14,3 +14,6 @@
 	path = src/gui/qplot
 	url = https://github.com/ess-dmsc/qplot.git
         ignore = dirty
+[submodule "src/producers/ESSStream/streaming-data-types"]
+	path = src/producers/ESSStream/streaming-data-types
+	url = https://github.com/ess-dmsc/streaming-data-types.git

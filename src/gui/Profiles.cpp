@@ -234,6 +234,7 @@ void WidgetProfiles::on_OutputDirFind_clicked()
   if (dirName.isEmpty())
     return;
   QSettings settings;
+  settings.beginGroup("Program");
   settings.setValue("settings_directory", QDir(dirName).absolutePath());
   update_profiles();
 }
