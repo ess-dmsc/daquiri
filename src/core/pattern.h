@@ -82,16 +82,21 @@ private:
 inline void to_json(json& j, const Pattern &s)
 {
   j["threshold"] = s.threshold();
-  j["gates"] = s.gates();
+  json g;
+  for (auto a : s.gates())
+    g.push_back(a);
+  j["gates"] = g;
 }
 
 inline void from_json(const json& j, Pattern &s)
 {
-  s.set_threshold(j["threshold"]);
   std::vector<bool> gates;
-  for (auto g : j["gates"])
-    gates.push_back(g);
+  if (j.count("gates"))
+    for (auto g : j["gates"])
+      gates.push_back(g);
   s.set_gates(gates);
+  if (j.count("threshold"))
+    s.set_threshold(j["threshold"]);
 }
 
 }

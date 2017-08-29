@@ -119,7 +119,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushFulINFO">
+        <widget class="QPushButton" name="pushFullInfo">
          <property name="enabled">
           <bool>false</bool>
          </property>

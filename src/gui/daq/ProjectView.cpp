@@ -108,7 +108,7 @@ void ProjectView::enforce_item(SelectorItem item)
 
 void ProjectView::selectorItemDoubleclicked(SelectorItem /*item*/)
 {
-  on_pushFulINFO_clicked();
+  on_pushFullInfo_clicked();
 }
 
 void ProjectView::selectorItemSelected(SelectorItem /*item*/)
@@ -120,7 +120,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
   if (!consumer)
   {
     ui->labelSpectrumInfo->setText("<html><head/><body><p>Left-click: see statistics here<br/>Right click: toggle visibility<br/>Double click: details / analysis</p></body></html>");
-    ui->pushFulINFO->setEnabled(false);
+    ui->pushFullInfo->setEnabled(false);
     return;
   }
 
@@ -158,7 +158,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
       "<nobr>Dead:  " + QString::number(dead) + "%</nobr><br/>";
 
   ui->labelSpectrumInfo->setText(infoText);
-  ui->pushFulINFO->setEnabled(true);
+  ui->pushFullInfo->setEnabled(true);
 }
 
 void ProjectView::updateUI()
@@ -221,7 +221,7 @@ void ProjectView::update_plots()
   this->setCursor(Qt::ArrowCursor);
 }
 
-void ProjectView::on_pushFulINFO_clicked()
+void ProjectView::on_pushFullInfo_clicked()
 {  
   ConsumerPtr consumer = project_->get_sink(selector_->selected().data.toLongLong());
   if (!consumer)

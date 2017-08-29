@@ -56,6 +56,7 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
 //  ui->tableDetectors->show();
 
   attr_model_.set_show_address_(false);
+  attr_model_.set_show_read_only(has_sink_parent_);
 
   if (sink_metadata_ == ConsumerMetadata())
   {
@@ -107,7 +108,8 @@ void ConsumerDialog::updateData()
   open_close_locks();
 }
 
-void ConsumerDialog::open_close_locks() {
+void ConsumerDialog::open_close_locks()
+{
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
   ui->spinDets->setEnabled(lockit || !has_sink_parent_);
