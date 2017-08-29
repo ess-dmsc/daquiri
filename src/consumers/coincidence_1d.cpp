@@ -1,5 +1,4 @@
 #include "coincidence_1d.h"
-#include <boost/filesystem.hpp>
 #include "dense1d.h"
 
 #include "custom_logger.h"
@@ -60,7 +59,7 @@ bool Coincidence1D::_initialize()
   return true;
 }
 
-void Coincidence1D::_init_from_file(std::string filename)
+void Coincidence1D::_init_from_file()
 {
   metadata_.set_attribute(Setting::integer("resolution", bits_));
 
@@ -75,10 +74,7 @@ void Coincidence1D::_init_from_file(std::string filename)
 
   total_coincidences_ = total_count_;
 
-  std::string name = boost::filesystem::path(filename).filename().string();
-  std::replace( name.begin(), name.end(), '.', '_');
-
-  CoincidenceConsumer::_init_from_file(name);
+  CoincidenceConsumer::_init_from_file();
 }
 
 void Coincidence1D::_set_detectors(const std::vector<Detector>& dets)

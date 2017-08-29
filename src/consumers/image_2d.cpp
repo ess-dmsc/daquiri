@@ -51,17 +51,14 @@ bool Image2D::_initialize()
   return true;
 }
 
-void Image2D::_init_from_file(std::string filename)
+void Image2D::_init_from_file()
 {
   metadata_.set_attribute(Setting("pattern_add", pattern_add_));
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
   metadata_.set_attribute(Setting::text("x_name", "value1"));
   metadata_.set_attribute(Setting::text("y_name", "value2"));
 
-  std::string name = boost::filesystem::path(filename).filename().string();
-  std::replace( name.begin(), name.end(), '.', '_');
-
-  Spectrum::_init_from_file(name);
+  Spectrum::_init_from_file();
 }
 
 void Image2D::_set_detectors(const std::vector<Detector>& dets)

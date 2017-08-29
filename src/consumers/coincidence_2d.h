@@ -10,10 +10,10 @@ public:
   { return new Coincidence2D(*this); }
 
 protected:
-  std::string my_type() const override {return "2DEvent";}
+  std::string my_type() const override {return "Coincidence 2D";}
 
   bool _initialize() override;
-  void _init_from_file(std::string name) override;
+  void _init_from_file() override;
   void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
 

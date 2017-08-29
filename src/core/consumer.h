@@ -58,7 +58,7 @@ protected:
   
   virtual std::string my_type() const = 0;
   virtual bool _initialize();
-  virtual void _init_from_file(std::string name);
+  virtual void _init_from_file();
   virtual void _recalc_axes() = 0;
 
   virtual void _set_detectors(const std::vector<Detector>& dets) = 0;

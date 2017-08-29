@@ -29,6 +29,10 @@ find_package(Boost COMPONENTS
   system thread timer date_time log log_setup REQUIRED)
 #link_directories( ${BOOST_LIBRARY_DIRS} )
 
+if(APPLE)
+  add_definitions(-DUSE_BOOST_MUTEX=1)
+endif()
+
 file(GLOB ${PROJECT_NAME}_SOURCES *.cpp util/*.cpp)
 file(GLOB ${PROJECT_NAME}_HEADERS *.h util/*.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")

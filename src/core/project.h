@@ -2,7 +2,6 @@
 
 #include "consumer.h"
 #include <condition_variable>
-#include <mutex>
 
 namespace DAQuiri {
 
@@ -10,7 +9,7 @@ class Project {
 protected:
   //control
   mutable mutex mutex_;
-  std::condition_variable cond_;
+  condition_variable cond_;
   mutable bool ready_ {false};
   mutable bool newdata_ {false};
   int64_t current_index_ {0};

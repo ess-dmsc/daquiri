@@ -1,7 +1,6 @@
 #pragma once
 
 #include <queue>	
-//#include <boost/thread.hpp>
 #include <condition_variable>
 #include <mutex>
 

@@ -10,10 +10,10 @@ public:
   { return new TOF1D(*this); }
 
 protected:
-  std::string my_type() const override {return "TOF1D";}
+  std::string my_type() const override {return "Time of Flight 1D";}
 
   bool _initialize() override;
-  void _init_from_file(std::string name) override;
+  void _init_from_file() override;
   void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
 

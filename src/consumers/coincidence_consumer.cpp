@@ -106,14 +106,14 @@ bool CoincidenceConsumer::_initialize()
   return false; //still too abstract
 }
 
-void CoincidenceConsumer::_init_from_file(std::string name)
+void CoincidenceConsumer::_init_from_file()
 {
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_));
   metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_));
   metadata_.set_attribute(Setting("pattern_anti", pattern_anti_));
   metadata_.set_attribute(Setting("pattern_add", pattern_add_));
 
-  Spectrum::_init_from_file(name);
+  Spectrum::_init_from_file();
 }
 
 bool CoincidenceConsumer::channel_relevant(int16_t channel) const

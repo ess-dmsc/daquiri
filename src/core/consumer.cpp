@@ -43,9 +43,8 @@ bool Consumer::_initialize()
   return false; //abstract sink indicates failure to init
 }
 
-void Consumer::_init_from_file(std::string name)
+void Consumer::_init_from_file()
 {
-  metadata_.set_attribute(Setting::text("name", name), false);
   this->_initialize();
   this->_recalc_axes();
   this->_flush();

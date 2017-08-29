@@ -1,5 +1,4 @@
 #include "histogram_1d.h"
-#include <boost/filesystem.hpp>
 #include "dense1d.h"
 
 #include "custom_logger.h"
@@ -73,7 +72,7 @@ bool Histogram1D::_initialize()
   return true;
 }
 
-void Histogram1D::_init_from_file(std::string filename)
+void Histogram1D::_init_from_file()
 {
   metadata_.set_attribute(Setting::integer("resolution", bits_));
 
@@ -82,10 +81,7 @@ void Histogram1D::_init_from_file(std::string filename)
 
   metadata_.set_attribute(Setting("channels", channels_));
 
-  std::string name = boost::filesystem::path(filename).filename().string();
-  std::replace( name.begin(), name.end(), '.', '_');
-
-  Spectrum::_init_from_file(name);
+  Spectrum::_init_from_file();
 }
 
 void Histogram1D::_set_detectors(const std::vector<Detector>& dets)

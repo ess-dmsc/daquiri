@@ -11,7 +11,7 @@ public:
 
 protected:
   bool _initialize() override;
-  void _init_from_file(std::string name) override;
+  void _init_from_file() override;
 
   void _push_event(const Event&) override;
   void _push_stats(const Status&) override;
