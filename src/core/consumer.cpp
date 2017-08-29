@@ -11,23 +11,13 @@ Consumer::Consumer()
 {
   Setting attributes = metadata_.attributes();
 
-  Setting name(SettingMeta("name", SettingType::text));
+  SettingMeta name("name", SettingType::text);
+  name.set_val("description", "Short label");
   attributes.branches.add(name);
 
   SettingMeta vis("visible", SettingType::boolean);
   vis.set_val("description", "Plot visible");
-  attributes.branches.add(Setting(vis));
-
-  SettingMeta rescale("rescale", SettingType::precise);
-  rescale.set_val("description", "Rescale factor");
-  rescale.set_val("min", 0);
-  Setting resc(rescale);
-  resc.set_number(1);
-  attributes.branches.add(resc);
-
-  SettingMeta descr("description", SettingType::text);
-  descr.set_val("description", "Description");
-  attributes.branches.add(Setting(descr));
+  attributes.branches.add(vis);
 
   SettingMeta start_time("start_time", SettingType::time);
   start_time.set_val("description", "Start time");

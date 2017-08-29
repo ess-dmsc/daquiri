@@ -69,14 +69,22 @@ void ConsumerMetadata::set_attribute(const Setting &setting, bool greedy)
   attributes_.set(setting, Match::id | Match::indices, greedy);
 }
 
-Setting ConsumerMetadata::get_all_attributes() const
+Setting ConsumerMetadata::attributes() const
 {
   return attributes_;
 }
 
-Setting ConsumerMetadata::attributes() const
+std::list<Setting> ConsumerMetadata::attributes_flat() const
 {
-  return attributes_;
+  auto aa = attributes();
+  aa.cull_hidden();
+  aa.cull_readonly();
+  auto aaa = aa.find_all(Setting(), Match(0));
+  std::list<Setting> ret;
+  for (auto a : aaa)
+    if (!a.is(SettingType::stem))
+      ret.push_back(a);
+  return ret;
 }
 
 void ConsumerMetadata::set_attributes(const std::list<Setting> &s, bool greedy)

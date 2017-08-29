@@ -342,14 +342,15 @@ void ConsumerDialog::on_spinDets_valueChanged(int arg1)
 
 void ConsumerDialog::on_comboType_activated(const QString &arg1)
 {
-  ConsumerMetadata md = ConsumerFactory::singleton().create_prototype(arg1.toStdString());
+  ConsumerMetadata md =
+      ConsumerFactory::singleton().create_prototype(arg1.toStdString());
   if (md != ConsumerMetadata())
   {
-//    md.set_attributes(sink_metadata_.attributes());
-
+    auto old = sink_metadata_.attributes_flat();
     sink_metadata_ = md;
-
     on_spinDets_valueChanged(ui->spinDets->value());
+    sink_metadata_.set_attributes(old);
+
     updateData();
   }
   else

@@ -84,7 +84,7 @@ inline void to_json(json& j, const Pattern &s)
   j["threshold"] = s.threshold();
   json g;
   for (auto a : s.gates())
-    g.push_back(a);
+    g.push_back(int(a));  //hack for OSX
   j["gates"] = g;
 }
 
