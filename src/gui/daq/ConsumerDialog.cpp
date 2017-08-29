@@ -351,6 +351,13 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
     on_spinDets_valueChanged(ui->spinDets->value());
     sink_metadata_.set_attributes(old);
 
+    Setting col = sink_metadata_.get_attribute("appearance");
+    if (col.get_text().empty())
+    {
+      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+      sink_metadata_.set_attribute(col);
+    }
+
     updateData();
   }
   else

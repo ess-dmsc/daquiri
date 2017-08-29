@@ -194,7 +194,7 @@ bool Consumer::load(H5CC::Group& g, bool withdata)
   return ret;
 }
 
-bool Consumer::save(H5CC::Group& g) const
+void Consumer::save(H5CC::Group& g) const
 {
   SHARED_LOCK_ST
   g.write_attribute("type", this->my_type());

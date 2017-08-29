@@ -17,6 +17,10 @@ if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 14)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
+if(APPLE)
+  add_definitions(-DUSE_BOOST_MUTEX=1)
+endif()
+
 #=========================================================
 # Function for deducing include dirs
 # retname - name of parent variable to fill

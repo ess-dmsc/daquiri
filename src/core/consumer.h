@@ -28,7 +28,7 @@ public:
   bool from_prototype(const ConsumerMetadata&);
 
   bool load(H5CC::Group&, bool withdata);
-  bool save(H5CC::Group&) const;
+  void save(H5CC::Group&) const;
 
   //data acquisition
   void push_spill(const Spill&);
