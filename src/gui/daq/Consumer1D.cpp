@@ -31,6 +31,9 @@ void Consumer1D::update()
   DataspacePtr data = consumer_->data();
 
   double rescale  = md.get_attribute("rescale").get_number();
+  if (!std::isfinite(rescale) || !rescale)
+    rescale = 1;
+
   auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
 
   DataAxis axis;

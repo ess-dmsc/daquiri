@@ -16,3 +16,9 @@ DAQUIRI_REGISTER_CONSUMER(Image2D)
 
 #include "tof_1d.h"
 DAQUIRI_REGISTER_CONSUMER(TOF1D)
+
+#include "time_domain.h"
+DAQUIRI_REGISTER_CONSUMER(TimeDomain)
+
+#include "spectrum_time.h"
+DAQUIRI_REGISTER_CONSUMER(TimeSpectrum)

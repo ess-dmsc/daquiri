@@ -93,7 +93,7 @@ inline void from_json(const json& j, Pattern &s)
   std::vector<bool> gates;
   if (j.count("gates"))
     for (auto g : j["gates"])
-      gates.push_back(g);
+      gates.push_back(g != 0);
   s.set_gates(gates);
   if (j.count("threshold"))
     s.set_threshold(j["threshold"]);

@@ -382,7 +382,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   SynchronizedQueue<Spill*> parsed_queue;
 
-  std::thread builder(std::bind(&Engine::worker_chronological,
+  std::thread builder(std::bind(&Engine::builder_naive,
                                 this, &parsed_queue, project));
 
   Spill* spill = new Spill;
@@ -507,8 +507,8 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //////STUFF BELOW SHOULD NOT BE USED DIRECTLY////////////
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
-void Engine::worker_chronological(SpillQueue data_queue,
-                                  ProjectPtr project)
+void Engine::builder_chronological(SpillQueue data_queue,
+                                   ProjectPtr project)
 {
   CustomTimer presort_timer;
   uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
@@ -529,7 +529,7 @@ void Engine::worker_chronological(SpillQueue data_queue,
     }
 
     //    if (in_spill)
-    //      DBG << "<Engine: worker_chronological> spill backlog " << current_spills.size()
+    //      DBG << "<Engine: builder_chronological> spill backlog " << current_spills.size()
     //             << " at arrival of " << boost::posix_time::to_iso_extended_string(in_spill->time);
 
     bool empty = false;
@@ -637,10 +637,47 @@ void Engine::worker_chronological(SpillQueue data_queue,
       break;
   }
 
-  DBG << "<Engine> Spectra builder terminating";
+  DBG << "<Engine::builder_chronological> Finished";
 
   project->flush();
 }
 
+void Engine::builder_naive(SpillQueue data_queue,
+                           ProjectPtr project)
+{
+  CustomTimer presort_timer;
+  uint64_t presort_events(0), presort_cycles(0);
+
+  Spill* spill;
+  while (true)
+  {
+    spill = data_queue->dequeue();
+    if (spill != nullptr)
+    {
+      presort_timer.start();
+      presort_cycles++;
+      presort_events += spill->events.size();
+      project->add_spill(spill);
+      presort_timer.stop();
+    }
+    else
+      break;
+  }
+
+  DBG << "<Engine::builder_naive> finished loop";
+
+  presort_timer.start();
+  project->flush();
+  presort_timer.stop();
+
+  DBG << "<Engine::builder_naive> Finished "
+      << "\n   spills=" << presort_cycles
+      << "\n   events=" << presort_events
+      << "\n   time=" << presort_timer.s()
+      << "\n   secs/spill="
+      << (double(presort_timer.s()) / double(presort_cycles))
+      << "\n   secs/event="
+      << (double(presort_timer.s()) / double(presort_events));
+}
 
 }

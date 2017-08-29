@@ -132,7 +132,9 @@ void ConsumerDialog::open_close_locks()
 
 void ConsumerDialog::push_settings()
 {
-  sink_metadata_.overwrite_all_attributes(attr_model_.get_tree());
+  auto tempmeta = sink_metadata_;
+  tempmeta.overwrite_all_attributes(attr_model_.get_tree());
+  sink_metadata_.set_attributes(tempmeta.attributes_flat());
   changed_ = true;
 }
 
@@ -172,7 +174,8 @@ void ConsumerDialog::on_buttonBox_accepted()
     reject();
   else
   {
-    ConsumerPtr newsink = ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
+    ConsumerPtr newsink =
+        ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
 
     if (!newsink)
     {

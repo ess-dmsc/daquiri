@@ -76,8 +76,11 @@ private:
   bool daq_running() const;
 
   //threads
-  void worker_chronological(SpillQueue data_queue,
-                            ProjectPtr project);
+  void builder_chronological(SpillQueue data_queue,
+                             ProjectPtr project);
+
+  void builder_naive(SpillQueue data_queue,
+                     ProjectPtr project);
 
   //singleton assurance
   Engine();

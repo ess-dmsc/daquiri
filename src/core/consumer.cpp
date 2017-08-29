@@ -47,7 +47,9 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
   if (metadata_.type() != newtemplate.type())
     return false;
 
-  metadata_.overwrite_all_attributes(newtemplate.attributes());
+//  metadata_.overwrite_all_attributes(newtemplate.attributes());
+  metadata_.set_attributes(newtemplate.attributes_flat());
+
   metadata_.detectors.clear(); // really?
 
   return (this->_initialize());

@@ -98,6 +98,9 @@ void Consumer2D::update()
   }
 
   double rescale  = md.get_attribute("rescale").get_number();
+  if (!std::isfinite(rescale) || !rescale)
+    rescale = 1;
+
   QPlot::HistList2D hist;
   if (spectrum_data)
     for (auto p : *spectrum_data)

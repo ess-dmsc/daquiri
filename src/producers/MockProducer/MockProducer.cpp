@@ -45,6 +45,11 @@ MockProducer::MockProducer()
   lambda.set_val("step", 0.01);
   add_definition(lambda);
 
+  SettingMeta lambda2(mp + "SpillLambda", SettingType::floating, "Decay constant (λ) per spill");
+  lambda2.set_val("min", 0);
+  lambda2.set_val("step", 0.01);
+  add_definition(lambda2);
+
   SettingMeta vc(mp + "ValueCount", SettingType::integer, "Value count");
   vc.set_flag("preset");
   vc.set_val("min", 1);
@@ -86,7 +91,8 @@ MockProducer::MockProducer()
   root.set_enum(5, mp + "TimebaseMult");
   root.set_enum(6, mp + "TimebaseDiv");
   root.set_enum(7, mp + "Lambda");
-  root.set_enum(8, mp + "ValueCount");
+  root.set_enum(8, mp + "SpillLambda");
+  root.set_enum(9, mp + "ValueCount");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -159,6 +165,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("MockProducer/TimebaseMult", model_hit.timebase.multiplier()));
   set.set(Setting::integer("MockProducer/TimebaseDiv", model_hit.timebase.divider()));
   set.set(Setting::floating("MockProducer/Lambda", lambda_));
+  set.set(Setting::floating("MockProducer/SpillLambda", spill_lambda_));
   set.set(Setting::integer("MockProducer/ValueCount", integer_t(val_count_)));
 
   while (set.branches.has_a(Setting({"MockProducer/Value", SettingType::stem})))
@@ -191,6 +198,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
   bits_ = set.find({"MockProducer/Resolution"}).get_number();
   count_rate_ = set.find({"MockProducer/CountRate"}).get_number();
   lambda_ = set.find({"MockProducer/Lambda"}).get_number();
+  spill_lambda_ = set.find({"MockProducer/SpillLambda"}).get_number();
   dead_ = set.find({"MockProducer/DeadTime"}).get_number() * 0.01;
 
   val_count_ = set.find({"MockProducer/ValueCount"}).get_number();
@@ -351,8 +359,20 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
 
 //    DBG << "Will make hits for " << (rate * spill_interval_);
 
+    auto startclock = clock_;
+    std::uniform_real_distribution<> dis(0, 1);
     for (uint32_t i=0; i< (rate * spill_interval_); i++)
-      add_hit(*spill);
+    {
+      if (spill_lambda_)
+      {
+        double diff = model_hit.timebase.to_nanosec(clock_ - startclock)
+            * 0.000000001;
+        if (dis(gen_) < exp(0.0 - spill_lambda_ * diff))
+          add_hit(*spill);
+      }
+      else
+        add_hit(*spill);
+    }
 
 //    DBG << "Added " << spill->events.size() << " events to spill";
 

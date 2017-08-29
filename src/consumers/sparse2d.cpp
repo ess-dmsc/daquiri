@@ -163,6 +163,9 @@ std::string Sparse2D::_data_debug(const std::string &prepend) const
   std::stringstream ss;
 
   ss << "Maximum=" << maximum << "\n";
+  if (!maximum)
+    return ss.str();
+
   for (uint16_t i = 0; i <= max0_; i++)
   {
     for (uint16_t j = 0; j <= max1_; j++)
