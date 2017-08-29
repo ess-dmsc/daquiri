@@ -6,7 +6,7 @@ class Coincidence1D : public CoincidenceConsumer
 {
 public:
   Coincidence1D();
-  Coincidence1D* clone() const
+  Coincidence1D* clone() const override
   { return new Coincidence1D(*this); }
 
 protected:

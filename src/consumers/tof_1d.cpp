@@ -111,6 +111,6 @@ void TOF1D::_push_event(const Event& e)
   if (v < 0)
     return;
 
-  data_->add({{v / resolution_}, 1});
+  data_->add({{static_cast<size_t>(v / resolution_)}, 1});
   total_count_++;
 }

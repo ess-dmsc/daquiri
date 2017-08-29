@@ -9,7 +9,7 @@ class Dense1D : public Dataspace
 {
 public:
   Dense1D();
-  Dense1D* clone() const
+  Dense1D* clone() const override
   { return new Dense1D(*this); }
 
 protected:

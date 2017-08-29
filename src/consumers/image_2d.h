@@ -6,7 +6,7 @@ class Image2D : public Spectrum
 {
 public:
   Image2D();
-  Image2D* clone() const
+  Image2D* clone() const override
   { return new Image2D(*this); }
 
 protected:

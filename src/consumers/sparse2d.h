@@ -9,7 +9,7 @@ class Sparse2D : public Dataspace
 {
 public:
   Sparse2D();
-  Sparse2D* clone() const
+  Sparse2D* clone() const override
   { return new Sparse2D(*this); }
 
 protected:

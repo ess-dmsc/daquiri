@@ -6,7 +6,7 @@ class Histogram1D : public Spectrum
 {
 public:
   Histogram1D();
-  Histogram1D* clone() const
+  Histogram1D* clone() const override
   { return new Histogram1D(*this); }
 
 protected:

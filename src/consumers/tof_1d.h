@@ -6,7 +6,7 @@ class TOF1D : public Spectrum
 {
 public:
   TOF1D();
-  TOF1D* clone() const
+  TOF1D* clone() const override
   { return new TOF1D(*this); }
 
 protected:
