@@ -1,4 +1,4 @@
-#include "Image2D.h"
+#include "image_2d.h"
 #include <boost/filesystem.hpp>
 #include "sparse2d.h"
 

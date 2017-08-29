@@ -1,17 +1,16 @@
 #pragma once
 
-#include "spectrum_event_mode.h"
-//#include "spectrum2D.h"
+#include "coincidence_consumer.h"
 
-class Spectrum2DEvents : public SpectrumEventMode
+class Coincidence1D : public CoincidenceConsumer
 {
 public:
-  Spectrum2DEvents();
-  Spectrum2DEvents* clone() const
-  { return new Spectrum2DEvents(*this); }
+  Coincidence1D();
+  Coincidence1D* clone() const
+  { return new Coincidence1D(*this); }
 
 protected:
-  std::string my_type() const override {return "2DEvent";}
+  std::string my_type() const override {return "1DEvent";}
 
   bool _initialize() override;
   void _init_from_file(std::string name) override;
@@ -21,8 +20,9 @@ protected:
   //event processing
   bool event_relevant(const Event&) const override;
   void add_coincidence(const Coincidence&) override;
+  virtual void bin_event(const Event&);
 
-  //indexes of the two chosen channels
+  // cached parameters:
   uint16_t bits_ {0};
-  std::vector<int8_t> pattern_;
+  uint32_t cutoff_bin_ {0};
 };

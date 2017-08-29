@@ -105,6 +105,8 @@ void Dense1D::_load(H5CC::Group& g)
 std::string Dense1D::_data_debug(const std::string &prepend) const
 {
   std::stringstream ss;
+  if (!spectrum_.size())
+    return ss.str();
 
   uint64_t total  = static_cast<uint64_t>(total_count_);
   uint64_t nstars = static_cast<uint64_t>(maxchan_*3);

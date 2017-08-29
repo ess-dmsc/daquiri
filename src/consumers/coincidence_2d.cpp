@@ -1,4 +1,4 @@
-#include "Spectrum2DEvents.h"
+#include "coincidence_2d.h"
 #include <boost/filesystem.hpp>
 #include "sparse2d.h"
 
@@ -6,8 +6,8 @@
 
 #define kDimensions 2
 
-Spectrum2DEvents::Spectrum2DEvents()
-  : SpectrumEventMode()
+Coincidence2D::Coincidence2D()
+  : CoincidenceConsumer()
 {
   data_ = std::make_shared<Sparse2D>();
 
@@ -45,9 +45,9 @@ Spectrum2DEvents::Spectrum2DEvents()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Spectrum2DEvents::_initialize()
+bool Coincidence2D::_initialize()
 {
-  SpectrumEventMode::_initialize();
+  CoincidenceConsumer::_initialize();
   bits_ = metadata_.get_attribute("resolution").selection();
 
   int adds = 0;
@@ -58,7 +58,7 @@ bool Spectrum2DEvents::_initialize()
 
   if (adds != 2)
   {
-    WARN << "<Spectrum2DEvents> Cannot initialize. Add pattern must have 2 selected channels.";
+    WARN << "<Coincidence2D> Cannot initialize. Add pattern must have 2 selected channels.";
     return false;
   }
 
@@ -76,7 +76,7 @@ bool Spectrum2DEvents::_initialize()
   return true;
 }
 
-void Spectrum2DEvents::_init_from_file(std::string filename)
+void Coincidence2D::_init_from_file(std::string filename)
 {
   metadata_.set_attribute(Setting::integer("resolution", bits_));
 
@@ -96,10 +96,10 @@ void Spectrum2DEvents::_init_from_file(std::string filename)
 
 //  metadata_.set_attribute(Setting::boolean("symmetric", data->is_symmetric()));
 
-  SpectrumEventMode::_init_from_file(name);
+  CoincidenceConsumer::_init_from_file(name);
 }
 
-void Spectrum2DEvents::_set_detectors(const std::vector<Detector>& dets)
+void Coincidence2D::_set_detectors(const std::vector<Detector>& dets)
 {
   metadata_.detectors.resize(kDimensions, Detector());
 
@@ -123,7 +123,7 @@ void Spectrum2DEvents::_set_detectors(const std::vector<Detector>& dets)
   this->_recalc_axes();
 }
 
-void Spectrum2DEvents::_recalc_axes()
+void Coincidence2D::_recalc_axes()
 {
   data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
   data_->set_axis(1, DataAxis(Calibration(), 0, bits_));
@@ -143,14 +143,14 @@ void Spectrum2DEvents::_recalc_axes()
   data_->recalc_axes(bits_);
 }
 
-bool Spectrum2DEvents::event_relevant(const Event& e) const
+bool Coincidence2D::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
-  return SpectrumEventMode::event_relevant(e) &&
+  return CoincidenceConsumer::event_relevant(e) &&
       (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
 }
 
-void Spectrum2DEvents::add_coincidence(const Coincidence& c)
+void Coincidence2D::add_coincidence(const Coincidence& c)
 {
   std::list<uint16_t> l0, l1;
   for (auto &e : c.hits())

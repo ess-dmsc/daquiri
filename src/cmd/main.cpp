@@ -97,12 +97,11 @@ Container<ConsumerMetadata> get_prototypes()
 {
   Container<ConsumerMetadata> prototypes;
 
-  ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("1DEvent");
+  ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("Histogram1D");
   ptype.set_attribute(Setting::text("name", "Spectrum"));
   ptype.set_attribute(Setting::integer("resolution", 7));
   ptype.set_attribute(Setting::text("value_name", "energy"));
-  ptype.set_attribute(Setting("pattern_coinc", Pattern(1, {true})));
-  ptype.set_attribute(Setting("pattern_add", Pattern(1, {true})));
+  ptype.set_attribute(Setting("channels", Pattern(1, {true})));
 
   ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Image2D");
   itype.set_attribute(Setting::text("name", "Image"));

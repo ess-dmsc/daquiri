@@ -1,4 +1,4 @@
-#include "Spectrum1DEvents.h"
+#include "coincidence_1d.h"
 #include <boost/filesystem.hpp>
 #include "dense1d.h"
 
@@ -6,8 +6,8 @@
 
 #define kDimensions 1
 
-Spectrum1DEvents::Spectrum1DEvents()
-  : SpectrumEventMode()
+Coincidence1D::Coincidence1D()
+  : CoincidenceConsumer()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -50,9 +50,9 @@ Spectrum1DEvents::Spectrum1DEvents()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Spectrum1DEvents::_initialize()
+bool Coincidence1D::_initialize()
 {
-  SpectrumEventMode::_initialize();
+  CoincidenceConsumer::_initialize();
   bits_ = metadata_.get_attribute("resolution").selection();
   cutoff_bin_ = metadata_.get_attribute("cutoff_bin").get_number();
 
@@ -60,7 +60,7 @@ bool Spectrum1DEvents::_initialize()
   return true;
 }
 
-void Spectrum1DEvents::_init_from_file(std::string filename)
+void Coincidence1D::_init_from_file(std::string filename)
 {
   metadata_.set_attribute(Setting::integer("resolution", bits_));
 
@@ -78,10 +78,10 @@ void Spectrum1DEvents::_init_from_file(std::string filename)
   std::string name = boost::filesystem::path(filename).filename().string();
   std::replace( name.begin(), name.end(), '.', '_');
 
-  SpectrumEventMode::_init_from_file(name);
+  CoincidenceConsumer::_init_from_file(name);
 }
 
-void Spectrum1DEvents::_set_detectors(const std::vector<Detector>& dets)
+void Coincidence1D::_set_detectors(const std::vector<Detector>& dets)
 {
   metadata_.detectors.resize(kDimensions, Detector());
 
@@ -103,7 +103,7 @@ void Spectrum1DEvents::_set_detectors(const std::vector<Detector>& dets)
   this->_recalc_axes();
 }
 
-void Spectrum1DEvents::_recalc_axes()
+void Coincidence1D::_recalc_axes()
 {
   data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
 
@@ -122,14 +122,14 @@ void Spectrum1DEvents::_recalc_axes()
   data_->recalc_axes(bits_);
 }
 
-bool Spectrum1DEvents::event_relevant(const Event& e) const
+bool Coincidence1D::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
-  return SpectrumEventMode::event_relevant(e) &&
+  return CoincidenceConsumer::event_relevant(e) &&
       (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
 }
 
-void Spectrum1DEvents::bin_event(const Event& e)
+void Coincidence1D::bin_event(const Event& e)
 {
   uint16_t en = e.value(value_idx_.at(e.channel())).val(bits_);
   if (en < cutoff_bin_)
@@ -139,7 +139,7 @@ void Spectrum1DEvents::bin_event(const Event& e)
   total_count_++;
 }
 
-void Spectrum1DEvents::add_coincidence(const Coincidence& c)
+void Coincidence1D::add_coincidence(const Coincidence& c)
 {
   for (auto &e : c.hits())
     if (pattern_add_.relevant(e.first))

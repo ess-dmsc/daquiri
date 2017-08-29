@@ -2,11 +2,17 @@
 
 #include "consumer_factory.h"
 
-#include "Spectrum1DEvents.h"
-DAQUIRI_REGISTER_CONSUMER(Spectrum1DEvents)
+#include "histogram_1d.h"
+DAQUIRI_REGISTER_CONSUMER(Histogram1D)
 
-#include "Spectrum2DEvents.h"
-DAQUIRI_REGISTER_CONSUMER(Spectrum2DEvents)
+#include "coincidence_1d.h"
+DAQUIRI_REGISTER_CONSUMER(Coincidence1D)
 
-#include "Image2D.h"
+#include "coincidence_2d.h"
+DAQUIRI_REGISTER_CONSUMER(Coincidence2D)
+
+#include "image_2d.h"
 DAQUIRI_REGISTER_CONSUMER(Image2D)
+
+#include "tof_1d.h"
+DAQUIRI_REGISTER_CONSUMER(TOF1D)

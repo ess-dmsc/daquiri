@@ -1,7 +1,7 @@
-#include "spectrum_event_mode.h"
+#include "coincidence_consumer.h"
 #include "custom_logger.h"
 
-SpectrumEventMode::SpectrumEventMode()
+CoincidenceConsumer::CoincidenceConsumer()
   : Spectrum()
 {
   Setting attributes = metadata_.attributes();
@@ -67,7 +67,7 @@ SpectrumEventMode::SpectrumEventMode()
   metadata_.overwrite_all_attributes(attributes);
 }
 
-bool SpectrumEventMode::_initialize()
+bool CoincidenceConsumer::_initialize()
 {
   Spectrum::_initialize();
 
@@ -106,7 +106,7 @@ bool SpectrumEventMode::_initialize()
   return false; //still too abstract
 }
 
-void SpectrumEventMode::_init_from_file(std::string name)
+void CoincidenceConsumer::_init_from_file(std::string name)
 {
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_));
   metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_));
@@ -116,7 +116,7 @@ void SpectrumEventMode::_init_from_file(std::string name)
   Spectrum::_init_from_file(name);
 }
 
-bool SpectrumEventMode::channel_relevant(int16_t channel) const
+bool CoincidenceConsumer::channel_relevant(int16_t channel) const
 {
   return ((channel >= 0) &&
           (pattern_coinc_.relevant(channel) ||
@@ -124,14 +124,14 @@ bool SpectrumEventMode::channel_relevant(int16_t channel) const
            pattern_add_.relevant(channel)));
 }
 
-bool SpectrumEventMode::event_relevant(const Event& e) const
+bool CoincidenceConsumer::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return (this->channel_relevant(c) &&
           value_relevant(c, value_idx_));
 }
 
-void SpectrumEventMode::_push_event(const Event& new_event)
+void CoincidenceConsumer::_push_event(const Event& new_event)
 {
   if (!this->event_relevant(new_event))
     return;
@@ -190,7 +190,7 @@ void SpectrumEventMode::_push_event(const Event& new_event)
 }
 
 
-bool SpectrumEventMode::validate_coincidence(const Coincidence &newEvent) const
+bool CoincidenceConsumer::validate_coincidence(const Coincidence &newEvent) const
 {
   return (
         validate(newEvent, pattern_coinc_)
@@ -199,7 +199,7 @@ bool SpectrumEventMode::validate_coincidence(const Coincidence &newEvent) const
         );
 }
 
-void SpectrumEventMode::_push_stats(const Status& newBlock)
+void CoincidenceConsumer::_push_stats(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
@@ -215,7 +215,7 @@ void SpectrumEventMode::_push_stats(const Status& newBlock)
 }
 
 
-void SpectrumEventMode::_flush()
+void CoincidenceConsumer::_flush()
 {
   Spectrum::_flush();
 

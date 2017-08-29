@@ -3,11 +3,11 @@
 #include "spectrum.h"
 #include "coincidence.h"
 
-class SpectrumEventMode : virtual public Spectrum
+class CoincidenceConsumer : virtual public Spectrum
 {
 public:
-  SpectrumEventMode();
-  ~SpectrumEventMode() {}
+  CoincidenceConsumer();
+  ~CoincidenceConsumer() {}
 
 protected:
   bool _initialize() override;
@@ -25,7 +25,7 @@ protected:
 
 protected:
   //cached parameters
-  std::string val_name_ {"energy"};
+  std::string val_name_;
   Pattern pattern_coinc_, pattern_anti_, pattern_add_;
   std::vector<int32_t> cutoff_logic_;
   std::vector<double>  delay_ns_;
