@@ -92,43 +92,8 @@ Dataspace::Dataspace(const Dataspace& other)
   , axes_ (other.axes_)
 {}
 
-PreciseFloat Dataspace::get(std::initializer_list<size_t> list) const
-{
-  SHARED_LOCK_ST
-  return this->_get(list);
-}
-
-EntryList Dataspace::range(std::initializer_list<Pair> list) const
-{
-  SHARED_LOCK_ST
-  return this->_range(list);
-}
-
-void Dataspace::recalc_axes(uint16_t bits)
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  this->_recalc_axes(bits);
-}
-
-void Dataspace::clear()
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  this->_clear();
-}
-
-void Dataspace::add(const Entry& e)
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  this->_add(e);
-}
 
 DataAxis Dataspace::axis(uint16_t dimension) const
-{
-  SHARED_LOCK_ST
-  return _axis(dimension);
-}
-
-DataAxis Dataspace::_axis(uint16_t dimension) const
 {
   if (dimension < axes_.size())
     return axes_[dimension];
@@ -138,12 +103,6 @@ DataAxis Dataspace::_axis(uint16_t dimension) const
 
 void Dataspace::set_axis(size_t dim, const DataAxis& ax)
 {
-  UNIQUE_LOCK_EVENTUALLY_ST
-  _set_axis(dim, ax);
-}
-
-void Dataspace::_set_axis(size_t dim, const DataAxis& ax)
-{
   if (dim < axes_.size())
     axes_[dim] = ax;
 //  else throw?
@@ -151,18 +110,13 @@ void Dataspace::_set_axis(size_t dim, const DataAxis& ax)
 
 uint16_t Dataspace::dimensions() const
 {
-  SHARED_LOCK_ST
-  return _dimensions();
-}
-
-uint16_t Dataspace::_dimensions() const
-{
   return dimensions_;
 }
 
+
+
 std::string Dataspace::debug(std::string prepend) const
 {
-  SHARED_LOCK_ST
   std::stringstream ss;
   if (axes_.empty())
     ss << prepend << k_branch_mid_B << "Axes undefined\n";
@@ -178,23 +132,11 @@ std::string Dataspace::debug(std::string prepend) const
     }
   }
   ss << prepend << k_branch_end_B << "Data:\n"
-     << this->_data_debug(prepend + "  ");
+     << this->data_debug(prepend + "  ");
   return ss.str();
 }
 
-void Dataspace::load(H5CC::Group& g)
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  this->_load(g);
-}
-
-void Dataspace::save(H5CC::Group& g) const
-{
-  SHARED_LOCK_ST
-  this->_save(g);
-}
-
-std::string Dataspace::_data_debug(const std::string&) const
+std::string Dataspace::data_debug(const std::string&) const
 {
   return std::string();
 }

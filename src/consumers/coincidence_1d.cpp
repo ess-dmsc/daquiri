@@ -133,6 +133,7 @@ void Coincidence1D::bin_event(const Event& e)
 
   data_->add({{en}, 1});
   total_count_++;
+  recent_count_++;
 }
 
 void Coincidence1D::add_coincidence(const Coincidence& c)

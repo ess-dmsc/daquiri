@@ -645,7 +645,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
 void Engine::builder_naive(SpillQueue data_queue,
                            ProjectPtr project)
 {
-  CustomTimer presort_timer;
+  double time {0};
   uint64_t presort_events(0), presort_cycles(0);
 
   Spill* spill;
@@ -654,11 +654,11 @@ void Engine::builder_naive(SpillQueue data_queue,
     spill = data_queue->dequeue();
     if (spill != nullptr)
     {
-      presort_timer.start();
+      CustomTimer presort_timer(true);
       presort_cycles++;
       presort_events += spill->events.size();
       project->add_spill(spill);
-      presort_timer.stop();
+      time += presort_timer.s();
     }
     else
       break;
@@ -666,18 +666,18 @@ void Engine::builder_naive(SpillQueue data_queue,
 
   DBG << "<Engine::builder_naive> finished loop";
 
-  presort_timer.start();
+  CustomTimer presort_timer(true);
   project->flush();
-  presort_timer.stop();
+  time += presort_timer.s();
 
   DBG << "<Engine::builder_naive> Finished "
       << "\n   spills=" << presort_cycles
       << "\n   events=" << presort_events
-      << "\n   time=" << presort_timer.s()
+      << "\n   time=" << time
       << "\n   secs/spill="
-      << (double(presort_timer.s()) / double(presort_cycles))
-      << "\n   secs/event="
-      << (double(presort_timer.s()) / double(presort_events));
+      << (time / double(presort_cycles))
+      << "\n   events/sec="
+      << (double(presort_events) / time);
 }
 
 }

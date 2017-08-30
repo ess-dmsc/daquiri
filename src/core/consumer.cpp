@@ -66,7 +66,7 @@ void Consumer::push_spill(const Spill& spill)
 
 void Consumer::_push_spill(const Spill& spill)
 {
-  //  CustomTimer addspill_timer(true);
+  CustomTimer addspill_timer(true);
 
   if (!spill.detectors.empty())
     this->_set_detectors(spill.detectors);
@@ -77,11 +77,10 @@ void Consumer::_push_spill(const Spill& spill)
   for (auto &q : spill.stats)
     this->_push_stats(q.second);
 
-  //  addspill_timer.stop();
-  //  DBG << "<" << metadata_.name << "> added " << events << " events in "
-  //         << addspill_timer.ms() << " ms at " << addspill_timer.us() / events << " us/hit";
-
-  //  DBG << "<" << metadata_.name << "> left in backlog " << backlog.size();
+  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
+      << spill.events.size() << " events in "
+      << addspill_timer.ms() << " ms at "
+      << addspill_timer.us() / double(spill.events.size()) << " us/hit";
 }
 
 void Consumer::flush()
@@ -119,7 +118,7 @@ ConsumerMetadata Consumer::metadata() const
 DataspacePtr Consumer::data() const
 {
   SHARED_LOCK_ST
-  return data_;
+  return DataspacePtr(data_->clone());
 }
 
 std::string Consumer::type() const

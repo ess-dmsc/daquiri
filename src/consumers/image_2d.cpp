@@ -137,6 +137,8 @@ void Image2D::_push_event(const Event& e)
   uint16_t x = vx.val(vx.bits() - downsample_);
   uint16_t y = vy.val(vy.bits() - downsample_);
   data_->add({{x,y},1});
+  total_count_++;
+  recent_count_++;
 }
 
 bool Image2D::channel_relevant(int16_t channel) const

@@ -35,7 +35,6 @@ struct DataAxis
 class Dataspace
 {
 private:
-  mutable mutex_st mutex_;
   std::vector<DataAxis> axes_;
   uint16_t dimensions_ {0};
 
@@ -46,45 +45,28 @@ public:
   virtual Dataspace* clone() const = 0;
   virtual ~Dataspace() {}
 
-  void add(const Entry&);
+  virtual void add(const Entry&) = 0;
   //get count at coordinates in n-dimensional list
-  PreciseFloat get(std::initializer_list<size_t> list = {}) const;
+  virtual PreciseFloat get(std::initializer_list<size_t> list = {}) const = 0;
   //parameters take dimensions_ of ranges (inclusive)
   //optimized retrieval of bulk data as list of Entries
-  EntryList range(std::initializer_list<Pair> list = {}) const;
-  void recalc_axes(uint16_t bits);
-  void clear();
+  virtual EntryList range(std::initializer_list<Pair> list = {}) const = 0;
+  virtual void recalc_axes(uint16_t bits) = 0;
+  virtual void clear() = 0;
 
-  void load(H5CC::Group&);
-  void save(H5CC::Group&) const;
+  virtual void load(H5CC::Group&) = 0;
+  virtual void save(H5CC::Group&) const = 0;
 
   //retrieve axis-values for given dimension (can be precalculated energies)
   uint16_t dimensions() const;
-  DataAxis axis(uint16_t dimension) const;
-  void set_axis(size_t dim, const DataAxis& ax);
+  virtual DataAxis axis(uint16_t dimension) const;
+  virtual void set_axis(size_t dim, const DataAxis& ax);
 
   std::string debug(std::string prepend = "") const;
 
 protected:
-  uint16_t _dimensions() const;
-  DataAxis _axis(uint16_t dimension) const;
-  void _set_axis(size_t dim, const DataAxis& ax);
 
-  //////////////////////////////////////////
-  //////////THIS IS THE MEAT////////////////
-  ///implement these to make custom types///
-  //////////////////////////////////////////
-
-  virtual void _add(const Entry&) = 0;
-  virtual PreciseFloat _get(std::initializer_list<size_t>) const = 0;
-  virtual EntryList _range(std::initializer_list<Pair>) const = 0;
-  virtual void _clear() = 0;
-
-  virtual void _recalc_axes(uint16_t bits) = 0;
-
-  virtual void _load(H5CC::Group&) {}
-  virtual void _save(H5CC::Group&) const {}
-  virtual std::string _data_debug(const std::string& prepend) const;
+  virtual std::string data_debug(const std::string& prepend) const;
 };
 
 using DataspacePtr = std::shared_ptr<Dataspace>;

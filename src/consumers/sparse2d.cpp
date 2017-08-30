@@ -8,15 +8,15 @@ Sparse2D::Sparse2D()
   : Dataspace(2)
 {}
 
-void Sparse2D::_clear()
+void Sparse2D::clear()
 {
   total_count_ = 0;
   spectrum_.clear();
 }
 
-void Sparse2D::_add(const Entry& e)
+void Sparse2D::add(const Entry& e)
 {
-  if ((e.first.size() != _dimensions()) || !e.second)
+  if ((e.first.size() != dimensions()) || !e.second)
     return;
   bin_pair(e.first[0], e.first[1], e.second);
 }
@@ -30,10 +30,10 @@ void Sparse2D::bin_pair(const uint16_t& x, const uint16_t& y,
   max1_ = std::max(max1_, y);
 }
 
-void Sparse2D::_recalc_axes(uint16_t bits)
+void Sparse2D::recalc_axes(uint16_t bits)
 {
-  auto ax0 = _axis(0);
-  auto ax1 = _axis(1);
+  auto ax0 = axis(0);
+  auto ax1 = axis(1);
   if (bits)
   {
     ax0.expand_domain(max0_, bits);
@@ -44,13 +44,13 @@ void Sparse2D::_recalc_axes(uint16_t bits)
     ax0.expand_domain(max0_);
     ax1.expand_domain(max1_);
   }
-  _set_axis(0, ax0);
-  _set_axis(1, ax1);
+  set_axis(0, ax0);
+  set_axis(1, ax1);
 }
 
-PreciseFloat Sparse2D::_get(std::initializer_list<size_t> list) const
+PreciseFloat Sparse2D::get(std::initializer_list<size_t> list) const
 {
-  if (list.size() != _dimensions())
+  if (list.size() != dimensions())
     return 0;
 
   std::vector<uint16_t> coords(list.begin(), list.end());
@@ -61,10 +61,10 @@ PreciseFloat Sparse2D::_get(std::initializer_list<size_t> list) const
   return 0;
 }
 
-EntryList Sparse2D::_range(std::initializer_list<Pair> list) const
+EntryList Sparse2D::range(std::initializer_list<Pair> list) const
 {
   size_t min0, min1, max0, max1;
-  if (list.size() != _dimensions())
+  if (list.size() != dimensions())
   {
     min0 = min1 = 0;
     max0 = max0_;
@@ -83,12 +83,12 @@ EntryList Sparse2D::_range(std::initializer_list<Pair> list) const
   EntryList result(new EntryList_t);
 //  CustomTimer makelist(true);
 
-  _fill_list(result, min0, max0, min1, max1);
+  fill_list(result, min0, max0, min1, max1);
 
   return result;
 }
 
-void Sparse2D::_fill_list(EntryList& result,
+void Sparse2D::fill_list(EntryList& result,
                           size_t min0, size_t max0,
                           size_t min1, size_t max1) const
 {
@@ -103,7 +103,7 @@ void Sparse2D::_fill_list(EntryList& result,
   }
 }
 
-void Sparse2D::_save(H5CC::Group& g) const
+void Sparse2D::save(H5CC::Group& g) const
 {
   auto dgroup = g.require_group("data");
   auto didx = dgroup.require_dataset<uint16_t>("indices", {spectrum_.size(), 2}, {128,2});
@@ -124,7 +124,7 @@ void Sparse2D::_save(H5CC::Group& g) const
   dcts.write(dc);
 }
 
-void Sparse2D::_load(H5CC::Group& g)
+void Sparse2D::load(H5CC::Group& g)
 {
   if (!g.has_group("data"))
     return;
@@ -153,7 +153,7 @@ void Sparse2D::_load(H5CC::Group& g)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
-std::string Sparse2D::_data_debug(const std::string &prepend) const
+std::string Sparse2D::data_debug(const std::string &prepend) const
 {
   double maximum {0};
   for (auto &b : spectrum_)

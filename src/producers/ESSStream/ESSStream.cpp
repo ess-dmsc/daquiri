@@ -1,5 +1,4 @@
 #include "ESSStream.h"
-#include "custom_timer.h"
 
 #include "custom_logger.h"
 
@@ -197,7 +196,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
     if (!indices.size())
       continue;
     size_t idx = *indices.begin();
-//    DBG << "Write idx " << idx;
+    //    DBG << "Write idx " << idx;
     if (idx >= dim_count_)
       continue;
     auto name = v.find({"ESSStream/Dimension/Name"}).get_text();
@@ -285,25 +284,33 @@ void ESSStream::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::worker_run(ESSStream* callback,
-                               SpillQueue spill_queue)
+void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
 {
   DBG << "<ESSStream> Starting run   "
       << "  timebase " << callback->model_hit_.timebase.debug() << "ns";
 
   spill_queue->enqueue(callback->create_spill(StatusType::start));
 
+  uint64_t spills{2};
+  callback->time_spent_ = 0;
+
   while (callback->run_status_.load() != 2)
   {
     auto spill = callback->get_message();
     if (spill)
+    {
+      spills++;
       spill_queue->enqueue(spill);
+    }
   }
 
   spill_queue->enqueue(callback->create_spill(StatusType::stop));
 
   callback->run_status_.store(3);
-  DBG << "<ESSStream> Finished run";
+  DBG << "<ESSStream> Finished run"
+      << " spills=" << spills
+      << " time=" << callback->time_spent_
+      << " secs/spill=" << callback->time_spent_ / double(spills);
 }
 
 Spill* ESSStream::create_spill(StatusType t)
@@ -343,7 +350,7 @@ Spill* ESSStream::get_message()
   case RdKafka::ERR_NO_ERROR:
     //    msg_cnt++;
     //    msg_bytes += message->len();
-//    DBG << "Read msg at offset " << message->offset();
+    //    DBG << "Read msg at offset " << message->offset();
     RdKafka::MessageTimestamp ts;
     ts = message->timestamp();
     if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
@@ -359,9 +366,9 @@ Spill* ESSStream::get_message()
     if (message->key())
       DBG << "Key: " << *message->key();
 
-//    DBG << "Received Kafka message " << debug(message);
+    //    DBG << "Received Kafka message " << debug(message);
 
-//    return nullptr;
+    //    return nullptr;
     return process_message(message);
 
   case RdKafka::ERR__PARTITION_EOF:
@@ -399,56 +406,61 @@ std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)
 Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
 {
   Spill* ret {nullptr};
-  if (msg->len() > 0)
+  if (!msg->len())
+    return ret;
+  auto em = GetEventMessage(msg->payload());
+
+  ulong id = em->message_id();
+  if (id < buf_id_)
+    WARN << "Buffer out of order (" << id << "<" << buf_id_ << ") "
+         << debug(*em);
+  buf_id_ = std::max(buf_id_, id);
+
+  //    if (detector_type_ != em->source_name()->str())
+  //    {
+  //      DBG << "Bad detector type " << debug(*em);
+  //      return ret;
+  //    }
+
+  auto t_len = em->time_of_flight()->Length();
+  auto p_len = em->detector_id()->Length();
+  if ((t_len != p_len) || !t_len)
   {
-    auto em = GetEventMessage(msg->payload());
-
-    ulong id = em->message_id();
-    if (id < buf_id_)
-      WARN << "Buffer ID" << id << "out of order "  << debug(*em);
-    buf_id_ = std::max(buf_id_, id);
-
-//    if (detector_type_ != em->source_name()->str())
-//    {
-//      DBG << "Bad detector type " << debug(*em);
-//      return ret;
-//    }
-
-    auto t_len = em->time_of_flight()->Length();
-    auto p_len = em->detector_id()->Length();
-    if ((t_len != p_len) || !t_len)
-    {
-      DBG << "Empty buffer " << debug(*em);
-      return ret;
-    }
-
-//    DBG << "Good buffer " << debug(*em);
-
-    ret = create_spill(StatusType::running);
-    int16_t chan0 {0};
-
-    uint64_t time_high = em->pulse_time();
-    time_high = time_high << 32;
-    for (auto i=0; i < t_len; ++i)
-    {
-      uint64_t time = em->time_of_flight()->Get(i);
-      time |= time_high;
-
-      if (spoof_clock_)
-        time = clock_ + 1;
-
-      const auto& id = em->detector_id()->Get(i);
-      if (id) //must be non0?
-      {
-        Event e(chan0, model_hit_);
-        e.set_native_time(time);
-        geometry_.interpret_id(e, id);
-        ret->events.push_back(e);
-      }
-
-      clock_ = std::max(clock_, time);
-    }
+    DBG << "Empty buffer " << debug(*em);
+    return ret;
   }
+
+  //    DBG << "Good buffer " << debug(*em);
+
+  CustomTimer timer(true);
+
+  ret = create_spill(StatusType::running);
+  int16_t chan0 {0};
+
+  uint64_t time_high = em->pulse_time();
+//  time_high = time_high << 32;
+  for (auto i=0; i < t_len; ++i)
+  {
+    uint64_t time = em->time_of_flight()->Get(i);
+    time |= time_high;
+
+    if (spoof_clock_)
+      time = clock_ + 1;
+
+    const auto& id = em->detector_id()->Get(i);
+    if (id) //must be non0?
+    {
+      Event e(chan0, model_hit_);
+      e.set_native_time(time);
+      geometry_.interpret_id(e, id);
+      ret->events.push_back(e);
+    }
+
+    clock_ = std::max(clock_, time);
+  }
+
+  time_spent_ += timer.s();
+
   return ret;
 }
 

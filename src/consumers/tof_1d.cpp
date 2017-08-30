@@ -20,6 +20,7 @@ TOF1D::TOF1D()
   SettingMeta res("resolution", SettingType::floating);
   res.set_flag("preset");
   res.set_val("min", 1);
+  res.set_val("units", "1/ns");
   base_options.branches.add(res);
 
   SettingMeta pattern_add("channels", SettingType::pattern);
@@ -76,8 +77,11 @@ void TOF1D::_set_detectors(const std::vector<Detector>& dets)
 
 void TOF1D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0));
-  data_->recalc_axes(0);
+  CalibID id("", "time", "ns", 0);
+  DataAxis ax;
+  ax.calibration = Calibration(id, id);
+  ax.domain = domain_;
+  data_->set_axis(0, ax);
 }
 
 bool TOF1D::channel_relevant(int16_t channel) const
@@ -85,15 +89,15 @@ bool TOF1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOF1D::_push_stats(const Status& newBlock)
+void TOF1D::_push_stats(const Status& status)
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  if (!this->channel_relevant(status.channel()))
     return;
 
-  Spectrum::_push_stats(newBlock);
+  if (status.stats().count("native_time"))
+    pulse_times_[status.channel()] = status.stats().at("native_time");
 
-  if (newBlock.stats().count("native_time"))
-    pulse_times_[newBlock.channel()] = newBlock.stats().at("native_time");
+  Spectrum::_push_stats(status);
 }
 
 void TOF1D::_push_event(const Event& e)
@@ -101,15 +105,28 @@ void TOF1D::_push_event(const Event& e)
   const auto& c = e.channel();
 
   if (!this->channel_relevant(c)
-      || !pulse_times_.count(c))
+      || !pulse_times_.count(c)
+      || !resolution_)
     return;
 
-  double v = e.timestamp() -
-      TimeStamp(pulse_times_[c], e.timestamp().base());
+  double nsecs =
+      (e.timestamp() - TimeStamp(pulse_times_[c], e.timestamp().base()));
 
-  if (v < 0)
+  if (nsecs < 0)
     return;
 
-  data_->add({{static_cast<size_t>(v / resolution_)}, 1});
+  size_t val = static_cast<size_t>(nsecs / resolution_);
+
+  if (val >= domain_.size())
+  {
+    size_t oldbound = domain_.size();
+    domain_.resize(val+1);
+
+    for (size_t i=oldbound; i <= val; ++i)
+      domain_[i] = i * resolution_;
+  }
+
+  data_->add({{val}, 1});
   total_count_++;
+  recent_count_++;
 }

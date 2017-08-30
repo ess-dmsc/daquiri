@@ -7,6 +7,8 @@
 #include <atomic>
 #include <thread>
 
+#include "custom_timer.h"
+
 using namespace DAQuiri;
 
 class EventMessage;
@@ -37,7 +39,7 @@ private:
   //Acquisition threads, use as static functors
   static void worker_run(ESSStream* callback, SpillQueue spill_queue);
 
-protected:
+private:
   std::atomic<int> run_status_ {0};
   std::thread *runner_ {nullptr};
 
@@ -57,6 +59,8 @@ protected:
 
   uint64_t clock_ {0};
   uint64_t buf_id_ {0};
+
+  double time_spent_ {0};
 
   Status get_status(int16_t chan, StatusType t);
   static void make_trace(Event& h, uint16_t baseline);

@@ -164,5 +164,9 @@ void Coincidence2D::add_coincidence(const Coincidence& c)
 
   for (const auto& ll0 : l0)
     for (const auto& ll1 : l1)
+    {
       data_->add({{ll0, ll1}, 1});
+      total_count_++;
+      recent_count_++;
+    }
 }

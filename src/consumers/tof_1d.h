@@ -28,4 +28,6 @@ protected:
 
   // recent pulse times
   std::map<int, uint64_t> pulse_times_;
+
+  std::vector<double> domain_;
 };

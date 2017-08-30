@@ -7,15 +7,15 @@ Dense1D::Dense1D()
   : Dataspace(1)
 {}
 
-void Dense1D::_clear()
+void Dense1D::clear()
 {
   total_count_ = 0;
   spectrum_.clear();
 }
 
-void Dense1D::_add(const Entry& e)
+void Dense1D::add(const Entry& e)
 {
-  if ((e.first.size() != _dimensions()) || !e.second)
+  if ((e.first.size() != dimensions()) || !e.second)
     return;
   const auto& bin = e.first[0];
   if (bin >= spectrum_.size())
@@ -26,19 +26,19 @@ void Dense1D::_add(const Entry& e)
   maxchan_ = std::max(maxchan_, bin);
 }
 
-void Dense1D::_recalc_axes(uint16_t bits)
+void Dense1D::recalc_axes(uint16_t bits)
 {
-  auto ax = _axis(0);
+  auto ax = axis(0);
   if (bits)
     ax.expand_domain(maxchan_, bits);
   else
     ax.expand_domain(maxchan_);
-  _set_axis(0, ax);
+  set_axis(0, ax);
 }
 
-PreciseFloat Dense1D::_get(std::initializer_list<size_t> list) const
+PreciseFloat Dense1D::get(std::initializer_list<size_t> list) const
 {
-  if (list.size() != _dimensions())
+  if (list.size() != dimensions())
     return 0;
   const auto& bin =  *list.begin();
   if (bin < spectrum_.size())
@@ -46,11 +46,11 @@ PreciseFloat Dense1D::_get(std::initializer_list<size_t> list) const
   return 0;
 }
 
-EntryList Dense1D::_range(std::initializer_list<Pair> list) const
+EntryList Dense1D::range(std::initializer_list<Pair> list) const
 {
   size_t min {0};
   size_t max {spectrum_.size() - 1};
-  if (list.size() == _dimensions())
+  if (list.size() == dimensions())
   {
     min = std::max(list.begin()->first, (long unsigned)(0));
     max = std::min(list.begin()->second, spectrum_.size() - 1);
@@ -66,7 +66,7 @@ EntryList Dense1D::_range(std::initializer_list<Pair> list) const
   return result;
 }
 
-void Dense1D::_save(H5CC::Group& g) const
+void Dense1D::save(H5CC::Group& g) const
 {
   std::vector<long double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
@@ -75,7 +75,7 @@ void Dense1D::_save(H5CC::Group& g) const
   dset.write(d);
 }
 
-void Dense1D::_load(H5CC::Group& g)
+void Dense1D::load(H5CC::Group& g)
 {
   if (!g.has_dataset("data"))
     return;
@@ -102,7 +102,7 @@ void Dense1D::_load(H5CC::Group& g)
   }
 }
 
-std::string Dense1D::_data_debug(const std::string &prepend) const
+std::string Dense1D::data_debug(const std::string &prepend) const
 {
   std::stringstream ss;
   if (!spectrum_.size())
