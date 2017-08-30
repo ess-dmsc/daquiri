@@ -43,10 +43,8 @@ protected:
   uint32_t spill_interval_ {5};
   double   count_rate_ {10};
   double   lambda_ {0};
-  double   spill_lambda_ {0};
+  double   spill_lambda_ {100};
   double   dead_ {0};
-
-  int dummy_selection_{0};
 
   size_t val_count_ {1};
   std::vector<std::string> vnames_;
@@ -64,6 +62,7 @@ protected:
   std::default_random_engine gen_;
 
   uint64_t clock_ {0};
+  uint64_t recent_pulse_time_ {0};
 
   Spill* get_spill(StatusType t, double seconds);
   Status get_status(int16_t chan, StatusType t);
