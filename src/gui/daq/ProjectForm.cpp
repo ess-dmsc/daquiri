@@ -313,11 +313,6 @@ void ProjectForm::projectOpen()
   this->setCursor(Qt::ArrowCursor);
 }
 
-void ProjectForm::updateSpectraUI()
-{
-  ui->Plot1d->setSpectra(project_);
-}
-
 void ProjectForm::newProject()
 {
   ui->Plot1d->setSpectra(project_);
@@ -343,14 +338,14 @@ void ProjectForm::run_completed()
   }
 }
 
-void ProjectForm::replot()
-{
-  update_plots();
-}
+//void ProjectForm::replot()
+//{
+//  update_plots();
+//}
 
 void ProjectForm::on_pushForceRefresh_clicked()
 {
-  updateSpectraUI();
+  ui->Plot1d->setSpectra(project_);
   update_plots();
 }
 

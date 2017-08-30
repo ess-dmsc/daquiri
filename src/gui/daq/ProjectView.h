@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QMenu>
+#include <QMdiArea>
 #include <project.h>
 #include "SelectorWidget.h"
 #include "AbstractConsumerWidget.h"
@@ -12,54 +13,70 @@ class ProjectView;
 
 class ProjectView : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  explicit ProjectView(QWidget *parent = 0);
-  ~ProjectView();
+  public:
+    explicit ProjectView(QWidget *parent = 0);
+    ~ProjectView();
 
-  void setSpectra(DAQuiri::ProjectPtr new_set);
+    void setSpectra(DAQuiri::ProjectPtr new_set);
 
-  void updateUI();
+    void updateUI();
 
-  void update_plots();
+    void update_plots();
 
-private slots:
-  void selectorItemToggled(SelectorItem);
-  void selectorItemSelected(SelectorItem);
-  void selectorItemDoubleclicked(SelectorItem);
+//  protected:
+//    void closeEvent(QCloseEvent*);
 
-  void on_pushFullInfo_clicked();
+  private slots:
+    void selectorItemToggled(SelectorItem);
+    void selectorItemSelected(SelectorItem);
+    void selectorItemDoubleclicked(SelectorItem);
 
-  void showAll();
-  void hideAll();
-  void randAll();
+    void on_pushFullInfo_clicked();
 
-  void deleteSelected();
-  void deleteShown();
-  void deleteHidden();
+    void showAll();
+    void hideAll();
+    void randAll();
 
-  void tile_grid();
-  void tile_horizontal();
-  void tile_vertical();
+    void deleteSelected();
+    void deleteShown();
+    void deleteHidden();
 
-  void consumerWidgetDestroyed(QObject*);
+    void tile_free();
+    void tile_grid();
+    void tile_horizontal();
+    void tile_vertical();
 
-private:
-  Ui::ProjectView *ui;
+    void consumerWidgetDestroyed(QObject*);
 
-  Container<DAQuiri::Detector> detectors_;
+    void on_pushHideControls_clicked();
 
-  DAQuiri::ProjectPtr project_;
+  private:
+    Ui::ProjectView *ui;
 
-  QMap<int64_t, AbstractConsumerWidget*> consumers_;
+    Container<DAQuiri::Detector> detectors_;
 
-  SelectorWidget *selector_;
+    DAQuiri::ProjectPtr project_;
 
-  QMenu colors_menu_;
-  QMenu delete_menu_;
-  QMenu tile_menu_;
+    QMap<int64_t, AbstractConsumerWidget*> consumers_;
 
-  void enforce_item(SelectorItem);
-  void enforce_all();
+    SelectorWidget *selector_;
+
+    QString tile_policy_ {"grid"};
+
+    QMenu colors_menu_;
+    QMenu delete_menu_;
+    QMenu tile_menu_;
+
+    void enforce_tile_policy();
+    void enforce_item(SelectorItem);
+    void enforce_all();
+
+    static void tile_grid(QMdiArea*);
+    static void tile_horizontal(QMdiArea*);
+    static void tile_vertical(QMdiArea*);
+
+    void loadSettings();
+    void saveSettings();
 };

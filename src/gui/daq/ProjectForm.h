@@ -21,7 +21,7 @@ public:
                       DAQuiri::ProjectPtr,
                       QWidget *parent = 0);
 
-  void replot();
+//  void replot();
   ~ProjectForm();
 
 signals:
@@ -45,7 +45,6 @@ private slots:
 
   void start_DAQ();
   void newProject();
-  void updateSpectraUI();
 
   void on_pushForceRefresh_clicked();
 

@@ -43,19 +43,31 @@ ProjectView::ProjectView(QWidget *parent) :
                          this, SLOT(deleteHidden()));
   ui->toolDelete->setMenu(&delete_menu_);
 
-  tile_menu_.addAction(QIcon(":/icons/oxy/16/editdelete.png"), "Tile grid",
+  tile_menu_.addAction(QIcon(), "Free-for-all",
+                       this, SLOT(tile_free()));
+  tile_menu_.addAction(QIcon(":/icons/blank16.png"), "Tile grid",
                        this, SLOT(tile_grid()));
-  tile_menu_.addAction(QIcon(":/icons/show16.png"), "Tile horizontal",
+  tile_menu_.addAction(QIcon(":/icons/oxy/16/view_split_left_right.png"), "Tile horizontal",
                        this, SLOT(tile_horizontal()));
-  tile_menu_.addAction(QIcon(":/icons/hide16.png"), "Tile vertical",
+  tile_menu_.addAction(QIcon(":/icons/oxy/16/view_split_top_bottom.png"), "Tile vertical",
                        this, SLOT(tile_vertical()));
+  enforce_tile_policy();
   ui->toolTile->setMenu(&tile_menu_);
+
+  loadSettings();
 }
 
 ProjectView::~ProjectView()
 {
+  saveSettings();
   delete ui;
 }
+
+//void ProjectView::closeEvent(QCloseEvent *event)
+//{
+//  saveSettings();
+//  event->accept();
+//}
 
 void ProjectView::setSpectra(ProjectPtr new_set)
 {
@@ -204,7 +216,7 @@ void ProjectView::enforce_all()
   for (auto item : selector_->items())
     enforce_item(item);
   if (consumers_.size() != initial)
-    tile_grid();
+    enforce_tile_policy();
 }
 
 void ProjectView::update_plots()
@@ -308,39 +320,84 @@ void ProjectView::deleteHidden()
   update();
 }
 
+void ProjectView::tile_free()
+{
+  tile_policy_ = "free";
+  enforce_tile_policy();
+}
+
 void ProjectView::tile_grid()
 {
-  ui->area->tileSubWindows();
+  tile_policy_ = "grid";
+  enforce_tile_policy();
 }
 
 void ProjectView::tile_horizontal()
 {
-  if (ui->area->subWindowList().isEmpty())
+  tile_policy_ = "horizontal";
+  enforce_tile_policy();
+}
+
+void ProjectView::tile_vertical()
+{
+  tile_policy_ = "vertical";
+  enforce_tile_policy();
+}
+
+void ProjectView::enforce_tile_policy()
+{
+  if (tile_policy_ == "grid")
+    tile_grid(ui->area);
+  else if (tile_policy_ == "vertical")
+    tile_vertical(ui->area);
+  else if (tile_policy_ == "horizontal")
+    tile_horizontal(ui->area);
+
+  for (auto &q : tile_menu_.actions())
+  {
+    q->setCheckable(true);
+    q->setChecked(
+          ((q->text() == "Free-for-all") && (tile_policy_ == "free")) ||
+          ((q->text() == "Tile grid") && (tile_policy_ == "grid")) ||
+          ((q->text() == "Tile horizontal") && (tile_policy_ == "horizontal")) ||
+          ((q->text() == "Tile vertical") && (tile_policy_ == "vertical"))
+          );
+  }
+}
+
+void ProjectView::tile_grid(QMdiArea* area)
+{
+  area->tileSubWindows();
+}
+
+void ProjectView::tile_horizontal(QMdiArea* area)
+{
+  if (area->subWindowList().isEmpty())
     return;
 
   QPoint position(0, 0);
 
-  foreach (QMdiSubWindow *window, ui->area->subWindowList())
+  foreach (QMdiSubWindow *window, area->subWindowList())
   {
-    QRect rect(0, 0, ui->area->width() / ui->area->subWindowList().count(),
-               ui->area->height());
+    QRect rect(0, 0, area->width() / area->subWindowList().count(),
+               area->height());
     window->setGeometry(rect);
     window->move(position);
     position.setX(position.x() + window->width());
   }
 }
 
-void ProjectView::tile_vertical()
+void ProjectView::tile_vertical(QMdiArea* area)
 {
-  if (ui->area->subWindowList().isEmpty())
+  if (area->subWindowList().isEmpty())
     return;
 
   QPoint position(0, 0);
 
-  foreach (QMdiSubWindow *window, ui->area->subWindowList())
+  foreach (QMdiSubWindow *window, area->subWindowList())
   {
-    QRect rect(0, 0, ui->area->width(),
-               ui->area->height() / ui->area->subWindowList().count());
+    QRect rect(0, 0, area->width(),
+               area->height() / area->subWindowList().count());
     window->setGeometry(rect);
     window->move(position);
     position.setY(position.y() + window->height());
@@ -362,3 +419,45 @@ void ProjectView::consumerWidgetDestroyed(QObject* o)
   updateUI();
 }
 
+void ProjectView::on_pushHideControls_clicked()
+{
+  if (ui->widgetControls->isVisible())
+  {
+    ui->widgetControls->setVisible(false);
+    ui->pushHideControls->setIcon(QIcon(":/icons/oxy/16/forward.png"));
+  }
+  else
+  {
+    ui->widgetControls->setVisible(true);
+    ui->pushHideControls->setIcon(QIcon(":/icons/oxy/16/back.png"));
+  }
+  enforce_tile_policy();
+}
+
+void ProjectView::loadSettings()
+{
+  QSettings settings_;
+  settings_.beginGroup("ProjectView");
+
+  tile_policy_ = settings_.value("tile_policy", "grid").toString();
+  if (settings_.value("show_controls", true).toBool())
+  {
+    ui->widgetControls->setVisible(true);
+    ui->pushHideControls->setIcon(QIcon(":/icons/oxy/16/back.png"));
+  }
+  else
+  {
+    ui->widgetControls->setVisible(false);
+    ui->pushHideControls->setIcon(QIcon(":/icons/oxy/16/forward.png"));
+  }
+  enforce_tile_policy();
+}
+
+void ProjectView::saveSettings()
+{
+  QSettings settings_;
+  settings_.beginGroup("ProjectView");
+
+  settings_.setValue("tile_policy", tile_policy_);
+  settings_.setValue("show_controls", ui->widgetControls->isVisible());
+}
