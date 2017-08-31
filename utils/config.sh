@@ -1,11 +1,5 @@
 #!/bin/bash
 
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' dialog|grep "install ok installed")
-if [ "" == "$PKG_OK" ]; then
-  echo "Installing dialog"
-  sudo apt-get --yes install dialog
-fi
-
 cmd="off"
 gui="off"
 

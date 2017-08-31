@@ -233,7 +233,8 @@ void ProjectForm::on_pushEditSpectra_clicked()
 
 void ProjectForm::on_pushMcaStart_clicked()
 {
-  if (!project_->empty()) {
+  if (!project_->empty())
+  {
     int reply = QMessageBox::warning(this, "Continue?",
                                      "Non-empty spectra in project. Acquire and append to existing data?",
                                      QMessageBox::Yes|QMessageBox::Cancel);
@@ -241,7 +242,9 @@ void ProjectForm::on_pushMcaStart_clicked()
       return;
     else
       start_DAQ();
-  } else {
+  }
+  else
+  {
     ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
                                                                    profile_directory_, this);
     connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
@@ -313,11 +316,6 @@ void ProjectForm::projectOpen()
   this->setCursor(Qt::ArrowCursor);
 }
 
-void ProjectForm::updateSpectraUI()
-{
-  ui->Plot1d->setSpectra(project_);
-}
-
 void ProjectForm::newProject()
 {
   ui->Plot1d->setSpectra(project_);
@@ -343,14 +341,14 @@ void ProjectForm::run_completed()
   }
 }
 
-void ProjectForm::replot()
-{
-  update_plots();
-}
+//void ProjectForm::replot()
+//{
+//  update_plots();
+//}
 
 void ProjectForm::on_pushForceRefresh_clicked()
 {
-  updateSpectraUI();
+  ui->Plot1d->setSpectra(project_);
   update_plots();
 }
 

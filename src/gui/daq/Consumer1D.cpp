@@ -15,6 +15,7 @@ Consumer1D::Consumer1D(QWidget *parent)
   fl->addWidget(plot_);
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
+  plot_->setLineThickness(2);
   setLayout(fl);
 }
 

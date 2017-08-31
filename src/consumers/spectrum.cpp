@@ -30,7 +30,20 @@ Spectrum::Spectrum()
   inst.set_number(0);
   attributes.branches.add(inst);
 
+  SettingMeta clear_at("clear_at", SettingType::integer);
+  clear_at.set_val("min", 0);
+  clear_at.set_val("units", "s");
+  clear_at.set_val("description", "Clear at real-time intervals of");
+  clear_at.set_flag("preset");
+  attributes.branches.add(clear_at);
+
   metadata_.overwrite_all_attributes(attributes);
+}
+
+bool Spectrum::_initialize()
+{
+  clear_at_ = metadata_.get_attribute("clear_at").get_number();
+  return false;
 }
 
 bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
@@ -38,28 +51,28 @@ bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
   return (channel < static_cast<int16_t>(idx.size())) && (idx.at(channel) >= 0);
 }
 
-void Spectrum::_push_stats(const Status& newBlock)
+void Spectrum::_push_stats(const Status& status)
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  if (!this->channel_relevant(status.channel()))
     return;
 
-  bool chan_new = (stats_list_.count(newBlock.channel()) == 0);
-  bool new_start = (newBlock.type() == StatusType::start);
+  bool chan_new = (stats_list_.count(status.channel()) == 0);
+  bool new_start = (status.type() == StatusType::start);
 
   if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
-    metadata_.set_attribute(Setting("start_time", newBlock.time()), false);
+    metadata_.set_attribute(Setting("start_time", status.time()), false);
 
   if (!chan_new
       && new_start
-      && (stats_list_[newBlock.channel()].back().type() == StatusType::running))
-    stats_list_[newBlock.channel()].back().set_type(StatusType::stop);
+      && (stats_list_[status.channel()].back().type() == StatusType::running))
+    stats_list_[status.channel()].back().set_type(StatusType::stop);
 
   if (recent_end_.time().is_not_a_date_time())
-    recent_start_ = newBlock;
+    recent_start_ = status;
   else
     recent_start_ = recent_end_;
 
-  recent_end_ = newBlock;
+  recent_end_ = status;
 
   Setting rate = metadata_.get_attribute("instant_rate");
   rate.set_number(0);
@@ -72,19 +85,19 @@ void Spectrum::_push_stats(const Status& newBlock)
 
   recent_count_ = 0;
 
-  if (!chan_new && (stats_list_[newBlock.channel()].back().type() == StatusType::running))
-    stats_list_[newBlock.channel()].pop_back();
+  if (!chan_new && (stats_list_[status.channel()].back().type() == StatusType::running))
+    stats_list_[status.channel()].pop_back();
 
-  stats_list_[newBlock.channel()].push_back(newBlock);
+  stats_list_[status.channel()].push_back(status);
 
   if (!chan_new)
   {
-    Status start = stats_list_[newBlock.channel()].front();
+    Status start = stats_list_[status.channel()].front();
 
     boost::posix_time::time_duration rt ,lt;
     boost::posix_time::time_duration real ,live;
 
-    for (auto &q : stats_list_[newBlock.channel()])
+    for (auto &q : stats_list_[status.channel()])
     {
       if (q.type() == StatusType::start)
       {
@@ -112,15 +125,15 @@ void Spectrum::_push_stats(const Status& newBlock)
       }
     }
 
-    if (stats_list_[newBlock.channel()].back().type() != StatusType::start)
+    if (stats_list_[status.channel()].back().type() != StatusType::start)
     {
       real += rt;
       live += lt;
       //        DBG << "<Spectrum> \"" << metadata_.name << "\" RT + "
       //               << rt << " = " << real << "   LT + " << lt << " = " << live;
     }
-    real_times_[newBlock.channel()] = real;
-    live_times_[newBlock.channel()] = live;
+    real_times_[status.channel()] = real;
+    live_times_[status.channel()] = live;
 
     Setting live_time = metadata_.get_attribute("live_time");
     Setting real_time = metadata_.get_attribute("real_time");
@@ -145,7 +158,29 @@ void Spectrum::_push_stats(const Status& newBlock)
   }
 
   metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
+
+  recent_total_time_ += recent_time;
+  if (!new_start && clear_at_ && data_ &&
+      (clear_at_ < recent_total_time_))
+  {
+    recent_total_time_ = recent_total_time_ - clear_at_;
+    clear_next_spill_ = true;
+  }
+
   this->_recalc_axes();
+}
+
+void Spectrum::_push_spill(const Spill& spill)
+{
+  if (clear_next_spill_)
+  {
+    data_->clear();
+    total_count_ = 0;
+    recent_count_ = 0;
+    clear_next_spill_ = false;
+  }
+
+  Consumer::_push_spill(spill);
 }
 
 void Spectrum::_flush()

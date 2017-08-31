@@ -16,19 +16,19 @@
 #include "ui_daquiri.h"
 #include "custom_timer.h"
 
-#include "project.h"
-
 #include "ListModeForm.h"
 #include "ProjectForm.h"
 
-//#include "qt_util.h"
+#include <QTimer>
 
-daquiri::daquiri(QWidget *parent)
+daquiri::daquiri(QWidget *parent, bool open_new_project, bool start_daq)
   : QMainWindow(parent)
   , ui(new Ui::daquiri)
   , my_emitter_()
   , log_stream_()
   , text_buffer_(log_stream_, my_emitter_)
+  , open_new_project_(open_new_project)
+  , start_daq_(start_daq)
 {
   detectors_.add(Detector("D1"));
   detectors_.add(Detector("D2"));
@@ -73,7 +73,7 @@ daquiri::daquiri(QWidget *parent)
   // Add tab button to current tab. Button will be enabled, but tab -- not
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
-  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(openNewProject()));
+  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(open_project()));
   menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
   tb->setMenu(&menuOpen);
 
@@ -90,8 +90,13 @@ daquiri::daquiri(QWidget *parent)
 //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
 //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
 
-  ui->tabs->setCurrentWidget(main_tab_);
-  reorder_tabs();
+  if (open_new_project && !start_daq)
+    open_project(nullptr, false);
+  else
+  {
+    ui->tabs->setCurrentWidget(main_tab_);
+    reorder_tabs();
+  }
 }
 
 daquiri::~daquiri()
@@ -186,6 +191,13 @@ void daquiri::update_settings(DAQuiri::Setting /*sets*/,
   px_status_ = status;
 //  current_dets_ = channels;
   toggleIO(true);
+
+  if ((status & DAQuiri::ProducerStatus::can_run) &&
+      open_new_project_ && start_daq_)
+  {
+    open_new_project_ = false;
+    QTimer::singleShot(500, this, SLOT(open_new_proj()));
+  }
 }
 
 void daquiri::toggleIO(bool enable)
@@ -288,12 +300,13 @@ void daquiri::open_list()
   emit toggle_push(gui_enabled_, px_status_);
 }
 
-void daquiri::openNewProject()
+void daquiri::open_new_proj()
 {
-  open_project(nullptr);
+  open_project(nullptr, start_daq_);
+  start_daq_ = false;
 }
 
-void daquiri::open_project(DAQuiri::ProjectPtr proj)
+void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
 {
   ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
                                               current_dets_,
@@ -309,4 +322,6 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj)
   reorder_tabs();
 
   newSpectraForm->toggle_push(true, px_status_);
+  if (start)
+    QTimer::singleShot(500, newSpectraForm, SLOT(start_DAQ()));
 }

@@ -89,16 +89,18 @@ bool TOF1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOF1D::_push_stats(const Status& status)
+void TOF1D::_push_spill(const Spill& spill)
 {
-  if (!this->channel_relevant(status.channel()))
-    return;
+  for (const auto& q : spill.stats)
+  {
+    if (this->channel_relevant(q.second.channel()) &&
+        q.second.stats().count("pulse_time"))
+      pulse_times_[q.second.channel()] = q.second.stats().at("pulse_time");
+  }
 
-  if (status.stats().count("native_time"))
-    pulse_times_[status.channel()] = status.stats().at("native_time");
-
-  Spectrum::_push_stats(status);
+  Spectrum::_push_spill(spill);
 }
+
 
 void TOF1D::_push_event(const Event& e)
 {
@@ -110,7 +112,9 @@ void TOF1D::_push_event(const Event& e)
     return;
 
   double nsecs =
-      (e.timestamp() - TimeStamp(pulse_times_[c], e.timestamp().base()));
+      TimeStamp(e.timestamp().native() - pulse_times_[c], e.timestamp().base()).nanosecs();
+
+  DBG << "nsex " << nsecs;
 
   if (nsecs < 0)
     return;

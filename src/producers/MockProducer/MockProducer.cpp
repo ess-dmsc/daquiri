@@ -47,7 +47,9 @@ MockProducer::MockProducer()
 
   SettingMeta lambda2(mp + "SpillLambda", SettingType::floating, "Decay constant (λ) per spill");
   lambda2.set_val("min", 0);
-  lambda2.set_val("step", 0.01);
+  lambda2.set_val("max", 100);
+  lambda2.set_val("units", "%");
+  lambda2.set_val("step", 0.1);
   add_definition(lambda2);
 
   SettingMeta vc(mp + "ValueCount", SettingType::integer, "Value count");
@@ -346,6 +348,10 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
 
   Spill* spill = new Spill();
 
+  recent_pulse_time_ = clock_;
+
+//  DBG << "----pulse--- " << clock_;
+
   if (t == StatusType::running)
   {
     double rate = count_rate_;
@@ -359,16 +365,22 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
 
 //    DBG << "Will make hits for " << (rate * spill_interval_);
 
-    auto startclock = clock_;
     std::uniform_real_distribution<> dis(0, 1);
-    for (uint32_t i=0; i< (rate * spill_interval_); i++)
+    uint32_t tothits = (rate * spill_interval_);
+    for (uint32_t i=0; i< tothits; i++)
     {
-      if (spill_lambda_)
+      if (spill_lambda_ < 100)
       {
-        double diff = model_hit.timebase.to_nanosec(clock_ - startclock)
-            * 0.000000001;
-        if (dis(gen_) < exp(0.0 - spill_lambda_ * diff))
+        double diff = (spill_lambda_ * 0.01)  +
+            (1.0 - (spill_lambda_ * 0.01)) *
+            (double(tothits - i) / double(tothits));
+        if (dis(gen_) < diff)
+        {
           add_hit(*spill);
+//          DBG << "+ " << clock_;
+        }
+//        else
+//          DBG << "- " << clock_;
       }
       else
         add_hit(*spill);
@@ -398,6 +410,7 @@ Status MockProducer::get_status(int16_t chan, StatusType t)
   status.set_value("native_time", duration);
   status.set_value("live_time", duration_live);
   status.set_value("live_trigger", duration_trigger);
+  status.set_value("pulse_time", double(recent_pulse_time_));
 
   return status;
 }
