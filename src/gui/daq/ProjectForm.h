@@ -22,6 +22,7 @@ public:
                       QWidget *parent = 0);
 
 //  void replot();
+
   ~ProjectForm();
 
 signals:
@@ -34,6 +35,7 @@ protected:
 
 public slots:
   void toggle_push(bool, DAQuiri::ProducerStatus);
+  void start_DAQ();
 
 private slots:
   void on_pushMcaStart_clicked();
@@ -43,7 +45,6 @@ private slots:
   void update_plots();
   void clearGraphs();
 
-  void start_DAQ();
   void newProject();
 
   void on_pushForceRefresh_clicked();

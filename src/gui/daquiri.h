@@ -37,7 +37,7 @@ class daquiri : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit daquiri(QWidget *parent = 0);
+  explicit daquiri(QWidget *parent = 0, bool open_new_project = false, bool start_daq = false);
   ~daquiri();
 
 private:
@@ -58,6 +58,9 @@ private:
   bool gui_enabled_;
 
   QMenu  menuOpen;
+
+  bool open_new_project_ {false};
+  bool start_daq_ {false};
 
   //helper functions
   void saveSettings();
@@ -93,7 +96,7 @@ private slots:
   void tab_changed(int);
 
   void open_list();
-  void open_project(DAQuiri::ProjectPtr);
-  void openNewProject();
+  void open_new_proj();
+  void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
 };
 

@@ -233,7 +233,8 @@ void ProjectForm::on_pushEditSpectra_clicked()
 
 void ProjectForm::on_pushMcaStart_clicked()
 {
-  if (!project_->empty()) {
+  if (!project_->empty())
+  {
     int reply = QMessageBox::warning(this, "Continue?",
                                      "Non-empty spectra in project. Acquire and append to existing data?",
                                      QMessageBox::Yes|QMessageBox::Cancel);
@@ -241,7 +242,9 @@ void ProjectForm::on_pushMcaStart_clicked()
       return;
     else
       start_DAQ();
-  } else {
+  }
+  else
+  {
     ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
                                                                    profile_directory_, this);
     connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
