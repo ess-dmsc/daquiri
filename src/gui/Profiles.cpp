@@ -14,6 +14,27 @@
 
 using namespace DAQuiri;
 
+QString Profiles::settings_dir()
+{
+  QSettings settings;
+  settings.beginGroup("Program");
+  return settings.value("settings_directory",
+                        QDir::homePath() + "/daquiri/settings").toString();
+}
+
+QString Profiles::profiles_dir()
+{
+  return settings_dir() + "/profiles";
+}
+
+QString Profiles::current_profile_dir()
+{
+  QSettings settings;
+  settings.beginGroup("Program");
+  return settings.value("profile_directory","").toString();
+}
+
+
 ProfileDialog::ProfileDialog(QString description, QWidget *parent)
   : QDialog(parent)
 {
@@ -97,34 +118,13 @@ WidgetProfiles::~WidgetProfiles()
   delete ui;
 }
 
-
-QString WidgetProfiles::settings_dir()
-{
-  QSettings settings;
-  settings.beginGroup("Program");
-  return settings.value("settings_directory",
-                        QDir::homePath() + "/daquiri/settings").toString();
-}
-
-QString WidgetProfiles::profiles_dir()
-{
-  return settings_dir() + "/profiles";
-}
-
-QString WidgetProfiles::current_profile_dir()
-{
-  QSettings settings;
-  settings.beginGroup("Program");
-  return settings.value("profile_directory","").toString();
-}
-
 void WidgetProfiles::update_profiles()
 {
   profiles_.clear();
   profiles_.push_back(ProfileEntry(QDir(""), "(Offline mode)"));
 
-  auto dir = profiles_dir();
-  auto thisprofile = QDir(current_profile_dir());
+  auto dir = Profiles::profiles_dir();
+  auto thisprofile = QDir(Profiles::current_profile_dir());
 
   QDir directory(dir);
   directory.setFilter(QDir::Dirs);
@@ -225,7 +225,7 @@ void WidgetProfiles::select_no_boot()
 void WidgetProfiles::on_pushSelectRoot_clicked()
 {
   QString dirName =
-      QFileDialog::getExistingDirectory(this, "Open Directory", settings_dir(),
+      QFileDialog::getExistingDirectory(this, "Open Directory", Profiles::settings_dir(),
                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   if (dirName.isEmpty())
     return;
@@ -249,7 +249,7 @@ void WidgetProfiles::create_profile()
   if (!ok && text.isEmpty())
     return;
 
-  auto sd = profiles_dir() + "/" + text;
+  auto sd = Profiles::profiles_dir() + "/" + text;
 
   DBG << "new dir " << sd.toStdString();
 

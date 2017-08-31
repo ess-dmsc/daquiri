@@ -90,5 +90,7 @@
         <file>noun_834300_cc_b.png</file>
         <file>noun_844995_cc_b.png</file>
         <file>noun_583391_cc_b.png</file>
+        <file>blank.png</file>
+        <file>blank16.png</file>
     </qresource>
 </RCC>

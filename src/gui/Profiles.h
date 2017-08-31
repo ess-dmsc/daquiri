@@ -9,6 +9,15 @@ namespace Ui {
 class WidgetProfiles;
 }
 
+namespace Profiles
+{
+
+QString settings_dir();
+QString profiles_dir();
+QString current_profile_dir();
+
+}
+
 class ProfileDialog : public QDialog
 {
     Q_OBJECT
@@ -57,10 +66,6 @@ class WidgetProfiles : public QDialog
 
     void update_profiles();
     void apply_selection(size_t i, bool boot);
-
-    static QString settings_dir();
-    static QString profiles_dir();
-    static QString current_profile_dir();
     void create_profile();
 
   private slots:

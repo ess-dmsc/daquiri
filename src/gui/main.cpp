@@ -14,10 +14,18 @@ int main(int argc, char *argv[])
   producers_autoreg();
   QApplication a(argc, argv);
 
+  bool opennew {false};
+  bool startnew {false};
+  if (argc > 1)
+  {
+    startnew = (std::string(argv[1]) == "start");
+    opennew = startnew || (std::string(argv[1]) == "open");
+  }
+
   QCoreApplication::setOrganizationName("ESS");
   QCoreApplication::setApplicationName("daquiri");
 
-  daquiri w;
+  daquiri w(0, opennew, startnew);
   w.show();
 
   return a.exec();

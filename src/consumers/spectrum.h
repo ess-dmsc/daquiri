@@ -10,12 +10,18 @@ public:
   Spectrum();
 
 protected:
-  void _push_stats(const Status&) override;
+  bool _initialize() override;
+  void _push_spill(const Spill&spill) override;
+  void _push_stats(const Status& status) override;
   void _flush() override;
 
   virtual bool channel_relevant(int16_t) const = 0;
 
 protected:
+  bool clear_next_spill_ {false};
+  uint64_t clear_at_ {0};
+  double recent_total_time_ {0};
+
   // cached results:
   PreciseFloat total_count_ {0};
 

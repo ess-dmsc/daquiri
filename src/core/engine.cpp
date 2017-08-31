@@ -659,6 +659,7 @@ void Engine::builder_naive(SpillQueue data_queue,
       presort_events += spill->events.size();
       project->add_spill(spill);
       time += presort_timer.s();
+      delete spill;
     }
     else
       break;
