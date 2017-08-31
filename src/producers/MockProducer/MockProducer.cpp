@@ -350,7 +350,7 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
 
   recent_pulse_time_ = clock_;
 
-  DBG << "----pulse--- " << clock_;
+//  DBG << "----pulse--- " << clock_;
 
   if (t == StatusType::running)
   {
@@ -377,10 +377,10 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
         if (dis(gen_) < diff)
         {
           add_hit(*spill);
-          DBG << "+ " << clock_;
+//          DBG << "+ " << clock_;
         }
-        else
-          DBG << "- " << clock_;
+//        else
+//          DBG << "- " << clock_;
       }
       else
         add_hit(*spill);
