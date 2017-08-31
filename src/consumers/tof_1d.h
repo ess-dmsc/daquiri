@@ -24,6 +24,8 @@ protected:
 
   // cached parameters:
   double resolution_ {1};
+  std::string units_name_;
+  double units_multiplier_{1};
   Pattern channels_;
 
   // recent pulse times

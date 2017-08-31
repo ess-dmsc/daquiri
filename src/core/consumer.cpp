@@ -77,10 +77,10 @@ void Consumer::_push_spill(const Spill& spill)
   for (auto &q : spill.stats)
     this->_push_stats(q.second);
 
-  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
-      << spill.events.size() << " events in "
-      << addspill_timer.ms() << " ms at "
-      << addspill_timer.us() / double(spill.events.size()) << " us/hit";
+//  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
+//      << spill.events.size() << " events in "
+//      << addspill_timer.ms() << " ms at "
+//      << addspill_timer.us() / double(spill.events.size()) << " us/hit";
 }
 
 void Consumer::flush()

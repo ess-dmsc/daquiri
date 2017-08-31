@@ -314,7 +314,7 @@ void MockProducer::add_hit(Spill& spill)
 //  make_trace(h, 1000);
 
   spill.events.push_back(h);
-  clock_ += event_interval_ + 1;
+  clock_ += event_interval_;
 }
 
 uint16_t MockProducer::generate(size_t i)

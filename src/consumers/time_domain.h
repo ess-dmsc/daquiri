@@ -28,6 +28,7 @@ protected:
 
   std::vector<PreciseFloat> spectrum_;
   std::vector<PreciseFloat> counts_;
-  std::vector<PreciseFloat> seconds_;
+  std::vector<double> seconds_;
   std::vector<Status>  updates_;
+
 };
