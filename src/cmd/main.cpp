@@ -69,9 +69,9 @@ Setting get_profile()
                             "Test profile for Mock Producer"));
 
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
-  settings.set(Setting::integer("MockProducer/SpillInterval", 5));
+  settings.set(Setting::integer("MockProducer/SpillInterval", 1));
   settings.set(Setting::integer("MockProducer/Resolution", 16));
-  settings.set(Setting::floating("MockProducer/CountRate", 20000));
+  settings.set(Setting::floating("MockProducer/CountRate", 500000));
   settings.set(Setting::floating("MockProducer/DeadTime", 5));
   profile.branches.add(settings);
 

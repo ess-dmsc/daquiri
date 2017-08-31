@@ -337,7 +337,7 @@ bool SettingsTableModel::setData(const QModelIndex & index, const QVariant & val
       else if (item.is(SettingType::precise)
                && (value.type() == QVariant::Double))
       {
-        long double val = value.toDouble();
+        double val = value.toDouble();
         if (preferred_units_.count(item.id()) &&
             (item.metadata().get_string("units","") != preferred_units_.at(item.id())))
         {

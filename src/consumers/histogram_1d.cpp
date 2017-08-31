@@ -162,7 +162,7 @@ void Histogram1D::_push_event(const Event& e)
   if (val < cutoff_)
     return;
 
-  data_->add({{val}, 1});
+  data_->add_one(val);
   total_count_++;
   recent_count_++;
 }

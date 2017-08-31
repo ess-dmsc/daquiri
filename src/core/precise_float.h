@@ -75,7 +75,7 @@ inline PreciseFloat from_double(double d)
 
 inline PreciseFloat from_string(const std::string str)
 {
-  PreciseFloat ret { std::numeric_limits<long double>::quiet_NaN() };
+  PreciseFloat ret { std::numeric_limits<double>::quiet_NaN() };
   try { ret = PreciseFloat(str); }
   catch(...) {}
   return ret;
@@ -93,7 +93,7 @@ inline std::string to_string(const PreciseFloat pf)
 
 #ifdef PF_LONG_DOUBLE
 
-typedef long double PreciseFloat;
+typedef double PreciseFloat;
 
 inline double to_double(PreciseFloat pf)
 {
@@ -107,7 +107,7 @@ inline PreciseFloat from_double(double d)
 
 inline PreciseFloat from_string(const std::string str)
 {
-  PreciseFloat ret { std::numeric_limits<long double>::quiet_NaN() };
+  PreciseFloat ret { std::numeric_limits<double>::quiet_NaN() };
   try { ret = std::stold(str); }
   catch(...) {}
   return ret;

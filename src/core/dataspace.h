@@ -46,6 +46,8 @@ public:
   virtual ~Dataspace() {}
 
   virtual void add(const Entry&) = 0;
+  virtual void add_one(size_t val) {};
+  virtual void add_one(size_t val1, size_t val2) {};
   //get count at coordinates in n-dimensional list
   virtual PreciseFloat get(std::initializer_list<size_t> list = {}) const = 0;
   //parameters take dimensions_ of ranges (inclusive)

@@ -25,6 +25,19 @@ void Dense1D::add(const Entry& e)
   total_count_ += e.second;
   maxchan_ = std::max(maxchan_, bin);
 }
+  
+  void Dense1D::add_one(size_t val)
+  {
+  if (1 != dimensions())
+    return;
+  const auto& bin = val;
+  if (bin >= spectrum_.size())
+    spectrum_.resize(bin+1, PreciseFloat(0));
+  
+  spectrum_[bin] += 1;
+  total_count_ += 1;
+  maxchan_ = std::max(maxchan_, bin);
+  }
 
 void Dense1D::recalc_axes(uint16_t bits)
 {
@@ -68,10 +81,10 @@ EntryList Dense1D::range(std::initializer_list<Pair> list) const
 
 void Dense1D::save(H5CC::Group& g) const
 {
-  std::vector<long double> d(maxchan_);
+  std::vector<double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
-    d[i] = static_cast<long double>(spectrum_[i]);
-  auto dset = g.require_dataset<long double>("data", {maxchan_});
+    d[i] = static_cast<double>(spectrum_[i]);
+  auto dset = g.require_dataset<double>("data", {maxchan_});
   dset.write(d);
 }
 
@@ -84,7 +97,7 @@ void Dense1D::load(H5CC::Group& g)
   if (shape.rank() != 1)
     return;
 
-  std::vector<long double> rdata(shape.dim(0));
+  std::vector<double> rdata(shape.dim(0));
   dset.read(rdata, {rdata.size()}, {0});
 
   if (spectrum_.size() < rdata.size())
@@ -116,7 +129,7 @@ std::string Dense1D::data_debug(const std::string &prepend) const
   bool print {false};
   for (uint32_t i = 0; i <= maxchan_; i++)
   {
-    long double val = static_cast<long double>(spectrum_[i]);
+    double val = static_cast<double>(spectrum_[i]);
     if (val)
       print = true;
     if (print)

@@ -410,7 +410,7 @@ Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
     return ret;
   auto em = GetEventMessage(msg->payload());
 
-  ulong id = em->message_id();
+  auto id = em->message_id();
   if (id < buf_id_)
     WARN << "Buffer out of order (" << id << "<" << buf_id_ << ") "
          << debug(*em);

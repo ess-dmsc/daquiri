@@ -53,8 +53,6 @@ public:
 
   inline DigitizedVal value(size_t idx) const
   {
-    if (idx >= values_.size())
-      throw std::out_of_range("Event: bad value index");
     return values_.at(idx);
   }
 
