@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(consumers CXX)
 
+find_package(Eigen3 REQUIRED)
+
 file(GLOB ${PROJECT_NAME}_SOURCES *.cpp xylib/xylib/*.cpp)
 file(GLOB ${PROJECT_NAME}_HEADERS *.h xylib/xylib/*.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
@@ -16,6 +18,7 @@ target_include_directories(
   PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
   PUBLIC ${core_INCLUDE_DIRS}
   PUBLIC ${h5cc_INCLUDE_DIRS}
+  PRIVATE ${EIGEN3_INCLUDE_DIR}
 )
 
 target_link_libraries(

@@ -16,7 +16,7 @@ class Sparse2D : public Dataspace
 
     void clear() override;
     void add(const Entry&) override;
-  void add_one(size_t val1, size_t val2) override;
+    void add_one(size_t val1, size_t val2) override;
     PreciseFloat get(std::initializer_list<size_t> list) const override;
     EntryList range(std::initializer_list<Pair> list) const override;
     void recalc_axes(uint16_t bits) override;
@@ -27,7 +27,7 @@ class Sparse2D : public Dataspace
 
   protected:
     //typedef std::map<std::pair<uint16_t,uint16_t>, PreciseFloat> SpectrumMap2D;
-  typedef Eigen::SparseMatrix<double> SpectrumMap2D;
+    typedef Eigen::SparseMatrix<double> SpectrumMap2D;
 
 
     //the data itself
@@ -35,14 +35,14 @@ class Sparse2D : public Dataspace
     uint64_t total_count_ {0};
     uint16_t max0_ {0};
     uint16_t max1_ {0};
-  
-  inline void bin_pair(const uint16_t& x, const uint16_t& y,
-                          const PreciseFloat& count) {
-  spectrum_.coeffRef(x, y) += count;
-  total_count_ += count;
-  max0_ = std::max(max0_, x);
-  max1_ = std::max(max1_, y);
-  };
+
+    inline void bin_pair(const uint16_t& x, const uint16_t& y,
+                         const PreciseFloat& count) {
+      spectrum_.coeffRef(x, y) += count;
+      total_count_ += count;
+      max0_ = std::max(max0_, x);
+      max1_ = std::max(max1_, y);
+    }
 
     bool is_symmetric();
 
