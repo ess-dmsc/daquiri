@@ -111,6 +111,7 @@ void Consumer2D::update()
   if (!hist.empty())
   {
     plot_->clearExtras();
+    plot_->clearData();
     plot_->setAxes(
           QString::fromStdString(axis_x.label()), 0, res_x+1,
           QString::fromStdString(axis_y.label()), 0, res_y+1,

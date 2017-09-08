@@ -23,7 +23,8 @@ class fb_parser : public Producer
     void boot() override;
     void die() override;
 
-    virtual Spill* process_payload(void*, int16_t chan, TimeBase tb,
+    virtual Spill* process_payload(void*, int16_t chan,
+                                   TimeBase tb, uint64_t utime,
                                    PayloadStats& stats) = 0;
 
 };

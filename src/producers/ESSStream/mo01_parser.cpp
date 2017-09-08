@@ -24,7 +24,8 @@ void mo01_nmx::write_settings_bulk(const Setting& settings)
 }
 
 Spill* mo01_nmx::process_payload(void* msg, int16_t chan, TimeBase tb,
-                                    PayloadStats &stats)
+                                 uint64_t utime,
+                                 PayloadStats &stats)
 {
   Spill* ret {nullptr};
   auto em = GetMonitorMessage(msg);

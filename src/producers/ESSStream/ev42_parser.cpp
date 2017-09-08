@@ -92,7 +92,8 @@ void ev42_events::write_settings_bulk(const Setting& settings)
 }
 
 Spill* ev42_events::process_payload(void* msg, int16_t chan,
-                                    TimeBase tb, PayloadStats &stats)
+                                    TimeBase tb, uint64_t utime,
+                                    PayloadStats &stats)
 {
   Spill* ret {nullptr};
   auto em = GetEventMessage(msg);
@@ -119,12 +120,15 @@ Spill* ev42_events::process_payload(void* msg, int16_t chan,
   EventModel evt_model = geometry_.model(tb);
 
   uint64_t time_high = em->pulse_time();
+  if (utime)
+    time_high = utime << 32;
+
+
   ret = Spill::make_new(chan, StatusType::running);
   ret->stats[chan].set_value("pulse_time", time_high);
   ret->stats[chan].set_value("buf_id", buf_id);
   ret->stats[chan].set_model(evt_model);
 
-  //  time_high = time_high << 32;
   for (auto i=0; i < t_len; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
@@ -139,6 +143,9 @@ Spill* ev42_events::process_payload(void* msg, int16_t chan,
       ret->events.push_back(e);
     }
 
+    if (i==1)
+      stats.time_start = time;
+    stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
   }
 

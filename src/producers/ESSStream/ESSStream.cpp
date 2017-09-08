@@ -236,7 +236,6 @@ void ESSStream::boot()
     return;
   }
 
-  clock_ = 0;
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
 }
@@ -337,15 +336,23 @@ Spill* ESSStream::get_message()
     if (parser_ && message->len())
     {
       fb_parser::PayloadStats stats;
+
       auto spill = parser_->process_payload(message->payload(),
                                             output_channel_,
                                             time_base_,
+                                            spoof_clock_ ? (++clock_) : 0,
                                             stats);
-//      if (spill)
-//      {
-//        spill->stats[output_channel_].
-//        status.set_value("native_time", duration);
-//      }
+      if (spill)
+      {
+        spill->stats[output_channel_].set_value("native_time", stats.time_end);
+        if (spoof_clock_)
+        {
+          DBG << "Spoofed clock " << stats.time_start;
+          spill->stats[output_channel_].set_value("pulse_time",
+                                                  stats.time_start);
+        }
+      }
+
       time_spent_ += stats.time_spent;
       return spill;
     }

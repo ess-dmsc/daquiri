@@ -20,6 +20,7 @@ class mo01_nmx : public fb_parser
     void read_settings_bulk(Setting&) const override;
 
     Spill* process_payload(void*, int16_t chan, TimeBase tb,
+                           uint64_t utime,
                            PayloadStats& stats) override;
 
   private:
