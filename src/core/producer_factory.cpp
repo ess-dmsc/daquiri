@@ -19,7 +19,7 @@ Setting ProducerFactory::default_settings(std::string type) const
   auto dummy = create_type(type);
   if (!dummy)
     return Setting();
-  Setting settings({dummy->device_name(), SettingType::stem});
+  Setting settings({dummy->plugin_name(), SettingType::stem});
   dummy->write_settings_bulk(settings);
   dummy->read_settings_bulk(settings);
   return settings;
@@ -28,7 +28,9 @@ Setting ProducerFactory::default_settings(std::string type) const
 void ProducerFactory::register_type(std::string name,
                                     std::function<Producer*(void)> constructor)
 {
-  if (constructors_.count(name))
+  if (name.empty())
+    INFO << "<ProducerFactory> attempting to register nameless type";
+  else if (constructors_.count(name))
     INFO << "<ProducerFactory> type '" << name << "' already registered";
   else
   {

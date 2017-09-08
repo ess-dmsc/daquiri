@@ -52,7 +52,10 @@ ConsumerMetadata ConsumerFactory::create_prototype(std::string type) const
 void ConsumerFactory::register_type(ConsumerMetadata tt,
                                     std::function<Consumer*(void)> constructor)
 {
-  if (constructors_.count(tt.type()))
+  auto name = tt.type();
+  if (name.empty())
+    INFO << "<ConsumerFactory> attempting to register nameless type";
+  else if (constructors_.count(tt.type()))
     INFO << "<ConsumerFactory> type '" << tt.type() << "' already registered";
   else
   {

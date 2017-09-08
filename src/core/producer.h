@@ -34,11 +34,10 @@ public:
   Producer() {}
   virtual ~Producer() {}
 
-  static std::string plugin_name() {return std::string();}
+  virtual std::string plugin_name() const = 0;
+
   ProducerStatus status() const {return status_;}
   json setting_definitions() const;
-
-  virtual std::string device_name() const {return std::string();}
 
   virtual void initialize(const json& definitions);
   virtual void boot() = 0;
@@ -59,6 +58,7 @@ protected:
   ProducerStatus                     status_ {ProducerStatus::dead};
   std::map<std::string, SettingMeta> setting_definitions_;
 
+  Setting enrich_and_toggle_presets(Setting) const;
   Setting get_rich_setting(const std::string& id) const;
   void add_definition(const SettingMeta& sm);
 

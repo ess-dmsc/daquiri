@@ -21,6 +21,7 @@ struct Spill
   public:
     bool empty();
     std::string to_string() const;
+    static Spill* make_new(int16_t chan, StatusType t);
 };
 
 typedef std::shared_ptr<Spill> SpillPtr;

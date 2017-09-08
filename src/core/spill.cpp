@@ -4,6 +4,13 @@
 
 namespace DAQuiri {
 
+Spill* Spill::make_new(int16_t chan, StatusType t)
+{
+  Spill* ret = new Spill();
+  ret->stats[chan] = Status(chan, t);
+  return ret;
+}
+
 bool Spill::empty()
 {
   if (!stats.empty())

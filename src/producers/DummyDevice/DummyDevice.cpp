@@ -25,20 +25,13 @@ DummyDevice::~DummyDevice()
 
 void DummyDevice::read_settings_bulk(Setting &set) const
 {
-  if (set.id() != device_name())
-    return;
-  set.enrich(setting_definitions_, true);
-
+  set = enrich_and_toggle_presets(set);
   set.set(Setting::indicator("DummyDevice/DummySettings/Indicator", dummy_selection_));
 }
 
 void DummyDevice::write_settings_bulk(const Setting& settings)
 {
-  if (settings.id() != device_name())
-    return;
-  auto set = settings;
-  set.enrich(setting_definitions_, true);
-
+  set = enrich_and_toggle_presets(settings);
   dummy_selection_ = set.find({"DummyDevice/DummySettings/Menu"}).selection();
 }
 

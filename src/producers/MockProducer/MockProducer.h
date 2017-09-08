@@ -14,8 +14,7 @@ public:
   MockProducer();
   ~MockProducer();
 
-  static std::string plugin_name() {return "MockProducer";}
-  std::string device_name() const override {return plugin_name();}
+  std::string plugin_name() const override {return "MockProducer";}
 
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;

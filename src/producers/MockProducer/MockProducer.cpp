@@ -155,10 +155,7 @@ bool MockProducer::daq_running()
 
 void MockProducer::read_settings_bulk(Setting &set) const
 {
-  if (set.id() != device_name())
-    return;
-  set.enrich(setting_definitions_, true);
-  set.enable_if_flag(!(status_ & booted), "preset");
+  set = enrich_and_toggle_presets(set);
 
   set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
@@ -190,11 +187,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
 
 void MockProducer::write_settings_bulk(const Setting &settings)
 {
-  if (settings.id() != device_name())
-    return;
-  auto set = settings;
-  set.enrich(setting_definitions_, true);
-  set.enable_if_flag(!(status_ & booted), "preset");
+  auto set = enrich_and_toggle_presets(settings);
 
   spill_interval_ = set.find({"MockProducer/SpillInterval"}).get_number();
   bits_ = set.find({"MockProducer/Resolution"}).get_number();

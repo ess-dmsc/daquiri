@@ -65,7 +65,7 @@ void Engine::initialize(const json &profile)
       ProducerPtr device = pf.create_type(q.id());
       if (device)
       {
-        DBG << "<Engine> Success loading " << device->device_name();
+        DBG << "<Engine> Success loading " << device->plugin_name();
         producers_[q.id()] = device;
       }
     }
