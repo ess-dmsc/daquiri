@@ -11,7 +11,7 @@ Histogram1D::Histogram1D()
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata(my_type(), "Event mode 1D spectrum");
+  metadata_ = ConsumerMetadata(my_type(), "Event-based 2D spectrum");
 
   SettingMeta app("appearance", SettingType::color);
   app.set_val("description", "Plot appearance");

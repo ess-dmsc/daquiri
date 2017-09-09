@@ -2,15 +2,15 @@
 
 #include "spectrum.h"
 
-class Image2D : public Spectrum
+class Histogram2D : public Spectrum
 {
 public:
-  Image2D();
-  Image2D* clone() const override
-  { return new Image2D(*this); }
+  Histogram2D();
+  Histogram2D* clone() const override
+  { return new Histogram2D(*this); }
 
 protected:
-  std::string my_type() const override {return "Image 2D";}
+  std::string my_type() const override {return "Histogram 2D";}
 
   bool _initialize() override;
   void _init_from_file() override;
@@ -27,12 +27,10 @@ protected:
   //cached parameters
   std::string x_name_;
   std::string y_name_;
-  std::string val_name_;
   Pattern pattern_add_;
   uint16_t downsample_ {0};
 
   //from status manifest
   std::vector<int> x_idx_;
   std::vector<int> y_idx_;
-  std::vector<int> val_idx_;
 };
