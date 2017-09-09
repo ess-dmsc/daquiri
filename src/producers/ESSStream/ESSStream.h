@@ -52,14 +52,13 @@ private:
   std::string kafka_topic_name_;
   int kafka_timeout_ {1000};
   bool spoof_clock_ {false};
-  int16_t output_channel_ {0};
   TimeBase time_base_;
   std::shared_ptr<fb_parser> parser_;
 
   uint64_t clock_ {0};
   double time_spent_ {0};
 
-  Spill* get_message();
+  SpillPtr get_message();
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
   void select_parser(std::string);
 };

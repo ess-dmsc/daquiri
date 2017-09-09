@@ -2,7 +2,6 @@
 
 #include "fb_parser.h"
 #include "ess_geometry.h"
-#include "custom_timer.h"
 
 using namespace DAQuiri;
 
@@ -19,13 +18,17 @@ public:
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;
 
-  Spill* process_payload(void*, int16_t chan, TimeBase tb,
+  SpillPtr start_spill() const override;
+  SpillPtr stop_spill() const override;
+  SpillPtr process_payload(void*, TimeBase tb,
                          uint64_t utime,
                          PayloadStats& stats) override;
 
 private:
   // cached params
+  int16_t output_channel_ {0};
   GeometryInterpreter geometry_;
+  EventModel evt_model_; //temp
 
   uint64_t latest_buf_id_ {0};
 

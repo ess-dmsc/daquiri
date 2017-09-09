@@ -30,7 +30,7 @@ inline std::string type_to_str(StatusType type)
 }
 
 
-struct Status
+class Status
 {
 private:
   StatusType               type_     {StatusType::running};

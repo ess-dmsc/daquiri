@@ -7,6 +7,11 @@
 
 namespace DAQuiri {
 
+class Producer;
+using ProducerPtr = std::shared_ptr<Producer>;
+using SpillQueue = SynchronizedQueue<SpillPtr>*;
+using OscilData = std::vector<Event>;
+
 enum ProducerStatus
 {
   dead      = 0,
@@ -17,16 +22,9 @@ enum ProducerStatus
   can_oscil = 1 << 4
 };
 
-inline ProducerStatus operator|(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) | static_cast<int>(b));}
-inline ProducerStatus operator&(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) & static_cast<int>(b));}
-inline ProducerStatus operator^(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) ^ static_cast<int>(b));}
-
-
-using SpillQueue = SynchronizedQueue<Spill*>*;
-using OscilData = std::vector<Event>;
+ProducerStatus operator|(ProducerStatus a, ProducerStatus b);
+ProducerStatus operator&(ProducerStatus a, ProducerStatus b);
+ProducerStatus operator^(ProducerStatus a, ProducerStatus b);
 
 class Producer
 {
@@ -66,9 +64,6 @@ private:
   //no copying
   void operator=(Producer const&);
   Producer(const Producer&);
-
 };
-
-typedef std::shared_ptr<Producer> ProducerPtr;
 
 }

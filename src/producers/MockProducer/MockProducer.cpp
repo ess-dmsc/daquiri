@@ -335,15 +335,13 @@ void MockProducer::make_trace(Event& h, uint16_t baseline)
   h.set_trace(0, trc);
 }
 
-Spill* MockProducer::get_spill(StatusType t, double seconds)
+SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 {
   int16_t chan0 {0};
 
-  Spill* spill = new Spill();
+  SpillPtr spill = Spill::make_new(t, {chan0});
 
   recent_pulse_time_ = clock_;
-
-//  DBG << "----pulse--- " << clock_;
 
   if (t == StatusType::running)
   {
@@ -353,10 +351,10 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
     {
       double frac = exp(0.0 - lambda_ * seconds);
       rate *= frac;
-      DBG << "<MockProducer> s=" << seconds << "  frac=" << frac << "  rate=" << rate;
+      DBG << "<MockProducer> s=" << seconds
+          << "  frac=" << frac
+          << "  rate=" << rate;
     }
-
-//    DBG << "Will make hits for " << (rate * spill_interval_);
 
     std::uniform_real_distribution<> dis(0, 1);
     uint32_t tothits = (rate * spill_interval_);
@@ -368,33 +366,21 @@ Spill* MockProducer::get_spill(StatusType t, double seconds)
             (1.0 - (spill_lambda_ * 0.01)) *
             (double(tothits - i) / double(tothits));
         if (dis(gen_) < diff)
-        {
           add_hit(*spill);
-//          DBG << "+ " << clock_;
-        }
-//        else
-//          DBG << "- " << clock_;
       }
       else
         add_hit(*spill);
     }
-
-//    DBG << "Added " << spill->events.size() << " events to spill";
-
   }
 
-  spill->stats[chan0] = get_status(chan0, t);
+  fill_stats(spill->stats[chan0]);
 
   return spill;
 }
 
-Status MockProducer::get_status(int16_t chan, StatusType t)
+void MockProducer::fill_stats(Status& status) const
 {
-  Status status;
-  status.set_type(t);
-  status.set_channel(chan);
   status.set_model(model_hit);
-  status.set_time(boost::posix_time::microsec_clock::universal_time());
 
   double duration = clock_;
   double duration_live = duration * (1.0 - dead_);
@@ -404,6 +390,4 @@ Status MockProducer::get_status(int16_t chan, StatusType t)
   status.set_value("live_time", duration_live);
   status.set_value("live_trigger", duration_trigger);
   status.set_value("pulse_time", double(recent_pulse_time_));
-
-  return status;
 }

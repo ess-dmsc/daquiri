@@ -48,7 +48,8 @@ bool Spectrum::_initialize()
 
 bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
 {
-  return (channel < static_cast<int16_t>(idx.size())) && (idx.at(channel) >= 0);
+  return (channel < static_cast<int16_t>(idx.size()))
+      && (idx.at(channel) >= 0);
 }
 
 void Spectrum::_push_stats(const Status& status)
@@ -174,10 +175,21 @@ void Spectrum::_push_spill(const Spill& spill)
 {
   if (clear_next_spill_)
   {
-    data_->clear();
-    total_count_ = 0;
-    recent_count_ = 0;
-    clear_next_spill_ = false;
+    bool relevant {false};
+    for (auto &q : spill.stats)
+      if (this->channel_relevant(q.first))
+      {
+        relevant = true;
+        break;
+      }
+
+    if (relevant)
+    {
+      data_->clear();
+      total_count_ = 0;
+      recent_count_ = 0;
+      clear_next_spill_ = false;
+    }
   }
 
   Consumer::_push_spill(spill);

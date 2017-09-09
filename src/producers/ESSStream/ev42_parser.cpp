@@ -1,11 +1,16 @@
 #include "ev42_parser.h"
 #include "ev42_events_generated.h"
 
+#include "custom_timer.h"
 #include "custom_logger.h"
 
 ev42_events::ev42_events()
 {
   std::string mp {"ev42_events/"};
+
+  SettingMeta dc(mp + "OutputChannel", SettingType::integer, "Output data channel");
+  dc.set_val("min", 0);
+  add_definition(dc);
 
   SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
   vc.set_val("min", 1);
@@ -26,7 +31,8 @@ ev42_events::ev42_events()
 
   SettingMeta root("ev42_events", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, mp + "DimensionCount");
+  root.set_enum(0, mp + "OutputChannel");
+  root.set_enum(1, mp + "DimensionCount");
   add_definition(root);
 }
 
@@ -36,6 +42,7 @@ void ev42_events::read_settings_bulk(Setting &set) const
 
   auto dims = geometry_.names_.size();
 
+  set.set(Setting::integer("ev42_events/OutputChannel", output_channel_));
   set.set(Setting::integer("ev42_events/DimensionCount", integer_t(dims)));
 
   while (set.branches.has_a(Setting({"ev42_events/Dimension", SettingType::stem})))
@@ -65,6 +72,7 @@ void ev42_events::write_settings_bulk(const Setting& settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
+  output_channel_ = set.find({"ev42_events/OutputChannel"}).get_number();
   auto dims = set.find({"ev42_events/DimensionCount"}).get_number();
   if ((dims < 1) || (dims > 16))
     dims = 1;
@@ -91,11 +99,21 @@ void ev42_events::write_settings_bulk(const Setting& settings)
     geometry_.add_dimension("", 1);
 }
 
-Spill* ev42_events::process_payload(void* msg, int16_t chan,
+SpillPtr ev42_events::start_spill() const
+{
+  return Spill::make_new(StatusType::start, {output_channel_});
+}
+
+SpillPtr ev42_events::stop_spill() const
+{
+  return Spill::make_new(StatusType::stop, {output_channel_});
+}
+
+SpillPtr ev42_events::process_payload(void* msg,
                                     TimeBase tb, uint64_t utime,
                                     PayloadStats &stats)
 {
-  Spill* ret {nullptr};
+  SpillPtr ret {nullptr};
   auto em = GetEventMessage(msg);
 
   auto buf_id = em->message_id();
@@ -117,17 +135,16 @@ Spill* ev42_events::process_payload(void* msg, int16_t chan,
 
   CustomTimer timer(true);
 
-  EventModel evt_model = geometry_.model(tb);
+  evt_model_ = geometry_.model(tb);
 
   uint64_t time_high = em->pulse_time();
   if (utime)
     time_high = utime << 32;
 
-
-  ret = Spill::make_new(chan, StatusType::running);
-  ret->stats[chan].set_value("pulse_time", time_high);
-  ret->stats[chan].set_value("buf_id", buf_id);
-  ret->stats[chan].set_model(evt_model);
+  ret = Spill::make_new(StatusType::running, {output_channel_});
+  ret->stats[output_channel_].set_model(evt_model_);
+  ret->stats[output_channel_].set_value("pulse_time", time_high);
+  ret->stats[output_channel_].set_value("buf_id", buf_id);
 
   for (auto i=0; i < t_len; ++i)
   {
@@ -137,7 +154,7 @@ Spill* ev42_events::process_payload(void* msg, int16_t chan,
     const auto& id = em->detector_id()->Get(i);
     if (id) //must be non0?
     {
-      Event e(chan, evt_model);
+      Event e(output_channel_, evt_model_);
       e.set_native_time(time);
       geometry_.interpret_id(e, id);
       ret->events.push_back(e);

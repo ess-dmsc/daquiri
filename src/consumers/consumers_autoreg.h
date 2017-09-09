@@ -5,6 +5,9 @@
 #include "histogram_1d.h"
 DAQUIRI_REGISTER_CONSUMER(Histogram1D)
 
+#include "prebinned_1d.h"
+DAQUIRI_REGISTER_CONSUMER(Prebinned1D)
+
 #include "coincidence_1d.h"
 DAQUIRI_REGISTER_CONSUMER(Coincidence1D)
 

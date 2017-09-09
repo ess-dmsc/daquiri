@@ -380,12 +380,13 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  SynchronizedQueue<Spill*> parsed_queue;
+  SynchronizedQueue<SpillPtr> parsed_queue;
 
   std::thread builder(std::bind(&Engine::builder_naive,
                                 this, &parsed_queue, project));
 
-  Spill* spill = new Spill;
+  SpillPtr spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
   spill->detectors = detectors_;
@@ -420,7 +421,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   delete anouncement_timer;
 
-  spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
   parsed_queue.enqueue(spill);
@@ -450,19 +451,19 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   else
     INFO << "<Engine> List mode acquisition indefinite run";
 
-  Spill* one_spill;
+  SpillPtr spill;
   ListData result;
 
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  one_spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
-  one_spill->state = settings_;
-  one_spill->detectors = detectors_;
-  result.push_back(SpillPtr(one_spill));
+  spill->state = settings_;
+  spill->detectors = detectors_;
+  result.push_back(spill);
 
-  SynchronizedQueue<Spill*> parsed_queue;
+  SynchronizedQueue<SpillPtr> parsed_queue;
 
   if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
@@ -489,11 +490,10 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   delete anouncement_timer;
 
-  one_spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
-  one_spill->state = settings_;
-  parsed_queue.enqueue(one_spill);
-  //  result.push_back(SpillPtr(one_spill));
+  spill->state = settings_;
+  parsed_queue.enqueue(spill);
 
   wait_ms(500);
 
@@ -517,11 +517,11 @@ void Engine::builder_chronological(SpillQueue data_queue,
   // for each input channel (detector) false = empty, true = data
 
   // use multimap from timestamp?
-  std::list<Spill*> current_spills;
+  std::list<SpillPtr> current_spills;
 
   while (true)
   {
-    Spill* in_spill = data_queue->dequeue();
+    SpillPtr in_spill = data_queue->dequeue();
     if (in_spill != nullptr)
     {
       //      DBG << "Spill arrived with " << in_spill->events.size();
@@ -562,7 +562,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
 
       //      DBG << "Empty? " << empty;
 
-      Spill* out_spill = new Spill;
+      SpillPtr out_spill = std::make_shared<Spill>();
       presort_cycles++;
       presort_timer.start();
       while (!empty)
@@ -621,16 +621,13 @@ void Engine::builder_chronological(SpillQueue data_queue,
             out_spill->state = (*i)->state;
             project->add_spill(out_spill);
 
-            delete (*i);
             current_spills.erase(i);
 
-            delete out_spill;
-            out_spill = new Spill;
+            out_spill = std::make_shared<Spill>();
             noempties = false;
             break;
           }
       }
-      delete out_spill;
     }
 
     if ((in_spill == nullptr) && current_spills.empty())
@@ -648,7 +645,7 @@ void Engine::builder_naive(SpillQueue data_queue,
   double time {0};
   uint64_t presort_events(0), presort_cycles(0);
 
-  Spill* spill;
+  SpillPtr spill;
   while (true)
   {
     spill = data_queue->dequeue();
@@ -659,7 +656,6 @@ void Engine::builder_naive(SpillQueue data_queue,
       presort_events += spill->events.size();
       project->add_spill(spill);
       time += presort_timer.s();
-      delete spill;
     }
     else
       break;

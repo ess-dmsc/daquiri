@@ -231,7 +231,7 @@ void Project::set_prototypes(const Container<ConsumerMetadata>& prototypes)
   cond_.notify_all();
 }
 
-void Project::add_spill(Spill* one_spill)
+void Project::add_spill(SpillPtr one_spill)
 {
   UNIQUE_LOCK_EVENTUALLY
 

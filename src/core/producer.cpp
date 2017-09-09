@@ -3,6 +3,24 @@
 
 namespace DAQuiri {
 
+ProducerStatus operator|(ProducerStatus a, ProducerStatus b)
+{
+  return static_cast<ProducerStatus>
+      (static_cast<int>(a) | static_cast<int>(b));
+}
+
+ProducerStatus operator&(ProducerStatus a, ProducerStatus b)
+{
+  return static_cast<ProducerStatus>
+      (static_cast<int>(a) & static_cast<int>(b));
+}
+
+ProducerStatus operator^(ProducerStatus a, ProducerStatus b)
+{
+  return static_cast<ProducerStatus>
+      (static_cast<int>(a) ^ static_cast<int>(b));
+}
+
 void Producer::initialize(const json& definitions)
 {
   if (!definitions.empty())

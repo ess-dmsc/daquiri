@@ -37,10 +37,6 @@ ESSStream::ESSStream()
   add_definition(sc);
 
 
-  SettingMeta dc(mp + "OutputChannel", SettingType::integer, "Output data channel");
-  dc.set_val("min", 0);
-  add_definition(dc);
-
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
   pars.set_enum(1, "ev42_events");
@@ -56,7 +52,6 @@ ESSStream::ESSStream()
   root.set_enum(3, mp + "TimebaseMult");
   root.set_enum(4, mp + "TimebaseDiv");
   root.set_enum(5, mp + "SpoofClock");
-  root.set_enum(6, mp + "OutputChannel");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -128,7 +123,6 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("ESSStream/TimebaseDiv", time_base_.divider()));
 
   set.set(Setting::boolean("ESSStream/SpoofClock", spoof_clock_));
-  set.set(Setting::integer("ESSStream/OutputChannel", output_channel_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
@@ -157,7 +151,6 @@ void ESSStream::write_settings_bulk(const Setting& settings)
                         set.find({"ESSStream/TimebaseDiv"}).get_number());
 
   spoof_clock_ = set.find({"ESSStream/SpoofClock"}).triggered();
-  output_channel_ = set.find({"ESSStream/OutputChannel"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
@@ -259,9 +252,8 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
   DBG << "<ESSStream> Starting run   "
       << "  timebase " << callback->time_base_.debug() << "ns";
 
-  int16_t chan = 0;
-
-  spill_queue->enqueue(Spill::make_new(callback->output_channel_, StatusType::start));
+  if (callback->parser_)
+    spill_queue->enqueue(callback->parser_->start_spill());
 
   uint64_t spills{2};
   callback->time_spent_ = 0;
@@ -276,7 +268,8 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
     }
   }
 
-  spill_queue->enqueue(Spill::make_new(callback->output_channel_, StatusType::stop));
+  if (callback->parser_)
+    spill_queue->enqueue(callback->parser_->stop_spill());
 
   callback->run_status_.store(3);
   DBG << "<ESSStream> Finished run"
@@ -286,7 +279,7 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
 }
 
 
-Spill* ESSStream::get_message()
+SpillPtr ESSStream::get_message()
 {
   std::shared_ptr<RdKafka::Message> message
   {stream_->consume(kafka_timeout_)};
@@ -338,18 +331,16 @@ Spill* ESSStream::get_message()
       fb_parser::PayloadStats stats;
 
       auto spill = parser_->process_payload(message->payload(),
-                                            output_channel_,
                                             time_base_,
                                             spoof_clock_ ? (++clock_) : 0,
                                             stats);
       if (spill)
       {
-        spill->stats[output_channel_].set_value("native_time", stats.time_end);
-        if (spoof_clock_)
+        for (auto s : spill->stats)
         {
-          DBG << "Spoofed clock " << stats.time_start;
-          spill->stats[output_channel_].set_value("pulse_time",
-                                                  stats.time_start);
+          s.second.set_value("native_time", stats.time_end);
+          if (spoof_clock_)
+            s.second.set_value("pulse_time", stats.time_start);
         }
       }
 
