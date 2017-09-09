@@ -30,4 +30,6 @@ private:
   QMenu *crop_menu_;
   QLabel *crop_label_;
   QSlider *crop_slider_;
+
+  bool initial_scale_ {false};
 };

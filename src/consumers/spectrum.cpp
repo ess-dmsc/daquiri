@@ -3,23 +3,29 @@
 Spectrum::Spectrum()
   : Consumer()
 {
-  Setting attributes = metadata_.attributes();
+  Setting base_options = metadata_.attributes();
+
+  SettingMeta sca("preferred_scale", SettingType::menu);
+  sca.set_flag("preset");
+  sca.set_enum(0, "Linear");
+  sca.set_enum(1, "Logarithmic");
+  base_options.branches.add(sca);
 
   SettingMeta totalcount("total_count", SettingType::precise);
   totalcount.set_val("min", 0);
   totalcount.set_val("description", "Total count");
   totalcount.set_flag("readonly");
-  attributes.branches.add(totalcount);
+  base_options.branches.add(totalcount);
 
   SettingMeta live_time("live_time", SettingType::duration);
   live_time.set_flag("readonly");
   live_time.set_val("description", "Live time");
-  attributes.branches.add(live_time);
+  base_options.branches.add(live_time);
 
   SettingMeta real_time("real_time", SettingType::duration);
   real_time.set_flag("readonly");
   real_time.set_val("description", "Real time");
-  attributes.branches.add(real_time);
+  base_options.branches.add(real_time);
 
   SettingMeta inst_rate("instant_rate", SettingType::floating);
   inst_rate.set_flag("readonly");
@@ -28,16 +34,16 @@ Spectrum::Spectrum()
   inst_rate.set_val("units", "cps");
   Setting inst(inst_rate);
   inst.set_number(0);
-  attributes.branches.add(inst);
+  base_options.branches.add(inst);
 
   SettingMeta clear_at("clear_at", SettingType::integer);
   clear_at.set_val("min", 0);
   clear_at.set_val("units", "s");
   clear_at.set_val("description", "Clear at real-time intervals of");
   clear_at.set_flag("preset");
-  attributes.branches.add(clear_at);
+  base_options.branches.add(clear_at);
 
-  metadata_.overwrite_all_attributes(attributes);
+  metadata_.overwrite_all_attributes(base_options);
 }
 
 bool Spectrum::_initialize()

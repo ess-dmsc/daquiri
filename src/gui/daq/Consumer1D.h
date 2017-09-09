@@ -13,6 +13,7 @@ public:
   void update() override;
 
 private:
-
   QPlot::Multi1D* plot_ {nullptr};
+  bool initial_scale_ {false};
+
 };

@@ -1,5 +1,4 @@
 #include "image_2d.h"
-#include <boost/filesystem.hpp>
 #include "sparse2d.h"
 
 #include "custom_logger.h"
