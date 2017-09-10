@@ -7,7 +7,6 @@
 
 int main(int argc, char *argv[])
 {
-  producers_autoreg();
   QApplication app(argc, argv);
   QApplication::setOrganizationName("ESS");
   QApplication::setApplicationName("daquiri");
@@ -16,7 +15,7 @@ int main(int argc, char *argv[])
   QCommandLineParser parser;
   parser.setApplicationDescription("DAQ-UI-ri: have a drink while you physics ;)");
   parser.addHelpOption();
-  parser.addVersionOption();
+//  parser.addVersionOption();
 
   QCommandLineOption openOption(QStringList() << "o" << "open",
           QApplication::translate("main", "Open project"));
@@ -41,8 +40,14 @@ int main(int argc, char *argv[])
   if (!profile.isEmpty())
     Profiles::select_profile(profile, true);
 
-  daquiri w(0, opennew, startnew);
-  w.show();
+  if (!parser.isSet("h"))
+  {
+    producers_autoreg();
+    consumers_autoreg();
 
-  return app.exec();
+    daquiri w(0, opennew, startnew);
+    w.show();
+
+    return app.exec();
+  }
 }

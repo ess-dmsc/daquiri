@@ -235,7 +235,7 @@ void ESSStream::boot()
 
 void ESSStream::die()
 {
-  INFO << "<ESSStream> Shutting down";
+//  INFO << "<ESSStream> Shutting down";
   if (stream_)
   {
     stream_->close();

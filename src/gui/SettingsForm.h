@@ -80,7 +80,6 @@ class SettingsForm : public QWidget
     void on_pushExpandAll_clicked();
 
     void on_pushAddProducer_clicked();
-
     void on_pushRemoveProducer_clicked();
 
   private:

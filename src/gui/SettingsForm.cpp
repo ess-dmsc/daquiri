@@ -490,8 +490,12 @@ void SettingsForm::on_pushAddProducer_clicked()
   QString text = QInputDialog::getText(this, tr("Producer name"),
                                        tr("Specify unique name for producer:"),
                                        QLineEdit::Normal, "", &ok);
-  if (!ok && text.isEmpty())
+  if (!ok || text.isEmpty())
+  {
+    //Say something
+
     return;
+  }
 
   default_settings.set_text(text.toStdString());
   runner_thread_.add_producer(default_settings);

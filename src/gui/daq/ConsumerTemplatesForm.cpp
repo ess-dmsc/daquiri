@@ -196,7 +196,7 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   if (validateFile(this, fileName, false))
   {
     INFO << "Reading templates from file " << fileName.toStdString();
-    templates_ = from_json_file(fileName.toStdString());
+    templates_.join(from_json_file(fileName.toStdString()));
 
     selection_model_.reset();
     table_model_.update();

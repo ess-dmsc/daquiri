@@ -7,8 +7,11 @@
 #include "producers_autoreg.h"
 
 #include "producer_factory.h"
+#include "consumer_factory.h"
 
 #include "custom_timer.h"
+
+using namespace DAQuiri;
 
 Setting get_profile();
 Container<ConsumerMetadata> get_prototypes();
@@ -18,6 +21,7 @@ void define_value(Engine& e, uint16_t num,
 int main(int argc, char **argv)
 {
   producers_autoreg();
+  consumers_autoreg();
 
   int duration = 1;
   std::string durstr;

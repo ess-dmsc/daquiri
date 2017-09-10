@@ -60,15 +60,19 @@ void Engine::initialize(const json &profile)
   producers_.clear();
   for (auto &q : tree.branches)
   {
-    if (q.id() != "Detectors")
+    if ((q.id() == "Detectors") ||
+        (q.id() == "Profile description"))
+      continue;
+    std::string name = q.get_text();
+    ProducerPtr device = pf.create_type(q.id());
+    if (!device || name.empty())
     {
-      ProducerPtr device = pf.create_type(q.id());
-      if (device)
-      {
-        DBG << "<Engine> Success loading " << device->plugin_name();
-        producers_[q.id()] = device;
-      }
+      // Say something
+      continue;
     }
+    DBG << "<Engine> Success loading " << device->plugin_name()
+        << " (" << name << ")";
+    producers_[name] = device;
   }
 
   _push_settings(tree);
@@ -155,7 +159,9 @@ void Engine::_read_settings_bulk()
 {
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Detectors")
+    if (set.id() == "Profile description")
+      continue;
+    else if (set.id() == "Detectors")
     {
       SettingMeta total_det_num;
       total_det_num = SettingMeta("Total detectors", SettingType::integer);
@@ -178,10 +184,11 @@ void Engine::_read_settings_bulk()
       }
 
     }
-    else if (producers_.count(set.id()))
+    else
     {
-      //DBG << "read settings bulk > " << set.id_;
-      producers_[set.id()]->read_settings_bulk(set);
+      std::string name = set.get_text();
+      if (producers_.count(name))
+        producers_[name]->read_settings_bulk(set);
     }
   }
   save_optimization();
@@ -200,10 +207,16 @@ void Engine::_write_settings_bulk()
     settings_.branches.add(Setting::stem("Detectors"));
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Detectors")
+    if (set.id() == "Profile description")
+      continue;
+    else if (set.id() == "Detectors")
       rebuild_structure(set);
-    else if (producers_.count(set.id()))
-      producers_[set.id()]->write_settings_bulk(set);
+    else
+    {
+      std::string name = set.get_text();
+      if (producers_.count(name))
+        producers_[name]->write_settings_bulk(set);
+    }
   }
 }
 
@@ -510,7 +523,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 void Engine::builder_chronological(SpillQueue data_queue,
                                    ProjectPtr project)
 {
-  CustomTimer presort_timer;
+  double time {0};
   uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
 
   std::map<int16_t, bool> queue_status;
@@ -564,7 +577,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
 
       SpillPtr out_spill = std::make_shared<Spill>();
       presort_cycles++;
-      presort_timer.start();
+      CustomTimer presort_timer;
       while (!empty)
       {
         Event oldest;
@@ -598,7 +611,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
         if (current_spills.empty())
           empty = true;
       }
-      presort_timer.stop();
+      time += presort_timer.s();
 
       //      DBG << "<Engine> Presort pushed " << presort_events << " events, ";
       //                               " time/hit: " << presort_timer.us()/presort_events << "us, "
@@ -634,9 +647,20 @@ void Engine::builder_chronological(SpillQueue data_queue,
       break;
   }
 
-  DBG << "<Engine::builder_chronological> Finished";
+  DBG << "<Engine::builder_chronological> Finished loop";
 
+  CustomTimer presort_timer(true);
   project->flush();
+  time += presort_timer.s();
+
+  DBG << "<Engine::builder_chronological> Finished "
+      << "\n   spills=" << presort_cycles
+      << "\n   events=" << presort_events
+      << "\n   time=" << time
+      << "\n   secs/spill="
+      << (time / double(presort_cycles))
+      << "\n   events/sec="
+      << (double(presort_events) / time);
 }
 
 void Engine::builder_naive(SpillQueue data_queue,
@@ -661,7 +685,7 @@ void Engine::builder_naive(SpillQueue data_queue,
       break;
   }
 
-  DBG << "<Engine::builder_naive> finished loop";
+  DBG << "<Engine::builder_naive> Finished loop";
 
   CustomTimer presort_timer(true);
   project->flush();

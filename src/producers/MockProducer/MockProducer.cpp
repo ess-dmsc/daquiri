@@ -269,7 +269,7 @@ void MockProducer::boot()
 
 void MockProducer::die()
 {
-  INFO << "<MockProducer> Shutting down";
+//  INFO << "<MockProducer> Shutting down";
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
