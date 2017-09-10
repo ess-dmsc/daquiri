@@ -1,7 +1,7 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
 //#include "widget_detectors.h"
-#include "Profiles.h"
+#include "ProfilesForm.h"
 #include "BinaryWidget.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -12,6 +12,7 @@
 
 #include "producer_factory.h"
 #include <QInputDialog>
+#include "Profiles.h"
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
                            Container<Detector>& detectors,
@@ -87,14 +88,7 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   loadSettings();
 
-  //  QSettings settings;
-  //  settings.beginGroup("Program");
-  //  QString profile_directory = settings.value("profile_directory", "").toString();
-
-  //  if (!profile_directory.isEmpty())
   QTimer::singleShot(50, this, SLOT(profile_chosen()));
-  //  else
-  //    QTimer::singleShot(50, this, SLOT(choose_profiles()));
 }
 
 void SettingsForm::exit()
@@ -456,7 +450,7 @@ void SettingsForm::on_pushChangeProfile_clicked()
 
 void SettingsForm::choose_profiles()
 {
-  WidgetProfiles *profiles = new WidgetProfiles(this);
+  ProfilesForm* profiles = new ProfilesForm(this);
   connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
   profiles->exec();
 }
@@ -468,25 +462,8 @@ void SettingsForm::profile_chosen()
   QSettings settings;
   settings.beginGroup("Program");
   bool boot = settings.value("boot_on_startup", false).toBool();
-  auto profile_directory
-      = settings.value("profile_directory","").toString().toStdString();
 
-  json profile;
-
-  if (!profile_directory.empty())
-  {
-    DBG << "Will load profile from " << profile_directory;
-    try
-    {
-      profile = from_json_file(profile_directory + "/profile.set");
-    }
-    catch(...) {}
-  }
-
-  //      if (profile.empty())
-  //        profile = default_profile();
-
-  runner_thread_.do_initialize(profile, boot);
+  runner_thread_.do_initialize(Profiles::current_profile(), boot);
 }
 
 void SettingsForm::refresh_oscil()

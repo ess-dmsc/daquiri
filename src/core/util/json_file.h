@@ -6,7 +6,7 @@
 inline nlohmann::json from_json_file(std::string fname)
 {
   std::ifstream ifs(fname, std::ofstream::in);
-  json j;
+  nlohmann::json j;
   if (ifs.good())
     ifs >> j;
   return j;

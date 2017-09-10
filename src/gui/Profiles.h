@@ -1,77 +1,23 @@
 #pragma once
 
-#include <QDialog>
-#include <QItemSelection>
-#include <QDir>
-#include "setting.h"
-
-namespace Ui {
-class WidgetProfiles;
-}
+#include <QString>
+#include "json.hpp"
 
 namespace Profiles
 {
 
 QString settings_dir();
 QString profiles_dir();
+QString current_profile_name();
+
+QString profile_dir(QString name);
 QString current_profile_dir();
 
+nlohmann::json get_profile(QString name);
+nlohmann::json current_profile();
+
+void select_settings_dir(QString dir);
+void select_profile(QString name, bool boot);
+void save_profile(const nlohmann::json&);
+
 }
-
-class ProfileDialog : public QDialog
-{
-    Q_OBJECT
-
-  public:
-    explicit ProfileDialog(QString description, QWidget *parent = 0);
-
-  signals:
-    void load();
-    void boot();
-    void remove();
-
-  private slots:
-    void clickedLoad();
-    void clickedBoot();
-    void clickedRemove();
-    void clickedCancel();
-};
-
-
-class WidgetProfiles : public QDialog
-{
-    Q_OBJECT
-
-  public:
-    explicit WidgetProfiles(QWidget *parent = 0);
-    ~WidgetProfiles();
-
-  signals:
-    void profileChosen();
-
-  private:
-    Ui::WidgetProfiles *ui;
-
-    struct ProfileEntry
-    {
-        ProfileEntry() {}
-        ProfileEntry(QDir p, QString d)
-          : path(p), description(d) {}
-
-        QDir path;
-        QString description;
-    };
-
-    QVector<ProfileEntry> profiles_;
-
-    void update_profiles();
-    void apply_selection(size_t i, bool boot);
-    void create_profile();
-
-  private slots:
-    void selection_double_clicked(QModelIndex);
-    void on_pushSelectRoot_clicked();
-    void select_no_boot();
-    void select_and_boot();
-    void remove_profile();
-};

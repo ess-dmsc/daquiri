@@ -1,32 +1,57 @@
 #include "daquiri.h"
-#include <QApplication>
-
-#include <QSettings>
-#include <QDir>
-#include "json_file.h"
-#include "custom_logger.h"
-
 #include "consumers_autoreg.h"
 #include "producers_autoreg.h"
+#include <QApplication>
+#include <QCommandLineParser>
+#include "Profiles.h"
 
 int main(int argc, char *argv[])
 {
   producers_autoreg();
-  QApplication a(argc, argv);
+  QApplication app(argc, argv);
+  QApplication::setOrganizationName("ESS");
+  QApplication::setApplicationName("daquiri");
+  QApplication::setApplicationVersion("1.0");
 
-  bool opennew {false};
-  bool startnew {false};
-  if (argc > 1)
+  QCommandLineParser parser;
+  parser.setApplicationDescription("Test helper");
+  parser.addHelpOption();
+  parser.addVersionOption();
+
+  // A boolean option with multiple names (-f, --force)
+  QCommandLineOption openOption(QStringList() << "o" << "open",
+          QApplication::translate("main", "Open project"));
+  parser.addOption(openOption);
+
+  // A boolean option with multiple names (-f, --force)
+  QCommandLineOption runOption(QStringList() << "r" << "run",
+          QApplication::translate("main", "Run acquisition"));
+  parser.addOption(runOption);
+
+  // An option with a value
+  QCommandLineOption profileOption(
+        QStringList() << "p" << "profile",
+        QApplication::translate("main", "Open <profile>."),
+        QApplication::translate("main", "profile"));
+  parser.addOption(profileOption);
+
+  // Process the actual command line arguments given by the user
+  parser.process(app);
+
+  const QStringList args = parser.positionalArguments();
+  // source is args.at(0), destination is args.at(1)
+
+  bool startnew = parser.isSet(runOption);
+  bool opennew = parser.isSet(openOption) || startnew;
+  QString profile = parser.value(profileOption);
+
+  if (!profile.isEmpty())
   {
-    startnew = (std::string(argv[1]) == "start");
-    opennew = startnew || (std::string(argv[1]) == "open");
+    Profiles::select_profile(profile, true);
   }
 
-  QCoreApplication::setOrganizationName("ESS");
-  QCoreApplication::setApplicationName("daquiri");
-
-  daquiri w(0, opennew, startnew);
+  daquiri w(0, opennew, startnew, "");
   w.show();
 
-  return a.exec();
+  return app.exec();
 }

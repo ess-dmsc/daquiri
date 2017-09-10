@@ -4,8 +4,7 @@
 #include "ThreadRunner.h"
 #include "custom_logger.h"
 
-#include "json_file.h"
-#include <boost/filesystem.hpp>
+#include "Profiles.h"
 
 ThreadRunner::ThreadRunner(QObject *parent) :
   QThread(parent),
@@ -354,19 +353,10 @@ void ThreadRunner::run()
 
 void ThreadRunner::save_profile()
 {
-  QSettings settings;
-  settings.beginGroup("Program");
-  QString profile_directory = settings.value("profile_directory","").toString();
-
-  if (!profile_directory.isEmpty())
-  {
-    auto path = profile_directory.toStdString() + "/profile.set";
-    DBG << "Will save to " << path;
-    engine_.die();
-    engine_.get_all_settings();
-    auto dev_settings = engine_.pull_settings();
-    dev_settings.condense();
-    dev_settings.strip_metadata();
-    to_json_file(dev_settings, path);
-  }
+  engine_.die();
+  engine_.get_all_settings();
+  auto dev_settings = engine_.pull_settings();
+  dev_settings.condense();
+  dev_settings.strip_metadata();
+  Profiles::save_profile(dev_settings);
 }

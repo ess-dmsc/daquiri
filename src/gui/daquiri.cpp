@@ -21,7 +21,10 @@
 
 #include <QTimer>
 
-daquiri::daquiri(QWidget *parent, bool open_new_project, bool start_daq)
+daquiri::daquiri(QWidget *parent,
+                 bool open_new_project,
+                 bool start_daq,
+                 QString profile)
   : QMainWindow(parent)
   , ui(new Ui::daquiri)
   , my_emitter_()

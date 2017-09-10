@@ -1,20 +1,12 @@
 #include "Profiles.h"
-#include "ui_Profiles.h"
-#include <QMessageBox>
-#include <QBoxLayout>
 #include <QSettings>
-#include "qt_util.h"
-
+#include <QDir>
 #include "json_file.h"
 
-#include "custom_logger.h"
+namespace Profiles
+{
 
-#include <QInputDialog>
-#include "engine.h"
-
-using namespace DAQuiri;
-
-QString Profiles::settings_dir()
+QString settings_dir()
 {
   QSettings settings;
   settings.beginGroup("Program");
@@ -22,281 +14,77 @@ QString Profiles::settings_dir()
                         QDir::homePath() + "/daquiri/settings").toString();
 }
 
-QString Profiles::profiles_dir()
+QString profiles_dir()
 {
   return settings_dir() + "/profiles";
 }
 
-QString Profiles::current_profile_dir()
+QString current_profile_name()
 {
   QSettings settings;
   settings.beginGroup("Program");
-  return settings.value("profile_directory","").toString();
+  return settings.value("current_profile","").toString();
 }
 
-
-ProfileDialog::ProfileDialog(QString description, QWidget *parent)
-  : QDialog(parent)
+QString profile_dir(QString name)
 {
-  setWindowTitle("Profile actions");
-
-  QPushButton *buttonBoot = new QPushButton("Boot", this);
-  buttonBoot->setIcon(QIcon(":/icons/boot16.png"));
-  connect(buttonBoot, SIGNAL(clicked()), this, SLOT(clickedBoot()));
-
-  QPushButton *buttonLoad = new QPushButton("Load", this);
-  buttonLoad->setIcon(QIcon(":/icons/oxy/16/games_endturn.png"));
-  connect(buttonLoad, SIGNAL(clicked()), this, SLOT(clickedLoad()));
-
-  QPushButton *buttonRemove = new QPushButton("Remove", this);
-  buttonRemove->setIcon(QIcon(":/icons/oxy/16/editdelete.png"));
-  connect(buttonRemove, SIGNAL(clicked()), this, SLOT(clickedRemove()));
-
-  QPushButton *buttonCancel = new QPushButton("Cancel", this);
-//  buttonCancel->setIcon(QIcon(":/icons/oxy/16/editdelete.png"));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(clickedCancel()));
-
-  QVBoxLayout *layout = new QVBoxLayout();
-
-  description = "Select action for\n" + description;
-
-  layout->addWidget(new QLabel(description));
-
-  layout->addWidget(buttonBoot);
-  layout->addWidget(buttonLoad);
-  layout->addWidget(buttonRemove);
-  layout->addWidget(buttonCancel);
-
-  setLayout(layout);
+  if (name.isEmpty())
+    return "";
+  return profiles_dir() + "/" + name;
 }
 
-void ProfileDialog::clickedLoad()
+QString current_profile_dir()
 {
-  emit load();
-  accept();
+  return profile_dir(current_profile_name());
 }
 
-void ProfileDialog::clickedBoot()
+nlohmann::json get_profile(QString name)
 {
-  emit boot();
-  accept();
-}
-
-void ProfileDialog::clickedRemove()
-{
-  emit remove();
-  accept();
-}
-
-void ProfileDialog::clickedCancel()
-{
-  accept();
-}
-
-
-WidgetProfiles::WidgetProfiles(QWidget *parent)
-  : QDialog(parent)
-  , ui(new Ui::WidgetProfiles)
-{
-  ui->setupUi(this);
-
-  ui->tableProfiles2->verticalHeader()->hide();
-  ui->tableProfiles2->horizontalHeader()->hide();
-  ui->tableProfiles2->horizontalHeader()->setStretchLastSection(true);
-  ui->tableProfiles2->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  ui->tableProfiles2->setSelectionBehavior(QAbstractItemView::SelectRows);
-  ui->tableProfiles2->setSelectionMode(QAbstractItemView::SingleSelection);
-
-  connect(ui->tableProfiles2, SIGNAL(doubleClicked(QModelIndex)),
-          this, SLOT(selection_double_clicked(QModelIndex)));
-
-  update_profiles();
-}
-
-WidgetProfiles::~WidgetProfiles()
-{
-  delete ui;
-}
-
-void WidgetProfiles::update_profiles()
-{
-  profiles_.clear();
-  profiles_.push_back(ProfileEntry(QDir(""), "(Offline mode)"));
-
-  auto dir = Profiles::profiles_dir();
-  auto thisprofile = QDir(Profiles::current_profile_dir());
-
-  QDir directory(dir);
-  directory.setFilter(QDir::Dirs);
-  QStringList subdirs = directory.entryList();
-
-  for (auto &q : subdirs)
+  auto dir = Profiles::profiles_dir() + "/" + name;
+  nlohmann::json profile;
+  if (!dir.isEmpty())
   {
-    QDir dir2(dir + "/" + q);
-
-    Setting tree;
     try
     {
-      json profile =
-          from_json_file(dir2.absolutePath().toStdString() + "/profile.set");
-      tree = profile;
+      profile = from_json_file(dir.toStdString() + "/profile.set");
     }
-    catch (...)
-    {}
-
-    if (!tree)
-      continue;
-
-    profiles_.push_back(
-          ProfileEntry(dir2, QS(
-                       tree.find({"Profile description"}, Match::id).get_text())));
+    catch(...) {}
   }
-
-  ui->tableProfiles2->clear();
-  ui->tableProfiles2->setRowCount(profiles_.size() + 1);
-  ui->tableProfiles2->setColumnCount(2);
-  for (size_t i=0; i < profiles_.size(); ++i)
-  {
-    QBrush background = (thisprofile == profiles_[i].path) ?
-          QBrush(Qt::green) : QBrush(Qt::white);
-
-    add_to_table(ui->tableProfiles2, i, 0,
-                 profiles_[i].path.dirName(),
-                 QVariant(), background);
-
-    add_to_table(ui->tableProfiles2, i, 1,
-                 profiles_[i].description,
-                 QVariant(), background);
-
-  }
-
-  QTableWidgetItem *icon_item = new QTableWidgetItem;
-  icon_item->setIcon(QIcon(":/icons/oxy/16/edit_add.png"));
-  icon_item->setFlags(icon_item->flags() ^ Qt::ItemIsEditable);
-  ui->tableProfiles2->setItem(profiles_.size(), 0, icon_item);
-
-  add_to_table(ui->tableProfiles2, profiles_.size(), 1, "CREATE NEW");
-  QFont font;
-  font.setBold(true);
-  ui->tableProfiles2->item(profiles_.size(), 1)->setFont(font);
+  return profile;
 }
 
-void WidgetProfiles::apply_selection(size_t i, bool boot)
+nlohmann::json current_profile()
 {
-  QSettings settings;
-  settings.beginGroup("Program");
-  settings.setValue("profile_directory", profiles_[i].path.absolutePath());
-  settings.setValue("boot_on_startup", boot);
-
-  emit profileChosen();
-  accept();
+  return get_profile(current_profile_name());
 }
 
-void WidgetProfiles::selection_double_clicked(QModelIndex idx)
+void select_settings_dir(QString dir)
 {
-  if (idx.row() == profiles_.size())
-    create_profile();
-  else
-  {
-    auto mm = new ProfileDialog(profiles_[idx.row()].description, this);
-    connect(mm, SIGNAL(load()), this, SLOT(select_no_boot()));
-    connect(mm, SIGNAL(boot()), this, SLOT(select_and_boot()));
-    connect(mm, SIGNAL(remove()), this, SLOT(remove_profile()));
-    mm->exec();
-  }
-}
-
-void WidgetProfiles::select_and_boot()
-{
-  QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  apply_selection(ixl.front().row(), true);
-}
-
-void WidgetProfiles::select_no_boot()
-{
-  QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
-  if (ixl.empty())
-    return;
-  apply_selection(ixl.front().row(), false);
-}
-
-void WidgetProfiles::on_pushSelectRoot_clicked()
-{
-  QString dirName =
-      QFileDialog::getExistingDirectory(this, "Open Directory", Profiles::settings_dir(),
-                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (dirName.isEmpty())
+  if (dir.isEmpty())
     return;
   QSettings settings;
   settings.beginGroup("Program");
-  settings.setValue("settings_directory", QDir(dirName).absolutePath());
+  settings.setValue("settings_directory",
+                    QDir(dir).absolutePath());
 
-  QDir profpath(dirName + "/profiles");
+  QDir profpath(profiles_dir());
   if (!profpath.exists())
     profpath.mkpath(".");
-
-  update_profiles();
 }
 
-void WidgetProfiles::create_profile()
+void save_profile(const nlohmann::json& data)
 {
-  bool ok;
-  QString text = QInputDialog::getText(this, tr("Profile directory"),
-                                       tr("Subdirectory for new profile:"),
-                                       QLineEdit::Normal, "", &ok);
-  if (!ok && text.isEmpty())
-    return;
-
-  auto sd = Profiles::profiles_dir() + "/" + text;
-
-  DBG << "new dir " << sd.toStdString();
-
-  if (QDir(sd).exists())
-  {
-    DBG << "Already exists";
-    return;
-  }
-
-  text = QInputDialog::getText(this, tr("Profile description"),
-                               tr("Description for profile:"),
-                               QLineEdit::Normal, "", &ok);
-  if (!ok)
-    return;
-
-  QDir().mkdir(sd);
-
-  auto profile = DAQuiri::Engine::singleton().default_settings();
-  if (!text.isEmpty())
-    profile.set(Setting::text("Profile description", text.toStdString()));
-
-  DBG << profile.debug();
-
-  auto path = sd.toStdString() + "/profile.set";
-  DBG << "Will save to " << path;
-  profile.condense();
-  profile.strip_metadata();
-  to_json_file(profile, path);
-
-  update_profiles();
+  auto dir = current_profile_dir();
+  if (!dir.isEmpty())
+    to_json_file(data, dir.toStdString() + "/profile.set");
 }
 
-void WidgetProfiles::remove_profile()
+void select_profile(QString name, bool boot)
 {
-  QModelIndexList ixl = ui->tableProfiles2->selectionModel()->selectedRows();
-  if (ixl.empty() || !ixl.front().row())
-    return;
+  QSettings settings;
+  settings.beginGroup("Program");
+  settings.setValue("current_profile", name);
+  settings.setValue("boot_on_startup", boot);
+}
 
-  QMessageBox msgBox;
-  msgBox.setText("Remove profile?");
-  msgBox.setInformativeText("Do you want remove this profile?");
-  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No
-                            /*| QMessageBox::Cancel*/);
-  msgBox.setDefaultButton(QMessageBox::No);
-  if (msgBox.exec() == QMessageBox::Yes)
-  {
-    profiles_[ixl.front().row()].path.removeRecursively();
-    update_profiles();
-  }
 }

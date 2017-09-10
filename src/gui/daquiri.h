@@ -37,7 +37,10 @@ class daquiri : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit daquiri(QWidget *parent = 0, bool open_new_project = false, bool start_daq = false);
+  explicit daquiri(QWidget *parent = 0,
+                   bool open_new_project = false,
+                   bool start_daq = false,
+                   QString profile = "");
   ~daquiri();
 
 private:

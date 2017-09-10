@@ -13,6 +13,8 @@
 
 #include <QCloseEvent>
 
+#include "Profiles.h"
+
 using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
@@ -101,12 +103,11 @@ void ProjectForm::loadSettings()
   QSettings settings_;
 
   settings_.beginGroup("Program");
-  profile_directory_ = settings_.value("profile_directory", QDir::currentPath()).toString();
   data_directory_ = settings_.value("save_directory", QDir::currentPath()).toString();
   settings_.endGroup();
 
   spectra_templates_ =
-      from_json_file(profile_directory_.toStdString() + "/default_sinks.tem");
+      from_json_file(Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
 
   settings_.beginGroup("McaDaq");
   ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
@@ -226,8 +227,11 @@ void ProjectForm::projectSaveAs()
 
 void ProjectForm::on_pushEditSpectra_clicked()
 {
-  ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
-                                                                 profile_directory_, this);
+  ConsumerTemplatesForm* newDialog =
+      new ConsumerTemplatesForm(spectra_templates_,
+                                current_dets_,
+                                Profiles::current_profile_dir(),
+                                this);
   newDialog->exec();
 }
 
@@ -245,8 +249,11 @@ void ProjectForm::on_pushMcaStart_clicked()
   }
   else
   {
-    ConsumerTemplatesForm* newDialog = new ConsumerTemplatesForm(spectra_templates_, current_dets_,
-                                                                   profile_directory_, this);
+    ConsumerTemplatesForm* newDialog =
+        new ConsumerTemplatesForm(spectra_templates_,
+                                  current_dets_,
+                                  Profiles::current_profile_dir(),
+                                  this);
     connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
     newDialog->exec();
   }
