@@ -264,8 +264,6 @@ void ProjectForm::start_DAQ()
   if (project_->empty() && spectra_templates_.empty())
     return;
 
-  emit statusText("Spectra acquisition in progress...");
-
   emit toggleIO(false);
   ui->pushMcaStop->setEnabled(true);
 

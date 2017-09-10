@@ -37,7 +37,6 @@ class SettingsForm : public QWidget
 
   signals:
     void toggleIO(bool);
-    void statusText(QString);
 
   protected:
     void closeEvent(QCloseEvent*);

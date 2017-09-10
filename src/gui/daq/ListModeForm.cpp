@@ -262,8 +262,6 @@ void ListModeForm::on_pushListStart_clicked()
     list_completed(ListData());
   }
 
-  emit statusText("List mode acquisition in progress...");
-
   this->setWindowTitle("List LIVE  \u25b6");
 
   emit toggleIO(false);

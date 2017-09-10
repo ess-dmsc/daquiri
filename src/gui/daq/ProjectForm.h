@@ -27,7 +27,6 @@ public:
 
 signals:
   void toggleIO(bool);
-  void statusText(QString);
   void requestClose(QWidget*);
 
 protected:

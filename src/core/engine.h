@@ -87,7 +87,6 @@ private:
   Engine(Engine const&);
   void operator=(Engine const&);
   ~Engine();
-
 };
 
 }

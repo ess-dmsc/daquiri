@@ -157,8 +157,6 @@ void SettingsForm::push_settings()
 {
   editing_ = false;
   settings_tree_ = tree_settings_model_.get_tree();
-
-  emit statusText("Updating settings...");
   emit toggleIO(false);
   runner_thread_.do_push_settings(settings_tree_);
 }
@@ -228,8 +226,6 @@ void SettingsForm::push_from_table(Setting setting)
   editing_ = false;
 
   //setting.indices.insert(chan);
-
-  emit statusText("Updating settings...");
   emit toggleIO(false);
   runner_thread_.do_set_setting(setting, Match::id | Match::indices);
 }
@@ -240,14 +236,12 @@ void SettingsForm::chose_detector(int chan, std::string name)
   Detector det = detectors_.get(Detector(name));
   //  DBG << "det " <<  det.name() << " with sets " << det.optimizations().size();
 
-  emit statusText("Applying detector settings...");
   emit toggleIO(false);
   runner_thread_.do_set_detector(chan, det);
 }
 
-void SettingsForm::refresh() {
-
-  emit statusText("Updating settings...");
+void SettingsForm::refresh()
+{
   emit toggleIO(false);
   runner_thread_.do_refresh_settings();
 }
@@ -373,10 +367,8 @@ void SettingsForm::post_boot()
   apply_detector_presets(); //make this optional?
 }
 
-
 void SettingsForm::apply_detector_presets()
 {
-  emit statusText("Applying detector optimizations...");
   emit toggleIO(false);
 
   std::map<int, Detector> update;
@@ -390,7 +382,6 @@ void SettingsForm::apply_detector_presets()
 void SettingsForm::on_pushSettingsRefresh_clicked()
 {
   editing_ = false;
-  emit statusText("Refreshing settings_...");
   emit toggleIO(false);
   runner_thread_.do_refresh_settings();
 }
@@ -420,7 +411,6 @@ void SettingsForm::on_bootButton_clicked()
   if (ui->bootButton->text() == "Boot")
   {
     emit toggleIO(false);
-    emit statusText("Booting...");
     //    INFO << "Booting system...";
 
     runner_thread_.do_boot();
@@ -428,7 +418,6 @@ void SettingsForm::on_bootButton_clicked()
   else
   {
     emit toggleIO(false);
-    emit statusText("Shutting down...");
     QSettings settings;
     settings.beginGroup("Program");
     settings.setValue("boot_on_startup", false);
@@ -468,7 +457,6 @@ void SettingsForm::profile_chosen()
 
 void SettingsForm::refresh_oscil()
 {
-  emit statusText("Getting traces...");
   emit toggleIO(false);
   runner_thread_.do_oscil();
 }

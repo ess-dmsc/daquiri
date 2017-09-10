@@ -20,11 +20,11 @@
 #include "ProjectForm.h"
 
 #include <QTimer>
+#include "Profiles.h"
 
 daquiri::daquiri(QWidget *parent,
                  bool open_new_project,
-                 bool start_daq,
-                 QString profile)
+                 bool start_daq)
   : QMainWindow(parent)
   , ui(new Ui::daquiri)
   , my_emitter_()
@@ -33,10 +33,6 @@ daquiri::daquiri(QWidget *parent,
   , open_new_project_(open_new_project)
   , start_daq_(start_daq)
 {
-  detectors_.add(Detector("D1"));
-  detectors_.add(Detector("D2"));
-  detectors_.add(Detector("D3"));
-
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<DAQuiri::Detector>>("std::vector<DAQuiri::Detector>");
   qRegisterMetaType<DAQuiri::ListData>("DAQuiri::ListData");
@@ -57,7 +53,6 @@ daquiri::daquiri(QWidget *parent,
   loadSettings();
 
   connect(ui->tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested(int)));
-  ui->statusBar->showMessage("Offline");
 
   gui_enabled_ = true;
 
@@ -187,11 +182,16 @@ void daquiri::add_log_text(QString line)
   ui->logBox->append(line);
 }
 
-void daquiri::update_settings(DAQuiri::Setting /*sets*/,
-                              std::vector<DAQuiri::Detector> channels,
+void daquiri::update_settings(DAQuiri::Setting sets,
+                              std::vector<DAQuiri::Detector> /*channels*/,
                               DAQuiri::ProducerStatus status)
 {
-  px_status_ = status;
+  engine_status_ = status;
+  auto description = sets.find({"Profile description"}, Match::id);
+  profile_description_ = QString::fromStdString(description.get_text());
+  if (profile_description_.isEmpty())
+    profile_description_ = Profiles::current_profile_name();
+
 //  current_dets_ = channels;
   toggleIO(true);
 
@@ -207,18 +207,29 @@ void daquiri::toggleIO(bool enable)
 {
   gui_enabled_ = enable;
 
-  if (enable && (px_status_ & DAQuiri::ProducerStatus::booted))
-    ui->statusBar->showMessage("Online");
+  auto profile_name = Profiles::current_profile_name();
+  auto profile = Profiles::current_profile();
+
+  QString name = "daquiri";
+  if (!profile_description_.isEmpty())
+    name = profile_description_;
+
+  if (enable && (engine_status_ & DAQuiri::ProducerStatus::running))
+    name += " (Running)";
+  else if (enable && (engine_status_ & DAQuiri::ProducerStatus::booted))
+    name += " (Online)";
   else if (enable)
-    ui->statusBar->showMessage("Offline");
+    name += " (Offline)";
   else
-    ui->statusBar->showMessage("Busy");
+    name += " (Busy)";
+
+  setWindowTitle(name);
 
   for (int i = 0; i < ui->tabs->count(); ++i)
     if (ui->tabs->widget(i) != main_tab_)
       ui->tabs->setTabText(i, ui->tabs->widget(i)->windowTitle());
 
-  emit toggle_push(enable, px_status_);
+  emit toggle_push(enable, engine_status_);
 }
 
 void daquiri::loadSettings()
@@ -292,7 +303,6 @@ void daquiri::open_list()
   addClosableTab(newListForm, "Close");
 
   connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
-  connect(newListForm, SIGNAL(statusText(QString)), this, SLOT(updateStatusText(QString)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
           newListForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
 
@@ -300,7 +310,7 @@ void daquiri::open_list()
 
   reorder_tabs();
 
-  emit toggle_push(gui_enabled_, px_status_);
+  emit toggle_push(gui_enabled_, engine_status_);
 }
 
 void daquiri::open_new_proj()
@@ -324,7 +334,7 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
   ui->tabs->setCurrentWidget(newSpectraForm);
   reorder_tabs();
 
-  newSpectraForm->toggle_push(true, px_status_);
+  newSpectraForm->toggle_push(true, engine_status_);
   if (start)
     QTimer::singleShot(500, newSpectraForm, SLOT(start_DAQ()));
 }

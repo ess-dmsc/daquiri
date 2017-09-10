@@ -17,9 +17,10 @@ enum ProducerStatus
   dead      = 0,
   loaded    = 1 << 0,
   booted    = 1 << 1,
-  can_boot  = 1 << 2,
-  can_run   = 1 << 3,
-  can_oscil = 1 << 4
+  running   = 1 << 2,
+  can_boot  = 1 << 3,
+  can_run   = 1 << 4,
+  can_oscil = 1 << 5
 };
 
 ProducerStatus operator|(ProducerStatus a, ProducerStatus b);
