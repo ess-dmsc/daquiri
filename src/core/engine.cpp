@@ -26,7 +26,7 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
-  settings_ = default_settings();
+//  settings_ = default_settings();
 }
 
 Setting Engine::default_settings()

@@ -207,9 +207,6 @@ void daquiri::toggleIO(bool enable)
 {
   gui_enabled_ = enable;
 
-  auto profile_name = Profiles::current_profile_name();
-  auto profile = Profiles::current_profile();
-
   QString name = "daquiri";
   if (!profile_description_.isEmpty())
     name = profile_description_;

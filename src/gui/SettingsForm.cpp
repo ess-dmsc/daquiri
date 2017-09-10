@@ -88,7 +88,7 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   loadSettings();
 
-  QTimer::singleShot(50, this, SLOT(profile_chosen()));
+  QTimer::singleShot(50, this, SLOT(init_profile()));
 }
 
 void SettingsForm::exit()
@@ -434,25 +434,24 @@ void SettingsForm::on_spinRefreshFrequency_valueChanged(int arg1)
 
 void SettingsForm::on_pushChangeProfile_clicked()
 {
-  choose_profiles();
-}
-
-void SettingsForm::choose_profiles()
-{
   ProfilesForm* profiles = new ProfilesForm(this);
-  connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
+  connect(profiles, SIGNAL(profileChosen(QString, bool)),
+          this, SLOT(profile_chosen(QString, bool)));
   profiles->exec();
 }
 
-void SettingsForm::profile_chosen()
+void SettingsForm::init_profile()
 {
-  emit toggleIO(false);
-
   QSettings settings;
   settings.beginGroup("Program");
   bool boot = settings.value("boot_on_startup", false).toBool();
+  profile_chosen(Profiles::current_profile_name(), boot);
+}
 
-  runner_thread_.do_initialize(Profiles::current_profile(), boot);
+void SettingsForm::profile_chosen(QString name, bool boot)
+{
+  emit toggleIO(false);
+  runner_thread_.do_initialize(name, boot);
 }
 
 void SettingsForm::refresh_oscil()
@@ -495,15 +494,7 @@ void SettingsForm::on_pushAddProducer_clicked()
     return;
 
   default_settings.set_text(text.toStdString());
-
-  settings_tree_.branches.add_a(default_settings);
-
-  json profile = settings_tree_;
-  QSettings settings;
-  settings.beginGroup("Program");
-  bool boot = settings.value("boot_on_startup", false).toBool();
-
-  runner_thread_.do_initialize(profile, boot);
+  runner_thread_.add_producer(default_settings);
 }
 
 void SettingsForm::on_pushRemoveProducer_clicked()
@@ -515,13 +506,7 @@ void SettingsForm::on_pushRemoveProducer_clicked()
       Setting set = qvariant_cast<Setting>(ixl.data(Qt::EditRole));
       if (set.is(SettingType::stem) && set.metadata().has_flag("producer"))
       {
-        settings_tree_.erase(set, Match::id);
-        json profile = settings_tree_;
-        QSettings settings;
-        settings.beginGroup("Program");
-        bool boot = settings.value("boot_on_startup", false).toBool();
-
-        runner_thread_.do_initialize(profile, boot);
+        runner_thread_.remove_producer(set);
       }
     }
 }

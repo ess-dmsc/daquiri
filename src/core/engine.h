@@ -55,7 +55,7 @@ private:
 
   std::map<std::string, ProducerPtr> producers_;
 
-  Setting settings_ {SettingMeta("Engine", SettingType::stem)};
+  Setting settings_;// {SettingMeta("Engine", SettingType::stem)};
   std::vector<Detector> detectors_;
 
   void _die();

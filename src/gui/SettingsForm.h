@@ -71,8 +71,8 @@ class SettingsForm : public QWidget
 
     void on_pushChangeProfile_clicked();
 
-    void choose_profiles();
-    void profile_chosen();
+    void profile_chosen(QString name, bool boot);
+    void init_profile();
 
 
     void refresh_oscil();

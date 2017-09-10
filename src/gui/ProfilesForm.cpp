@@ -6,12 +6,9 @@
 #include <QBoxLayout>
 #include "qt_util.h"
 
-#include "json_file.h"
-
 #include "custom_logger.h"
 
 #include <QInputDialog>
-#include "engine.h"
 
 using namespace DAQuiri;
 
@@ -153,8 +150,7 @@ void ProfilesForm::update_profiles()
 
 void ProfilesForm::apply_selection(size_t i, bool boot)
 {
-  Profiles::select_profile(profiles_[i].id, boot);
-  emit profileChosen();
+  emit profileChosen(profiles_[i].id, boot);
   accept();
 }
 
@@ -203,42 +199,20 @@ void ProfilesForm::on_pushSelectRoot_clicked()
 void ProfilesForm::create_profile()
 {
   bool ok;
-  QString text = QInputDialog::getText(this, tr("Profile directory"),
+  QString name = QInputDialog::getText(this, tr("Profile directory"),
                                        tr("Subdirectory for new profile:"),
                                        QLineEdit::Normal, "", &ok);
-  if (!ok && text.isEmpty())
+  if (!ok && name.isEmpty())
     return;
 
-  auto sd = Profiles::profiles_dir() + "/" + text;
-
-  DBG << "new dir " << sd.toStdString();
-
-  if (QDir(sd).exists())
+  if (Profiles::profile_exists(name))
   {
     DBG << "Already exists";
+    //ask user overwrite?
     return;
   }
 
-  text = QInputDialog::getText(this, tr("Profile description"),
-                               tr("Description for profile:"),
-                               QLineEdit::Normal, "", &ok);
-  if (!ok)
-    return;
-
-  QDir().mkdir(sd);
-
-  auto profile = DAQuiri::Engine::singleton().default_settings();
-  if (!text.isEmpty())
-    profile.set(Setting::text("Profile description", text.toStdString()));
-
-  DBG << profile.debug();
-
-  auto path = sd.toStdString() + "/profile.set";
-  DBG << "Will save to " << path;
-  profile.condense();
-  profile.strip_metadata();
-  to_json_file(profile, path);
-
+  Profiles::create_profile(name);
   update_profiles();
 }
 
@@ -256,8 +230,7 @@ void ProfilesForm::remove_profile()
   msgBox.setDefaultButton(QMessageBox::No);
   if (msgBox.exec() == QMessageBox::Yes)
   {
-    QDir(Profiles::profile_dir(profiles_[ixl.front().row()].id)).
-        removeRecursively();
+    Profiles::remove_profile(profiles_[ixl.front().row()].id);
     update_profiles();
   }
 }

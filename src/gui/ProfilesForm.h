@@ -38,7 +38,7 @@ class ProfilesForm : public QDialog
     ~ProfilesForm();
 
   signals:
-    void profileChosen();
+    void profileChosen(QString name, bool boot);
 
   private:
     Ui::ProfilesForm *ui;

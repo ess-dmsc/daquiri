@@ -1,7 +1,10 @@
 #include "Profiles.h"
+#include "engine.h"
 #include <QSettings>
 #include <QDir>
 #include "json_file.h"
+
+#define PROFILE_FILE_NAME "profile.set"
 
 namespace Profiles
 {
@@ -40,13 +43,14 @@ QString current_profile_dir()
 
 nlohmann::json get_profile(QString name)
 {
-  auto dir = Profiles::profiles_dir() + "/" + name;
   nlohmann::json profile;
-  if (!dir.isEmpty())
+  if (!name.isEmpty())
   {
+    auto dir = profiles_dir() + "/" + name;
     try
     {
-      profile = from_json_file(dir.toStdString() + "/profile.set");
+      profile = from_json_file(dir.toStdString()
+                               + "/" + PROFILE_FILE_NAME);
     }
     catch(...) {}
   }
@@ -74,9 +78,10 @@ void select_settings_dir(QString dir)
 
 void save_profile(const nlohmann::json& data)
 {
-  auto dir = current_profile_dir();
-  if (!dir.isEmpty())
-    to_json_file(data, dir.toStdString() + "/profile.set");
+  auto name = current_profile_name();
+  if (!name.isEmpty())
+    to_json_file(data, current_profile_dir().toStdString()
+                 + "/" + PROFILE_FILE_NAME);
 }
 
 void select_profile(QString name, bool boot)
@@ -86,5 +91,30 @@ void select_profile(QString name, bool boot)
   settings.setValue("current_profile", name);
   settings.setValue("boot_on_startup", boot);
 }
+
+bool profile_exists(QString name)
+{
+  return QDir(profile_dir(name)).exists();
+}
+
+void create_profile(QString name)
+{
+  auto dir = profile_dir(name);
+  if (!QDir(dir).exists())
+    QDir().mkdir(dir);
+
+  auto profile = DAQuiri::Engine::default_settings();
+  profile.condense();
+  profile.strip_metadata();
+  to_json_file(profile, dir.toStdString() + "/" + PROFILE_FILE_NAME);
+}
+
+void remove_profile(QString name)
+{
+  QDir path(profile_dir(name));
+  if (path.exists())
+    path.removeRecursively();
+}
+
 
 }

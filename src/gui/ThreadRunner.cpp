@@ -81,7 +81,38 @@ void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor,
     start(HighPriority);
 }
 
-void ThreadRunner::do_initialize(const json& profile,
+
+void ThreadRunner::remove_producer(const Setting& node)
+{
+  if (running_.load())
+  {
+    WARN << "Runner busy";
+    return;
+  }
+  QMutexLocker locker(&mutex_);
+  terminating_.store(false);
+  one_setting_ = node;
+  action_ = kRemoveProducer;
+  if (!isRunning())
+    start(HighPriority);
+}
+
+void ThreadRunner::add_producer(const Setting& node)
+{
+  if (running_.load())
+  {
+    WARN << "Runner busy";
+    return;
+  }
+  QMutexLocker locker(&mutex_);
+  terminating_.store(false);
+  one_setting_ = node;
+  action_ = kAddProducer;
+  if (!isRunning())
+    start(HighPriority);
+}
+
+void ThreadRunner::do_initialize(QString profile_name,
                                  bool and_boot)
 {
   if (running_.load())
@@ -91,8 +122,8 @@ void ThreadRunner::do_initialize(const json& profile,
   }
   QMutexLocker locker(&mutex_);
   terminating_.store(false);
-  profile_ = profile;
-  action_ = kInitialize;
+  profile_name_ = profile_name;
+  action_ = kChooseProfile;
   and_boot_ = and_boot;
   if (!isRunning())
     start(HighPriority);
@@ -236,7 +267,6 @@ void ThreadRunner::run()
 {
   while (!terminating_.load())
   {
-
     if (action_ != kNone)
       running_.store(true);
 
@@ -266,13 +296,31 @@ void ThreadRunner::run()
       action_ = kSettingsRefresh;
       emit listComplete(newListRun);
     }
-    else if (action_ == kInitialize)
+    else if (action_ == kChooseProfile)
     {
-      engine_.initialize(profile_);
+      save_profile();
+      Profiles::select_profile(profile_name_, and_boot_);
+      engine_.initialize(Profiles::get_profile(profile_name_));
       if (and_boot_)
         action_ = kBoot;
       else
         action_ = kSettingsRefresh;
+    }
+    else if (action_ == kAddProducer)
+    {
+      engine_.get_all_settings();
+      auto tree = engine_.pull_settings();
+      tree.branches.add_a(one_setting_);
+      engine_.initialize(tree);
+      action_ = kSettingsRefresh;
+    }
+    else if (action_ == kRemoveProducer)
+    {
+      engine_.get_all_settings();
+      auto tree = engine_.pull_settings();
+      tree.erase(one_setting_, Match::id);
+      engine_.initialize(tree);
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kBoot)
     {
@@ -353,5 +401,6 @@ void ThreadRunner::save_profile()
   auto dev_settings = engine_.pull_settings();
   dev_settings.condense();
   dev_settings.strip_metadata();
-  Profiles::save_profile(dev_settings);
+  if (dev_settings)
+    Profiles::save_profile(dev_settings);
 }
