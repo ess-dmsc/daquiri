@@ -69,8 +69,8 @@ void Coincidence1D::_init_from_file()
   pattern_anti_.resize(1);
   pattern_anti_.set_gates(std::vector<bool>({false}));
 
-  pattern_add_.resize(1);
-  pattern_add_.set_gates(std::vector<bool>({true}));
+  add_channels_.resize(1);
+  add_channels_.set_gates(std::vector<bool>({true}));
 
   total_coincidences_ = total_count_;
 
@@ -139,6 +139,6 @@ void Coincidence1D::bin_event(const Event& e)
 void Coincidence1D::add_coincidence(const Coincidence& c)
 {
   for (auto &e : c.hits())
-    if (pattern_add_.relevant(e.first))
+    if (add_channels_.relevant(e.first))
       this->bin_event(e.second);
 }

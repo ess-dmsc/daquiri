@@ -32,11 +32,10 @@ TOF1D::TOF1D()
   units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
-  SettingMeta pattern_add("channels", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Channels to bin");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -45,7 +44,7 @@ bool TOF1D::_initialize()
 {
   Spectrum::_initialize();
   resolution_ = 1.0 / metadata_.get_attribute("resolution").get_number();
-  channels_ = metadata_.get_attribute("channels").pattern();
+  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   auto unit = metadata_.get_attribute("units").selection();
   units_name_ = metadata_.get_attribute("units").metadata().enum_name(unit);
@@ -63,7 +62,7 @@ void TOF1D::_init_from_file()
 
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("channels", channels_));
+  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }

@@ -23,11 +23,10 @@ TimeDomain::TimeDomain()
   res.set_val("description", "Choice of dependent variable");
   base_options.branches.add(res);
 
-  SettingMeta pattern_add("channels", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Channels to bin");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
   //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
@@ -37,11 +36,11 @@ bool TimeDomain::_initialize()
 {
   Spectrum::_initialize();
 
-  channels_ = metadata_.get_attribute("channels").pattern();
+  channels_ = metadata_.get_attribute("add_channels").pattern();
   codomain = metadata_.get_attribute("co-domain").selection();
 
   int adds = 1; //0;
-  //  std::vector<bool> gts = pattern_add_.gates();
+  //  std::vector<bool> gts = add_channels_.gates();
   //  for (size_t i=0; i < gts.size(); ++i)
   //    if (gts[i])
   //      adds++;
@@ -59,7 +58,7 @@ void TimeDomain::_init_from_file()
 {
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("channels", channels_));
+  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }
@@ -164,10 +163,10 @@ void TimeDomain::_push_stats(const Status& status)
   } else
     counts_.push_back(recent_count_);
 
-  DBG << "Live time = " << live
-      << " Real time = " << live
-      << " dead% " << percent_dead
-      << " for " << codomain;
+//  DBG << "Live time = " << live
+//      << " Real time = " << live
+//      << " dead% " << percent_dead
+//      << " for " << codomain;
 
   if (seconds_.empty() || (tot_time != 0))
   {

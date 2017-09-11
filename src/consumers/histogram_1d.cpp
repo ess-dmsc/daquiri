@@ -51,11 +51,10 @@ Histogram1D::Histogram1D()
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
-  SettingMeta pattern_add("channels", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Channels to bin");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -66,7 +65,7 @@ bool Histogram1D::_initialize()
   bits_ = metadata_.get_attribute("resolution").selection();
   cutoff_ = metadata_.get_attribute("cutoff").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
-  channels_ = metadata_.get_attribute("channels").pattern();
+  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   this->_recalc_axes();
   return true;
@@ -79,7 +78,7 @@ void Histogram1D::_init_from_file()
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
 
-  metadata_.set_attribute(Setting("channels", channels_));
+  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }

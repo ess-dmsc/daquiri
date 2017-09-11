@@ -58,11 +58,10 @@ CoincidenceConsumer::CoincidenceConsumer()
   pattern_anti.set_val("chans", 1);
   attributes.branches.add(pattern_anti);
 
-  SettingMeta pattern_add("pattern_add", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Add pattern");
-  pattern_add.set_val("chans", 1);
-  attributes.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  attributes.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(attributes);
 }
@@ -74,7 +73,7 @@ bool CoincidenceConsumer::_initialize()
   val_name_ = metadata_.get_attribute("value_name").get_text();
   pattern_coinc_ = metadata_.get_attribute("pattern_coinc").pattern();
   pattern_anti_ = metadata_.get_attribute("pattern_anti").pattern();
-  pattern_add_ = metadata_.get_attribute("pattern_add").pattern();
+  add_channels_ = metadata_.get_attribute("add_channels").pattern();
   coinc_window_ = metadata_.get_attribute("coinc_window").get_number();
   if (coinc_window_ < 0)
     coinc_window_ = 0;
@@ -111,7 +110,7 @@ void CoincidenceConsumer::_init_from_file()
   metadata_.set_attribute(Setting::precise("total_coinc", total_coincidences_));
   metadata_.set_attribute(Setting("pattern_coinc", pattern_coinc_));
   metadata_.set_attribute(Setting("pattern_anti", pattern_anti_));
-  metadata_.set_attribute(Setting("pattern_add", pattern_add_));
+  metadata_.set_attribute(Setting("add_channels", add_channels_));
 
   Spectrum::_init_from_file();
 }
@@ -121,7 +120,7 @@ bool CoincidenceConsumer::channel_relevant(int16_t channel) const
   return ((channel >= 0) &&
           (pattern_coinc_.relevant(channel) ||
            pattern_anti_.relevant(channel) ||
-           pattern_add_.relevant(channel)));
+           add_channels_.relevant(channel)));
 }
 
 bool CoincidenceConsumer::event_relevant(const Event& e) const

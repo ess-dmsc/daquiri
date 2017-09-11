@@ -27,7 +27,7 @@ protected:
   //cached parameters
   std::string x_name_;
   std::string y_name_;
-  Pattern pattern_add_;
+  Pattern add_channels_;
   uint16_t downsample_ {0};
 
   //from status manifest

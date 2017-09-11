@@ -90,12 +90,12 @@ void Consumer2D::update()
     spectrum_data = data->range({{0, res_x}, {0, res_y}});
   }
 
-  if (!res_x || !res_y)
-  {
-    plot_->clearAll();
-    plot_->replot();
-    return;
-  }
+//  if (!res_x || !res_y)
+//  {
+//    plot_->clearAll();
+//    plot_->replot();
+//    return;
+//  }
 
   double rescale  = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)

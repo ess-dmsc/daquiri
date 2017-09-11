@@ -50,7 +50,7 @@ bool Coincidence2D::_initialize()
   bits_ = metadata_.get_attribute("resolution").selection();
 
   int adds = 0;
-  std::vector<bool> gts = pattern_add_.gates();
+  std::vector<bool> gts = add_channels_.gates();
   for (size_t i=0; i < gts.size(); ++i)
     if (gts[i])
       adds++;
@@ -85,8 +85,8 @@ void Coincidence2D::_init_from_file()
   pattern_anti_.resize(2);
   pattern_anti_.set_gates(std::vector<bool>({false, false}));
 
-  pattern_add_.resize(2);
-  pattern_add_.set_gates(std::vector<bool>({true, true}));
+  add_channels_.resize(2);
+  add_channels_.set_gates(std::vector<bool>({true, true}));
 
   total_coincidences_ = total_count_;
 

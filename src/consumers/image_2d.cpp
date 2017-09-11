@@ -34,11 +34,10 @@ Image2D::Image2D()
   ds.set_val("max", 15);
   base_options.branches.add(ds);
 
-  SettingMeta pattern_add("pattern_add", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Add pattern");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -50,7 +49,7 @@ bool Image2D::_initialize()
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
   val_name_ = metadata_.get_attribute("val_name").get_text();
-  pattern_add_ = metadata_.get_attribute("pattern_add").pattern();
+  add_channels_ = metadata_.get_attribute("add_channels").pattern();
   downsample_ = metadata_.get_attribute("downsample").get_number();
 
   return true;
@@ -58,7 +57,7 @@ bool Image2D::_initialize()
 
 void Image2D::_init_from_file()
 {
-  metadata_.set_attribute(Setting("pattern_add", pattern_add_));
+  metadata_.set_attribute(Setting("add_channels", add_channels_));
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
   metadata_.set_attribute(Setting::text("x_name", "x"));
   metadata_.set_attribute(Setting::text("y_name", "y"));
@@ -155,7 +154,7 @@ void Image2D::_push_event(const Event& e)
 bool Image2D::channel_relevant(int16_t channel) const
 {
   return ((channel >= 0) &&
-          pattern_add_.relevant(channel)
+          add_channels_.relevant(channel)
           );
 }
 

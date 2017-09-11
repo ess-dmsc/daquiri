@@ -11,35 +11,36 @@ Spectrum::Spectrum()
   sca.set_enum(1, "Logarithmic");
   base_options.branches.add(sca);
 
-  SettingMeta totalcount("total_count", SettingType::precise);
+  SettingMeta totalcount("total_count", SettingType::precise, "Total count");
   totalcount.set_val("min", 0);
-  totalcount.set_val("description", "Total count");
   totalcount.set_flag("readonly");
   base_options.branches.add(totalcount);
 
-  SettingMeta live_time("live_time", SettingType::duration);
+  SettingMeta live_time("live_time", SettingType::duration, "Live time");
   live_time.set_flag("readonly");
-  live_time.set_val("description", "Live time");
   base_options.branches.add(live_time);
 
-  SettingMeta real_time("real_time", SettingType::duration);
+  SettingMeta real_time("real_time", SettingType::duration, "Real time");
   real_time.set_flag("readonly");
-  real_time.set_val("description", "Real time");
   base_options.branches.add(real_time);
 
-  SettingMeta inst_rate("instant_rate", SettingType::floating);
+  SettingMeta inst_rate("instant_rate", SettingType::floating, "Instant count rate");
   inst_rate.set_flag("readonly");
   inst_rate.set_val("min", 0);
-  inst_rate.set_val("description", "Instant count rate");
   inst_rate.set_val("units", "cps");
   Setting inst(inst_rate);
   inst.set_number(0);
   base_options.branches.add(inst);
 
-  SettingMeta clear_at("clear_at", SettingType::integer);
+  SettingMeta clear_p("clear_periodically", SettingType::boolean,
+                       "Clear periodically");
+  clear_p.set_flag("preset");
+  base_options.branches.add(clear_p);
+
+  SettingMeta clear_at("clear_at", SettingType::integer,
+                       "Clear real-time threshold");
   clear_at.set_val("min", 0);
   clear_at.set_val("units", "s");
-  clear_at.set_val("description", "Clear at real-time intervals of");
   clear_at.set_flag("preset");
   base_options.branches.add(clear_at);
 
@@ -48,6 +49,7 @@ Spectrum::Spectrum()
 
 bool Spectrum::_initialize()
 {
+  clear_periodically_ = metadata_.get_attribute("clear_periodically").triggered();
   clear_at_ = metadata_.get_attribute("clear_at").get_number();
   return false;
 }
@@ -167,10 +169,10 @@ void Spectrum::_push_stats(const Status& status)
   metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
 
   recent_total_time_ += recent_time;
-  if (!new_start && clear_at_ && data_ &&
+  if (!new_start && clear_periodically_ && data_ &&
       (clear_at_ < recent_total_time_))
   {
-    recent_total_time_ = recent_total_time_ - clear_at_;
+    recent_total_time_ -= clear_at_;
     clear_next_spill_ = true;
   }
 
