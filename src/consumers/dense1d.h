@@ -13,7 +13,6 @@ class Dense1D : public Dataspace
     { return new Dense1D(*this); }
 
     void clear() override;
-//    void add_one(size_t val) override;
     void add(const Entry&) override;
     PreciseFloat get(std::initializer_list<size_t> list) const override;
     EntryList range(std::initializer_list<Pair> list) const override;

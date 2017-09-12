@@ -1,4 +1,4 @@
-#include "image_2d.h"
+#include "histogram_2d.h"
 #include <boost/filesystem.hpp>
 #include "sparse_map2d.h"
 
@@ -6,7 +6,7 @@
 
 #define kDimensions 2
 
-Image2D::Image2D()
+Histogram2D::Histogram2D()
   : Spectrum()
 {
   data_ = std::make_shared<SparseMap2D>();
@@ -39,7 +39,7 @@ Image2D::Image2D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Image2D::_initialize()
+bool Histogram2D::_initialize()
 {
   Spectrum::_initialize();
 
@@ -51,7 +51,7 @@ bool Image2D::_initialize()
   return true;
 }
 
-void Image2D::_init_from_file()
+void Histogram2D::_init_from_file()
 {
   metadata_.set_attribute(Setting("pattern_add", pattern_add_));
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
@@ -61,7 +61,7 @@ void Image2D::_init_from_file()
   Spectrum::_init_from_file();
 }
 
-void Image2D::_set_detectors(const std::vector<Detector>& dets)
+void Histogram2D::_set_detectors(const std::vector<Detector>& dets)
 {
   metadata_.detectors.resize(kDimensions, Detector());
 
@@ -83,7 +83,7 @@ void Image2D::_set_detectors(const std::vector<Detector>& dets)
   this->_recalc_axes();
 }
 
-void Image2D::_recalc_axes()
+void Histogram2D::_recalc_axes()
 {
   data_->set_axis(0, DataAxis(Calibration(), 0));
   data_->set_axis(1, DataAxis(Calibration(), 0));
@@ -104,7 +104,7 @@ void Image2D::_recalc_axes()
   data_->recalc_axes(0);
 }
 
-void Image2D::_push_stats(const Status& manifest)
+void Histogram2D::_push_stats(const Status& manifest)
 {
   if (!this->channel_relevant(manifest.channel()))
     return;
@@ -122,12 +122,12 @@ void Image2D::_push_stats(const Status& manifest)
     y_idx_[manifest.channel()] = manifest.event_model().name_to_val.at(y_name_);
 }
 
-void Image2D::_flush()
+void Histogram2D::_flush()
 {
   Spectrum::_flush();
 }
 
-void Image2D::_push_event(const Event& e)
+void Histogram2D::_push_event(const Event& e)
 {
   if (!this->event_relevant(e))
     return;
@@ -137,19 +137,18 @@ void Image2D::_push_event(const Event& e)
   uint16_t x = vx.val(vx.bits() - downsample_);
   uint16_t y = vy.val(vy.bits() - downsample_);
   data_->add({{x,y}, 1});
-//  data_->add_one(x, y);
   total_count_++;
   recent_count_++;
 }
 
-bool Image2D::channel_relevant(int16_t channel) const
+bool Histogram2D::channel_relevant(int16_t channel) const
 {
   return ((channel >= 0) &&
           pattern_add_.relevant(channel)
           );
 }
 
-bool Image2D::event_relevant(const Event& e) const
+bool Histogram2D::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return (this->channel_relevant(c) &&

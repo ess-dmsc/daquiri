@@ -11,8 +11,8 @@ DAQUIRI_REGISTER_CONSUMER(Coincidence1D)
 #include "coincidence_2d.h"
 DAQUIRI_REGISTER_CONSUMER(Coincidence2D)
 
-#include "image_2d.h"
-DAQUIRI_REGISTER_CONSUMER(Image2D)
+#include "histogram_2d.h"
+DAQUIRI_REGISTER_CONSUMER(Histogram2D)
 
 #include "tof_1d.h"
 DAQUIRI_REGISTER_CONSUMER(TOF1D)

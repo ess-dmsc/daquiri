@@ -2,12 +2,12 @@
 
 #include "spectrum.h"
 
-class Image2D : public Spectrum
+class Histogram2D : public Spectrum
 {
 public:
-  Image2D();
-  Image2D* clone() const override
-  { return new Image2D(*this); }
+  Histogram2D();
+  Histogram2D* clone() const override
+  { return new Histogram2D(*this); }
 
 protected:
   std::string my_type() const override {return "Image 2D";}
