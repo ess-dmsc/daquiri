@@ -1,6 +1,6 @@
 #include "image_2d.h"
 #include <boost/filesystem.hpp>
-#include "sparse2d.h"
+#include "sparse_map2d.h"
 
 #include "custom_logger.h"
 
@@ -9,7 +9,7 @@
 Image2D::Image2D()
   : Spectrum()
 {
-  data_ = std::make_shared<Sparse2D>();
+  data_ = std::make_shared<SparseMap2D>();
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image");
@@ -136,7 +136,8 @@ void Image2D::_push_event(const Event& e)
   const auto& vy = e.value(y_idx_.at(c));
   uint16_t x = vx.val(vx.bits() - downsample_);
   uint16_t y = vy.val(vy.bits() - downsample_);
-  data_->add_one(x, y);
+  data_->add({{x,y}, 1});
+//  data_->add_one(x, y);
   total_count_++;
   recent_count_++;
 }

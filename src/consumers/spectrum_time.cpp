@@ -1,5 +1,5 @@
 #include "spectrum_time.h"
-#include "sparse2d.h"
+#include "sparse_map2d.h"
 
 #include "custom_logger.h"
 
@@ -7,7 +7,7 @@
 
 TimeSpectrum::TimeSpectrum()
 {
-  data_ = std::make_shared<Sparse2D>(); //use dense 2d
+  data_ = std::make_shared<SparseMap2D>(); //use dense 2d
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Spectra in time series");

@@ -26,18 +26,18 @@ void Dense1D::add(const Entry& e)
   maxchan_ = std::max(maxchan_, bin);
 }
   
-  void Dense1D::add_one(size_t val)
-  {
-  if (1 != dimensions())
-    return;
-  const auto& bin = val;
-  if (bin >= spectrum_.size())
-    spectrum_.resize(bin+1, PreciseFloat(0));
+//void Dense1D::add_one(size_t val)
+//{
+//  if (1 != dimensions())
+//    return;
+//  const auto& bin = val;
+//  if (bin >= spectrum_.size())
+//    spectrum_.resize(bin+1, PreciseFloat(0));
   
-  spectrum_[bin] += 1;
-  total_count_ += 1;
-  maxchan_ = std::max(maxchan_, bin);
-  }
+//  spectrum_[bin] += 1;
+//  total_count_ += 1;
+//  maxchan_ = std::max(maxchan_, bin);
+//}
 
 void Dense1D::recalc_axes(uint16_t bits)
 {

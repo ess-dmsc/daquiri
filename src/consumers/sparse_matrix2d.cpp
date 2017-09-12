@@ -1,34 +1,34 @@
-#include "sparse2d.h"
+#include "sparse_matrix2d.h"
 #include "ascii_tree.h"
 
 namespace DAQuiri
 {
 
-Sparse2D::Sparse2D()
+SparseMatrix2D::SparseMatrix2D()
   : Dataspace(2), spectrum_(300, 300)
 {}
 
-void Sparse2D::clear()
+void SparseMatrix2D::clear()
 {
   total_count_ = 0;
   spectrum_.setZero();
 }
 
-void Sparse2D::add_one(size_t val1, size_t val2)
+void SparseMatrix2D::add_one(size_t val1, size_t val2)
 {
   if (2 != dimensions())
     return;
   bin_pair(val1, val2, 1);
 }
 
-void Sparse2D::add(const Entry& e)
+void SparseMatrix2D::add(const Entry& e)
 {
   if ((e.first.size() != dimensions()) || !e.second)
     return;
   bin_pair(e.first[0], e.first[1], e.second);
 }
 
-void Sparse2D::recalc_axes(uint16_t bits)
+void SparseMatrix2D::recalc_axes(uint16_t bits)
 {
   auto ax0 = axis(0);
   auto ax1 = axis(1);
@@ -46,7 +46,7 @@ void Sparse2D::recalc_axes(uint16_t bits)
   set_axis(1, ax1);
 }
 
-PreciseFloat Sparse2D::get(std::initializer_list<size_t> list) const
+PreciseFloat SparseMatrix2D::get(std::initializer_list<size_t> list) const
 {
   if (list.size() != dimensions())
     return 0;
@@ -55,7 +55,7 @@ PreciseFloat Sparse2D::get(std::initializer_list<size_t> list) const
   return spectrum_.coeff(coords[0], coords[1]);
 }
 
-EntryList Sparse2D::range(std::initializer_list<Pair> list) const
+EntryList SparseMatrix2D::range(std::initializer_list<Pair> list) const
 {
   size_t min0, min1, max0, max1;
   if (list.size() != dimensions())
@@ -82,7 +82,7 @@ EntryList Sparse2D::range(std::initializer_list<Pair> list) const
   return result;
 }
 
-void Sparse2D::fill_list(EntryList& result,
+void SparseMatrix2D::fill_list(EntryList& result,
                          size_t min0, size_t max0,
                          size_t min1, size_t max1) const
 {
@@ -101,7 +101,7 @@ void Sparse2D::fill_list(EntryList& result,
   }
 }
 
-void Sparse2D::save(H5CC::Group& g) const
+void SparseMatrix2D::save(H5CC::Group& g) const
 {
   auto dgroup = g.require_group("data");
   auto didx = dgroup.require_dataset<uint16_t>("indices", {static_cast<unsigned long long>(spectrum_.nonZeros()), 2}, {128,2});
@@ -123,7 +123,7 @@ void Sparse2D::save(H5CC::Group& g) const
   dcts.write(dc);
 }
 
-void Sparse2D::load(H5CC::Group& g)
+void SparseMatrix2D::load(H5CC::Group& g)
 {
   if (!g.has_group("data"))
     return;
@@ -152,7 +152,7 @@ void Sparse2D::load(H5CC::Group& g)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
-std::string Sparse2D::data_debug(const std::string &prepend) const
+std::string SparseMatrix2D::data_debug(const std::string &prepend) const
 {
   double maximum {0};
   for (int k=0; k < spectrum_.outerSize(); ++k)
@@ -184,7 +184,7 @@ std::string Sparse2D::data_debug(const std::string &prepend) const
   return ss.str();
 }
 
-bool Sparse2D::is_symmetric()
+bool SparseMatrix2D::is_symmetric()
 {
   bool symmetric = true;
   for (int k=0; k < spectrum_.outerSize(); ++k)
