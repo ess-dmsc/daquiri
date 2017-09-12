@@ -5,12 +5,12 @@
 namespace DAQuiri
 {
 
-class Sparse2D : public Dataspace
+class SparseMap2D : public Dataspace
 {
   public:
-    Sparse2D();
-    Sparse2D* clone() const override
-    { return new Sparse2D(*this); }
+    SparseMap2D();
+    SparseMap2D* clone() const override
+    { return new SparseMap2D(*this); }
 
     void clear() override;
     void add(const Entry&) override;

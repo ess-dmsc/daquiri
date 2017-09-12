@@ -1,5 +1,5 @@
 #include "coincidence_2d.h"
-#include "sparse2d.h"
+#include "sparse_map2d.h"
 
 #include "custom_logger.h"
 
@@ -8,7 +8,7 @@
 Coincidence2D::Coincidence2D()
   : CoincidenceConsumer()
 {
-  data_ = std::make_shared<Sparse2D>();
+  data_ = std::make_shared<SparseMap2D>();
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event mode 2D spectrum");
