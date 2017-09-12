@@ -68,11 +68,10 @@ int main(int argc, char **argv)
 
 Setting get_profile()
 {
-  auto profile = Engine::singleton().pull_settings();
-  profile.set(Setting::text("Profile description",
-                            "Test profile for Mock Producer"));
+  auto profile = Engine::default_settings();
 
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
+  settings.set_text("producer1");
   settings.set(Setting::integer("MockProducer/SpillInterval", 1));
   settings.set(Setting::integer("MockProducer/Resolution", 16));
   settings.set(Setting::floating("MockProducer/CountRate", 500000));
@@ -102,19 +101,16 @@ Container<ConsumerMetadata> get_prototypes()
   Container<ConsumerMetadata> prototypes;
 
   ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
-  ptype.set_attribute(Setting::text("name", "Spectrum"));
   ptype.set_attribute(Setting::integer("resolution", 7));
   ptype.set_attribute(Setting::text("value_name", "energy"));
-  ptype.set_attribute(Setting("channels", Pattern(1, {true})));
+  ptype.set_attribute(Setting("add_channels", Pattern(1, {true})));
+  prototypes.add(ptype);
 
-  ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Image 2D");
-  itype.set_attribute(Setting::text("name", "Image"));
+  ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
   itype.set_attribute(Setting::integer("downsample", 10));
   itype.set_attribute(Setting::text("x_name", "x"));
   itype.set_attribute(Setting::text("y_name", "y"));
-  itype.set_attribute(Setting("pattern_add", Pattern(1, {true})));
-
-  prototypes.add(ptype);
+  itype.set_attribute(Setting("add_channels", Pattern(1, {true})));
   prototypes.add(itype);
 
   return prototypes;
