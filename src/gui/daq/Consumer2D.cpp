@@ -90,16 +90,24 @@ void Consumer2D::update()
     spectrum_data = data->range({{0, res_x}, {0, res_y}});
   }
 
-  if (!res_x || !res_y)
-  {
-    plot_->clearAll();
-    plot_->replot();
-    return;
-  }
+//  if (!res_x || !res_y)
+//  {
+//    plot_->clearAll();
+//    plot_->replot();
+//    return;
+//  }
 
   double rescale  = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)
     rescale = 1;
+
+  if (!initial_scale_)
+  {
+    auto st = md.get_attribute("preferred_scale");
+    auto scale = st.metadata().enum_name(st.selection());
+    plot_->setScaleType(QString::fromStdString(scale));
+    initial_scale_ = true;
+  }
 
   QPlot::HistList2D hist;
   if (spectrum_data)
@@ -111,6 +119,7 @@ void Consumer2D::update()
   if (!hist.empty())
   {
     plot_->clearExtras();
+    plot_->clearData();
     plot_->setAxes(
           QString::fromStdString(axis_x.label()), 0, res_x+1,
           QString::fromStdString(axis_y.label()), 0, res_y+1,

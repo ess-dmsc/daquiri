@@ -14,7 +14,7 @@ using namespace nlohmann;
 //#define PF_MP128 1
 
 #ifdef PF_DOUBLE
-typedef double PreciseFloat;
+using PreciseFloat = double;
 
 inline double to_double(PreciseFloat pf)
 {
@@ -47,19 +47,19 @@ inline std::string to_string(const PreciseFloat pf)
 #define FLOAT_PRECISION 16
 #define PF_MP 1
 #include <boost/multiprecision/cpp_dec_float.hpp>
-typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<FLOAT_PRECISION> > PreciseFloat;
+using PreciseFloat = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<FLOAT_PRECISION> >;
 #endif
 
 #ifdef PF_MP128
 #define PF_MP 1
 #include <boost/multiprecision/float128.hpp>
-typedef boost::multiprecision::float128 PreciseFloat;
+using PreciseFloat = boost::multiprecision::float128;
 #endif
 
 //#include <boost/multiprecision/mpfr.hpp>
-//typedef boost::multiprecision::mpfr_float_50 PreciseFloat;
+//using PreciseFloat = boost::multiprecision::mpfr_float_50;
 //#include <quadmath.h>
-//typedef __float128 PreciseFloat;
+//using PreciseFloat = __float128;
 
 #ifdef PF_MP
 
@@ -93,7 +93,7 @@ inline std::string to_string(const PreciseFloat pf)
 
 #ifdef PF_LONG_DOUBLE
 
-typedef double PreciseFloat;
+using PreciseFloat = long double;
 
 inline double to_double(PreciseFloat pf)
 {

@@ -6,12 +6,14 @@
 
 #include <atomic>
 #include <thread>
+#include "fb_parser.h"
 
-#include "custom_timer.h"
 
 using namespace DAQuiri;
 
 class EventMessage;
+class GEMHist;
+class GEMTrack;
 
 class ESSStream : public Producer
 {
@@ -19,8 +21,7 @@ public:
   ESSStream();
   ~ESSStream();
 
-  static std::string plugin_name() {return "ESSStream";}
-  std::string device_name() const override {return plugin_name();}
+  std::string plugin_name() const override {return "ESSStream";}
 
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;
@@ -49,26 +50,16 @@ private:
   // cached params
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
-  int kafka_timeout_ {1};
-  bool spoof_clock_ {false};
+  int kafka_timeout_ {1000};
+  int spoof_clock_ {0};
 
-  std::string detector_type_;
-  size_t dim_count_ {1};
-  GeometryInterpreter geometry_;
-  EventModel model_hit_;
+  TimeBase time_base_;
+  std::shared_ptr<fb_parser> parser_;
 
   uint64_t clock_ {0};
-  uint64_t buf_id_ {0};
-
   double time_spent_ {0};
 
-  Status get_status(int16_t chan, StatusType t);
-  static void make_trace(Event& h, uint16_t baseline);
-
-  Spill* get_message();
+  SpillPtr get_message();
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
-
-  Spill* process_message(std::shared_ptr<RdKafka::Message> msg);
-  Spill* create_spill(StatusType t);
-  std::string debug(const EventMessage&);
+  void select_parser(std::string);
 };

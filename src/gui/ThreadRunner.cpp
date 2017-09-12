@@ -4,8 +4,7 @@
 #include "ThreadRunner.h"
 #include "custom_logger.h"
 
-#include "json_file.h"
-#include <boost/filesystem.hpp>
+#include "Profiles.h"
 
 ThreadRunner::ThreadRunner(QObject *parent) :
   QThread(parent),
@@ -50,7 +49,8 @@ void ThreadRunner::set_idle_refresh_frequency(int secs)
 
 void ThreadRunner::do_list(DAQuiri::Interruptor& interruptor, uint64_t timeout)
 {
-  if (running_.load()) {
+  if (running_.load())
+  {
     WARN << "Runner busy";
     return;
   }
@@ -81,7 +81,38 @@ void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor,
     start(HighPriority);
 }
 
-void ThreadRunner::do_initialize(const json& profile,
+
+void ThreadRunner::remove_producer(const Setting& node)
+{
+  if (running_.load())
+  {
+    WARN << "Runner busy";
+    return;
+  }
+  QMutexLocker locker(&mutex_);
+  terminating_.store(false);
+  one_setting_ = node;
+  action_ = kRemoveProducer;
+  if (!isRunning())
+    start(HighPriority);
+}
+
+void ThreadRunner::add_producer(const Setting& node)
+{
+  if (running_.load())
+  {
+    WARN << "Runner busy";
+    return;
+  }
+  QMutexLocker locker(&mutex_);
+  terminating_.store(false);
+  one_setting_ = node;
+  action_ = kAddProducer;
+  if (!isRunning())
+    start(HighPriority);
+}
+
+void ThreadRunner::do_initialize(QString profile_name,
                                  bool and_boot)
 {
   if (running_.load())
@@ -91,8 +122,8 @@ void ThreadRunner::do_initialize(const json& profile,
   }
   QMutexLocker locker(&mutex_);
   terminating_.store(false);
-  profile_ = profile;
-  action_ = kInitialize;
+  profile_name_ = profile_name;
+  action_ = kChooseProfile;
   and_boot_ = and_boot;
   if (!isRunning())
     start(HighPriority);
@@ -236,15 +267,17 @@ void ThreadRunner::run()
 {
   while (!terminating_.load())
   {
-
     if (action_ != kNone)
       running_.store(true);
 
     if (action_ == kAcquire)
     {
       engine_.get_all_settings();
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(),
-                           engine_.status() ^ DAQuiri::ProducerStatus::can_run); //turn off can_run
+      emit settingsUpdated(engine_.pull_settings(),
+                           engine_.get_detectors(),
+                           engine_.status()
+                           ^ DAQuiri::ProducerStatus::can_run
+                           | DAQuiri::ProducerStatus::running);
       interruptor_->store(false);
       engine_.acquire(project_, *interruptor_, timeout_);
       action_ = kSettingsRefresh;
@@ -253,38 +286,52 @@ void ThreadRunner::run()
     else if (action_ == kList)
     {
       interruptor_->store(false);
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(),
-                           engine_.status() ^ DAQuiri::ProducerStatus::can_run); //turn off can_run
-      ListData newListRun = engine_.acquire_list(*interruptor_, timeout_);
+      emit settingsUpdated(engine_.pull_settings(),
+                           engine_.get_detectors(),
+                           engine_.status()
+                           ^ DAQuiri::ProducerStatus::can_run
+                           | DAQuiri::ProducerStatus::running);
+      ListData newListRun
+          = engine_.acquire_list(*interruptor_, timeout_);
       action_ = kSettingsRefresh;
       emit listComplete(newListRun);
     }
-    else if (action_ == kInitialize)
+    else if (action_ == kChooseProfile)
     {
-      engine_.initialize(profile_);
+      save_profile();
+      Profiles::select_profile(profile_name_, and_boot_);
+      engine_.initialize(Profiles::get_profile(profile_name_));
       if (and_boot_)
         action_ = kBoot;
       else
-      {
         action_ = kSettingsRefresh;
-//        action_ = kNone;
-//        emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
-      }
+    }
+    else if (action_ == kAddProducer)
+    {
+      engine_.get_all_settings();
+      auto tree = engine_.pull_settings();
+      tree.branches.add_a(one_setting_);
+      engine_.initialize(tree);
+      action_ = kSettingsRefresh;
+    }
+    else if (action_ == kRemoveProducer)
+    {
+      engine_.get_all_settings();
+      auto tree = engine_.pull_settings();
+      tree.erase(one_setting_, Match::id);
+      engine_.initialize(tree);
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kBoot)
     {
       engine_.boot();
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
       emit bootComplete();
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kShutdown)
     {
       engine_.die();
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kOptimize)
     {
@@ -295,29 +342,25 @@ void ThreadRunner::run()
     {
       engine_.get_all_settings();
       action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      emit settingsUpdated(engine_.pull_settings(),
+                           engine_.get_detectors(),
+                           engine_.status());
     }
     else if (action_ == kPushSettings)
     {
       engine_.push_settings(tree_);
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kSetSetting)
     {
       engine_.set_setting(tree_, match_conditions_);
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kSetDetector)
     {
       engine_.set_detector(chan_, det_);
       engine_.write_settings_bulk();
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      action_ = kSettingsRefresh;
     }
     else if (action_ == kSetDetectors)
     {
@@ -330,15 +373,14 @@ void ThreadRunner::run()
     else if (action_ == kOscil)
     {
       auto traces = engine_.oscilloscope();
-      engine_.get_all_settings();
-      action_ = kNone;
       if (!traces.empty())
         emit oscilReadOut(traces);
-      emit settingsUpdated(engine_.pull_settings(), engine_.get_detectors(), engine_.status());
+      action_ = kSettingsRefresh;
     }
     else
     {
-      bool booted = ((engine_.status() & DAQuiri::ProducerStatus::booted) != 0);
+      bool booted = ((engine_.status()
+                      & DAQuiri::ProducerStatus::booted) != 0);
       if (booted && idle_refresh_.load())
       {
         action_ = kSettingsRefresh;
@@ -354,19 +396,11 @@ void ThreadRunner::run()
 
 void ThreadRunner::save_profile()
 {
-  QSettings settings;
-  settings.beginGroup("Program");
-  QString profile_directory = settings.value("profile_directory","").toString();
-
-  if (!profile_directory.isEmpty())
-  {
-    auto path = profile_directory.toStdString() + "/profile.set";
-    DBG << "Will save to " << path;
-    engine_.die();
-    engine_.get_all_settings();
-    auto dev_settings = engine_.pull_settings();
-    dev_settings.condense();
-    dev_settings.strip_metadata();
-    to_json_file(dev_settings, path);
-  }
+  engine_.die();
+  engine_.get_all_settings();
+  auto dev_settings = engine_.pull_settings();
+  dev_settings.condense();
+  dev_settings.strip_metadata();
+  if (dev_settings)
+    Profiles::save_profile(dev_settings);
 }

@@ -5,6 +5,9 @@
 
 namespace DAQuiri {
 
+class Project;
+using ProjectPtr = std::shared_ptr<Project>;
+
 class Project {
 protected:
   //control
@@ -45,7 +48,7 @@ public:
   void delete_sink(int64_t idx);
 
   //acquisition feeds events to all sinks
-  void add_spill(Spill* one_spill);
+  void add_spill(SpillPtr one_spill);
   void flush();
 
   //status inquiry
@@ -75,7 +78,5 @@ private:
   void write_h5(std::string file_name);
   void read_h5(std::string file_name, bool with_sinks = true, bool with_full_sinks = true);
 };
-
-typedef std::shared_ptr<Project> ProjectPtr;
 
 }

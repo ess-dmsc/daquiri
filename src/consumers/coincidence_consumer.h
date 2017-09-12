@@ -26,7 +26,7 @@ protected:
 protected:
   //cached parameters
   std::string val_name_;
-  Pattern pattern_coinc_, pattern_anti_, pattern_add_;
+  Pattern pattern_coinc_, pattern_anti_, add_channels_;
   std::vector<int32_t> cutoff_logic_;
   std::vector<double>  delay_ns_;
   double max_delay_ {0};

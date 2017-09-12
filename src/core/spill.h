@@ -7,7 +7,12 @@
 
 namespace DAQuiri {
 
-struct Spill
+class Spill;
+
+using SpillPtr = std::shared_ptr<Spill>;
+using ListData = std::vector<SpillPtr>;
+
+class Spill
 {
   public:
     boost::posix_time::ptime   time
@@ -21,10 +26,10 @@ struct Spill
   public:
     bool empty();
     std::string to_string() const;
+    static SpillPtr make_new(StatusType t,
+                             std::initializer_list<int16_t> channels);
 };
 
-typedef std::shared_ptr<Spill> SpillPtr;
-typedef std::vector<SpillPtr> ListData;
 
 void to_json(json& j, const Spill &s);
 void from_json(const json& j, Spill &s);

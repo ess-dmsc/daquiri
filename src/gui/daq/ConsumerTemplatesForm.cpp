@@ -20,7 +20,7 @@ int ConsumerTemplatesTableModel::rowCount(const QModelIndex & /*parent*/) const
 
 int ConsumerTemplatesTableModel::columnCount(const QModelIndex & /*parent*/) const
 {
-  return 6;
+  return 4;
 }
 
 QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) const
@@ -57,11 +57,7 @@ QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) c
     case 2:
       return QVariant::fromValue(templates_.get(row).get_attribute("resolution"));
     case 3:
-      return QVariant::fromValue(templates_.get(row).get_attribute("pattern_coinc"));
-    case 4:
-      return QVariant::fromValue(templates_.get(row).get_attribute("pattern_anti"));
-    case 5:
-      return QVariant::fromValue(templates_.get(row).get_attribute("pattern_add"));
+      return QVariant::fromValue(templates_.get(row).get_attribute("add_channels"));
     }
   }
   return QVariant();
@@ -81,11 +77,7 @@ QVariant ConsumerTemplatesTableModel::headerData(int section, Qt::Orientation or
       case 2:
         return QString("resolution");
       case 3:
-        return QString("coinc");
-      case 4:
-        return QString("anti");
-      case 5:
-        return QString("add");
+        return QString("add channels");
       }
     } else if (orientation == Qt::Vertical) {
       return QString::number(section);
@@ -196,7 +188,7 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   if (validateFile(this, fileName, false))
   {
     INFO << "Reading templates from file " << fileName.toStdString();
-    templates_ = from_json_file(fileName.toStdString());
+    templates_.join(from_json_file(fileName.toStdString()));
 
     selection_model_.reset();
     table_model_.update();

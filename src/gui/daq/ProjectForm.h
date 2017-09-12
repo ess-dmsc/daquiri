@@ -27,7 +27,6 @@ public:
 
 signals:
   void toggleIO(bool);
-  void statusText(QString);
   void requestClose(QWidget*);
 
 protected:
@@ -64,7 +63,6 @@ private:
   std::vector<DAQuiri::Detector> &current_dets_;
 
   QString data_directory_;    //data directory
-  QString profile_directory_;
 
   Container<DAQuiri::ConsumerMetadata>  spectra_templates_;
   DAQuiri::ProjectPtr                   project_;

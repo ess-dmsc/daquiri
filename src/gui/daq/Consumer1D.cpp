@@ -35,6 +35,14 @@ void Consumer1D::update()
   if (!std::isfinite(rescale) || !rescale)
     rescale = 1;
 
+  if (!initial_scale_)
+  {
+    auto st = md.get_attribute("preferred_scale");
+    auto scale = st.metadata().enum_name(st.selection());
+    plot_->setScaleType(QString::fromStdString(scale));
+    initial_scale_ = true;
+  }
+
   auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
 
   DataAxis axis;

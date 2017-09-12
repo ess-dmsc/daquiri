@@ -25,7 +25,6 @@ public:
 
 signals:
   void toggleIO(bool);
-  void statusText(QString);
 
 private slots:
   void spillSelectionChanged(int);

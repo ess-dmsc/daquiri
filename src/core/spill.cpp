@@ -4,6 +4,18 @@
 
 namespace DAQuiri {
 
+SpillPtr Spill::make_new(StatusType t,
+                         std::initializer_list<int16_t> channels)
+{
+  SpillPtr ret = std::make_shared<Spill>();
+  for (auto c :channels)
+  {
+    ret->stats[c] = Status(c, t);
+    ret->stats[c].set_time(ret->time);
+  }
+  return ret;
+}
+
 bool Spill::empty()
 {
   if (!stats.empty())

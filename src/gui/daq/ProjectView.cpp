@@ -246,6 +246,9 @@ void ProjectView::on_pushFullInfo_clicked()
   ConsumerDialog* newSpecDia =
       new ConsumerDialog(consumer->metadata(), std::vector<Detector>(),
                          detectors_, true, false, this);
+
+  DBG << "Consumer:\n" << consumer->debug() << "\n";
+
   if (newSpecDia->exec() == QDialog::Accepted)
   {
     ConsumerMetadata md = newSpecDia->product();

@@ -20,14 +20,22 @@ TOF1D::TOF1D()
   SettingMeta res("resolution", SettingType::floating);
   res.set_flag("preset");
   res.set_val("min", 1);
-  res.set_val("units", "1/ns");
+  res.set_val("units", "units (see below)");
   base_options.branches.add(res);
 
-  SettingMeta pattern_add("channels", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Channels to bin");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta units("units", SettingType::menu);
+  units.set_flag("preset");
+  units.set_enum(0, "ns");
+  units.set_enum(3, "\u03BCs");
+  units.set_enum(6, "ms");
+  units.set_enum(9, "s");
+  units.set_val("description", "Domain scale");
+  base_options.branches.add(units);
+
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -35,8 +43,14 @@ TOF1D::TOF1D()
 bool TOF1D::_initialize()
 {
   Spectrum::_initialize();
-  resolution_ = metadata_.get_attribute("resolution").get_number();
-  channels_ = metadata_.get_attribute("channels").pattern();
+  resolution_ = 1.0 / metadata_.get_attribute("resolution").get_number();
+  channels_ = metadata_.get_attribute("add_channels").pattern();
+
+  auto unit = metadata_.get_attribute("units").selection();
+  units_name_ = metadata_.get_attribute("units").metadata().enum_name(unit);
+  units_multiplier_ = std::pow(10, unit);
+
+  resolution_ /= units_multiplier_;
 
   this->_recalc_axes();
   return true;
@@ -48,7 +62,7 @@ void TOF1D::_init_from_file()
 
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("channels", channels_));
+  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }
@@ -77,7 +91,7 @@ void TOF1D::_set_detectors(const std::vector<Detector>& dets)
 
 void TOF1D::_recalc_axes()
 {
-  CalibID id("", "time", "ns", 0);
+  CalibID id("", "time", units_name_, 0);
   DataAxis ax;
   ax.calibration = Calibration(id, id);
   ax.domain = domain_;
@@ -114,12 +128,10 @@ void TOF1D::_push_event(const Event& e)
   double nsecs =
       TimeStamp(e.timestamp().native() - pulse_times_[c], e.timestamp().base()).nanosecs();
 
-  DBG << "nsex " << nsecs;
-
   if (nsecs < 0)
     return;
 
-  size_t val = static_cast<size_t>(nsecs / resolution_);
+  size_t val = static_cast<size_t>(nsecs * resolution_);
 
   if (val >= domain_.size())
   {
@@ -127,7 +139,7 @@ void TOF1D::_push_event(const Event& e)
     domain_.resize(val+1);
 
     for (size_t i=oldbound; i <= val; ++i)
-      domain_[i] = i * resolution_;
+      domain_[i] = i / resolution_ / units_multiplier_;
   }
 
   data_->add({{val}, 1});

@@ -37,7 +37,6 @@ class SettingsForm : public QWidget
 
   signals:
     void toggleIO(bool);
-    void statusText(QString);
 
   protected:
     void closeEvent(QCloseEvent*);
@@ -72,8 +71,8 @@ class SettingsForm : public QWidget
 
     void on_pushChangeProfile_clicked();
 
-    void choose_profiles();
-    void profile_chosen();
+    void profile_chosen(QString name, bool boot);
+    void init_profile();
 
 
     void refresh_oscil();
@@ -81,7 +80,6 @@ class SettingsForm : public QWidget
     void on_pushExpandAll_clicked();
 
     void on_pushAddProducer_clicked();
-
     void on_pushRemoveProducer_clicked();
 
   private:

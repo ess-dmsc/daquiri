@@ -14,9 +14,12 @@
 using namespace DAQuiri;
 
 enum RunnerAction {
-  kBoot, kShutdown, kPushSettings, kSetSetting,
-  kSetDetector, kSetDetectors, kList, kAcquire, kOscil,
-  kInitialize, kSettingsRefresh, kOptimize, kTerminate, kNone
+  kNone, kTerminate,
+  kChooseProfile, kAddProducer, kRemoveProducer,
+  kBoot, kShutdown,
+  kPushSettings, kSetSetting, kSetDetector, kSetDetectors,
+  kList, kAcquire, kOscil,
+  kSettingsRefresh, kOptimize
 };
 
 class ThreadRunner : public QThread
@@ -29,8 +32,10 @@ class ThreadRunner : public QThread
     void set_idle_refresh(bool);
     void set_idle_refresh_frequency(int);
 
+    void remove_producer(const Setting& node);
+    void add_producer(const Setting& node);
 
-    void do_initialize(const json &profile, bool and_boot);
+    void do_initialize(QString profile_name, bool and_boot);
     void do_boot();
     void do_shutdown();
     void do_push_settings(const Setting &tree);
@@ -44,6 +49,7 @@ class ThreadRunner : public QThread
     void do_optimize();
     void do_oscil();
     void do_refresh_settings();
+
     void terminate();
     bool terminating();
     bool running() {return running_.load();}
@@ -81,7 +87,7 @@ class ThreadRunner : public QThread
     Setting tree_, one_setting_;
     Match match_conditions_ {Match::id};
 
-    json profile_;
+    QString profile_name_;
     bool and_boot_ {false};
 
     DAQuiri::ProducerStatus recent_status_;

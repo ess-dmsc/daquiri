@@ -2,13 +2,12 @@
 
 #include "custom_logger.h"
 
-#include "ev42_events_generated.h"
-//#include "mon_efu_generated.h"
+#include "ev42_parser.h"
+#include "mo01_parser.h"
 
 ESSStream::ESSStream()
 {
   std::string mp {"ESSStream/"};
-
 
   SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka broker URL");
   broker.set_flag("preset");
@@ -23,9 +22,6 @@ ESSStream::ESSStream()
   pi.set_val("units", "ms");
   add_definition(pi);
 
-  SettingMeta det_type(mp + "DetectorType", SettingType::text, "Detector type");
-  add_definition(det_type);
-
 
   SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
   tm.set_val("min", 1);
@@ -37,26 +33,17 @@ ESSStream::ESSStream()
   td.set_val("units", "1/ns");
   add_definition(td);
 
-  SettingMeta sc(mp + "SpoofClock", SettingType::boolean, "Spoof clock");
-  add_definition(sc);
+  SettingMeta spoof(mp + "SpoofClock", SettingType::menu, "Spoof pulse time");
+  spoof.set_enum(0, "no");
+  spoof.set_enum(1, "monotonous counter");
+  spoof.set_enum(2, "use earliest event");
+  add_definition(spoof);
 
-
-  SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
-  vc.set_val("min", 1);
-  vc.set_val("max", 16);
-  add_definition(vc);
-
-  SettingMeta valname(mp + "Dimension/Name", SettingType::text, "Dimension name");
-  add_definition(valname);
-
-  SettingMeta pc(mp + "Dimension/Extent", SettingType::integer, "Dimension extent");
-  pc.set_val("min", 1);
-  add_definition(pc);
-
-  SettingMeta val(mp + "Dimension", SettingType::stem);
-  val.set_enum(0, mp + "Dimension/Name");
-  val.set_enum(1, mp + "Dimension/Extent");
-  add_definition(val);
+  SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
+  pars.set_enum(0, "none");
+  pars.set_enum(1, "ev42_events");
+  pars.set_enum(2, "mo01_nmx");
+  add_definition(pars);
 
 
   SettingMeta root("ESSStream", SettingType::stem);
@@ -64,11 +51,10 @@ ESSStream::ESSStream()
   root.set_enum(0, mp + "KafkaBroker");
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
-  root.set_enum(3, mp + "DetectorType");
-  root.set_enum(4, mp + "TimebaseMult");
-  root.set_enum(5, mp + "TimebaseDiv");
-  root.set_enum(6, mp + "SpoofClock");
-  root.set_enum(7, mp + "DimensionCount");
+  root.set_enum(3, mp + "TimebaseMult");
+  root.set_enum(4, mp + "TimebaseDiv");
+  root.set_enum(5, mp + "SpoofClock");
+  root.set_enum(7, mp + "Parser");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -129,86 +115,66 @@ bool ESSStream::daq_running()
 
 void ESSStream::read_settings_bulk(Setting &set) const
 {
-  if (set.id() != device_name())
-    return;
-  set.enrich(setting_definitions_, true);
-  set.enable_if_flag(!(status_ & booted), "preset");
+  set = enrich_and_toggle_presets(set);
 
   set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
 
-  set.set(Setting::integer("ESSStream/TimebaseMult", model_hit_.timebase.multiplier()));
-  set.set(Setting::integer("ESSStream/TimebaseDiv", model_hit_.timebase.divider()));
+  set.set(Setting::integer("ESSStream/TimebaseMult", time_base_.multiplier()));
+  set.set(Setting::integer("ESSStream/TimebaseDiv", time_base_.divider()));
 
-  set.set(Setting::boolean("ESSStream/SpoofClock", spoof_clock_));
+  set.set(Setting::integer("ESSStream/SpoofClock", spoof_clock_));
 
-  set.set(Setting::text("ESSStream/DetectorType", detector_type_));
-  set.set(Setting::integer("ESSStream/DimensionCount", integer_t(dim_count_)));
+  while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
+    set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
 
-  while (set.branches.has_a(Setting({"ESSStream/Dimension", SettingType::stem})))
-    set.branches.remove_a(Setting({"ESSStream/Dimension", SettingType::stem}));
+  while (set.branches.has_a(Setting({"mo01_nmx", SettingType::stem})))
+    set.branches.remove_a(Setting({"mo01_nmx", SettingType::stem}));
 
-  for (int i=0; i < int(dim_count_); ++i)
+  if (parser_)
   {
-    Setting v = get_rich_setting("ESSStream/Dimension");
-    v.set_indices({i});
-    v.branches = get_rich_setting("ESSStream/Dimension").branches;
-    std::string name;
-    if (i < geometry_.names_.size())
-    {
-      name = geometry_.names_.at(i);
-      v.set(Setting::text("ESSStream/Dimension/Name", name));
-      v.set(Setting::integer("ESSStream/Dimension/Extent",
-                             geometry_.dimensions_.at(name)));
-    }
-    for (auto& vv : v.branches)
-      vv.set_indices({i});
-    set.branches.add_a(v);
+    auto s = Setting({parser_->plugin_name(), SettingType::stem});
+    parser_->read_settings_bulk(s);
+    set.branches.add_a(s);
   }
 }
 
 
 void ESSStream::write_settings_bulk(const Setting& settings)
 {
-  if (settings.id() != device_name())
-    return;
-  auto set = settings;
-  set.enrich(setting_definitions_, true);
-  set.enable_if_flag(!(status_ & booted), "preset");
+  auto set = enrich_and_toggle_presets(settings);
 
   kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
 
-  detector_type_ = set.find({"ESSStream/DetectorType"}).get_text();
+  time_base_ = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
+                        set.find({"ESSStream/TimebaseDiv"}).get_number());
 
-  dim_count_ = set.find({"ESSStream/DimensionCount"}).get_number();
-  if ((dim_count_ < 1) || (dim_count_ > 16))
-    dim_count_ = 1;
+  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).get_number();
 
-  geometry_ = GeometryInterpreter();
-  for (Setting v : set.branches)
-  {
-    if (v.id() != "ESSStream/Dimension")
-      continue;
-    auto indices = v.indices();
-    if (!indices.size())
-      continue;
-    size_t idx = *indices.begin();
-    //    DBG << "Write idx " << idx;
-    if (idx >= dim_count_)
-      continue;
-    auto name = v.find({"ESSStream/Dimension/Name"}).get_text();
-    size_t ext = v.find({"ESSStream/Dimension/Extent"}).get_number();
-    geometry_.add_dimension(name, ext);
-  }
+  auto parser_set = set.find({"ESSStream/Parser"});
+  auto parser = parser_set.metadata().enum_name(parser_set.selection());
 
-  auto timebase = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
-                           set.find({"ESSStream/TimebaseDiv"}).get_number());
-  model_hit_ = geometry_.model(timebase);
+  select_parser(parser);
+  if (parser_ && (parser_->plugin_name() == parser))
+    parser_->write_settings_bulk(set.find({parser}));
+}
 
-  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).triggered();
+void ESSStream::select_parser(std::string t)
+{
+  if (
+      (t.empty() && !parser_) ||
+      (parser_ && (t == parser_->plugin_name()))
+      )
+    return;
+  if (t.empty())
+    parser_.reset();
+  else if (t == "ev42_events")
+    parser_ = std::make_shared<ev42_events>();
+  else if (t == "mo01_nmx")
+    parser_ = std::make_shared<mo01_nmx>();
 }
 
 void ESSStream::boot()
@@ -265,14 +231,13 @@ void ESSStream::boot()
     return;
   }
 
-  clock_ = 0;
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
 }
 
 void ESSStream::die()
 {
-  INFO << "<ESSStream> Shutting down";
+//  INFO << "<ESSStream> Shutting down";
   if (stream_)
   {
     stream_->close();
@@ -287,9 +252,10 @@ void ESSStream::die()
 void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
 {
   DBG << "<ESSStream> Starting run   "
-      << "  timebase " << callback->model_hit_.timebase.debug() << "ns";
+      << "  timebase " << callback->time_base_.debug() << "ns";
 
-  spill_queue->enqueue(callback->create_spill(StatusType::start));
+  if (callback->parser_)
+    spill_queue->enqueue(callback->parser_->start_spill());
 
   uint64_t spills{2};
   callback->time_spent_ = 0;
@@ -304,7 +270,8 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
     }
   }
 
-  spill_queue->enqueue(callback->create_spill(StatusType::stop));
+  if (callback->parser_)
+    spill_queue->enqueue(callback->parser_->stop_spill());
 
   callback->run_status_.store(3);
   DBG << "<ESSStream> Finished run"
@@ -313,31 +280,8 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
       << " secs/spill=" << callback->time_spent_ / double(spills);
 }
 
-Spill* ESSStream::create_spill(StatusType t)
-{
-  int16_t chan0 {0};
-  Spill* spill = new Spill();
-  spill->stats[chan0] = get_status(chan0, t);
-  return spill;
-}
 
-Status ESSStream::get_status(int16_t chan, StatusType t)
-{
-  Status status;
-  status.set_type(t);
-  status.set_channel(chan);
-  status.set_model(model_hit_);
-  status.set_time(boost::posix_time::microsec_clock::universal_time());
-
-  double duration = clock_;
-
-  status.set_value("native_time", duration);
-  status.set_value("buf_id", buf_id_);
-
-  return status;
-}
-
-Spill* ESSStream::get_message()
+SpillPtr ESSStream::get_message()
 {
   std::shared_ptr<RdKafka::Message> message
   {stream_->consume(kafka_timeout_)};
@@ -345,6 +289,22 @@ Spill* ESSStream::get_message()
   switch (message->err())
   {
   case RdKafka::ERR__TIMED_OUT:
+    return nullptr;
+
+  case RdKafka::ERR__PARTITION_EOF:
+    /* Last message */
+    //    if (exit_eof && ++eof_cnt == partition_cnt)
+    //      WARN << "%% EOF reached for all " << partition_cnt <<
+    //                   " partition(s)";
+    //    WARN << "Partition EOF error: " << message->errstr();
+    return nullptr;
+
+  case RdKafka::ERR__UNKNOWN_TOPIC:
+    WARN << "Unknown topic: " << message->errstr();
+    return nullptr;
+
+  case RdKafka::ERR__UNKNOWN_PARTITION:
+    WARN << "Unknown partition: " << message->errstr();
     return nullptr;
 
   case RdKafka::ERR_NO_ERROR:
@@ -368,29 +328,33 @@ Spill* ESSStream::get_message()
 
     //    DBG << "Received Kafka message " << debug(message);
 
-    //    return nullptr;
-    return process_message(message);
+    if (parser_ && message->len())
+    {
+      fb_parser::PayloadStats stats;
 
-  case RdKafka::ERR__PARTITION_EOF:
-    /* Last message */
-    //    if (exit_eof && ++eof_cnt == partition_cnt)
-    //      WARN << "%% EOF reached for all " << partition_cnt <<
-    //                   " partition(s)";
-    //    WARN << "Partition EOF error: " << message->errstr();
-    return nullptr;
+      auto spill = parser_->process_payload(message->payload(),
+                                            time_base_,
+                                            (spoof_clock_ == 1) ? (++clock_) : 0,
+                                            stats);
+      if (spill)
+      {
+        for (auto s : spill->stats)
+        {
+          s.second.set_value("native_time", stats.time_end);
+          if (spoof_clock_ != 0)
+            s.second.set_value("pulse_time", stats.time_start);
+          DBG << "pulse time (" << s.first << ")"
+                 " = " << s.second.stats()["pulse_time"];
+        }
+      }
 
-  case RdKafka::ERR__UNKNOWN_TOPIC:
-    WARN << "Unknown topic: " << message->errstr();
-    return nullptr;
+      time_spent_ += stats.time_spent;
+      return spill;
+    }
 
-  case RdKafka::ERR__UNKNOWN_PARTITION:
-    WARN << "Unknown partition: " << message->errstr();
-    return nullptr;
 
   default:
-    /* Errors */
     WARN << "Consume failed: " << message->errstr();
-    //    WARN << "Failed to consume:" << RdKafka::err2str(msg->err());
     return nullptr;
   }
 
@@ -401,77 +365,4 @@ std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)
 {
   return std::string(static_cast<const char*>(kmessage->payload()),
                      kmessage->len());
-}
-
-Spill* ESSStream::process_message(std::shared_ptr<RdKafka::Message> msg)
-{
-  Spill* ret {nullptr};
-  if (!msg->len())
-    return ret;
-  auto em = GetEventMessage(msg->payload());
-
-  auto id = em->message_id();
-  if (id < buf_id_)
-    WARN << "Buffer out of order (" << id << "<" << buf_id_ << ") "
-         << debug(*em);
-  buf_id_ = std::max(buf_id_, id);
-
-  //    if (detector_type_ != em->source_name()->str())
-  //    {
-  //      DBG << "Bad detector type " << debug(*em);
-  //      return ret;
-  //    }
-
-  auto t_len = em->time_of_flight()->Length();
-  auto p_len = em->detector_id()->Length();
-  if ((t_len != p_len) || !t_len)
-  {
-    DBG << "Empty buffer " << debug(*em);
-    return ret;
-  }
-
-  //    DBG << "Good buffer " << debug(*em);
-
-  CustomTimer timer(true);
-
-  ret = create_spill(StatusType::running);
-  int16_t chan0 {0};
-
-  uint64_t time_high = em->pulse_time();
-//  time_high = time_high << 32;
-  for (auto i=0; i < t_len; ++i)
-  {
-    uint64_t time = em->time_of_flight()->Get(i);
-    time |= time_high;
-
-    if (spoof_clock_)
-      time = clock_ + 1;
-
-    const auto& id = em->detector_id()->Get(i);
-    if (id) //must be non0?
-    {
-      Event e(chan0, model_hit_);
-      e.set_native_time(time);
-      geometry_.interpret_id(e, id);
-      ret->events.push_back(e);
-    }
-
-    clock_ = std::max(clock_, time);
-  }
-
-  time_spent_ += timer.s();
-
-  return ret;
-}
-
-std::string ESSStream::debug(const EventMessage& em)
-{
-  std::stringstream ss;
-
-  ss << em.source_name()->str() << " #" << em.message_id()
-     << " time=" << em.pulse_time()
-     << " tof_size=" << em.time_of_flight()->Length()
-     << " det_size=" << em.detector_id()->Length();
-
-  return ss.str();
 }

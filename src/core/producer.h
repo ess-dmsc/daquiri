@@ -7,26 +7,25 @@
 
 namespace DAQuiri {
 
+class Producer;
+using ProducerPtr = std::shared_ptr<Producer>;
+using SpillQueue = SynchronizedQueue<SpillPtr>*;
+using OscilData = std::vector<Event>;
+
 enum ProducerStatus
 {
   dead      = 0,
   loaded    = 1 << 0,
   booted    = 1 << 1,
-  can_boot  = 1 << 2,
-  can_run   = 1 << 3,
-  can_oscil = 1 << 4
+  running   = 1 << 2,
+  can_boot  = 1 << 3,
+  can_run   = 1 << 4,
+  can_oscil = 1 << 5
 };
 
-inline ProducerStatus operator|(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) | static_cast<int>(b));}
-inline ProducerStatus operator&(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) & static_cast<int>(b));}
-inline ProducerStatus operator^(ProducerStatus a, ProducerStatus b)
-  {return static_cast<ProducerStatus>(static_cast<int>(a) ^ static_cast<int>(b));}
-
-
-using SpillQueue = SynchronizedQueue<Spill*>*;
-using OscilData = std::vector<Event>;
+ProducerStatus operator|(ProducerStatus a, ProducerStatus b);
+ProducerStatus operator&(ProducerStatus a, ProducerStatus b);
+ProducerStatus operator^(ProducerStatus a, ProducerStatus b);
 
 class Producer
 {
@@ -34,11 +33,10 @@ public:
   Producer() {}
   virtual ~Producer() {}
 
-  static std::string plugin_name() {return std::string();}
+  virtual std::string plugin_name() const = 0;
+
   ProducerStatus status() const {return status_;}
   json setting_definitions() const;
-
-  virtual std::string device_name() const {return std::string();}
 
   virtual void initialize(const json& definitions);
   virtual void boot() = 0;
@@ -59,6 +57,7 @@ protected:
   ProducerStatus                     status_ {ProducerStatus::dead};
   std::map<std::string, SettingMeta> setting_definitions_;
 
+  Setting enrich_and_toggle_presets(Setting) const;
   Setting get_rich_setting(const std::string& id) const;
   void add_definition(const SettingMeta& sm);
 
@@ -66,9 +65,6 @@ private:
   //no copying
   void operator=(Producer const&);
   Producer(const Producer&);
-
 };
-
-typedef std::shared_ptr<Producer> ProducerPtr;
 
 }

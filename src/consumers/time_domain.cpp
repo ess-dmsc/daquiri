@@ -23,11 +23,10 @@ TimeDomain::TimeDomain()
   res.set_val("description", "Choice of dependent variable");
   base_options.branches.add(res);
 
-  SettingMeta pattern_add("channels", SettingType::pattern);
-  pattern_add.set_flag("preset");
-  pattern_add.set_val("description", "Channels to bin");
-  pattern_add.set_val("chans", 1);
-  base_options.branches.add(pattern_add);
+  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
+  add_channels.set_flag("preset");
+  add_channels.set_val("chans", 1);
+  base_options.branches.add(add_channels);
 
   metadata_.overwrite_all_attributes(base_options);
   //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
@@ -37,11 +36,11 @@ bool TimeDomain::_initialize()
 {
   Spectrum::_initialize();
 
-  channels_ = metadata_.get_attribute("channels").pattern();
-  codomain = metadata_.get_attribute("co-domain").get_number();
+  channels_ = metadata_.get_attribute("add_channels").pattern();
+  codomain = metadata_.get_attribute("co-domain").selection();
 
   int adds = 1; //0;
-  //  std::vector<bool> gts = pattern_add_.gates();
+  //  std::vector<bool> gts = add_channels_.gates();
   //  for (size_t i=0; i < gts.size(); ++i)
   //    if (gts[i])
   //      adds++;
@@ -59,7 +58,7 @@ void TimeDomain::_init_from_file()
 {
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("channels", channels_));
+  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }
@@ -85,30 +84,15 @@ void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
   }
 
   this->_recalc_axes();
-
-  //  axes_.resize(1);
-  //  axes_[0].clear();
-  //  for (auto &q : seconds_)
-  //    axes_[0].push_back(to_double(q));
 }
 
 void TimeDomain::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0, 0));
-
-  if (data_->dimensions() != metadata_.detectors.size())
-    return;
-
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
-  {
-    auto det = metadata_.detectors[i];
-    CalibID from(det.id(), "", "", 0);
-    CalibID to("", "", "", 0);
-    auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0, 0));
-  }
-
-  data_->recalc_axes(0);
+  CalibID id("", "time", "s", 0);
+  DataAxis ax;
+  ax.calibration = Calibration(id, id);
+  ax.domain = seconds_;
+  data_->set_axis(0, ax);
 }
 
 bool TimeDomain::channel_relevant(int16_t channel) const
@@ -127,9 +111,9 @@ void TimeDomain::_push_event(const Event& e)
   recent_count_++;
 }
 
-void TimeDomain::_push_stats(const Status& newBlock)
+void TimeDomain::_push_stats(const Status& status)
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  if (!this->channel_relevant(status.channel()))
     return;
 
   PreciseFloat real = 0;
@@ -139,31 +123,38 @@ void TimeDomain::_push_stats(const Status& newBlock)
 
   if (!updates_.empty())
   {
-    if ((newBlock.type() == StatusType::stop) &&
-        (updates_.back().type() == StatusType::running))
+    Status start = updates_.back();
+    if ((status.type() == StatusType::stop) &&
+        (start.type() == StatusType::running))
     {
       updates_.pop_back();
       seconds_.pop_back();
       spectrum_.pop_back();
       counts_.push_back(recent_count_ + counts_.back());
-    } else
+    }
+    else
       counts_.push_back(recent_count_);
 
+    PreciseFloat diff_native{0}, diff_live{0};
+    if (status.stats().count("native_time") && start.stats().count("native_time"))
+      diff_native = status.stats().at("native_time") - start.stats().at("native_time");
+    if (status.stats().count("live_time") && start.stats().count("live_time"))
+      diff_live = status.stats().at("live_time") - start.stats().at("live_time");
+
     boost::posix_time::time_duration rt ,lt;
-    lt = rt = newBlock.time() - updates_.back().time();
+    lt = rt = status.time() - start.time();
 
-    Status diff;// = newBlock - updates_.back();
     PreciseFloat scale_factor = 1;
-    if (diff.stats().count("native_time") && (diff.stats().at("native_time") > 0))
-      scale_factor = rt.total_microseconds() / diff.stats()["native_time"];
-
-    if (diff.stats().count("live_time")) {
-      PreciseFloat scaled_live = diff.stats().at("live_time") * scale_factor;
-      lt = boost::posix_time::microseconds(static_cast<long>(to_double(scaled_live)));
+    if (diff_native > 0)
+      scale_factor = rt.total_microseconds() / diff_native;
+    if (diff_live)
+    {
+      PreciseFloat scaled_live = diff_live * scale_factor;
+      lt = boost::posix_time::microseconds(static_cast<double>(scaled_live));
     }
 
     real     = rt.total_milliseconds()  * 0.001;
-    tot_time = (newBlock.time() - updates_.front().time()).total_milliseconds() * 0.001;
+    tot_time = (status.time() - updates_.front().time()).total_milliseconds() * 0.001;
 
     live = lt.total_milliseconds() * 0.001;
 
@@ -172,6 +163,10 @@ void TimeDomain::_push_stats(const Status& newBlock)
   } else
     counts_.push_back(recent_count_);
 
+//  DBG << "Live time = " << live
+//      << " Real time = " << live
+//      << " dead% " << percent_dead
+//      << " for " << codomain;
 
   if (seconds_.empty() || (tot_time != 0))
   {
@@ -182,25 +177,27 @@ void TimeDomain::_push_stats(const Status& newBlock)
       count = counts_.back();
       if (live > 0)
         count /= live;
-    } else if (codomain == 1) {
+    }
+    else if (codomain == 1)
+    {
       count = percent_dead;
     }
 
     seconds_.push_back(to_double(tot_time));
-    updates_.push_back(newBlock);
+    updates_.push_back(status);
 
     spectrum_.push_back(count);
 
-//    axes_[0].clear();
-//    for (auto &q : seconds_)
-//      axes_[0].push_back(to_double(q));
-
-    //      DBG << "<TimeDomain> \"" << metadata_.name << "\" chan " << int(newBlock.channel) << " nrgs.size="
+    //      DBG << "<TimeDomain> \"" << metadata_.name << "\" chan " << int(status.channel) << " nrgs.size="
     //             << energies_[0].size() << " nrgs.last=" << energies_[0][energies_[0].size()-1]
     //             << " spectrum.size=" << spectrum_.size() << " spectrum.last=" << spectrum_[spectrum_.size()-1].convert_to<double>();
   }
 
-  Spectrum::_push_stats(newBlock);
+  data_->clear();
+  for (size_t i=0; i < spectrum_.size(); ++i)
+    data_->add({{i}, spectrum_[i]});
+
+  Spectrum::_push_stats(status);
 }
 
 

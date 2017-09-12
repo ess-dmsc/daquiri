@@ -37,7 +37,9 @@ class daquiri : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit daquiri(QWidget *parent = 0, bool open_new_project = false, bool start_daq = false);
+  explicit daquiri(QWidget *parent = 0,
+                   bool open_new_project = false,
+                   bool start_daq = false);
   ~daquiri();
 
 private:
@@ -46,7 +48,8 @@ private:
   Container<DAQuiri::Detector>    detectors_;
   std::vector<DAQuiri::Detector>  current_dets_;
   ThreadRunner                runner_thread_;
-  DAQuiri::ProducerStatus px_status_;
+  DAQuiri::ProducerStatus engine_status_;
+  QString profile_description_;
 
   //connect gui with boost logger framework
   std::stringstream log_stream_;

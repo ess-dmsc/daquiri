@@ -10,8 +10,7 @@ public:
   DummyDevice();
   ~DummyDevice();
 
-  static std::string plugin_name() {return "DummyDevice";}
-  std::string device_name() const override {return plugin_name();}
+  std::string plugin_name() const override {return "DummyDevice";}
 
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;

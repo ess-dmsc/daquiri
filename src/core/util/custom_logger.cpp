@@ -16,8 +16,8 @@ namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 namespace date = boost::date_time;
 
-typedef sinks::asynchronous_sink<sinks::text_ostream_backend, sinks::unbounded_fifo_queue> text_sink;
-typedef sinks::synchronous_sink<sinks::text_file_backend> file_sink;
+using text_sink = sinks::asynchronous_sink<sinks::text_ostream_backend, sinks::unbounded_fifo_queue>;
+using file_sink = sinks::synchronous_sink<sinks::text_file_backend>;
 
 void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N)
 {

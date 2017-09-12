@@ -6,6 +6,10 @@
 
 namespace DAQuiri {
 
+class Consumer;
+
+using ConsumerPtr = std::shared_ptr<Consumer>;
+
 class Consumer
 {
 protected:
@@ -67,7 +71,5 @@ protected:
   virtual void _push_stats(const Status&) = 0;
   virtual void _flush() {}
 };
-
-typedef std::shared_ptr<Consumer> ConsumerPtr;
 
 }

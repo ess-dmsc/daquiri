@@ -1,32 +1,53 @@
 #include "daquiri.h"
-#include <QApplication>
-
-#include <QSettings>
-#include <QDir>
-#include "json_file.h"
-#include "custom_logger.h"
-
 #include "consumers_autoreg.h"
 #include "producers_autoreg.h"
+#include <QApplication>
+#include <QCommandLineParser>
+#include "Profiles.h"
 
 int main(int argc, char *argv[])
 {
-  producers_autoreg();
-  QApplication a(argc, argv);
+  QApplication app(argc, argv);
+  QApplication::setOrganizationName("ESS");
+  QApplication::setApplicationName("daquiri");
+//  QApplication::setApplicationVersion("1.0");
 
-  bool opennew {false};
-  bool startnew {false};
-  if (argc > 1)
+  QCommandLineParser parser;
+  parser.setApplicationDescription("DAQ-UI-ri: have a drink while you physics ;)");
+  parser.addHelpOption();
+//  parser.addVersionOption();
+
+  QCommandLineOption openOption(QStringList() << "o" << "open",
+          QApplication::translate("main", "Open project"));
+  parser.addOption(openOption);
+
+  QCommandLineOption runOption(QStringList() << "r" << "run",
+          QApplication::translate("main", "Run acquisition"));
+  parser.addOption(runOption);
+
+  QCommandLineOption profileOption(
+        QStringList() << "p" << "profile",
+        QApplication::translate("main", "Open <profile>."),
+        QApplication::translate("main", "profile"));
+  parser.addOption(profileOption);
+
+  parser.process(app);
+
+  bool startnew = parser.isSet(runOption);
+  bool opennew = parser.isSet(openOption) || startnew;
+  QString profile = parser.value(profileOption);
+
+  if (!profile.isEmpty())
+    Profiles::select_profile(profile, true);
+
+  if (!parser.isSet("h"))
   {
-    startnew = (std::string(argv[1]) == "start");
-    opennew = startnew || (std::string(argv[1]) == "open");
+    producers_autoreg();
+    consumers_autoreg();
+
+    daquiri w(0, opennew, startnew);
+    w.show();
+
+    return app.exec();
   }
-
-  QCoreApplication::setOrganizationName("ESS");
-  QCoreApplication::setApplicationName("daquiri");
-
-  daquiri w(0, opennew, startnew);
-  w.show();
-
-  return a.exec();
 }

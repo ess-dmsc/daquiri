@@ -30,7 +30,7 @@ inline std::string type_to_str(StatusType type)
 }
 
 
-struct Status
+class Status
 {
 private:
   StatusType               type_     {StatusType::running};
@@ -40,6 +40,13 @@ private:
   std::map<std::string, PreciseFloat> stats_;
   
 public:
+  Status() {}
+  Status(int16_t chan, StatusType t)
+    : type_(t)
+    , channel_(chan)
+    , time_(boost::posix_time::microsec_clock::universal_time())
+  {}
+
   inline void set_type(StatusType t) { type_ = t; }
   inline void set_channel(int16_t c) { channel_ = c; }
   inline void set_model(EventModel hm) { event_model_ = hm; }

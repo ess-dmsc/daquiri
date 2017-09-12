@@ -1,7 +1,7 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
 //#include "widget_detectors.h"
-#include "Profiles.h"
+#include "ProfilesForm.h"
 #include "BinaryWidget.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -12,6 +12,7 @@
 
 #include "producer_factory.h"
 #include <QInputDialog>
+#include "Profiles.h"
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
                            Container<Detector>& detectors,
@@ -87,14 +88,7 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   loadSettings();
 
-  //  QSettings settings;
-  //  settings.beginGroup("Program");
-  //  QString profile_directory = settings.value("profile_directory", "").toString();
-
-  //  if (!profile_directory.isEmpty())
-  QTimer::singleShot(50, this, SLOT(profile_chosen()));
-  //  else
-  //    QTimer::singleShot(50, this, SLOT(choose_profiles()));
+  QTimer::singleShot(50, this, SLOT(init_profile()));
 }
 
 void SettingsForm::exit()
@@ -163,8 +157,6 @@ void SettingsForm::push_settings()
 {
   editing_ = false;
   settings_tree_ = tree_settings_model_.get_tree();
-
-  emit statusText("Updating settings...");
   emit toggleIO(false);
   runner_thread_.do_push_settings(settings_tree_);
 }
@@ -234,8 +226,6 @@ void SettingsForm::push_from_table(Setting setting)
   editing_ = false;
 
   //setting.indices.insert(chan);
-
-  emit statusText("Updating settings...");
   emit toggleIO(false);
   runner_thread_.do_set_setting(setting, Match::id | Match::indices);
 }
@@ -246,14 +236,12 @@ void SettingsForm::chose_detector(int chan, std::string name)
   Detector det = detectors_.get(Detector(name));
   //  DBG << "det " <<  det.name() << " with sets " << det.optimizations().size();
 
-  emit statusText("Applying detector settings...");
   emit toggleIO(false);
   runner_thread_.do_set_detector(chan, det);
 }
 
-void SettingsForm::refresh() {
-
-  emit statusText("Updating settings...");
+void SettingsForm::refresh()
+{
   emit toggleIO(false);
   runner_thread_.do_refresh_settings();
 }
@@ -379,10 +367,8 @@ void SettingsForm::post_boot()
   apply_detector_presets(); //make this optional?
 }
 
-
 void SettingsForm::apply_detector_presets()
 {
-  emit statusText("Applying detector optimizations...");
   emit toggleIO(false);
 
   std::map<int, Detector> update;
@@ -396,7 +382,6 @@ void SettingsForm::apply_detector_presets()
 void SettingsForm::on_pushSettingsRefresh_clicked()
 {
   editing_ = false;
-  emit statusText("Refreshing settings_...");
   emit toggleIO(false);
   runner_thread_.do_refresh_settings();
 }
@@ -426,7 +411,6 @@ void SettingsForm::on_bootButton_clicked()
   if (ui->bootButton->text() == "Boot")
   {
     emit toggleIO(false);
-    emit statusText("Booting...");
     //    INFO << "Booting system...";
 
     runner_thread_.do_boot();
@@ -434,7 +418,6 @@ void SettingsForm::on_bootButton_clicked()
   else
   {
     emit toggleIO(false);
-    emit statusText("Shutting down...");
     QSettings settings;
     settings.beginGroup("Program");
     settings.setValue("boot_on_startup", false);
@@ -451,47 +434,28 @@ void SettingsForm::on_spinRefreshFrequency_valueChanged(int arg1)
 
 void SettingsForm::on_pushChangeProfile_clicked()
 {
-  choose_profiles();
-}
-
-void SettingsForm::choose_profiles()
-{
-  WidgetProfiles *profiles = new WidgetProfiles(this);
-  connect(profiles, SIGNAL(profileChosen()), this, SLOT(profile_chosen()));
+  ProfilesForm* profiles = new ProfilesForm(this);
+  connect(profiles, SIGNAL(profileChosen(QString, bool)),
+          this, SLOT(profile_chosen(QString, bool)));
   profiles->exec();
 }
 
-void SettingsForm::profile_chosen()
+void SettingsForm::init_profile()
 {
-  emit toggleIO(false);
-
   QSettings settings;
   settings.beginGroup("Program");
   bool boot = settings.value("boot_on_startup", false).toBool();
-  auto profile_directory
-      = settings.value("profile_directory","").toString().toStdString();
+  profile_chosen(Profiles::current_profile_name(), boot);
+}
 
-  json profile;
-
-  if (!profile_directory.empty())
-  {
-    DBG << "Will load profile from " << profile_directory;
-    try
-    {
-      profile = from_json_file(profile_directory + "/profile.set");
-    }
-    catch(...) {}
-  }
-
-  //      if (profile.empty())
-  //        profile = default_profile();
-
-  runner_thread_.do_initialize(profile, boot);
+void SettingsForm::profile_chosen(QString name, bool boot)
+{
+  emit toggleIO(false);
+  runner_thread_.do_initialize(name, boot);
 }
 
 void SettingsForm::refresh_oscil()
 {
-  emit statusText("Getting traces...");
   emit toggleIO(false);
   runner_thread_.do_oscil();
 }
@@ -526,19 +490,15 @@ void SettingsForm::on_pushAddProducer_clicked()
   QString text = QInputDialog::getText(this, tr("Producer name"),
                                        tr("Specify unique name for producer:"),
                                        QLineEdit::Normal, "", &ok);
-  if (!ok && text.isEmpty())
+  if (!ok || text.isEmpty())
+  {
+    //Say something
+
     return;
+  }
 
   default_settings.set_text(text.toStdString());
-
-  settings_tree_.branches.add_a(default_settings);
-
-  json profile = settings_tree_;
-  QSettings settings;
-  settings.beginGroup("Program");
-  bool boot = settings.value("boot_on_startup", false).toBool();
-
-  runner_thread_.do_initialize(profile, boot);
+  runner_thread_.add_producer(default_settings);
 }
 
 void SettingsForm::on_pushRemoveProducer_clicked()
@@ -550,13 +510,7 @@ void SettingsForm::on_pushRemoveProducer_clicked()
       Setting set = qvariant_cast<Setting>(ixl.data(Qt::EditRole));
       if (set.is(SettingType::stem) && set.metadata().has_flag("producer"))
       {
-        settings_tree_.erase(set, Match::id);
-        json profile = settings_tree_;
-        QSettings settings;
-        settings.beginGroup("Program");
-        bool boot = settings.value("boot_on_startup", false).toBool();
-
-        runner_thread_.do_initialize(profile, boot);
+        runner_thread_.remove_producer(set);
       }
     }
 }

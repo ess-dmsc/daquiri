@@ -26,7 +26,7 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
-  settings_ = default_settings();
+//  settings_ = default_settings();
 }
 
 Setting Engine::default_settings()
@@ -60,15 +60,19 @@ void Engine::initialize(const json &profile)
   producers_.clear();
   for (auto &q : tree.branches)
   {
-    if (q.id() != "Detectors")
+    if ((q.id() == "Detectors") ||
+        (q.id() == "Profile description"))
+      continue;
+    std::string name = q.get_text();
+    ProducerPtr device = pf.create_type(q.id());
+    if (!device || name.empty())
     {
-      ProducerPtr device = pf.create_type(q.id());
-      if (device)
-      {
-        DBG << "<Engine> Success loading " << device->device_name();
-        producers_[q.id()] = device;
-      }
+      // Say something
+      continue;
     }
+    DBG << "<Engine> Success loading " << device->plugin_name()
+        << " (" << name << ")";
+    producers_[name] = device;
   }
 
   _push_settings(tree);
@@ -155,7 +159,9 @@ void Engine::_read_settings_bulk()
 {
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Detectors")
+    if (set.id() == "Profile description")
+      continue;
+    else if (set.id() == "Detectors")
     {
       SettingMeta total_det_num;
       total_det_num = SettingMeta("Total detectors", SettingType::integer);
@@ -178,10 +184,11 @@ void Engine::_read_settings_bulk()
       }
 
     }
-    else if (producers_.count(set.id()))
+    else
     {
-      //DBG << "read settings bulk > " << set.id_;
-      producers_[set.id()]->read_settings_bulk(set);
+      std::string name = set.get_text();
+      if (producers_.count(name))
+        producers_[name]->read_settings_bulk(set);
     }
   }
   save_optimization();
@@ -200,10 +207,16 @@ void Engine::_write_settings_bulk()
     settings_.branches.add(Setting::stem("Detectors"));
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Detectors")
+    if (set.id() == "Profile description")
+      continue;
+    else if (set.id() == "Detectors")
       rebuild_structure(set);
-    else if (producers_.count(set.id()))
-      producers_[set.id()]->write_settings_bulk(set);
+    else
+    {
+      std::string name = set.get_text();
+      if (producers_.count(name))
+        producers_[name]->write_settings_bulk(set);
+    }
   }
 }
 
@@ -380,12 +393,13 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  SynchronizedQueue<Spill*> parsed_queue;
+  SynchronizedQueue<SpillPtr> parsed_queue;
 
   std::thread builder(std::bind(&Engine::builder_naive,
                                 this, &parsed_queue, project));
 
-  Spill* spill = new Spill;
+  SpillPtr spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
   spill->detectors = detectors_;
@@ -420,7 +434,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   delete anouncement_timer;
 
-  spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
   parsed_queue.enqueue(spill);
@@ -450,19 +464,19 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   else
     INFO << "<Engine> List mode acquisition indefinite run";
 
-  Spill* one_spill;
+  SpillPtr spill;
   ListData result;
 
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  one_spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
-  one_spill->state = settings_;
-  one_spill->detectors = detectors_;
-  result.push_back(SpillPtr(one_spill));
+  spill->state = settings_;
+  spill->detectors = detectors_;
+  result.push_back(spill);
 
-  SynchronizedQueue<Spill*> parsed_queue;
+  SynchronizedQueue<SpillPtr> parsed_queue;
 
   if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
@@ -489,11 +503,10 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   delete anouncement_timer;
 
-  one_spill = new Spill;
+  spill = std::make_shared<Spill>();
   _get_all_settings();
-  one_spill->state = settings_;
-  parsed_queue.enqueue(one_spill);
-  //  result.push_back(SpillPtr(one_spill));
+  spill->state = settings_;
+  parsed_queue.enqueue(spill);
 
   wait_ms(500);
 
@@ -510,18 +523,18 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 void Engine::builder_chronological(SpillQueue data_queue,
                                    ProjectPtr project)
 {
-  CustomTimer presort_timer;
+  double time {0};
   uint64_t presort_compares(0), presort_events(0), presort_cycles(0);
 
   std::map<int16_t, bool> queue_status;
   // for each input channel (detector) false = empty, true = data
 
   // use multimap from timestamp?
-  std::list<Spill*> current_spills;
+  std::list<SpillPtr> current_spills;
 
   while (true)
   {
-    Spill* in_spill = data_queue->dequeue();
+    SpillPtr in_spill = data_queue->dequeue();
     if (in_spill != nullptr)
     {
       //      DBG << "Spill arrived with " << in_spill->events.size();
@@ -562,9 +575,9 @@ void Engine::builder_chronological(SpillQueue data_queue,
 
       //      DBG << "Empty? " << empty;
 
-      Spill* out_spill = new Spill;
+      SpillPtr out_spill = std::make_shared<Spill>();
       presort_cycles++;
-      presort_timer.start();
+      CustomTimer presort_timer;
       while (!empty)
       {
         Event oldest;
@@ -598,7 +611,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
         if (current_spills.empty())
           empty = true;
       }
-      presort_timer.stop();
+      time += presort_timer.s();
 
       //      DBG << "<Engine> Presort pushed " << presort_events << " events, ";
       //                               " time/hit: " << presort_timer.us()/presort_events << "us, "
@@ -621,25 +634,33 @@ void Engine::builder_chronological(SpillQueue data_queue,
             out_spill->state = (*i)->state;
             project->add_spill(out_spill);
 
-            delete (*i);
             current_spills.erase(i);
 
-            delete out_spill;
-            out_spill = new Spill;
+            out_spill = std::make_shared<Spill>();
             noempties = false;
             break;
           }
       }
-      delete out_spill;
     }
 
     if ((in_spill == nullptr) && current_spills.empty())
       break;
   }
 
-  DBG << "<Engine::builder_chronological> Finished";
+  DBG << "<Engine::builder_chronological> Finished loop";
 
+  CustomTimer presort_timer(true);
   project->flush();
+  time += presort_timer.s();
+
+  DBG << "<Engine::builder_chronological> Finished "
+      << "\n   spills=" << presort_cycles
+      << "\n   events=" << presort_events
+      << "\n   time=" << time
+      << "\n   secs/spill="
+      << (time / double(presort_cycles))
+      << "\n   events/sec="
+      << (double(presort_events) / time);
 }
 
 void Engine::builder_naive(SpillQueue data_queue,
@@ -648,7 +669,7 @@ void Engine::builder_naive(SpillQueue data_queue,
   double time {0};
   uint64_t presort_events(0), presort_cycles(0);
 
-  Spill* spill;
+  SpillPtr spill;
   while (true)
   {
     spill = data_queue->dequeue();
@@ -659,13 +680,12 @@ void Engine::builder_naive(SpillQueue data_queue,
       presort_events += spill->events.size();
       project->add_spill(spill);
       time += presort_timer.s();
-      delete spill;
     }
     else
       break;
   }
 
-  DBG << "<Engine::builder_naive> finished loop";
+  DBG << "<Engine::builder_naive> Finished loop";
 
   CustomTimer presort_timer(true);
   project->flush();
