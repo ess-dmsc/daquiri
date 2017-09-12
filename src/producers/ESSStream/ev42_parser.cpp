@@ -160,7 +160,7 @@ SpillPtr ev42_events::process_payload(void* msg,
       ret->events.push_back(e);
     }
 
-    if (i==1)
+    if (i==0)
       stats.time_start = time;
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);

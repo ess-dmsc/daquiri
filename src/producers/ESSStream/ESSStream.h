@@ -51,7 +51,8 @@ private:
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
   int kafka_timeout_ {1000};
-  bool spoof_clock_ {false};
+  int spoof_clock_ {0};
+
   TimeBase time_base_;
   std::shared_ptr<fb_parser> parser_;
 

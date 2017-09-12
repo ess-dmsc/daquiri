@@ -33,9 +33,11 @@ ESSStream::ESSStream()
   td.set_val("units", "1/ns");
   add_definition(td);
 
-  SettingMeta sc(mp + "SpoofClock", SettingType::boolean, "Spoof clock");
-  add_definition(sc);
-
+  SettingMeta spoof(mp + "SpoofClock", SettingType::menu, "Spoof pulse time");
+  spoof.set_enum(0, "no");
+  spoof.set_enum(1, "monotonous counter");
+  spoof.set_enum(2, "use earliest event");
+  add_definition(spoof);
 
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
@@ -122,7 +124,7 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::integer("ESSStream/TimebaseMult", time_base_.multiplier()));
   set.set(Setting::integer("ESSStream/TimebaseDiv", time_base_.divider()));
 
-  set.set(Setting::boolean("ESSStream/SpoofClock", spoof_clock_));
+  set.set(Setting::integer("ESSStream/SpoofClock", spoof_clock_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
@@ -150,7 +152,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   time_base_ = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
                         set.find({"ESSStream/TimebaseDiv"}).get_number());
 
-  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).triggered();
+  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
@@ -332,15 +334,17 @@ SpillPtr ESSStream::get_message()
 
       auto spill = parser_->process_payload(message->payload(),
                                             time_base_,
-                                            spoof_clock_ ? (++clock_) : 0,
+                                            (spoof_clock_ == 1) ? (++clock_) : 0,
                                             stats);
       if (spill)
       {
         for (auto s : spill->stats)
         {
           s.second.set_value("native_time", stats.time_end);
-          if (spoof_clock_)
+          if (spoof_clock_ != 0)
             s.second.set_value("pulse_time", stats.time_start);
+          DBG << "pulse time (" << s.first << ")"
+                 " = " << s.second.stats()["pulse_time"];
         }
       }
 
