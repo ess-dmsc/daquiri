@@ -7,6 +7,13 @@ Dense1D::Dense1D()
   : Dataspace(1)
 {}
 
+void Dense1D::reserve(const Coords& limits)
+{
+  if (limits.size() != dimensions())
+    return;
+  spectrum_.resize(limits[0], PreciseFloat(0));
+}
+
 void Dense1D::clear()
 {
   total_count_ = 0;
@@ -26,18 +33,18 @@ void Dense1D::add(const Entry& e)
   maxchan_ = std::max(maxchan_, bin);
 }
   
-//void Dense1D::add_one(size_t val)
-//{
-//  if (1 != dimensions())
-//    return;
-//  const auto& bin = val;
-//  if (bin >= spectrum_.size())
-//    spectrum_.resize(bin+1, PreciseFloat(0));
+void Dense1D::add_one(const Coords& coords)
+{
+  if (coords.size() != dimensions())
+    return;
+  const auto& bin = coords[0];
+  if (bin >= spectrum_.size())
+    spectrum_.resize(bin+1, PreciseFloat(0));
   
-//  spectrum_[bin] += 1;
-//  total_count_ += 1;
-//  maxchan_ = std::max(maxchan_, bin);
-//}
+  spectrum_[bin]++;
+  total_count_++;
+  maxchan_ = std::max(maxchan_, bin);
+}
 
 void Dense1D::recalc_axes(uint16_t bits)
 {
@@ -49,11 +56,11 @@ void Dense1D::recalc_axes(uint16_t bits)
   set_axis(0, ax);
 }
 
-PreciseFloat Dense1D::get(std::initializer_list<size_t> list) const
+PreciseFloat Dense1D::get(const Coords& coords) const
 {
-  if (list.size() != dimensions())
+  if (coords.size() != dimensions())
     return 0;
-  const auto& bin =  *list.begin();
+  const auto& bin =  *coords.begin();
   if (bin < spectrum_.size())
     return spectrum_.at(bin);
   return 0;

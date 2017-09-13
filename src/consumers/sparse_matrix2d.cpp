@@ -5,8 +5,15 @@ namespace DAQuiri
 {
 
 SparseMatrix2D::SparseMatrix2D()
-  : Dataspace(2), spectrum_(300, 300)
+  : Dataspace(2)
 {}
+
+void SparseMatrix2D::reserve(const Coords& limits)
+{
+  if (limits.size() != dimensions())
+    return;
+  spectrum_ = data_type_t(limits[0], limits[1]);
+}
 
 void SparseMatrix2D::clear()
 {
@@ -14,18 +21,18 @@ void SparseMatrix2D::clear()
   spectrum_.setZero();
 }
 
-void SparseMatrix2D::add_one(size_t val1, size_t val2)
-{
-  if (2 != dimensions())
-    return;
-  bin_pair(val1, val2, 1);
-}
-
 void SparseMatrix2D::add(const Entry& e)
 {
   if ((e.first.size() != dimensions()) || !e.second)
     return;
   bin_pair(e.first[0], e.first[1], e.second);
+}
+
+void SparseMatrix2D::add_one(const Coords& coords)
+{
+  if (coords.size() != dimensions())
+    return;
+  bin_one(coords[0], coords[1]);
 }
 
 void SparseMatrix2D::recalc_axes(uint16_t bits)
@@ -46,12 +53,10 @@ void SparseMatrix2D::recalc_axes(uint16_t bits)
   set_axis(1, ax1);
 }
 
-PreciseFloat SparseMatrix2D::get(std::initializer_list<size_t> list) const
+PreciseFloat SparseMatrix2D::get(const Coords&  coords) const
 {
-  if (list.size() != dimensions())
-    return 0;
-  
-  std::vector<uint16_t> coords(list.begin(), list.end());
+  if (coords.size() != dimensions())
+    return 0;  
   return spectrum_.coeff(coords[0], coords[1]);
 }
 

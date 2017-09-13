@@ -113,8 +113,6 @@ uint16_t Dataspace::dimensions() const
   return dimensions_;
 }
 
-
-
 std::string Dataspace::debug(std::string prepend) const
 {
   std::stringstream ss;

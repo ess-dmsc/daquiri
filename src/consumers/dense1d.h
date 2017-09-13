@@ -12,16 +12,18 @@ class Dense1D : public Dataspace
     Dense1D* clone() const override
     { return new Dense1D(*this); }
 
+    void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
-    PreciseFloat get(std::initializer_list<size_t> list) const override;
+    void add_one(const Coords&) override;
+    PreciseFloat get(const Coords&) const override;
     EntryList range(std::initializer_list<Pair> list) const override;
     void recalc_axes(uint16_t bits) override;
 
     void save(H5CC::Group&) const override;
     void load(H5CC::Group&) override;
-  protected:
 
+  protected:
     // data
     std::vector<PreciseFloat> spectrum_;
     PreciseFloat total_count_ {0};

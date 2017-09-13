@@ -21,13 +21,11 @@ void SparseMap2D::add(const Entry& e)
   bin_pair(e.first[0], e.first[1], e.second);
 }
 
-void SparseMap2D::bin_pair(const uint16_t& x, const uint16_t& y,
-                          const PreciseFloat& count)
+void SparseMap2D::add_one(const Coords& coords)
 {
-  spectrum_[std::pair<uint16_t, uint16_t>(x,y)] += count;
-  total_count_ += count;
-  max0_ = std::max(max0_, x);
-  max1_ = std::max(max1_, y);
+  if (coords.size() != dimensions())
+    return;
+  bin_one(coords[0], coords[1]);
 }
 
 void SparseMap2D::recalc_axes(uint16_t bits)
@@ -48,12 +46,11 @@ void SparseMap2D::recalc_axes(uint16_t bits)
   set_axis(1, ax1);
 }
 
-PreciseFloat SparseMap2D::get(std::initializer_list<size_t> list) const
+PreciseFloat SparseMap2D::get(const Coords& coords) const
 {
-  if (list.size() != dimensions())
+  if (coords.size() != dimensions())
     return 0;
 
-  std::vector<uint16_t> coords(list.begin(), list.end());
   std::pair<uint16_t,uint16_t> point(coords[0], coords[1]);
 
   if (spectrum_.count(point))

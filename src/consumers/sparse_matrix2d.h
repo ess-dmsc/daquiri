@@ -13,10 +13,11 @@ class SparseMatrix2D : public Dataspace
     SparseMatrix2D* clone() const override
     { return new SparseMatrix2D(*this); }
 
+    void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
-    void add_one(size_t val1, size_t val2); //override;
-    PreciseFloat get(std::initializer_list<size_t> list) const override;
+    void add_one(const Coords&) override;
+    PreciseFloat get(const Coords&) const override;
     EntryList range(std::initializer_list<Pair> list) const override;
     void recalc_axes(uint16_t bits) override;
 
@@ -25,20 +26,27 @@ class SparseMatrix2D : public Dataspace
     std::string data_debug(const std::string& prepend) const override;
 
   protected:
-    //typedef std::map<std::pair<uint16_t,uint16_t>, PreciseFloat> SpectrumMap2D;
-    typedef Eigen::SparseMatrix<double> SpectrumMap2D;
-
+    typedef Eigen::SparseMatrix<double> data_type_t;
 
     //the data itself
-    SpectrumMap2D spectrum_;
+    data_type_t spectrum_;
     uint64_t total_count_ {0};
     uint16_t max0_ {0};
     uint16_t max1_ {0};
 
     inline void bin_pair(const uint16_t& x, const uint16_t& y,
-                         const PreciseFloat& count) {
+                         const PreciseFloat& count)
+    {
       spectrum_.coeffRef(x, y) += count;
       total_count_ += count;
+      max0_ = std::max(max0_, x);
+      max1_ = std::max(max1_, y);
+    }
+
+    inline void bin_one(const uint16_t& x, const uint16_t& y)
+    {
+      spectrum_.coeffRef(x, y) ++;
+      total_count_ ++;
       max0_ = std::max(max0_, x);
       max1_ = std::max(max1_, y);
     }

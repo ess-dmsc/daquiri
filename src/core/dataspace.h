@@ -9,7 +9,8 @@
 
 namespace DAQuiri {
 
-using Entry = std::pair<std::vector<size_t>, PreciseFloat>;
+using Coords = std::vector<size_t>;
+using Entry = std::pair<Coords, PreciseFloat>;
 using EntryList_t = std::list<Entry>;
 using EntryList = std::shared_ptr<EntryList_t>;
 
@@ -45,10 +46,11 @@ public:
   virtual Dataspace* clone() const = 0;
   virtual ~Dataspace() {}
 
+  virtual void reserve(const Coords&) {}
   virtual void add(const Entry&) = 0;
-//  virtual void add_one(size_t val) = 0;
+  virtual void add_one(const Coords&) = 0;
   //get count at coordinates in n-dimensional list
-  virtual PreciseFloat get(std::initializer_list<size_t> list = {}) const = 0;
+  virtual PreciseFloat get(const Coords&) const = 0;
   //parameters take dimensions_ of ranges (inclusive)
   //optimized retrieval of bulk data as list of Entries
   virtual EntryList range(std::initializer_list<Pair> list = {}) const = 0;
