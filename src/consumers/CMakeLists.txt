@@ -3,8 +3,8 @@ project(consumers CXX)
 
 find_package(Eigen3 REQUIRED)
 
-file(GLOB ${PROJECT_NAME}_SOURCES *.cpp xylib/xylib/*.cpp)
-file(GLOB ${PROJECT_NAME}_HEADERS *.h xylib/xylib/*.h)
+file(GLOB ${PROJECT_NAME}_SOURCES *.cpp dataspaces/*.cpp)
+file(GLOB ${PROJECT_NAME}_HEADERS *.h dataspaces/*.h)
 dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
 
 add_library(

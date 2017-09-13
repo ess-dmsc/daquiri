@@ -31,4 +31,6 @@ protected:
   std::vector<double> seconds_;
   std::vector<Status>  updates_;
 
+  //reserve memory
+  Entry entry_ {{0}, 0};
 };

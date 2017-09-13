@@ -119,7 +119,11 @@ void Prebinned1D::_push_event(const Event& e)
   }
 
   for (size_t i=0; i < trace.size(); ++i)
-    data_->add({{i}, trace[i]});
+  {
+    entry_.first[0] = i;
+    entry_.second = trace[i];
+    data_->add(entry_);
+  }
 
   total_count_++;
   recent_count_++;

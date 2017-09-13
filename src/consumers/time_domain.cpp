@@ -195,7 +195,11 @@ void TimeDomain::_push_stats(const Status& status)
 
   data_->clear();
   for (size_t i=0; i < spectrum_.size(); ++i)
-    data_->add({{i}, spectrum_[i]});
+  {
+    entry_.first[0] = i;
+    entry_.second = spectrum_[i];
+    data_->add(entry_);
+  }
 
   Spectrum::_push_stats(status);
 }

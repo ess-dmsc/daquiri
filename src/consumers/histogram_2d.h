@@ -33,4 +33,7 @@ protected:
   //from status manifest
   std::vector<int> x_idx_;
   std::vector<int> y_idx_;
+
+  //reserve memory
+  Coords coords_ {0, 0};
 };

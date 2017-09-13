@@ -143,10 +143,10 @@ void Image2D::_push_event(const Event& e)
   const auto& vx = e.value(x_idx_.at(c));
   const auto& vy = e.value(y_idx_.at(c));
   const auto& vv = e.value(val_idx_.at(c));
-  uint16_t x = vx.val(vx.bits() - downsample_);
-  uint16_t y = vy.val(vy.bits() - downsample_);
-  uint16_t v = vv.val(vv.bits());
-  data_->add({{x,y},v});
+  entry_.first[0] = vx.val(vx.bits() - downsample_);
+  entry_.first[1] = vy.val(vy.bits() - downsample_);
+  entry_.second = vv.val(vv.bits());
+  data_->add(entry_);
   total_count_++;  //not += ?
   recent_count_++; //not += ?
 }

@@ -31,4 +31,6 @@ protected:
   //from status manifest
   std::vector<int> value_idx_;
 
+  //reserve memory
+  Coords coords_ {0};
 };

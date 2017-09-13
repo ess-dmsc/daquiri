@@ -30,4 +30,7 @@ protected:
   std::vector<int> trace_idx_;
 
   std::vector<double> domain_;
+
+  //reserve memory
+  Entry entry_ {{0}, 0};
 };

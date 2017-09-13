@@ -152,17 +152,15 @@ void Histogram1D::_push_event(const Event& e)
 
   const auto v = e.value(value_idx_.at(c));
 
-  uint16_t val;
   if (bits_)
-    val = v.val(bits_);
+    coords_[0] = v.val(bits_);
   else
-    val = v.val(v.bits());
+    coords_[0] = v.val(v.bits());
 
-  if (val < cutoff_)
+  if (coords_[0] < cutoff_)
     return;
 
-  data_->add({{val}, 1});
-//  data_->add_one(val);
+  data_->add_one(coords_);
   total_count_++;
   recent_count_++;
 }

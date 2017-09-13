@@ -32,4 +32,7 @@ protected:
   std::map<int, uint64_t> pulse_times_;
 
   std::vector<double> domain_;
+
+  //reserve memory
+  Coords coords_ {0};
 };

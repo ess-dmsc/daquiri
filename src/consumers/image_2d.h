@@ -35,4 +35,7 @@ protected:
   std::vector<int> x_idx_;
   std::vector<int> y_idx_;
   std::vector<int> val_idx_;
+
+  //reserve memory
+  Entry entry_ {{0, 0}, 0};
 };

@@ -132,9 +132,9 @@ void Histogram2D::_push_event(const Event& e)
   const auto& c = e.channel();
   const auto& vx = e.value(x_idx_.at(c));
   const auto& vy = e.value(y_idx_.at(c));
-  uint16_t x = vx.val(vx.bits() - downsample_);
-  uint16_t y = vy.val(vy.bits() - downsample_);
-  data_->add({{x,y},1});
+  coords_[0] = vx.val(vx.bits() - downsample_);
+  coords_[1] = vy.val(vy.bits() - downsample_);
+  data_->add_one(coords_);
   total_count_++;
   recent_count_++;
 }

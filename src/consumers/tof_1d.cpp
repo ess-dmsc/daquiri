@@ -131,18 +131,18 @@ void TOF1D::_push_event(const Event& e)
   if (nsecs < 0)
     return;
 
-  size_t val = static_cast<size_t>(nsecs * resolution_);
+  coords_[0] = static_cast<size_t>(nsecs * resolution_);
 
-  if (val >= domain_.size())
+  if (coords_[0] >= domain_.size())
   {
     size_t oldbound = domain_.size();
-    domain_.resize(val+1);
+    domain_.resize(coords_[0]+1);
 
-    for (size_t i=oldbound; i <= val; ++i)
+    for (size_t i=oldbound; i <= coords_[0]; ++i)
       domain_[i] = i / resolution_ / units_multiplier_;
   }
 
-  data_->add({{val}, 1});
+  data_->add_one(coords_);
   total_count_++;
   recent_count_++;
 }
