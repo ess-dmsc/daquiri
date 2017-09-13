@@ -7,6 +7,11 @@ Versatile DAQ engine for physics detectors, event mode and otherwise
 
 ### Requirements
 
+Platforms
+- Ubuntu (tested)
+- OSX (tested)
+- Windows (theoretically? someone please try this :))
+
 These libraries are expected in default locations:
 
 - boost
@@ -42,7 +47,7 @@ If your package manager does not provide Qt5 and you used Qt's web installer ins
 ```
 CMAKE_PREFIX_PATH=/somepath/Qt/5.5/gcc_64
 ```
-either just prior to `cmake` or in your `~/.profile` 
+either just prior to `cmake` or in your `~/.profile`
 
 ### Tests
 
