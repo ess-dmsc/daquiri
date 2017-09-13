@@ -1,23 +1,19 @@
-#include "tof_1d.h"
-#include "dense1d.h"
+#include "tof_val_2d.h"
+#include "sparse_map2d.h"
 
 #include "custom_logger.h"
 
-#define kDimensions 1
+#define kDimensions 2
 
-TOF1D::TOF1D()
+TOFVal2D::TOFVal2D()
   : Spectrum()
 {
-  data_ = std::make_shared<Dense1D>();
+  data_ = std::make_shared<SparseMap2D>();
 
   Setting base_options = metadata_.attributes();
-  metadata_ = ConsumerMetadata(my_type(), "Time of flight 1D spectrum");
+  metadata_ = ConsumerMetadata(my_type(), "Time of flight vs. value 2D spectrum");
 
-  SettingMeta app("appearance", SettingType::color);
-  app.set_val("description", "Plot appearance");
-  base_options.branches.add(Setting(app));
-
-  SettingMeta res("resolution", SettingType::floating);
+  SettingMeta res("time_resolution", SettingType::floating);
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "units (see below)");
@@ -32,6 +28,17 @@ TOF1D::TOF1D()
   units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
+  SettingMeta val_name("value_name", SettingType::text);
+  val_name.set_flag("preset");
+  val_name.set_val("description", "Name of event value to bin");
+  base_options.branches.add(val_name);
+
+  SettingMeta ds("value_downsample", SettingType::integer);
+  ds.set_flag("preset");
+  ds.set_val("min", 0);
+  ds.set_val("max", 15);
+  base_options.branches.add(ds);
+
   SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
   add_channels.set_flag("preset");
   add_channels.set_val("chans", 1);
@@ -40,11 +47,13 @@ TOF1D::TOF1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TOF1D::_initialize()
+bool TOFVal2D::_initialize()
 {
   Spectrum::_initialize();
-  resolution_ = 1.0 / metadata_.get_attribute("resolution").get_number();
+  resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   channels_ = metadata_.get_attribute("add_channels").pattern();
+  val_name_ = metadata_.get_attribute("value_name").get_text();
+  downsample_ = metadata_.get_attribute("value_downsample").get_number();
 
   auto unit = metadata_.get_attribute("units").selection();
   units_name_ = metadata_.get_attribute("units").metadata().enum_name(unit);
@@ -56,41 +65,43 @@ bool TOF1D::_initialize()
   return true;
 }
 
-void TOF1D::_init_from_file()
+void TOFVal2D::_init_from_file()
 {
 //  metadata_.set_attribute(Setting::integer("resolution", bits_));
 
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
   metadata_.set_attribute(Setting("add_channels", channels_));
+  metadata_.set_attribute(Setting::integer("value_downsample", downsample_));
 
   Spectrum::_init_from_file();
 }
 
-void TOF1D::_set_detectors(const std::vector<Detector>& dets)
+void TOFVal2D::_set_detectors(const std::vector<Detector>& dets)
 {
-  metadata_.detectors.resize(kDimensions, Detector());
+  metadata_.detectors.resize(1, Detector());
 
-  if (dets.size() == kDimensions)
+  if (dets.size() == 1)
     metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
 
   this->_recalc_axes();
 }
 
-void TOF1D::_recalc_axes()
+void TOFVal2D::_recalc_axes()
 {
+//  data_->set_axis(0, DataAxis(Calibration(), 0));
+//  data_->set_axis(1, DataAxis(Calibration(), 0));
+
+  Detector det;
+  if (metadata_.detectors.size() == 1)
+    det = metadata_.detectors[0];
+  CalibID from(det.id(), val_name_, "", 0);
+  CalibID to("", val_name_, "", 0);
+  auto calib = det.get_preferred_calibration(from, to);
+  data_->set_axis(1, DataAxis(calib, 0));
+
+  data_->recalc_axes(0);
+
   CalibID id("", "time", units_name_, 0);
   DataAxis ax;
   ax.calibration = Calibration(id, id);
@@ -98,12 +109,12 @@ void TOF1D::_recalc_axes()
   data_->set_axis(0, ax);
 }
 
-bool TOF1D::channel_relevant(int16_t channel) const
+bool TOFVal2D::channel_relevant(int16_t channel) const
 {
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOF1D::_push_spill(const Spill& spill)
+void TOFVal2D::_push_spill(const Spill& spill)
 {
   for (const auto& q : spill.stats)
   {
@@ -115,12 +126,25 @@ void TOF1D::_push_spill(const Spill& spill)
   Spectrum::_push_spill(spill);
 }
 
+void TOFVal2D::_push_stats(const Status& newBlock)
+{
+  if (!this->channel_relevant(newBlock.channel()))
+    return;
 
-void TOF1D::_push_event(const Event& e)
+  Spectrum::_push_stats(newBlock);
+
+  if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
+    value_idx_.resize(newBlock.channel() + 1, -1);
+  if (newBlock.event_model().name_to_val.count(val_name_))
+    value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
+}
+
+void TOFVal2D::_push_event(const Event& e)
 {
   const auto& c = e.channel();
 
   if (!this->channel_relevant(c)
+      || !value_relevant(c, value_idx_)
       || !pulse_times_.count(c)
       || !resolution_)
     return;
@@ -131,7 +155,10 @@ void TOF1D::_push_event(const Event& e)
   if (nsecs < 0)
     return;
 
+  const auto v = e.value(value_idx_.at(c));
+
   coords_[0] = static_cast<size_t>(nsecs * resolution_);
+  coords_[1] = v.val(v.bits() - downsample_);
 
   if (coords_[0] >= domain_.size())
   {
