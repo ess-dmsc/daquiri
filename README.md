@@ -10,13 +10,15 @@ Versatile DAQ engine for physics detectors, event mode and otherwise
 These libraries are expected in default locations:
 
 - boost
-- Qt
+- Qt  (>=5.5)
 - librdkafka
 - flatbuffers (headers and `flatc` executable)
+- eigen3
 
 Tooling
 - cmake (minimum tested is 2.8.11)
 - C++ compiler with c++11 support
+- dialog
 
 Others (optional)
 - Google Test
@@ -27,14 +29,20 @@ Others (optional)
 Assuming you have `make` and all dependencies in standard locations:
 ```
 git submodule update --init
-<path-to-source>/util/config.sh (to select desired components)
-cmake <path-to-source>/src
+util/config.sh (to select desired components)
+mkdir build
+cd build
+cmake ../src
 make
 ```
 
 #### Dependencies in custom locations
 
-Something about Qt...
+If your package manager does not provide Qt5 and you used Qt's web installer instead, you may need to set:
+```
+CMAKE_PREFIX_PATH=/somepath/Qt/5.5/gcc_64
+```
+either just prior to `cmake` or in your `~/.profile` 
 
 ### Tests
 
