@@ -52,6 +52,8 @@ class ProjectView : public QWidget
 
     void on_pushHideControls_clicked();
 
+    void enforce_tile_policy();
+
   private:
     Ui::ProjectView *ui;
 
@@ -69,7 +71,6 @@ class ProjectView : public QWidget
     QMenu delete_menu_;
     QMenu tile_menu_;
 
-    void enforce_tile_policy();
     void enforce_item(SelectorItem);
     void enforce_all();
 

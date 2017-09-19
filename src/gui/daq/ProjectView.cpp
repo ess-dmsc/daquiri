@@ -349,6 +349,8 @@ void ProjectView::tile_vertical()
 
 void ProjectView::enforce_tile_policy()
 {
+//  ui->area->adjustSize();
+
   if (tile_policy_ == "grid")
     tile_grid(ui->area);
   else if (tile_policy_ == "vertical")
@@ -434,7 +436,8 @@ void ProjectView::on_pushHideControls_clicked()
     ui->widgetControls->setVisible(true);
     ui->pushHideControls->setIcon(QIcon(":/icons/oxy/16/back.png"));
   }
-  enforce_tile_policy();
+
+  QTimer::singleShot(50, this, SLOT(enforce_tile_policy()));
 }
 
 void ProjectView::loadSettings()
