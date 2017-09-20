@@ -24,9 +24,10 @@ Histogram2D::Histogram2D()
   base_options.branches.add(y_name);
 
   SettingMeta ds("downsample", SettingType::integer);
+  ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
-  ds.set_val("max", 15);
+  ds.set_val("max", 31);
   base_options.branches.add(ds);
 
   SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
@@ -130,10 +131,18 @@ void Histogram2D::_push_event(const Event& e)
   if (!this->event_relevant(e))
     return;
   const auto& c = e.channel();
-  const auto& vx = e.value(x_idx_.at(c));
-  const auto& vy = e.value(y_idx_.at(c));
-  coords_[0] = vx.val(vx.bits() - downsample_);
-  coords_[1] = vy.val(vy.bits() - downsample_);
+
+  if (downsample_)
+  {
+    coords_[0] = (e.value(x_idx_[c]) >> downsample_);
+    coords_[1] = (e.value(y_idx_[c]) >> downsample_);
+  }
+  else
+  {
+    coords_[0] = e.value(x_idx_[c]);
+    coords_[1] = e.value(y_idx_[c]);
+  }
+
   data_->add_one(coords_);
   total_count_++;
   recent_count_++;

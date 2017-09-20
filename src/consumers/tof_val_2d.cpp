@@ -34,9 +34,10 @@ TOFVal2D::TOFVal2D()
   base_options.branches.add(val_name);
 
   SettingMeta ds("value_downsample", SettingType::integer);
+  ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
-  ds.set_val("max", 15);
+  ds.set_val("max", 31);
   base_options.branches.add(ds);
 
   SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
@@ -158,7 +159,11 @@ void TOFVal2D::_push_event(const Event& e)
   const auto v = e.value(value_idx_.at(c));
 
   coords_[0] = static_cast<size_t>(nsecs * resolution_);
-  coords_[1] = v.val(v.bits() - downsample_);
+
+  if (downsample_)
+    coords_[1] = (e.value(value_idx_[c]) >> downsample_);
+  else
+    coords_[1] = e.value(value_idx_[c]);
 
   if (coords_[0] >= domain_.size())
   {

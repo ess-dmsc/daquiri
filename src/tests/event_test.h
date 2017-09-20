@@ -20,7 +20,7 @@ TEST(Event, Init)
             h2.timestamp().base());
   ASSERT_EQ(1, h2.value_count());
   ASSERT_EQ(1, h2.trace_count());
-  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1 0(16b)]", h2.debug());
+  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1 0]", h2.debug());
 }
 
 TEST(Event, Value)
@@ -29,10 +29,10 @@ TEST(Event, Value)
   hm.timebase = DAQuiri::TimeBase(14,10);
   hm.add_value("energy", 16);
   DAQuiri::Event h(2, hm);
-  ASSERT_ANY_THROW(h.value(2));
+//  ASSERT_ANY_THROW(h.value(2));
   ASSERT_NO_THROW(h.set_value(0,42));
-  ASSERT_EQ(42, h.value(0).val(16));
-  EXPECT_EQ("[ch2|t0x(7/5) 42(16b)]", h.debug());
+  ASSERT_EQ(42, h.value(0));
+  EXPECT_EQ("[ch2|t0x(7/5) 42]", h.debug());
 }
 
 TEST(Event, Trace)

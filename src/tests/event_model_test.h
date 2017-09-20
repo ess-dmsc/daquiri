@@ -11,18 +11,20 @@ TEST(EventModel, AddValue)
   ASSERT_EQ(1, h.value_names.size());
   ASSERT_EQ(1, h.name_to_val.size());
   ASSERT_EQ(0, h.name_to_val.at("a"));
-  ASSERT_EQ(2, h.values.at(0).bits());
+  ASSERT_EQ(0, h.values[0]);
+  ASSERT_EQ(2, h.maximum[0]);
   ASSERT_EQ("a", h.value_names.at(0));
-  EXPECT_EQ("a(2b) ", h.debug());
+  EXPECT_EQ("a(<=2) ", h.debug());
 
   h.add_value("b", 7);
   ASSERT_EQ(2, h.values.size());
   ASSERT_EQ(2, h.value_names.size());
   ASSERT_EQ(2, h.name_to_val.size());
   ASSERT_EQ(1, h.name_to_val.at("b"));
-  ASSERT_EQ(7, h.values.at(1).bits());
+  ASSERT_EQ(0, h.values[1]);
+  ASSERT_EQ(7, h.maximum[1]);
   ASSERT_EQ("b", h.value_names.at(1));
-  EXPECT_EQ("a(2b) b(7b) ", h.debug());
+  EXPECT_EQ("a(<=2) b(<=7) ", h.debug());
 }
 
 TEST(EventModel, AddTrace)

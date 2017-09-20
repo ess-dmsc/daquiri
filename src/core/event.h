@@ -10,7 +10,7 @@ class Event
 private:
   int16_t       source_channel_ {-1};
   TimeStamp     timestamp_;
-  std::vector<DigitizedVal>          values_;
+  std::vector<uint32_t>              values_;
   std::vector<std::vector<uint16_t>> traces_;
 
 public:
@@ -51,16 +51,16 @@ public:
     return traces_.size();
   }
 
-  inline DigitizedVal value(size_t idx) const
+  inline uint32_t value(size_t idx) const
   {
-    return values_.at(idx);
+    return values_[idx];
   }
 
   inline const std::vector<uint16_t>& trace(size_t idx) const
   {
     if (idx >= traces_.size())
       throw std::out_of_range("Event: bad trace index");
-    return traces_.at(idx);
+    return traces_[idx];
   }
 
   //Setters
@@ -79,21 +79,22 @@ public:
     timestamp_.delay(ns);
   }
 
-  inline void set_value(size_t idx, uint16_t val)
+  inline void set_value(size_t idx, uint32_t val)
   {
-    if (idx >= values_.size())
-      throw std::out_of_range("Event: bad value index");
-    values_[idx].set_val(val);
+    values_[idx] = val;
   }
 
   inline void set_trace(size_t idx, const std::vector<uint16_t> &trc)
   {
-    if (idx >= traces_.size())
-      throw std::out_of_range("Event: bad trace index");
     auto& t = traces_[idx];
+    if (t.size() == trc.size())
+    {
+      t = trc;
+      return;
+    }
     size_t len = std::min(trc.size(), t.size());
     for (size_t i=0; i < len; ++i)
-      t[i] = trc.at(i);
+      t[i] = trc[i];
   }
 
   //Comparators
@@ -118,7 +119,7 @@ public:
     if (traces_.size())
       ss << "|ntraces=" << traces_.size();
     for (auto &v : values_)
-      ss << " " << v.debug();
+      ss << " " << v;
     ss << "]";
     return ss.str();
   }

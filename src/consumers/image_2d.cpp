@@ -140,12 +140,19 @@ void Image2D::_push_event(const Event& e)
   if (!this->event_relevant(e))
     return;
   const auto& c = e.channel();
-  const auto& vx = e.value(x_idx_.at(c));
-  const auto& vy = e.value(y_idx_.at(c));
-  const auto& vv = e.value(val_idx_.at(c));
-  entry_.first[0] = vx.val(vx.bits() - downsample_);
-  entry_.first[1] = vy.val(vy.bits() - downsample_);
-  entry_.second = vv.val(vv.bits());
+
+  if (downsample_)
+  {
+    entry_.first[0] = (e.value(x_idx_[c]) >> downsample_);
+    entry_.first[1] = (e.value(y_idx_[c]) >> downsample_);
+  }
+  else
+  {
+    entry_.first[0] = e.value(x_idx_[c]);
+    entry_.first[1] = e.value(y_idx_[c]);
+  }
+
+  entry_.second = e.value(val_idx_[c]);
   data_->add(entry_);
   total_count_++;  //not += ?
   recent_count_++; //not += ?

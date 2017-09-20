@@ -23,6 +23,6 @@ protected:
   virtual void bin_event(const Event&);
 
   // cached parameters:
-  uint16_t bits_ {0};
+  uint16_t downsample_ {0};
   uint32_t cutoff_bin_ {0};
 };

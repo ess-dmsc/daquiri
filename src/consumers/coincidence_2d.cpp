@@ -13,28 +13,12 @@ Coincidence2D::Coincidence2D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event mode 2D spectrum");
 
-  SettingMeta resm("resolution", SettingType::menu);
-  resm.set_flag("preset");
-  resm.set_enum(0, "native");
-  resm.set_enum(1, "1 bit (2)");
-  resm.set_enum(2, "2 bit (4)");
-  resm.set_enum(3, "3 bit (8)");
-  resm.set_enum(4, "4 bit (16)");
-  resm.set_enum(5, "5 bit (32)");
-  resm.set_enum(6, "6 bit (64)");
-  resm.set_enum(7, "7 bit (128)");
-  resm.set_enum(8, "8 bit (256)");
-  resm.set_enum(9, "9 bit (512)");
-  resm.set_enum(10, "10 bit (1024)");
-  resm.set_enum(11, "11 bit (2048)");
-  resm.set_enum(12, "12 bit (4096)");
-  resm.set_enum(13, "13 bit (8192)");
-  resm.set_enum(14, "14 bit (16384)");
-  resm.set_enum(15, "15 bit (32768)");
-  resm.set_enum(16, "16 bit (65536)");
-  Setting res(resm);
-  res.set_number(14);
-  base_options.branches.add(res);
+  SettingMeta ds("downsample", SettingType::integer);
+  ds.set_val("units", "bits");
+  ds.set_flag("preset");
+  ds.set_val("min", 0);
+  ds.set_val("max", 31);
+  base_options.branches.add(ds);
 
   SettingMeta sym("symmetric", SettingType::boolean);
   sym.set_val("description", "Matrix is symmetric");
@@ -47,7 +31,7 @@ Coincidence2D::Coincidence2D()
 bool Coincidence2D::_initialize()
 {
   CoincidenceConsumer::_initialize();
-  bits_ = metadata_.get_attribute("resolution").selection();
+  downsample_ = metadata_.get_attribute("downsample").get_number();
 
   int adds = 0;
   std::vector<bool> gts = add_channels_.gates();
@@ -77,7 +61,7 @@ bool Coincidence2D::_initialize()
 
 void Coincidence2D::_init_from_file()
 {
-  metadata_.set_attribute(Setting::integer("resolution", bits_));
+  metadata_.set_attribute(Setting::integer("downsample", downsample_));
 
   pattern_coinc_.resize(2);
   pattern_coinc_.set_gates(std::vector<bool>({true, true}));
@@ -121,8 +105,8 @@ void Coincidence2D::_set_detectors(const std::vector<Detector>& dets)
 
 void Coincidence2D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
-  data_->set_axis(1, DataAxis(Calibration(), 0, bits_));
+  data_->set_axis(0, DataAxis(Calibration(), 0));
+  data_->set_axis(1, DataAxis(Calibration(), 0));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -130,20 +114,20 @@ void Coincidence2D::_recalc_axes()
   for (size_t i=0; i < metadata_.detectors.size(); ++i)
   {
     auto det = metadata_.detectors[i];
-    CalibID from(det.id(), val_name_, "", bits_);
+    CalibID from(det.id(), val_name_, "", 0);
     CalibID to("", val_name_, "", 0);
     auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0, bits_));
+    data_->set_axis(i, DataAxis(calib, 0));
   }
 
-  data_->recalc_axes(bits_);
+  data_->recalc_axes(0);
 }
 
 bool Coincidence2D::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return CoincidenceConsumer::event_relevant(e) &&
-      (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
+      (e.value(value_idx_[c]) >= cutoff_logic_[c]);
 }
 
 void Coincidence2D::add_coincidence(const Coincidence& c)
@@ -152,9 +136,9 @@ void Coincidence2D::add_coincidence(const Coincidence& c)
   for (auto &e : c.hits())
   {
     if (e.first == pattern_[0])
-      l0.push_back(e.second.value(value_idx_.at(pattern_[0])).val(bits_));
+      l0.push_back(e.second.value(value_idx_[pattern_[0]]));
     else if (e.first == pattern_[1])
-      l1.push_back(e.second.value(value_idx_.at(pattern_[1])).val(bits_));
+      l1.push_back(e.second.value(value_idx_[pattern_[1]]));
   }
 
   if (l0.empty())

@@ -15,7 +15,7 @@ MockProducer::MockProducer()
 
   SettingMeta res(mp + "Resolution", SettingType::integer, "Resolution");
   res.set_val("min", 4);
-  res.set_val("max", 16);
+  res.set_val("max", 32);
   res.set_val("units", "bits");
   add_definition(res);
 
@@ -321,7 +321,7 @@ uint16_t MockProducer::generate(size_t i)
 
 void MockProducer::make_trace(Event& h, uint16_t baseline)
 {
-  uint16_t en = h.value(0).val(h.value(0).bits());
+  uint16_t en = h.value(0);
   std::vector<uint16_t> trc(h.trace(0).size(), baseline);
   size_t start = double(trc.size()) * 0.1;
   double slope1 = double(en) / double(start);

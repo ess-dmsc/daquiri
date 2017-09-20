@@ -101,7 +101,7 @@ Container<ConsumerMetadata> get_prototypes()
   Container<ConsumerMetadata> prototypes;
 
   ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
-  ptype.set_attribute(Setting::integer("resolution", 7));
+  ptype.set_attribute(Setting::integer("downsample", 9));
   ptype.set_attribute(Setting::text("value_name", "energy"));
   ptype.set_attribute(Setting("add_channels", Pattern(1, {true})));
   prototypes.add(ptype);

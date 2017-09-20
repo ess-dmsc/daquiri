@@ -23,8 +23,8 @@ protected:
   bool channel_relevant(int16_t channel) const override;
 
   // cached parameters:
-  uint16_t bits_ {0};
-  uint16_t cutoff_ {0};
+  uint16_t downsample_ {0};
+  uint32_t cutoff_ {0};
   Pattern channels_;
   std::string val_name_;
 
@@ -35,4 +35,7 @@ protected:
   std::vector<std::vector<PreciseFloat>> spectra_;
   std::vector<PreciseFloat> seconds_;
   std::vector<Status> updates_;
+
+  //reserve memory
+  Coords coords_ {0, 0};
 };

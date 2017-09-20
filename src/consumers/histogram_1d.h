@@ -23,8 +23,8 @@ protected:
   bool channel_relevant(int16_t channel) const override;
 
   // cached parameters:
-  uint16_t bits_ {0};
-  uint16_t cutoff_ {0};
+  uint16_t downsample_ {0};
+  uint32_t cutoff_bin_ {0};
   Pattern channels_;
   std::string val_name_;
 

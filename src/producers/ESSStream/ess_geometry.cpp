@@ -17,7 +17,7 @@ EventModel GeometryInterpreter::model(const TimeBase& tb) const
   EventModel ret;
   ret.timebase = tb;
   for (auto n : names_)
-    ret.add_value(n, 16);
+    ret.add_value(n, dimensions_.at(n));
   return ret;
 }
 

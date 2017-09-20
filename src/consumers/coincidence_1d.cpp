@@ -17,28 +17,12 @@ Coincidence1D::Coincidence1D()
   app.set_val("description", "Plot appearance");
   base_options.branches.add(Setting(app));
 
-  SettingMeta resm("resolution", SettingType::menu);
-  resm.set_flag("preset");
-  resm.set_enum(0, "native");
-  resm.set_enum(1, "1 bit (2)");
-  resm.set_enum(2, "2 bit (4)");
-  resm.set_enum(3, "3 bit (8)");
-  resm.set_enum(4, "4 bit (16)");
-  resm.set_enum(5, "5 bit (32)");
-  resm.set_enum(6, "6 bit (64)");
-  resm.set_enum(7, "7 bit (128)");
-  resm.set_enum(8, "8 bit (256)");
-  resm.set_enum(9, "9 bit (512)");
-  resm.set_enum(10, "10 bit (1024)");
-  resm.set_enum(11, "11 bit (2048)");
-  resm.set_enum(12, "12 bit (4096)");
-  resm.set_enum(13, "13 bit (8192)");
-  resm.set_enum(14, "14 bit (16384)");
-  resm.set_enum(15, "15 bit (32768)");
-  resm.set_enum(16, "16 bit (65536)");
-  Setting res(resm);
-  res.set_number(14);
-  base_options.branches.add(res);
+  SettingMeta ds("downsample", SettingType::integer);
+  ds.set_val("units", "bits");
+  ds.set_flag("preset");
+  ds.set_val("min", 0);
+  ds.set_val("max", 31);
+  base_options.branches.add(ds);
 
   SettingMeta cutoff_bin("cutoff_bin", SettingType::integer);
   cutoff_bin.set_val("description", "Hits rejected below minimum energy (after coincidence logic)");
@@ -52,7 +36,7 @@ Coincidence1D::Coincidence1D()
 bool Coincidence1D::_initialize()
 {
   CoincidenceConsumer::_initialize();
-  bits_ = metadata_.get_attribute("resolution").selection();
+  downsample_ = metadata_.get_attribute("downsample").get_number();
   cutoff_bin_ = metadata_.get_attribute("cutoff_bin").get_number();
 
   this->_recalc_axes();
@@ -61,7 +45,7 @@ bool Coincidence1D::_initialize()
 
 void Coincidence1D::_init_from_file()
 {
-  metadata_.set_attribute(Setting::integer("resolution", bits_));
+  metadata_.set_attribute(Setting::integer("downsample", downsample_));
 
   pattern_coinc_.resize(1);
   pattern_coinc_.set_gates(std::vector<bool>({true}));
@@ -101,7 +85,7 @@ void Coincidence1D::_set_detectors(const std::vector<Detector>& dets)
 
 void Coincidence1D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0, bits_));
+  data_->set_axis(0, DataAxis(Calibration(), 0));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -109,25 +93,25 @@ void Coincidence1D::_recalc_axes()
   for (size_t i=0; i < metadata_.detectors.size(); ++i)
   {
     auto det = metadata_.detectors[i];
-    CalibID from(det.id(), val_name_, "", bits_);
+    CalibID from(det.id(), val_name_, "", 0);
     CalibID to("", val_name_, "", 0);
     auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0, bits_));
+    data_->set_axis(i, DataAxis(calib, 0));
   }
 
-  data_->recalc_axes(bits_);
+  data_->recalc_axes(0);
 }
 
 bool Coincidence1D::event_relevant(const Event& e) const
 {
   const auto& c = e.channel();
   return CoincidenceConsumer::event_relevant(e) &&
-      (e.value(value_idx_[c]).val(bits_) >= cutoff_logic_[c]);
+      (e.value(value_idx_[c]) >= cutoff_logic_[c]);
 }
 
 void Coincidence1D::bin_event(const Event& e)
 {
-  uint16_t en = e.value(value_idx_.at(e.channel())).val(bits_);
+  uint16_t en = e.value(value_idx_[e.channel()]);
   if (en < cutoff_bin_)
     return;
 

@@ -22,6 +22,6 @@ protected:
   void add_coincidence(const Coincidence&) override;
 
   //indexes of the two chosen channels
-  uint16_t bits_ {0};
+  uint16_t downsample_ {0};
   std::vector<int8_t> pattern_;
 };

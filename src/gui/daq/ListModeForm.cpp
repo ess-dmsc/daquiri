@@ -166,8 +166,7 @@ void ListModeForm::displayHit(int idx)
       add_to_table(ui->tableHitValues, i, 0, QS(model.value_names.at(i)));
     else
       add_to_table(ui->tableHitValues, i, 0, QString::number(i));
-    add_to_table(ui->tableHitValues, i, 1, QS(hit.value(i).debug()));
-
+    add_to_table(ui->tableHitValues, i, 1, QString::number(hit.value(i)));
 
     if ((chan > -1) && (chan < static_cast<int>(dets_.size())))
     {

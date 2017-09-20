@@ -12,28 +12,12 @@ TimeSpectrum::TimeSpectrum()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Spectra in time series");
 
-  SettingMeta resm("resolution", SettingType::menu);
-  resm.set_flag("preset");
-  resm.set_enum(0, "native");
-  resm.set_enum(1, "1 bit (2)");
-  resm.set_enum(2, "2 bit (4)");
-  resm.set_enum(3, "3 bit (8)");
-  resm.set_enum(4, "4 bit (16)");
-  resm.set_enum(5, "5 bit (32)");
-  resm.set_enum(6, "6 bit (64)");
-  resm.set_enum(7, "7 bit (128)");
-  resm.set_enum(8, "8 bit (256)");
-  resm.set_enum(9, "9 bit (512)");
-  resm.set_enum(10, "10 bit (1024)");
-  resm.set_enum(11, "11 bit (2048)");
-  resm.set_enum(12, "12 bit (4096)");
-  resm.set_enum(13, "13 bit (8192)");
-  resm.set_enum(14, "14 bit (16384)");
-  resm.set_enum(15, "15 bit (32768)");
-  resm.set_enum(16, "16 bit (65536)");
-  Setting res(resm);
-  res.set_number(14);
-  base_options.branches.add(res);
+  SettingMeta ds("downsample", SettingType::integer);
+  ds.set_val("units", "bits");
+  ds.set_flag("preset");
+  ds.set_val("min", 0);
+  ds.set_val("max", 31);
+  base_options.branches.add(ds);
 
   SettingMeta cutoff_bin("cutoff", SettingType::integer);
   cutoff_bin.set_val("description", "Hits rejected below minimum value");
@@ -58,7 +42,7 @@ bool TimeSpectrum::_initialize()
 {
   Spectrum::_initialize();
 
-  bits_ = metadata_.get_attribute("resolution").selection();
+  downsample_ = metadata_.get_attribute("downsample").get_number();
   cutoff_ = metadata_.get_attribute("cutoff").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
   channels_ = metadata_.get_attribute("add_channels").pattern();
@@ -81,7 +65,7 @@ bool TimeSpectrum::_initialize()
 
 void TimeSpectrum::_init_from_file()
 {
-  metadata_.set_attribute(Setting::integer("resolution", bits_));
+  metadata_.set_attribute(Setting::integer("downsample", downsample_));
 
   channels_.resize(1);
   channels_.set_gates(std::vector<bool>({true}));
@@ -147,18 +131,18 @@ void TimeSpectrum::_push_event(const Event& e)
       !value_relevant(c, value_idx_))
     return;
 
-  const auto v = e.value(value_idx_.at(c));
-
-  uint16_t val;
-  if (bits_)
-    val = v.val(bits_);
+  if (downsample_)
+  {
+    coords_[0] = (e.value(value_idx_[c]) >> downsample_);
+    coords_[1] = (e.value(value_idx_[c]) >> downsample_);
+  }
   else
-    val = v.val(v.bits());
+  {
+    coords_[0] = e.value(value_idx_[c]);
+    coords_[1] = e.value(value_idx_[c]);
+  }
 
-  if (val < cutoff_)
-    return;
-
-  data_->add({{val}, 1});
+  data_->add_one(coords_);
   total_count_++;
   recent_count_++;
 }
@@ -179,7 +163,7 @@ void TimeSpectrum::_push_stats(const Status& newBlock)
   PreciseFloat percent_dead = 0;
   PreciseFloat tot_time = 0;
 
-  spectra_.push_back(std::vector<PreciseFloat>(pow(2, bits_)));
+//  spectra_.push_back(std::vector<PreciseFloat>(pow(2, bits_)));
 
   if (!updates_.empty())
   {
