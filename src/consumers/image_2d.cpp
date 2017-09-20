@@ -1,5 +1,7 @@
 #include "image_2d.h"
+
 #include "sparse_map2d.h"
+#include "sparse_matrix2d.h"
 
 #include "custom_logger.h"
 
@@ -8,7 +10,8 @@
 Image2D::Image2D()
   : Spectrum()
 {
-  data_ = std::make_shared<SparseMap2D>();
+//  data_ = std::make_shared<SparseMap2D>();
+  data_ = std::make_shared<SparseMatrix2D>();
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image");

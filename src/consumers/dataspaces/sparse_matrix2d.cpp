@@ -12,7 +12,7 @@ void SparseMatrix2D::reserve(const Coords& limits)
 {
   if (limits.size() != dimensions())
     return;
-  spectrum_ = data_type_t(limits[0], limits[1]);
+  spectrum_.conservativeResize(limits[0] + 1, limits[1] + 1);
 }
 
 void SparseMatrix2D::clear()
@@ -41,13 +41,13 @@ void SparseMatrix2D::recalc_axes(uint16_t bits)
   auto ax1 = axis(1);
   if (bits)
   {
-    ax0.expand_domain(max0_, bits);
-    ax1.expand_domain(max1_, bits);
+    ax0.expand_domain(limits_[0], bits);
+    ax1.expand_domain(limits_[1], bits);
   }
   else
   {
-    ax0.expand_domain(max0_);
-    ax1.expand_domain(max1_);
+    ax0.expand_domain(limits_[0]);
+    ax1.expand_domain(limits_[1]);
   }
   set_axis(0, ax0);
   set_axis(1, ax1);
@@ -66,8 +66,8 @@ EntryList SparseMatrix2D::range(std::initializer_list<Pair> list) const
   if (list.size() != dimensions())
   {
     min0 = min1 = 0;
-    max0 = max0_;
-    max1 = max1_;
+    max0 = limits_[0];
+    max1 = limits_[1];
   }
   else
   {
@@ -161,12 +161,8 @@ std::string SparseMatrix2D::data_debug(const std::string &prepend) const
 {
   double maximum {0};
   for (int k=0; k < spectrum_.outerSize(); ++k)
-  {
     for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
-    {
       maximum = std::max(maximum, to_double(it.value()));
-    }
-  }
   
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
@@ -175,9 +171,9 @@ std::string SparseMatrix2D::data_debug(const std::string &prepend) const
   if (!maximum)
     return ss.str();
   
-  for (uint16_t i = 0; i <= max0_; i++)
+  for (uint16_t i = 0; i <= limits_[0]; i++)
   {
-    for (uint16_t j = 0; j <= max1_; j++)
+    for (uint16_t j = 0; j <= limits_[1]; j++)
     {
       uint16_t v = 0;
       v = spectrum_.coeff(i, j);
@@ -191,19 +187,11 @@ std::string SparseMatrix2D::data_debug(const std::string &prepend) const
 
 bool SparseMatrix2D::is_symmetric()
 {
-  bool symmetric = true;
   for (int k=0; k < spectrum_.outerSize(); ++k)
-  {
     for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
-    {
       if (spectrum_.coeff(it.col(), it.row()) != it.value())
-      {
-        symmetric = false;
-        break;
-      }
-    }
-  }
-  return symmetric;
+        return false;
+  return true;
 }
 
 }

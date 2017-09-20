@@ -1,4 +1,3 @@
-#include "digitized_value_test.h"
 #include "time_base_test.h"
 #include "time_stamp_test.h"
 #include "event_model_test.h"
