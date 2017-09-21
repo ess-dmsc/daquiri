@@ -80,21 +80,25 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
   auto type = em->data_type();
   if (type == DataField::GEMHist)
   {
+    hists_model_.timebase = tb;
     ret = Spill::make_new(StatusType::running, {hists_channel_});
     ret->stats[hists_channel_].set_model(hists_model_);
 
-    produce_hists(*em->data_as_GEMHist(), ret);
+    produce_hists(*em->data_as_GEMHist(), utime, ret);
   }
 
   if (type == DataField::GEMTrack)
   {
+    trace_model_.timebase = tb;
     ret = Spill::make_new(StatusType::running,
     {trace_x_channel_, trace_y_channel_});
     ret->stats[trace_x_channel_].set_model(trace_model_);
     ret->stats[trace_y_channel_].set_model(trace_model_);
 
-    produce_tracks(*em->data_as_GEMTrack(), ret);
+    produce_tracks(*em->data_as_GEMTrack(), utime, ret);
   }
+
+  stats.time_start = stats.time_end = utime;
 
   //  ret->stats[traces_channel_].set_value("pulse_time", time_high);
   stats.time_spent += timer.s();
@@ -124,11 +128,12 @@ bool mo01_nmx::is_empty(const MonitorMessage& m)
   return true;
 }
 
-void mo01_nmx::produce_hists(const GEMHist& hist, SpillPtr ret)
+void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
 {
 //  DBG << "Received GEMHist\n" << debug(hist);
 
   Event e(hists_channel_, hists_model_);
+  e.set_native_time(utime);
 
   auto xhist = hist.xhist();
   if (xhist->Length())
@@ -176,7 +181,7 @@ std::string mo01_nmx::debug(const GEMHist& hist)
   return ss.str();
 }
 
-void mo01_nmx::produce_tracks(const GEMTrack& track, SpillPtr ret)
+void mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime, SpillPtr ret)
 {
 //  DBG << "Received GEMTrack\n" << debug(track);
 
@@ -184,6 +189,7 @@ void mo01_nmx::produce_tracks(const GEMTrack& track, SpillPtr ret)
   for (size_t i=0; i < xtrack->Length(); ++i)
   {
     Event e(trace_x_channel_, trace_model_);
+    e.set_native_time(utime);
     auto element = xtrack->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());
@@ -195,6 +201,7 @@ void mo01_nmx::produce_tracks(const GEMTrack& track, SpillPtr ret)
   for (size_t i=0; i < ytrack->Length(); ++i)
   {
     Event e(trace_y_channel_, trace_model_);
+    e.set_native_time(utime);
     auto element = ytrack->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());

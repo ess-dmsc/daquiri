@@ -164,6 +164,8 @@ SpillPtr ev42_events::process_payload(void* msg,
       stats.time_start = time;
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
+
+//    DBG << "Time " << stats.time_start << " - " << stats.time_end;
   }
 
   stats.time_spent += timer.s();

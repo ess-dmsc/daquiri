@@ -37,8 +37,8 @@ class mo01_nmx : public fb_parser
 
     bool is_empty(const MonitorMessage&);
 
-    void produce_hists(const GEMHist&, SpillPtr);
-    void produce_tracks(const GEMTrack&, SpillPtr);
+    void produce_hists(const GEMHist&, uint64_t utime, SpillPtr);
+    void produce_tracks(const GEMTrack&, uint64_t utime, SpillPtr);
 
     std::string debug(const GEMHist&);
     std::string debug(const GEMTrack&);

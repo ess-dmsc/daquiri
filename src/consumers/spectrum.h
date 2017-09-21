@@ -28,10 +28,18 @@ protected:
 
   // instantaneous rate:
   PreciseFloat recent_count_ {0};
-  std::map<int, std::list<Status>> stats_list_;
-  std::map<int, boost::posix_time::time_duration> real_times_;
-  std::map<int, boost::posix_time::time_duration> live_times_;
   Status recent_start_, recent_end_;
 
+  struct stats_info_t
+  {
+      std::list<Status> stats;
+      boost::posix_time::time_duration real;
+      boost::posix_time::time_duration live;
+  };
+  std::map<int, stats_info_t> chan_stats;
+
   static bool value_relevant(int16_t channel, const std::vector<int>& idx);
+
+  PreciseFloat calc_chan_times(stats_info_t& chan);
+  PreciseFloat calc_recent_rate(const Status& status);
 };

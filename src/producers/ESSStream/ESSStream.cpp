@@ -338,13 +338,16 @@ SpillPtr ESSStream::get_message()
                                             stats);
       if (spill)
       {
-        for (auto s : spill->stats)
+        for (auto& s : spill->stats)
         {
           s.second.set_value("native_time", stats.time_end);
           if (spoof_clock_ != 0)
             s.second.set_value("pulse_time", stats.time_start);
-          DBG << "pulse time (" << s.first << ")"
-                 " = " << s.second.stats()["pulse_time"];
+
+//          DBG << "<ESSStream> setting native time (" << s.first << ") "
+//              << stats.time_end << " -> " << s.second.stats()["native_time"];
+//          DBG << "pulse time (" << s.first << ")"
+//                 " = " << s.second.stats()["pulse_time"];
         }
       }
 

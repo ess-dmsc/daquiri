@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cmath>
+#include "precise_float.h"
 
 #include "json.hpp"
 using namespace nlohmann;
@@ -11,8 +12,8 @@ namespace DAQuiri {
 class TimeBase
 {
 private:
-  double multiplier_ {1};
-  double divider_ {1};
+  PreciseFloat multiplier_ {1};
+  PreciseFloat divider_ {1};
 
 public:
   inline TimeBase() {}
@@ -33,22 +34,37 @@ public:
     }
   }
 
-  inline double multiplier() const
+  inline PreciseFloat multiplier() const
   {
     return multiplier_;
   }
 
-  inline double divider() const
+  inline PreciseFloat divider() const
   {
     return divider_;
   }
 
-  inline double to_nanosec(double native) const
+  inline PreciseFloat to_nanosec(PreciseFloat native) const
   {
     return native * multiplier_ / divider_;
   }
 
-  inline double to_native(double ns)
+  inline PreciseFloat to_microsec(PreciseFloat native) const
+  {
+    return native * multiplier_ / divider_ * 0.001;
+  }
+
+  inline PreciseFloat to_millisec(PreciseFloat native) const
+  {
+    return native * multiplier_ / divider_ * 0.000001;
+  }
+
+  inline PreciseFloat to_sec(PreciseFloat native) const
+  {
+    return native * multiplier_ / divider_ * 0.000000001;
+  }
+
+  inline PreciseFloat to_native(PreciseFloat ns)
   {
     return ns * divider_ / multiplier_;
   }
