@@ -11,7 +11,7 @@ private:
   int16_t       source_channel_ {-1};
   TimeStamp     timestamp_;
   std::vector<uint32_t>              values_;
-  std::vector<std::vector<uint16_t>> traces_;
+  std::vector<std::vector<uint32_t>> traces_;
 
 public:
   inline Event() {}
@@ -26,7 +26,7 @@ public:
       size_t product = 1;
       for (auto d : t)
         product *= d;
-      traces_.push_back(std::vector<uint16_t>(product, 0));
+      traces_.push_back(std::vector<uint32_t>(product, 0));
     }
   }
 
@@ -56,7 +56,7 @@ public:
     return values_[idx];
   }
 
-  inline const std::vector<uint16_t>& trace(size_t idx) const
+  inline const std::vector<uint32_t>& trace(size_t idx) const
   {
     if (idx >= traces_.size())
       throw std::out_of_range("Event: bad trace index");
@@ -84,7 +84,7 @@ public:
     values_[idx] = val;
   }
 
-  inline void set_trace(size_t idx, const std::vector<uint16_t> &trc)
+  inline void set_trace(size_t idx, const std::vector<uint32_t> &trc)
   {
     auto& t = traces_[idx];
     if (t.size() == trc.size())

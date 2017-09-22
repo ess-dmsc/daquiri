@@ -43,7 +43,7 @@ TEST(Event, Trace)
   DAQuiri::Event h(2, hm);
   ASSERT_ANY_THROW(h.trace(2));
   ASSERT_NO_THROW(h.set_trace(0, {3,6,9}));
-  ASSERT_EQ(std::vector<uint16_t>({3,6,9}),
+  ASSERT_EQ(std::vector<uint32_t>({3,6,9}),
             h.trace(0));
   EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1]", h.debug());
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "fb_parser.h"
+#include "mo01_nmx_generated.h"
+
 
 using namespace DAQuiri;
 
@@ -42,4 +44,6 @@ class mo01_nmx : public fb_parser
 
     std::string debug(const GEMHist&);
     std::string debug(const GEMTrack&);
+
+    static void grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data);
 };

@@ -28,8 +28,11 @@ mo01_nmx::mo01_nmx()
   root.set_enum(2, mp + "ChannelTraceY");
   add_definition(root);
 
-  hists_model_.add_trace("stripsx", {UINT16_MAX+1});
-  hists_model_.add_trace("stripsy", {UINT16_MAX+1});
+  hists_model_.add_trace("strips_x", {UINT16_MAX+1});
+  hists_model_.add_trace("strips_y", {UINT16_MAX+1});
+  hists_model_.add_trace("adc_x", {UINT16_MAX+1});
+  hists_model_.add_trace("adc_y", {UINT16_MAX+1});
+  hists_model_.add_trace("adc_cluster", {UINT16_MAX+1});
 
   trace_model_.add_value("strip", 0);
   trace_model_.add_value("time", 0);
@@ -135,26 +138,25 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
   Event e(hists_channel_, hists_model_);
   e.set_native_time(utime);
 
-  auto xhist = hist.xstrips();
-  if (xhist->Length())
-  {
-    std::vector<uint16_t> vals(xhist->Length(), 0);
-    for (size_t i=0; i < xhist->Length(); ++i)
-      vals[i] = xhist->Get(i);
-    e.set_trace(0, vals);
-  }
-
-  auto yhist = hist.ystrips();
-  if (yhist->Length())
-  {
-    std::vector<uint16_t> vals(yhist->Length(), 0);
-    for (size_t i=0; i < yhist->Length(); ++i)
-      vals[i] = yhist->Get(i);
-    e.set_trace(1, vals);
-  }
+  grab_hist(e, 0, hist.xstrips());
+  grab_hist(e, 1, hist.ystrips());
+  grab_hist(e, 2, hist.xspectrum());
+  grab_hist(e, 3, hist.yspectrum());
+  grab_hist(e, 4, hist.cluster_spectrum());
 
   ret->events.push_back(e);
 }
+
+void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
+{
+  if (!data->Length())
+    return;
+  std::vector<uint32_t> vals(data->Length(), 0);
+  for (size_t i=0; i < data->Length(); ++i)
+    vals[i] = data->Get(i);
+  e.set_trace(idx, vals);
+}
+
 
 std::string mo01_nmx::debug(const GEMHist& hist)
 {

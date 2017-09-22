@@ -322,7 +322,7 @@ uint16_t MockProducer::generate(size_t i)
 void MockProducer::make_trace(Event& h, uint16_t baseline)
 {
   uint16_t en = h.value(0);
-  std::vector<uint16_t> trc(h.trace(0).size(), baseline);
+  std::vector<uint32_t> trc(h.trace(0).size(), baseline);
   size_t start = double(trc.size()) * 0.1;
   double slope1 = double(en) / double(start);
   double slope2 = - double(en) / double(trc.size() * 10);

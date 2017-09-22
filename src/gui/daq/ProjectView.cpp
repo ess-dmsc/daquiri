@@ -224,16 +224,12 @@ void ProjectView::update_plots()
   this->setCursor(Qt::WaitCursor);
   //  CustomTimer guiside(true);
 
-  CustomTimer t;
-  t.start();
+  CustomTimer t(true);
   for (auto &consumer_widget : consumers_)
     consumer_widget->update();
-  t.stop();
-  DBG << "<ProjectView> plotting took " << t.s();
+//  DBG << "<ProjectView> plotting took " << t.s();
 
   selectorItemSelected(SelectorItem());
-
-  //  DBG << "<Plot1D> plotting took " << guiside.ms() << " ms";
   this->setCursor(Qt::ArrowCursor);
 }
 
