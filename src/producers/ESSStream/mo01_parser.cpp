@@ -28,8 +28,8 @@ mo01_nmx::mo01_nmx()
   root.set_enum(2, mp + "ChannelTraceY");
   add_definition(root);
 
-  hists_model_.add_trace("histx", {1500});
-  hists_model_.add_trace("histy", {1500});
+  hists_model_.add_trace("stripsx", {UINT16_MAX+1});
+  hists_model_.add_trace("stripsy", {UINT16_MAX+1});
 
   trace_model_.add_value("strip", 0);
   trace_model_.add_value("time", 0);
@@ -112,9 +112,9 @@ bool mo01_nmx::is_empty(const MonitorMessage& m)
   if (type == DataField::GEMHist)
   {
     auto hist = m.data_as_GEMHist();
-    if (hist->xhist()->Length())
+    if (hist->xstrips()->Length())
       return false;
-    if (hist->yhist()->Length())
+    if (hist->ystrips()->Length())
       return false;
   }
   if (type == DataField::GEMTrack)
@@ -135,7 +135,7 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
   Event e(hists_channel_, hists_model_);
   e.set_native_time(utime);
 
-  auto xhist = hist.xhist();
+  auto xhist = hist.xstrips();
   if (xhist->Length())
   {
     std::vector<uint16_t> vals(xhist->Length(), 0);
@@ -144,7 +144,7 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
     e.set_trace(0, vals);
   }
 
-  auto yhist = hist.yhist();
+  auto yhist = hist.ystrips();
   if (yhist->Length())
   {
     std::vector<uint16_t> vals(yhist->Length(), 0);
@@ -160,7 +160,7 @@ std::string mo01_nmx::debug(const GEMHist& hist)
 {
   std::stringstream ss;
 
-  auto xhist = hist.xhist();
+  auto xhist = hist.xstrips();
   if (xhist->Length())
   {
     ss << "  x: ";
@@ -169,7 +169,7 @@ std::string mo01_nmx::debug(const GEMHist& hist)
     ss << "\n";
   }
 
-  auto yhist = hist.yhist();
+  auto yhist = hist.ystrips();
   if (yhist->Length())
   {
     ss << "  y: ";
