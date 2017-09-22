@@ -229,6 +229,9 @@ void ProjectView::update_plots()
     consumer_widget->update();
 //  DBG << "<ProjectView> plotting took " << t.s();
 
+  for (auto &consumer_widget : consumers_)
+    consumer_widget->refresh();
+
   selectorItemSelected(SelectorItem());
   this->setCursor(Qt::ArrowCursor);
 }

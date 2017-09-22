@@ -5,15 +5,20 @@
 
 class Consumer1D : public AbstractConsumerWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  Consumer1D(QWidget *parent = 0);
+  public:
+    Consumer1D(QWidget *parent = 0);
 
-  void update() override;
+    void update() override;
+    void refresh() override;
 
-private:
-  QPlot::Multi1D* plot_ {nullptr};
-  bool initial_scale_ {false};
+  private slots:
+    void mouseWheel (QWheelEvent *event);
+    void zoomedOut();
 
+  private:
+    QPlot::Multi1D* plot_ {nullptr};
+    bool initial_scale_ {false};
+    bool user_zoomed_ {false};
 };

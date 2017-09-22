@@ -13,51 +13,12 @@ Consumer2D::Consumer2D(QWidget *parent)
   fl->addWidget(plot_);
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
-  setLayout(fl);
-
-
-  QWidget *popup = new QWidget(this);
-
-  crop_slider_ = new QSlider(Qt::Vertical, popup);
-  crop_slider_->setRange(0, 100);
-
-  crop_label_ = new QLabel(popup);
-  crop_label_->setAlignment(Qt::AlignCenter);
-  crop_label_->setNum(100);
-  crop_label_->setMinimumWidth(crop_label_->sizeHint().width());
-
-  typedef void(QLabel::*IntSlot)(int);
-  connect(crop_slider_, &QAbstractSlider::valueChanged, crop_label_, static_cast<IntSlot>(&QLabel::setNum));
-
-  QBoxLayout *popupLayout = new QHBoxLayout(popup);
-  popupLayout->setMargin(2);
-  popupLayout->addWidget(crop_slider_);
-  popupLayout->addWidget(crop_label_);
-
-  QWidgetAction *action = new QWidgetAction(this);
-  action->setDefaultWidget(popup);
-
-  crop_menu_ = new QMenu(this);
-  crop_menu_->addAction(action);
-
   plot_->setGradient("Spectrum2");
   plot_->setShowGradientLegend(true);
+  connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
+  connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
-
-  //  ui->toolCrop->setMenu(crop_menu_);
-  //  ui->toolCrop->setPopupMode(QToolButton::InstantPopup);
-  //  connect(crop_menu_, SIGNAL(aboutToHide()), this, SLOT(crop_changed()));
-
-//  crop_slider_->setValue(50);
-//  crop_changed();
-}
-
-
-void Consumer2D::reset_content()
-{
-  //DBG << "reset content";
-  plot_->clearAll();
-  plot_->replot();
+  setLayout(fl);
 }
 
 void Consumer2D::update()
@@ -85,8 +46,8 @@ void Consumer2D::update()
   {
     axis_x = data->axis(0);
     axis_y = data->axis(1);
-    res_x = axis_x.bounds().second * zoom_;
-    res_y = axis_y.bounds().second * zoom_;
+    res_x = axis_x.bounds().second;
+    res_y = axis_y.bounds().second;
     spectrum_data = data->range({{0, res_x}, {0, res_y}});
   }
 
@@ -126,40 +87,31 @@ void Consumer2D::update()
           "Event count");
     plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->replotExtras();
-    plot_->replot();
   }
 
   std::string new_label = md.get_attribute("name").get_text();
-//  plot_->setTitle(QString::fromStdString(new_label).trimmed());
   setWindowTitle(QString::fromStdString(new_label).trimmed());
 
-//  setAxisLabels(QString::fromStdString(axis.label()), "count");
-
+  if (!user_zoomed_)
+    plot_->zoomOut();
 
   //  DBG << "<Plot2D> plotting took " << guiside.ms() << " ms";
 }
 
-void Consumer2D::set_zoom(double zm)
+void Consumer2D::refresh()
 {
-  if (zm > 1.0)
-    zm = 1.0;
-  zoom_ = zm;
-  //  ui->toolCrop->setText(QString::number(zm * 100) + "% ");
-  crop_slider_->setValue(zm * 100);
-  update();
-}
-
-void Consumer2D::crop_changed()
-{
-//  DBG << "changing zoom_";
-  zoom_ = crop_slider_->value() / 100.0;
-//  ui->toolCrop->setText(QString::number(crop_slider_->value()) + "% ");
-  update();
+  plot_->replot();
 }
 
 
-double Consumer2D::zoom()
+void Consumer2D::mouseWheel (QWheelEvent *event)
 {
-  return zoom_;
+  user_zoomed_ = true;
 }
+
+void Consumer2D::zoomedOut()
+{
+  user_zoomed_ = false;
+}
+
 

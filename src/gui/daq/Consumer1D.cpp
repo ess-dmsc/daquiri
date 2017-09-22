@@ -16,6 +16,9 @@ Consumer1D::Consumer1D(QWidget *parent)
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
   plot_->setLineThickness(2);
+  connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
+  connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
+
   setLayout(fl);
 }
 
@@ -69,17 +72,28 @@ void Consumer1D::update()
   {
     plot_->addGraph(hist, pen);
     plot_->replotExtras();
-    plot_->replot();
   }
 
   plot_->setAxisLabels(QString::fromStdString(axis.label()), "count");
 
   std::string new_label = md.get_attribute("name").get_text();
-//  plot_->setTitle(QString::fromStdString(new_label).trimmed());
-  plot_->zoomOut();
-
-//  DBG << new_label << "   " <<  axis.debug();
-
-
   setWindowTitle(QString::fromStdString(new_label).trimmed());
+
+  if (!user_zoomed_)
+    plot_->zoomOut();
+}
+
+void Consumer1D::refresh()
+{
+  plot_->replot();
+}
+
+void Consumer1D::mouseWheel (QWheelEvent *event)
+{
+  user_zoomed_ = true;
+}
+
+void Consumer1D::zoomedOut()
+{
+  user_zoomed_ = false;
 }

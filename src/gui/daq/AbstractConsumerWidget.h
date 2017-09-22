@@ -27,6 +27,7 @@ public:
   }
 
   virtual void update() = 0;
+  virtual void refresh() = 0;
 
 protected:
   DAQuiri::ConsumerPtr consumer_;

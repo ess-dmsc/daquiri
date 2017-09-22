@@ -11,25 +11,14 @@ public:
   Consumer2D(QWidget *parent = 0);
 
   void update() override;
-
-  void reset_content();
-
-  void set_zoom(double);
-  double zoom();
+  void refresh() override;
 
 private slots:
-
-  void crop_changed();
-
+  void mouseWheel (QWheelEvent *event);
+  void zoomedOut();
 
 private:
   QPlot::Plot2D* plot_ {nullptr};
-
-  double zoom_ {1.0};
-
-  QMenu *crop_menu_;
-  QLabel *crop_label_;
-  QSlider *crop_slider_;
-
   bool initial_scale_ {false};
+  bool user_zoomed_ {false};
 };
