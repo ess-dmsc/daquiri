@@ -33,7 +33,7 @@ mo01_nmx::mo01_nmx()
 
   trace_model_.add_value("strip", 0);
   trace_model_.add_value("time", 0);
-  trace_model_.add_value("adc", 16);
+  trace_model_.add_value("adc", 0);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
