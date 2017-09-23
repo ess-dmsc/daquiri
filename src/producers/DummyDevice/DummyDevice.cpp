@@ -31,7 +31,7 @@ void DummyDevice::read_settings_bulk(Setting &set) const
 
 void DummyDevice::write_settings_bulk(const Setting& settings)
 {
-  set = enrich_and_toggle_presets(settings);
+  auto set = enrich_and_toggle_presets(settings);
   dummy_selection_ = set.find({"DummyDevice/DummySettings/Menu"}).selection();
 }
 
