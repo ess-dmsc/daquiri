@@ -1,17 +1,19 @@
 #pragma once
 
 #include "dataspace.h"
+#include <Eigen/Sparse>
 
 namespace DAQuiri
 {
 
-class SparseMap2D : public Dataspace
+class DenseMatrix2D : public Dataspace
 {
   public:
-    SparseMap2D();
-    SparseMap2D* clone() const override
-    { return new SparseMap2D(*this); }
+    DenseMatrix2D();
+    DenseMatrix2D* clone() const override
+    { return new DenseMatrix2D(*this); }
 
+    void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
     void add_one(const Coords&) override;
@@ -24,29 +26,37 @@ class SparseMap2D : public Dataspace
     std::string data_debug(const std::string& prepend) const override;
 
   protected:
-    typedef std::map<std::pair<uint16_t,uint16_t>, PreciseFloat> SpectrumMap2D;
+    typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> data_type_t;
 
     //the data itself
-    SpectrumMap2D spectrum_;
-    PreciseFloat total_count_ {0};
-    uint16_t max0_ {0};
-    uint16_t max1_ {0};
+    data_type_t spectrum_;
+    uint64_t total_count_ {0};
+
+    Coords limits_ {0,0};
+
+    inline void adjust_maxima(const uint16_t& x, const uint16_t& y)
+    {
+      if (x > limits_[0])
+        limits_[0] = x;
+      if (y > limits_[1])
+        limits_[1] = y;
+      if ((spectrum_.rows() <= limits_[0]) || (spectrum_.cols() <= limits_[1]))
+        this->reserve(limits_);
+    }
 
     inline void bin_pair(const uint16_t& x, const uint16_t& y,
                          const PreciseFloat& count)
     {
-      spectrum_[std::pair<uint16_t, uint16_t>(x,y)] += count;
+      adjust_maxima(x,y);
+      spectrum_.coeffRef(x, y) += count;
       total_count_ += count;
-      max0_ = std::max(max0_, x);
-      max1_ = std::max(max1_, y);
     }
 
     inline void bin_one(const uint16_t& x, const uint16_t& y)
     {
-      spectrum_[std::pair<uint16_t, uint16_t>(x,y)] ++;
+      adjust_maxima(x,y);
+      spectrum_(x, y) += 1;
       total_count_ ++;
-      max0_ = std::max(max0_, x);
-      max1_ = std::max(max1_, y);
     }
 
     bool is_symmetric();

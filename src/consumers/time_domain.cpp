@@ -88,7 +88,7 @@ void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
 
 void TimeDomain::_recalc_axes()
 {
-  CalibID id("", "time", "s", 0);
+  CalibID id("", "time", "s");
   DataAxis ax;
   ax.calibration = Calibration(id, id);
   ax.domain = seconds_;

@@ -72,4 +72,5 @@ private slots:
   void on_pushClear_clicked();
   void on_pushUp_clicked();
   void on_pushDown_clicked();
+  void on_pushClone_clicked();
 };

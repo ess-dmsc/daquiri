@@ -154,7 +154,8 @@ void ConsumerTemplatesForm::toggle_push()
     ui->pushEdit->setEnabled(false);
     ui->pushDelete->setEnabled(false);
     ui->pushUp->setEnabled(false);
-    ui->pushDown->setEnabled(false);
+    ui->pushDown->setEnabled(false);  
+    ui->pushClone->setEnabled(false);
   } else {
     ui->pushDelete->setEnabled(true);
   }
@@ -162,6 +163,7 @@ void ConsumerTemplatesForm::toggle_push()
   if (selection_model_.selectedRows().size() == 1)
   {
     ui->pushEdit->setEnabled(true);
+    ui->pushClone->setEnabled(true);
     QModelIndexList ixl = selection_model_.selectedRows();
     if (ixl.front().row() > 0)
       ui->pushUp->setEnabled(true);
@@ -238,10 +240,22 @@ void ConsumerTemplatesForm::on_pushEdit_clicked()
   if (newDialog->exec())
   {
     templates_.replace(i, newDialog->product());
-    selection_model_.reset();
+//    selection_model_.reset();
     table_model_.update();
     toggle_push();
   }
+}
+
+void ConsumerTemplatesForm::on_pushClone_clicked()
+{
+  QModelIndexList ixl = ui->spectraSetupView->selectionModel()->selectedRows();
+  if (ixl.empty())
+    return;
+  int i = ixl.front().row();
+  templates_.add_a(templates_.get(i));
+//  selection_model_.reset();
+  table_model_.update();
+  toggle_push();
 }
 
 void ConsumerTemplatesForm::selection_double_clicked(QModelIndex)
@@ -255,15 +269,13 @@ void ConsumerTemplatesForm::on_pushDelete_clicked()
   if (ixl.empty())
     return;
 
-  std::list<ConsumerMetadata> torem;
+  std::list<int> torem;
 
-  for (auto &ix : ixl) {
-    int i = ix.row();
-    torem.push_back(templates_.get(i));
-  }
+  for (auto &ix : ixl)
+    torem.push_back(ix.row());
 
-  for (auto &q : torem)
-    templates_.remove_a(q);
+  for (auto &i : torem)
+    templates_.remove(i);
 
   selection_model_.reset();
   table_model_.update();

@@ -17,8 +17,8 @@ class Dense1D : public Dataspace
     void add(const Entry&) override;
     void add_one(const Coords&) override;
     PreciseFloat get(const Coords&) const override;
-    EntryList range(std::initializer_list<Pair> list) const override;
-    void recalc_axes(uint16_t bits) override;
+    EntryList range(std::vector<Pair> list) const override;
+    void recalc_axes() override;
 
     void save(H5CC::Group&) const override;
     void load(H5CC::Group&) override;

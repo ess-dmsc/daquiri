@@ -9,27 +9,30 @@
 
 namespace DAQuiri {
 
+using Pair = std::pair<size_t, size_t>;
+
 using Coords = std::vector<size_t>;
 using Entry = std::pair<Coords, PreciseFloat>;
 using EntryList_t = std::list<Entry>;
 using EntryList = std::shared_ptr<EntryList_t>;
 
-using Pair = std::pair<size_t, size_t>;
+class Dataspace;
+using DataspacePtr = std::shared_ptr<Dataspace>;
 
 struct DataAxis
 {
     DataAxis() {}
-    DataAxis(Calibration c, size_t resolution);
-    DataAxis(Calibration c, size_t resolution, uint16_t bits);
+    DataAxis(Calibration c, int16_t resample_shift = 0);
+    DataAxis(Calibration c, std::vector<double> dom);
 
     void expand_domain(size_t ubound);
-    void expand_domain(size_t ubound, uint16_t bits);
 
     std::string label() const;
     std::string debug() const;
     Pair bounds() const;
 
     Calibration calibration;
+    int16_t resample_shift_ {0};
     std::vector<double> domain;
 };
 
@@ -46,16 +49,18 @@ public:
   virtual Dataspace* clone() const = 0;
   virtual ~Dataspace() {}
 
-  virtual void reserve(const Coords&) {}
-  virtual void add(const Entry&) = 0;
-  virtual void add_one(const Coords&) = 0;
   //get count at coordinates in n-dimensional list
   virtual PreciseFloat get(const Coords&) const = 0;
   //parameters take dimensions_ of ranges (inclusive)
   //optimized retrieval of bulk data as list of Entries
-  virtual EntryList range(std::initializer_list<Pair> list = {}) const = 0;
-  virtual void recalc_axes(uint16_t bits) = 0;
+  virtual EntryList range(std::vector<Pair> ranges = {}) const = 0;
+  EntryList all_data() const;
+
   virtual void clear() = 0;
+  virtual void reserve(const Coords&) {}
+  virtual void add(const Entry&) = 0;
+  virtual void add_one(const Coords&) = 0;
+  virtual void recalc_axes() = 0;
 
   virtual void load(H5CC::Group&) = 0;
   virtual void save(H5CC::Group&) const = 0;
@@ -71,7 +76,5 @@ protected:
 
   virtual std::string data_debug(const std::string& prepend) const;
 };
-
-using DataspacePtr = std::shared_ptr<Dataspace>;
 
 }

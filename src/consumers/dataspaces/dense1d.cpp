@@ -46,13 +46,10 @@ void Dense1D::add_one(const Coords& coords)
   maxchan_ = std::max(maxchan_, bin);
 }
 
-void Dense1D::recalc_axes(uint16_t bits)
+void Dense1D::recalc_axes()
 {
   auto ax = axis(0);
-  if (bits)
-    ax.expand_domain(maxchan_, bits);
-  else
-    ax.expand_domain(maxchan_);
+  ax.expand_domain(maxchan_);
   set_axis(0, ax);
 }
 
@@ -66,7 +63,7 @@ PreciseFloat Dense1D::get(const Coords& coords) const
   return 0;
 }
 
-EntryList Dense1D::range(std::initializer_list<Pair> list) const
+EntryList Dense1D::range(std::vector<Pair> list) const
 {
   size_t min {0};
   size_t max {spectrum_.size() - 1};

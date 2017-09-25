@@ -33,7 +33,6 @@ class Detector
 
     void set_calibration(const Calibration&);
     Calibration get_calibration(CalibID from, CalibID to) const;
-    Calibration get_preferred_calibration(CalibID from, CalibID to) const;
 
     bool shallow_equals(const Detector& other) const
     {return (id_ == other.id_);}

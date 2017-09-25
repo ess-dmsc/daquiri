@@ -24,7 +24,7 @@ protected:
   bool channel_relevant(int16_t channel) const override;
 
   // cached parameters:
-  double resolution_ {1};
+  double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
   Pattern channels_;

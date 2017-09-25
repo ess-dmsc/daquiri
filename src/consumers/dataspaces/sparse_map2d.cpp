@@ -28,21 +28,14 @@ void SparseMap2D::add_one(const Coords& coords)
   bin_one(coords[0], coords[1]);
 }
 
-void SparseMap2D::recalc_axes(uint16_t bits)
+void SparseMap2D::recalc_axes()
 {
   auto ax0 = axis(0);
-  auto ax1 = axis(1);
-  if (bits)
-  {
-    ax0.expand_domain(max0_, bits);
-    ax1.expand_domain(max1_, bits);
-  }
-  else
-  {
-    ax0.expand_domain(max0_);
-    ax1.expand_domain(max1_);
-  }
+  ax0.expand_domain(max0_);
   set_axis(0, ax0);
+
+  auto ax1 = axis(1);
+  ax1.expand_domain(max1_);
   set_axis(1, ax1);
 }
 
@@ -58,7 +51,7 @@ PreciseFloat SparseMap2D::get(const Coords& coords) const
   return 0;
 }
 
-EntryList SparseMap2D::range(std::initializer_list<Pair> list) const
+EntryList SparseMap2D::range(std::vector<Pair> list) const
 {
   size_t min0, min1, max0, max1;
   if (list.size() != dimensions())

@@ -37,6 +37,9 @@ file(GLOB_RECURSE qplot_sources qplot/src/qplot/*.cpp)
 file(GLOB_RECURSE qplot_headers qplot/src/qplot/*.h)
 dirs_of(qplot_include_dirs "${qplot_headers}")
 
+#OpenGL for plots
+find_package(OpenGL REQUIRED)
+add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 add_executable(
   ${PROJECT_NAME}
@@ -57,6 +60,7 @@ target_include_directories(
   PRIVATE ${consumers_INCLUDE_DIRS}
   PRIVATE ${producers_INCLUDE_DIRS}
   PRIVATE ${qplot_include_dirs}
+  PRIVATE ${OPENGL_INCLUDE_DIR}
 )
 
 target_link_libraries(
@@ -66,6 +70,7 @@ target_link_libraries(
   ${core_LIBRARIES}
   ${producers_LIBRARIES}
   ${consumers_LIBRARIES}
+  ${OPENGL_LIBRARIES}
 )
 
 qt5_use_modules(${PROJECT_NAME} Widgets PrintSupport)

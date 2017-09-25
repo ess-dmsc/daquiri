@@ -91,7 +91,7 @@ void TOF1D::_set_detectors(const std::vector<Detector>& dets)
 
 void TOF1D::_recalc_axes()
 {
-  CalibID id("", "time", units_name_, 0);
+  CalibID id("", "time", units_name_);
   DataAxis ax;
   ax.calibration = Calibration(id, id);
   ax.domain = domain_;

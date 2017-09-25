@@ -51,7 +51,7 @@ TOFVal2D::TOFVal2D()
 bool TOFVal2D::_initialize()
 {
   Spectrum::_initialize();
-  resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   channels_ = metadata_.get_attribute("add_channels").pattern();
   val_name_ = metadata_.get_attribute("value_name").get_text();
   downsample_ = metadata_.get_attribute("value_downsample").get_number();
@@ -60,7 +60,7 @@ bool TOFVal2D::_initialize()
   units_name_ = metadata_.get_attribute("units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
 
-  resolution_ /= units_multiplier_;
+  time_resolution_ /= units_multiplier_;
 
   this->_recalc_axes();
   return true;
@@ -96,14 +96,14 @@ void TOFVal2D::_recalc_axes()
   Detector det;
   if (metadata_.detectors.size() == 1)
     det = metadata_.detectors[0];
-  CalibID from(det.id(), val_name_, "", 0);
-  CalibID to("", val_name_, "", 0);
-  auto calib = det.get_preferred_calibration(from, to);
-  data_->set_axis(1, DataAxis(calib, 0));
+  CalibID from(det.id(), val_name_, "");
+  CalibID to("", val_name_, "");
+  auto calib = det.get_calibration(from, to);
+  data_->set_axis(1, DataAxis(calib));
 
-  data_->recalc_axes(0);
+  data_->recalc_axes();
 
-  CalibID id("", "time", units_name_, 0);
+  CalibID id("", "time", units_name_);
   DataAxis ax;
   ax.calibration = Calibration(id, id);
   ax.domain = domain_;
@@ -147,7 +147,7 @@ void TOFVal2D::_push_event(const Event& e)
   if (!this->channel_relevant(c)
       || !value_relevant(c, value_idx_)
       || !pulse_times_.count(c)
-      || !resolution_)
+      || !time_resolution_)
     return;
 
   double nsecs =
@@ -156,9 +156,7 @@ void TOFVal2D::_push_event(const Event& e)
   if (nsecs < 0)
     return;
 
-  const auto v = e.value(value_idx_.at(c));
-
-  coords_[0] = static_cast<size_t>(nsecs * resolution_);
+  coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
   if (downsample_)
     coords_[1] = (e.value(value_idx_[c]) >> downsample_);
@@ -171,7 +169,7 @@ void TOFVal2D::_push_event(const Event& e)
     domain_.resize(coords_[0]+1);
 
     for (size_t i=oldbound; i <= coords_[0]; ++i)
-      domain_[i] = i / resolution_ / units_multiplier_;
+      domain_[i] = i / time_resolution_ / units_multiplier_;
   }
 
   data_->add_one(coords_);

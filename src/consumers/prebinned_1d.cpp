@@ -74,7 +74,7 @@ void Prebinned1D::_set_detectors(const std::vector<Detector>& dets)
 
 void Prebinned1D::_recalc_axes()
 {
-  CalibID id("", trace_name_, "", 0);
+  CalibID id(trace_name_);
   DataAxis ax;
   ax.calibration = Calibration(id, id);
   ax.domain = domain_;

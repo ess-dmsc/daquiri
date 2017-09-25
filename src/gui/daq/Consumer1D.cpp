@@ -13,6 +13,9 @@ Consumer1D::Consumer1D(QWidget *parent)
 {
   QVBoxLayout* fl = new QVBoxLayout();
   fl->addWidget(plot_);
+
+//  plot_->setOpenGl(true);
+
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
   plot_->setLineThickness(2);
@@ -85,7 +88,7 @@ void Consumer1D::update()
 
 void Consumer1D::refresh()
 {
-  plot_->replot();
+  plot_->replot(QCustomPlot::rpQueuedRefresh);
 }
 
 void Consumer1D::mouseWheel (QWheelEvent *event)

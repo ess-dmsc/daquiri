@@ -4,20 +4,18 @@
 
 namespace DAQuiri {
 
-CalibID::CalibID(std::string det, std::string val,
-                 std::string unit, uint16_t b)
+CalibID::CalibID(std::string val, std::string det,
+                 std::string unit)
   : detector(det)
   , value(val)
   , units(unit)
-  , bits(b)
 {}
 
 bool CalibID::valid() const
 {
   return (!detector.empty() ||
           !value.empty() ||
-          !units.empty() ||
-          (bits > 0));
+          !units.empty());
 }
 
 bool CalibID::compare(const CalibID& other)
@@ -28,10 +26,6 @@ bool CalibID::compare(const CalibID& other)
     return false;
   if (!other.units.empty() && (other.units != units))
     return false;
-  if ((other.bits > 16) && bits)
-    return true;
-  if (other.bits && (other.bits != bits))
-    return false;
   return true;
 }
 
@@ -39,7 +33,6 @@ bool CalibID::operator== (const CalibID& other) const
 {
   return (detector == other.detector)
       && (value == other.value)
-      && (bits == other.bits)
       && (units == other.units);
 }
 
@@ -52,8 +45,6 @@ std::string CalibID::debug() const
     result += " val=" + value;
   if (!units.empty())
     result += " units=" + units;
-  if (bits > 0)
-    result += " bits=" + std::to_string(bits);
   return result;
 }
 
@@ -66,8 +57,6 @@ void to_json(json& j, const CalibID &s)
     j["value"] = s.value;
   if (s.units.size())
     j["units"] = s.units;
-  if (s.bits > 0)
-    j["bits"] = s.bits;
 }
 
 void from_json(const json& j, CalibID &s)
@@ -78,8 +67,6 @@ void from_json(const json& j, CalibID &s)
     s.value = j["value"];
   if (j.count("units"))
     s.units = j["units"];
-  if (j.count("bits"))
-    s.bits = j["bits"];
 }
 
 Calibration::Calibration(CalibID from, CalibID to)
@@ -109,6 +96,53 @@ CalibID Calibration::from() const
 {
   return from_;
 }
+
+
+double shift_down(double v, uint16_t bits)
+{
+  return v / pow(2, bits);
+}
+
+double shift_up(double v, uint16_t bits)
+{
+  return v * pow(2, bits);
+}
+
+double shift(double v, int16_t bits)
+{
+  if (!bits)
+    return v;
+  else if (bits < 0)
+    return shift_down(v, -bits);
+  else
+    return shift_up(v, bits);
+}
+
+void shift_down(std::vector<double>& vec, uint16_t bits)
+{
+  double factor = pow(2, bits);
+  for (auto& v : vec)
+    v /= factor;
+}
+
+void shift_up(std::vector<double>& vec, uint16_t bits)
+{
+  double factor = pow(2, bits);
+  for (auto& v : vec)
+    v *= factor;
+}
+
+void shift(std::vector<double>& vec, int16_t bits)
+{
+  if (!bits)
+    return;
+  else if (bits < 0)
+    shift_down(vec, -bits);
+  else
+    shift_up(vec, bits);
+}
+
+
 
 boost::posix_time::ptime Calibration::calib_date() const
 {
@@ -155,29 +189,6 @@ double Calibration::inverse_transform(double energy) const
   return energy;
 }
 
-double Calibration::transform(double chan, uint16_t bits) const
-{
-  if (!from_.bits || !bits || !valid())
-    return chan;
-  if (bits > from_.bits)
-    chan = chan / pow(2, bits - from_.bits);
-  if (bits < from_.bits)
-    chan = chan * pow(2, from_.bits - bits);
-  return transform(chan);
-}
-
-double Calibration::inverse_transform(double energy, uint16_t bits) const
-{
-  if (!from_.bits || !bits || !valid())
-    return energy; //NaN?
-  double bin = inverse_transform(energy);
-  if (bits > from_.bits)
-    bin = bin * pow(2, bits - from_.bits);
-  if (bits < from_.bits)
-    bin = bin / pow(2, from_.bits - bits);
-  return bin;
-}
-
 std::string Calibration::fancy_equation(bool with_chi2) const
 {
   if (valid())
@@ -188,13 +199,19 @@ std::string Calibration::fancy_equation(bool with_chi2) const
   return "N/A";
 }
 
-std::vector<double> Calibration::transform(const std::vector<double> &chans,
-                                           uint16_t bits) const
+void Calibration::transform_ref(std::vector<double>& data) const
 {
-  std::vector<double> results;
-  for (auto &q : chans)
-    results.push_back(transform(q, bits));
-  return results;
+  if (valid())
+    for (auto& d : data)
+      d = function_->eval(d);
+}
+
+std::vector<double> Calibration::transform_copy(const std::vector<double> &data) const
+{
+  std::vector<double> ret;
+  for (auto &q : data)
+    ret.push_back(transform(q));
+  return ret;
 }
 
 std::string Calibration::coefs_to_string() const

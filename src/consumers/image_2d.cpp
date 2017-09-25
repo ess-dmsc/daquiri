@@ -93,8 +93,8 @@ void Image2D::_set_detectors(const std::vector<Detector>& dets)
 
 void Image2D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0));
-  data_->set_axis(1, DataAxis(Calibration(), 0));
+  data_->set_axis(0, DataAxis(Calibration()));
+  data_->set_axis(1, DataAxis(Calibration()));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -103,13 +103,13 @@ void Image2D::_recalc_axes()
   {
     auto det = metadata_.detectors[i];
     std::string valname = (i == 0) ? x_name_ : y_name_;
-    CalibID from(det.id(), valname, "", 0);
-    CalibID to("", valname, "", 0);
-    auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0));
+    CalibID from(det.id(), valname, "");
+    CalibID to("", valname, "");
+    auto calib = det.get_calibration(from, to);
+    data_->set_axis(i, DataAxis(calib));
   }
 
-  data_->recalc_axes(0);
+  data_->recalc_axes();
 }
 
 void Image2D::_push_stats(const Status& manifest)

@@ -10,7 +10,7 @@ public:
   { return new TimeSpectrum(*this); }
   
 protected:
-  std::string my_type() const override {return "TimeSpectrum";}
+  std::string my_type() const override {return "TimeSpectrum 2D";}
 
   bool _initialize() override;
   void _init_from_file() override;
@@ -23,8 +23,11 @@ protected:
   bool channel_relevant(int16_t channel) const override;
 
   // cached parameters:
+  double time_resolution_ {1};
+  std::string units_name_;
+  double units_multiplier_{1};
+
   uint16_t downsample_ {0};
-  uint32_t cutoff_ {0};
   Pattern channels_;
   std::string val_name_;
 
@@ -36,6 +39,9 @@ protected:
   std::vector<PreciseFloat> seconds_;
   std::vector<Status> updates_;
 
+
+  std::vector<double> domain_;
+
   //reserve memory
-  Coords coords_ {0, 0};
+  Coords coords_ {0,0};
 };

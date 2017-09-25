@@ -3,6 +3,8 @@
 #include <boost/date_time.hpp>
 #include "coef_function.h"
 
+#include <type_traits>
+
 namespace DAQuiri {
 
 struct CalibID
@@ -10,11 +12,10 @@ struct CalibID
     std::string detector;
     std::string value;
     std::string units;
-    uint16_t bits {0};
 
     CalibID() {}
-    CalibID(std::string det, std::string val,
-            std::string unit, uint16_t b);
+    CalibID(std::string val, std::string det = "",
+            std::string unit = "");
 
     bool valid() const;
     bool operator== (const CalibID& other) const;
@@ -39,12 +40,12 @@ class Calibration
     Calibration(CalibID from, CalibID to);
 
     bool valid() const;
+
     double transform(double) const;
-    double transform(double, uint16_t) const;
-    std::vector<double> transform(const std::vector<double>&,
-                                  uint16_t bits) const;
     double inverse_transform(double) const;
-    double inverse_transform(double, uint16_t) const;
+
+    void transform_ref(std::vector<double>&) const;
+    std::vector<double> transform_copy(const std::vector<double>&data) const;
 
     CalibID to() const;
     CalibID from() const;
@@ -67,5 +68,16 @@ class Calibration
     std::string coefs_to_string() const;
     static std::vector<double> coefs_from_string(const std::string&);
 };
+
+//use traits!!!
+
+double shift_down(double v, uint16_t bits);
+double shift_up(double v, uint16_t bits);
+double shift(double v, int16_t bits);
+
+void shift_down(std::vector<double>& vec, uint16_t bits);
+void shift_up(std::vector<double>& vec, uint16_t bits);
+void shift(std::vector<double>& vec, int16_t bits);
+
 
 }

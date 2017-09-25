@@ -85,7 +85,7 @@ void Coincidence1D::_set_detectors(const std::vector<Detector>& dets)
 
 void Coincidence1D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0));
+  data_->set_axis(0, DataAxis(Calibration()));
 
   if (data_->dimensions() != metadata_.detectors.size())
     return;
@@ -93,13 +93,13 @@ void Coincidence1D::_recalc_axes()
   for (size_t i=0; i < metadata_.detectors.size(); ++i)
   {
     auto det = metadata_.detectors[i];
-    CalibID from(det.id(), val_name_, "", 0);
-    CalibID to("", val_name_, "", 0);
-    auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0));
+    CalibID from(det.id(), val_name_, "");
+    CalibID to("", val_name_, "");
+    auto calib = det.get_calibration(from, to);
+    data_->set_axis(i, DataAxis(calib));
   }
 
-  data_->recalc_axes(0);
+  data_->recalc_axes();
 }
 
 bool Coincidence1D::event_relevant(const Event& e) const

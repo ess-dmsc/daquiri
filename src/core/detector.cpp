@@ -75,25 +75,8 @@ Calibration Detector::get_calibration(CalibID from, CalibID to) const
       continue;
     if (to.valid() && !c.to().compare(to))
       continue;
-    if ((from.bits > 16) && (c.from().bits < ret.from().bits))
-      continue;
-    if ((to.bits > 16) && (c.to().bits < ret.to().bits))
-      continue;
     ret = c;
   }
-  return ret;
-}
-
-Calibration Detector::get_preferred_calibration(CalibID from, CalibID to) const
-{
-  auto ret = get_calibration(from, to);
-  if (ret.valid())
-    return ret;
-  CalibID f = from;
-  CalibID t = to;
-  f.bits = 99;
-  t.bits = 99;
-  ret = get_calibration(from, to);
   if (ret.valid())
     return ret;
   return Calibration(from, to);

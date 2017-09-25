@@ -2,6 +2,7 @@
 
 #include "sparse_map2d.h"
 #include "sparse_matrix2d.h"
+#include "dense_matrix2d.h"
 
 #include "custom_logger.h"
 
@@ -12,6 +13,7 @@ Histogram2D::Histogram2D()
 {
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
+//  data_ = std::make_shared<DenseMatrix2D>();
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event-based 2D spectrum");
@@ -87,23 +89,20 @@ void Histogram2D::_set_detectors(const std::vector<Detector>& dets)
 
 void Histogram2D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0));
-  data_->set_axis(1, DataAxis(Calibration(), 0));
-
-  if (data_->dimensions() != metadata_.detectors.size())
-    return;
-
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
+  Detector det0, det1;
+  if (data_->dimensions() == metadata_.detectors.size())
   {
-    auto det = metadata_.detectors[i];
-    std::string valname = (i == 0) ? x_name_ : y_name_;
-    CalibID from(det.id(), valname, "", 0);
-    CalibID to("", valname, "", 0);
-    auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0));
+    det0 = metadata_.detectors[0];
+    det1 = metadata_.detectors[1];
   }
 
-  data_->recalc_axes(0);
+  auto calib0 = det0.get_calibration({x_name_, det0.id()}, {x_name_});
+  data_->set_axis(0, DataAxis(calib0, downsample_));
+
+  auto calib1 = det1.get_calibration({y_name_, det1.id()}, {y_name_});
+  data_->set_axis(1, DataAxis(calib1, downsample_));
+
+  data_->recalc_axes();
 }
 
 void Histogram2D::_push_stats(const Status& manifest)

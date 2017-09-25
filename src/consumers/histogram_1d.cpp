@@ -88,21 +88,14 @@ void Histogram1D::_set_detectors(const std::vector<Detector>& dets)
 
 void Histogram1D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration(), 0));
+  Detector det;
+  if (data_->dimensions() == metadata_.detectors.size())
+    det = metadata_.detectors[0];
 
-  if (data_->dimensions() != metadata_.detectors.size())
-    return;
+  auto calib = det.get_calibration({val_name_, det.id()}, {val_name_});
+  data_->set_axis(0, DataAxis(calib, downsample_));
 
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
-  {
-    auto det = metadata_.detectors[i];
-    CalibID from(det.id(), val_name_, "", 0);
-    CalibID to("", val_name_, "", 0);
-    auto calib = det.get_preferred_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib, 0));
-  }
-
-  data_->recalc_axes(0);
+  data_->recalc_axes();
 }
 
 bool Histogram1D::channel_relevant(int16_t channel) const

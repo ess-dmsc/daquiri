@@ -11,7 +11,10 @@ Consumer2D::Consumer2D(QWidget *parent)
 {
   QVBoxLayout* fl = new QVBoxLayout();
   fl->addWidget(plot_);
-  plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
+
+//  plot_->setOpenGl(true);
+
+  plot_->setSizePolicy(QSizePolicy::Preferred,
                        QSizePolicy::MinimumExpanding);
   plot_->setGradient("Spectrum2");
   plot_->setShowGradientLegend(true);
@@ -31,36 +34,11 @@ void Consumer2D::update()
 
   //  CustomTimer guiside(true);
 
-  ConsumerMetadata md = consumer_->metadata();
   DataspacePtr data = consumer_->data();
+  ConsumerMetadata md = consumer_->metadata();
 
-  DataAxis axis_x, axis_y;
-  EntryList spectrum_data;
-  uint32_t res_x {0};
-  uint32_t res_y {0};
-
-//  bool buffered = md.get_attribute("buffered").triggered();
-//  PreciseFloat total = md.get_attribute("total_count").get_number();
-
-  if (data)
-  {
-    axis_x = data->axis(0);
-    axis_y = data->axis(1);
-    res_x = axis_x.bounds().second;
-    res_y = axis_y.bounds().second;
-    spectrum_data = data->range({{0, res_x}, {0, res_y}});
-  }
-
-//  if (!res_x || !res_y)
-//  {
-//    plot_->clearAll();
-//    plot_->replot();
-//    return;
-//  }
-
-  double rescale  = md.get_attribute("rescale").get_number();
-  if (!std::isfinite(rescale) || !rescale)
-    rescale = 1;
+  std::string new_label = md.get_attribute("name").get_text();
+  setWindowTitle(QString::fromStdString(new_label).trimmed());
 
   if (!initial_scale_)
   {
@@ -70,27 +48,38 @@ void Consumer2D::update()
     initial_scale_ = true;
   }
 
+  double rescale  = md.get_attribute("rescale").get_number();
+  if (!std::isfinite(rescale) || !rescale)
+    rescale = 1;
+
   QPlot::HistList2D hist;
-  if (spectrum_data)
-    for (auto p : *spectrum_data)
-      hist.push_back(QPlot::p2d(p.first.at(0),
-                                p.first.at(1),
-                                rescale * to_double(p.second)));
+  if (data)
+  {
+    auto spectrum_data = data->all_data();
+    if (spectrum_data)
+      for (const auto& p : *spectrum_data)
+        hist.push_back(QPlot::p2d(p.first[0],
+                                  p.first[1],
+                                  rescale * to_double(p.second)));
+  }
 
   if (!hist.empty())
   {
+    DataAxis axis_x = data->axis(0);
+    DataAxis axis_y = data->axis(1);
+
+    uint32_t res_x = axis_x.bounds().second;
+    uint32_t res_y = axis_y.bounds().second;
+
     plot_->clearExtras();
     plot_->clearData();
     plot_->setAxes(
-          QString::fromStdString(axis_x.label()), 0, res_x+1,
-          QString::fromStdString(axis_y.label()), 0, res_y+1,
-          "Event count");
+          QString::fromStdString(axis_x.label()), axis_x.domain[0], axis_x.domain[res_x],
+          QString::fromStdString(axis_y.label()), axis_y.domain[0], axis_y.domain[res_y],
+          "count");
     plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->replotExtras();
   }
-
-  std::string new_label = md.get_attribute("name").get_text();
-  setWindowTitle(QString::fromStdString(new_label).trimmed());
 
   if (!user_zoomed_)
     plot_->zoomOut();
@@ -100,7 +89,7 @@ void Consumer2D::update()
 
 void Consumer2D::refresh()
 {
-  plot_->replot();
+  plot_->replot(QCustomPlot::rpQueuedRefresh);
 }
 
 

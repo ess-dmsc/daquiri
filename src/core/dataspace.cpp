@@ -3,20 +3,16 @@
 
 namespace DAQuiri {
 
-DataAxis::DataAxis(Calibration c, size_t resolution)
+DataAxis::DataAxis(Calibration c, int16_t resample_shift)
 {
   calibration = c;
-  domain.resize(resolution);
-  for (size_t i=0; i < resolution; ++i)
-    domain[i] = calibration.transform(i);
+  resample_shift_ = resample_shift;
 }
 
-DataAxis::DataAxis(Calibration c, size_t resolution, uint16_t bits)
+DataAxis::DataAxis(Calibration c, std::vector<double> dom)
 {
   calibration = c;
-  domain.resize(resolution);
-  for (size_t i=0; i < resolution; ++i)
-    domain[i] = calibration.transform(i, bits);
+  domain = dom;
 }
 
 void DataAxis::expand_domain(size_t ubound)
@@ -28,19 +24,12 @@ void DataAxis::expand_domain(size_t ubound)
   domain.resize(ubound+1);
 
   for (size_t i=oldbound; i <= ubound; ++i)
-    domain[i] = calibration.transform(i);
-}
-
-void DataAxis::expand_domain(size_t ubound, uint16_t bits)
-{
-  if (ubound < domain.size())
-    return;
-
-  size_t oldbound = domain.size();
-  domain.resize(ubound+1);
-
-  for (size_t i=oldbound; i <= ubound; ++i)
-    domain[i] = calibration.transform(i, bits);
+  {
+    double ii = i;
+    if (resample_shift_)
+      ii = shift(ii, resample_shift_);
+    domain[i] = calibration.transform(ii);
+  }
 }
 
 Pair DataAxis::bounds() const
@@ -59,8 +48,6 @@ std::string DataAxis::label() const
     ss << calibration.from().value;
   if (!calibration.to().units.empty())
     ss << " (" << calibration.to().units << ")";
-  else
-    ss << " (" << calibration.from().bits << " bits)";
   return ss.str();
 }
 
@@ -92,6 +79,13 @@ Dataspace::Dataspace(const Dataspace& other)
   , axes_ (other.axes_)
 {}
 
+EntryList Dataspace::all_data() const
+{
+  std::vector<Pair> ranges;
+  for (auto a : axes_)
+    ranges.push_back(a.bounds());
+  return this->range(ranges);
+}
 
 DataAxis Dataspace::axis(uint16_t dimension) const
 {

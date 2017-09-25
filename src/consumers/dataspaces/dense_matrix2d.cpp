@@ -1,41 +1,42 @@
-#include "sparse_matrix2d.h"
+#include "dense_matrix2d.h"
 #include "ascii_tree.h"
 
 namespace DAQuiri
 {
 
-SparseMatrix2D::SparseMatrix2D()
+DenseMatrix2D::DenseMatrix2D()
   : Dataspace(2)
+  , spectrum_(100,100)
 {}
 
-void SparseMatrix2D::reserve(const Coords& limits)
+void DenseMatrix2D::reserve(const Coords& limits)
 {
   if (limits.size() != dimensions())
     return;
   spectrum_.conservativeResize(limits[0] + 1, limits[1] + 1);
 }
 
-void SparseMatrix2D::clear()
+void DenseMatrix2D::clear()
 {
   total_count_ = 0;
   spectrum_.setZero();
 }
 
-void SparseMatrix2D::add(const Entry& e)
+void DenseMatrix2D::add(const Entry& e)
 {
   if ((e.first.size() != dimensions()) || !e.second)
     return;
   bin_pair(e.first[0], e.first[1], e.second);
 }
 
-void SparseMatrix2D::add_one(const Coords& coords)
+void DenseMatrix2D::add_one(const Coords& coords)
 {
   if (coords.size() != dimensions())
     return;
   bin_one(coords[0], coords[1]);
 }
 
-void SparseMatrix2D::recalc_axes()
+void DenseMatrix2D::recalc_axes()
 {
   auto ax0 = axis(0);
   ax0.expand_domain(limits_[0]);
@@ -46,14 +47,14 @@ void SparseMatrix2D::recalc_axes()
   set_axis(1, ax1);
 }
 
-PreciseFloat SparseMatrix2D::get(const Coords&  coords) const
+PreciseFloat DenseMatrix2D::get(const Coords&  coords) const
 {
   if (coords.size() != dimensions())
     return 0;  
   return spectrum_.coeff(coords[0], coords[1]);
 }
 
-EntryList SparseMatrix2D::range(std::vector<Pair> list) const
+EntryList DenseMatrix2D::range(std::vector<Pair> list) const
 {
   size_t min0, min1, max0, max1;
   if (list.size() != dimensions())
@@ -80,26 +81,22 @@ EntryList SparseMatrix2D::range(std::vector<Pair> list) const
   return result;
 }
 
-void SparseMatrix2D::fill_list(EntryList& result,
+void DenseMatrix2D::fill_list(EntryList& result,
                          size_t min0, size_t max0,
                          size_t min1, size_t max1) const
 {
-  for (int k=0; k < spectrum_.outerSize(); ++k)
+  for (size_t k=min0; k <= max0; ++k)
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
+    for (size_t l=min1; l <= max1; ++l)
     {
-      
-      const auto& co0 = it.row(); // row index
-      const auto& co1 = it.col(); // col index (here it is equal to k)
-      if ((min0 > co0) || (co0 > max0) ||
-          (min1 > co1) || (co1 > max1))
-        continue;
-      result->push_back({{static_cast<unsigned long>(co0), static_cast<unsigned long>(co1)}, it.value()});
+      result->push_back({{static_cast<unsigned long>(k),
+                          static_cast<unsigned long>(l)},
+                          spectrum_.coeff(k,l)});
     }
   }
 }
 
-void SparseMatrix2D::save(H5CC::Group& g) const
+void DenseMatrix2D::save(H5CC::Group& g) const
 {
   auto dgroup = g.require_group("data");
   auto didx = dgroup.require_dataset<uint16_t>("indices", {static_cast<unsigned long long>(spectrum_.nonZeros()), 2}, {128,2});
@@ -107,21 +104,21 @@ void SparseMatrix2D::save(H5CC::Group& g) const
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
   std::vector<double> dc(spectrum_.size());
-  size_t i = 0;
-  for (int k=0; k < spectrum_.outerSize(); ++k) {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it) {
-      dx[i] = it.row();
-      dy[i] = it.col();
-      dc[i] = static_cast<double>(it.value());
-      i++;
-    }
-  }
+//  size_t i = 0;
+//  for (int k=0; k < spectrum_.outerSize(); ++k) {
+//    for (data_type_t::InnerIterator it(spectrum_,k); it; ++it) {
+//      dx[i] = it.row();
+//      dy[i] = it.col();
+//      dc[i] = static_cast<double>(it.value());
+//      i++;
+//    }
+//  }
   didx.write(dx, {static_cast<unsigned long long>(spectrum_.nonZeros()), 1}, {0,0});
   didx.write(dy, {static_cast<unsigned long long>(spectrum_.nonZeros()), 1}, {0,1});
   dcts.write(dc);
 }
 
-void SparseMatrix2D::load(H5CC::Group& g)
+void DenseMatrix2D::load(H5CC::Group& g)
 {
   if (!g.has_group("data"))
     return;
@@ -150,17 +147,20 @@ void SparseMatrix2D::load(H5CC::Group& g)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
-std::string SparseMatrix2D::data_debug(const std::string &prepend) const
+std::string DenseMatrix2D::data_debug(const std::string &prepend) const
 {
-  double maximum {0};
-  for (int k=0; k < spectrum_.outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
-      maximum = std::max(maximum, to_double(it.value()));
+  uint64_t maximum {0};
+  for (int k=0; k < spectrum_.rows(); ++k)
+    for (int l=0; l < spectrum_.cols(); ++l)
+      maximum = std::max(maximum, spectrum_(k,l));
   
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
   
-  ss << "Maximum=" << maximum << "\n";
+  ss << "Maximum=" << maximum
+     << " rows=" << spectrum_.rows()
+     << " cols=" << spectrum_.cols()
+     << "\n";
   if (!maximum)
     return ss.str();
   
@@ -168,9 +168,11 @@ std::string SparseMatrix2D::data_debug(const std::string &prepend) const
   {
     for (uint16_t j = 0; j <= limits_[1]; j++)
     {
-      uint16_t v = 0;
-      v = spectrum_.coeff(i, j);
-      ss << representation[v / maximum * 93];
+//      uint16_t v = 0;
+      double v = spectrum_(i, j);
+      ss << v << " ";
+
+//      ss << representation[static_cast<uint16_t>(v / maximum * 93)];
     }
     ss << "\n";
   }
@@ -178,11 +180,11 @@ std::string SparseMatrix2D::data_debug(const std::string &prepend) const
   return ss.str();
 }
 
-bool SparseMatrix2D::is_symmetric()
+bool DenseMatrix2D::is_symmetric()
 {
-  for (int k=0; k < spectrum_.outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
-      if (spectrum_.coeff(it.col(), it.row()) != it.value())
+  for (int k=0; k < spectrum_.rows(); ++k)
+    for (int l=0; l < spectrum_.cols(); ++l)
+      if (spectrum_.coeff(k, l) != spectrum_.coeff(l, k))
         return false;
   return true;
 }
