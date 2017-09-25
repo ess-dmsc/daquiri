@@ -13,13 +13,13 @@ TOFVal2D::TOFVal2D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time of flight vs. value 2D spectrum");
 
-  SettingMeta res("time_resolution", SettingType::floating);
+  SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "units (see below)");
   base_options.branches.add(res);
 
-  SettingMeta units("units", SettingType::menu);
+  SettingMeta units("time_units", SettingType::menu, "Time units");
   units.set_flag("preset");
   units.set_enum(0, "ns");
   units.set_enum(3, "\u03BCs");
@@ -33,7 +33,7 @@ TOFVal2D::TOFVal2D()
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
-  SettingMeta ds("value_downsample", SettingType::integer);
+  SettingMeta ds("downsample", SettingType::integer, "Downsample value by");
   ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
@@ -56,8 +56,8 @@ bool TOFVal2D::_initialize()
   val_name_ = metadata_.get_attribute("value_name").get_text();
   downsample_ = metadata_.get_attribute("value_downsample").get_number();
 
-  auto unit = metadata_.get_attribute("units").selection();
-  units_name_ = metadata_.get_attribute("units").metadata().enum_name(unit);
+  auto unit = metadata_.get_attribute("time_units").selection();
+  units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
 
   time_resolution_ /= units_multiplier_;
@@ -90,24 +90,17 @@ void TOFVal2D::_set_detectors(const std::vector<Detector>& dets)
 
 void TOFVal2D::_recalc_axes()
 {
-//  data_->set_axis(0, DataAxis(Calibration(), 0));
-//  data_->set_axis(1, DataAxis(Calibration(), 0));
-
   Detector det;
   if (metadata_.detectors.size() == 1)
     det = metadata_.detectors[0];
-  CalibID from(det.id(), val_name_, "");
-  CalibID to("", val_name_, "");
-  auto calib = det.get_calibration(from, to);
-  data_->set_axis(1, DataAxis(calib));
+
+  auto calib = det.get_calibration({val_name_, det.id()}, {val_name_});
+  data_->set_axis(1, DataAxis(calib, downsample_));
 
   data_->recalc_axes();
 
   CalibID id("", "time", units_name_);
-  DataAxis ax;
-  ax.calibration = Calibration(id, id);
-  ax.domain = domain_;
-  data_->set_axis(0, ax);
+  data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
 bool TOFVal2D::channel_relevant(int16_t channel) const
@@ -150,8 +143,8 @@ void TOFVal2D::_push_event(const Event& e)
       || !time_resolution_)
     return;
 
-  double nsecs =
-      TimeStamp(e.timestamp().native() - pulse_times_[c], e.timestamp().base()).nanosecs();
+  double nsecs = e.timestamp().nanosecs() -
+      TimeStamp(pulse_times_[c], e.timestamp().base()).nanosecs();
 
   if (nsecs < 0)
     return;

@@ -54,7 +54,6 @@ protected:
   EventModel model_hit;
 
   uint32_t  resolution_ {0};
-  int       event_interval_ {150};
 
   // runtime
 //  std::normal_distribution<double> dist_;

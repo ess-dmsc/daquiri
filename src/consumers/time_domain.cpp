@@ -16,17 +16,25 @@ TimeDomain::TimeDomain()
   app.set_val("description", "Plot appearance");
   base_options.branches.add(Setting(app));
 
-  SettingMeta res("co-domain", SettingType::menu);
-  res.set_flag("preset");
-  res.set_enum(0, "event rate");
-  res.set_enum(1, "% dead-time");
-  res.set_val("description", "Choice of dependent variable");
-  base_options.branches.add(res);
-
   SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
   add_channels.set_flag("preset");
   add_channels.set_val("chans", 1);
   base_options.branches.add(add_channels);
+
+  SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
+  res.set_flag("preset");
+  res.set_val("min", 1);
+  res.set_val("units", "units (see below)");
+  base_options.branches.add(res);
+
+  SettingMeta units("time_units", SettingType::menu, "Time units");
+  units.set_flag("preset");
+  units.set_enum(0, "ns");
+  units.set_enum(3, "\u03BCs");
+  units.set_enum(6, "ms");
+  units.set_enum(9, "s");
+  units.set_val("description", "Domain scale");
+  base_options.branches.add(units);
 
   metadata_.overwrite_all_attributes(base_options);
   //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
@@ -37,7 +45,12 @@ bool TimeDomain::_initialize()
   Spectrum::_initialize();
 
   channels_ = metadata_.get_attribute("add_channels").pattern();
-  codomain = metadata_.get_attribute("co-domain").selection();
+
+  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  auto unit = metadata_.get_attribute("time_units").selection();
+  units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
+  units_multiplier_ = std::pow(10, unit);
+  time_resolution_ /= units_multiplier_;
 
   int adds = 1; //0;
   //  std::vector<bool> gts = add_channels_.gates();
@@ -88,11 +101,8 @@ void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
 
 void TimeDomain::_recalc_axes()
 {
-  CalibID id("", "time", "s");
-  DataAxis ax;
-  ax.calibration = Calibration(id, id);
-  ax.domain = seconds_;
-  data_->set_axis(0, ax);
+  CalibID id("time", "", units_name_);
+  data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
 bool TimeDomain::channel_relevant(int16_t channel) const
@@ -104,104 +114,26 @@ void TimeDomain::_push_event(const Event& e)
 {
   const auto& c = e.channel();
 
-  if (!this->channel_relevant(c))
+  if (!this->channel_relevant(c)
+      || !time_resolution_)
     return;
 
+  double nsecs = e.timestamp().nanosecs();
+
+  coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
+
+  if (coords_[0] >= domain_.size())
+  {
+    size_t oldbound = domain_.size();
+    domain_.resize(coords_[0]+1);
+
+    for (size_t i=oldbound; i <= coords_[0]; ++i)
+      domain_[i] = i / time_resolution_ / units_multiplier_;
+  }
+
+  data_->add_one(coords_);
   total_count_++;
   recent_count_++;
-}
-
-void TimeDomain::_push_stats(const Status& status)
-{
-  if (!this->channel_relevant(status.channel()))
-    return;
-
-  PreciseFloat real = 0;
-  PreciseFloat live = 0;
-  PreciseFloat percent_dead = 0;
-  PreciseFloat tot_time = 0;
-
-  if (!updates_.empty())
-  {
-    Status start = updates_.back();
-    if ((status.type() == StatusType::stop) &&
-        (start.type() == StatusType::running))
-    {
-      updates_.pop_back();
-      seconds_.pop_back();
-      spectrum_.pop_back();
-      counts_.push_back(recent_count_ + counts_.back());
-    }
-    else
-      counts_.push_back(recent_count_);
-
-    PreciseFloat diff_native{0}, diff_live{0};
-    if (status.stats().count("native_time") && start.stats().count("native_time"))
-      diff_native = status.stats().at("native_time") - start.stats().at("native_time");
-    if (status.stats().count("live_time") && start.stats().count("live_time"))
-      diff_live = status.stats().at("live_time") - start.stats().at("live_time");
-
-    boost::posix_time::time_duration rt ,lt;
-    lt = rt = status.time() - start.time();
-
-    PreciseFloat scale_factor = 1;
-    if (diff_native > 0)
-      scale_factor = rt.total_microseconds() / diff_native;
-    if (diff_live)
-    {
-      PreciseFloat scaled_live = diff_live * scale_factor;
-      lt = boost::posix_time::microseconds(static_cast<double>(scaled_live));
-    }
-
-    real     = rt.total_milliseconds()  * 0.001;
-    tot_time = (status.time() - updates_.front().time()).total_milliseconds() * 0.001;
-
-    live = lt.total_milliseconds() * 0.001;
-
-    percent_dead = (real - live) / real * 100;
-
-  } else
-    counts_.push_back(recent_count_);
-
-//  DBG << "Live time = " << live
-//      << " Real time = " << live
-//      << " dead% " << percent_dead
-//      << " for " << codomain;
-
-  if (seconds_.empty() || (tot_time != 0))
-  {
-    PreciseFloat count = 0;
-
-    if (codomain == 0)
-    {
-      count = counts_.back();
-      if (live > 0)
-        count /= live;
-    }
-    else if (codomain == 1)
-    {
-      count = percent_dead;
-    }
-
-    seconds_.push_back(to_double(tot_time));
-    updates_.push_back(status);
-
-    spectrum_.push_back(count);
-
-    //      DBG << "<TimeDomain> \"" << metadata_.name << "\" chan " << int(status.channel) << " nrgs.size="
-    //             << energies_[0].size() << " nrgs.last=" << energies_[0][energies_[0].size()-1]
-    //             << " spectrum.size=" << spectrum_.size() << " spectrum.last=" << spectrum_[spectrum_.size()-1].convert_to<double>();
-  }
-
-  data_->clear();
-  for (size_t i=0; i < spectrum_.size(); ++i)
-  {
-    entry_.first[0] = i;
-    entry_.second = spectrum_[i];
-    data_->add(entry_);
-  }
-
-  Spectrum::_push_stats(status);
 }
 
 

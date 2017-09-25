@@ -19,18 +19,16 @@ protected:
 
   //event processing
   void _push_event(const Event&) override;
-  void _push_stats(const Status&) override;
   bool channel_relevant(int16_t channel) const override;
 
   //cached parameters
   Pattern channels_;
-  int codomain {0};
+  double time_resolution_ {1};
+  std::string units_name_;
+  double units_multiplier_{1};
 
-  std::vector<PreciseFloat> spectrum_;
-  std::vector<PreciseFloat> counts_;
-  std::vector<double> seconds_;
-  std::vector<Status>  updates_;
+  std::vector<double> domain_;
 
   //reserve memory
-  Entry entry_ {{0}, 0};
+  Coords coords_ {0};
 };

@@ -28,7 +28,7 @@ Histogram2D::Histogram2D()
   y_name.set_val("description", "Name of event value for y coordinate");
   base_options.branches.add(y_name);
 
-  SettingMeta ds("downsample", SettingType::integer);
+  SettingMeta ds("downsample", SettingType::integer, "Downsample x&y by");
   ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);

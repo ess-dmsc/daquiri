@@ -34,12 +34,6 @@ protected:
   //from status manifest
   std::vector<int> value_idx_;
 
-  //data
-  std::vector<std::vector<PreciseFloat>> spectra_;
-  std::vector<PreciseFloat> seconds_;
-  std::vector<Status> updates_;
-
-
   std::vector<double> domain_;
 
   //reserve memory

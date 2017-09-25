@@ -243,9 +243,6 @@ void MockProducer::write_settings_bulk(const Setting &settings)
 
   resolution_ = pow(2, uint32_t(bits_));
 
-  // account for dead-time more realistically?
-  event_interval_ = model_hit.timebase.to_native(spill_interval_ * pow(10,9))
-      / count_rate_;
 }
 
 void MockProducer::boot()
@@ -279,7 +276,6 @@ void MockProducer::worker_run(MockProducer* callback,
   DBG << "<MockProducer> Starting run   "
       << "  timebase " << callback->model_hit.timebase.debug() << "ns"
       << "  init_rate=" << callback->count_rate_ << "cps"
-      << "  event_interval=" << callback->event_interval_ << "ticks"
       << "  lambda=" << callback->lambda_;
 
   CustomTimer timer(true);
@@ -307,7 +303,6 @@ void MockProducer::add_hit(Spill& spill)
 //  make_trace(h, 1000);
 
   spill.events.push_back(h);
-  clock_ += event_interval_;
 }
 
 uint16_t MockProducer::generate(size_t i)
@@ -356,6 +351,9 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
           << "  rate=" << rate;
     }
 
+    uint64_t event_interval
+        = model_hit.timebase.to_native(spill_interval_ * pow(10,9)) / rate;
+
     std::uniform_real_distribution<> dis(0, 1);
     uint32_t tothits = (rate * spill_interval_);
     for (uint32_t i=0; i< tothits; i++)
@@ -370,6 +368,7 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
       }
       else
         add_hit(*spill);
+      clock_ += event_interval;
     }
   }
 

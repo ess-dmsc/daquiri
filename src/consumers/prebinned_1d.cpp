@@ -74,6 +74,15 @@ void Prebinned1D::_set_detectors(const std::vector<Detector>& dets)
 
 void Prebinned1D::_recalc_axes()
 {
+//  Detector det;
+//  if (data_->dimensions() == metadata_.detectors.size())
+//    det = metadata_.detectors[0];
+
+//  auto calib = det.get_calibration({val_name_, det.id()}, {val_name_});
+//  data_->set_axis(0, DataAxis(calib, downsample_));
+
+//  data_->recalc_axes();
+
   CalibID id(trace_name_);
   DataAxis ax;
   ax.calibration = Calibration(id, id);

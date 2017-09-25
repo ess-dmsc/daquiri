@@ -16,7 +16,7 @@ Histogram1D::Histogram1D()
   SettingMeta app("appearance", SettingType::color, "Plot appearance");
   base_options.branches.add(Setting(app));
 
-  SettingMeta ds("downsample", SettingType::integer);
+  SettingMeta ds("downsample", SettingType::integer, "Downsample by");
   ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);

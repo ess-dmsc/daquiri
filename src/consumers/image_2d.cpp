@@ -31,10 +31,11 @@ Image2D::Image2D()
   v_name.set_val("description", "Name of event value for intensity");
   base_options.branches.add(v_name);
 
-  SettingMeta ds("downsample", SettingType::integer);
+  SettingMeta ds("downsample", SettingType::integer, "Downsample x&y by");
+  ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
-  ds.set_val("max", 15);
+  ds.set_val("max", 31);
   base_options.branches.add(ds);
 
   SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
@@ -93,21 +94,18 @@ void Image2D::_set_detectors(const std::vector<Detector>& dets)
 
 void Image2D::_recalc_axes()
 {
-  data_->set_axis(0, DataAxis(Calibration()));
-  data_->set_axis(1, DataAxis(Calibration()));
-
-  if (data_->dimensions() != metadata_.detectors.size())
-    return;
-
-  for (size_t i=0; i < metadata_.detectors.size(); ++i)
+  Detector det0, det1;
+  if (data_->dimensions() == metadata_.detectors.size())
   {
-    auto det = metadata_.detectors[i];
-    std::string valname = (i == 0) ? x_name_ : y_name_;
-    CalibID from(det.id(), valname, "");
-    CalibID to("", valname, "");
-    auto calib = det.get_calibration(from, to);
-    data_->set_axis(i, DataAxis(calib));
+    det0 = metadata_.detectors[0];
+    det1 = metadata_.detectors[1];
   }
+
+  auto calib0 = det0.get_calibration({x_name_, det0.id()}, {x_name_});
+  data_->set_axis(0, DataAxis(calib0, downsample_));
+
+  auto calib1 = det1.get_calibration({y_name_, det1.id()}, {y_name_});
+  data_->set_axis(1, DataAxis(calib1, downsample_));
 
   data_->recalc_axes();
 }
