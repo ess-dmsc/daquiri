@@ -99,7 +99,7 @@ void TOFVal2D::_recalc_axes()
 
   data_->recalc_axes();
 
-  CalibID id("", "time", units_name_);
+  CalibID id("time", "", units_name_);
   data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
