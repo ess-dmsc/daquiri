@@ -35,7 +35,7 @@ class mo01_nmx : public fb_parser
     EventModel hists_model_;
     EventModel trace_model_;
 
-    bool is_empty(const MonitorMessage&);
+    bool is_empty(const MonitorMessage *);
 
     void produce_hists(const GEMHist&, uint64_t utime, SpillPtr);
     void produce_tracks(const GEMTrack&, uint64_t utime, SpillPtr);
