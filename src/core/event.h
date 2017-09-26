@@ -9,7 +9,8 @@ class Event
 {
 private:
   int16_t       source_channel_ {-1};
-  TimeStamp     timestamp_;
+//  TimeStamp     timestamp_;
+  uint64_t      timestamp_ {0};
   std::vector<uint32_t>              values_;
   std::vector<std::vector<uint32_t>> traces_;
 
@@ -18,7 +19,7 @@ public:
 
   inline Event(int16_t sourcechan, const EventModel &model)
     : source_channel_(sourcechan)
-    , timestamp_(0, model.timebase)
+//    , timestamp_(0, model.timebase)
     , values_ (model.values)
   {
     for (auto t : model.traces)
@@ -36,7 +37,12 @@ public:
     return source_channel_;
   }
 
-  inline const TimeStamp& timestamp() const
+//  inline const TimeStamp& timestamp() const
+//  {
+//    return timestamp_;
+//  }
+
+  inline uint64_t timestamp() const
   {
     return timestamp_;
   }
@@ -64,20 +70,25 @@ public:
   }
 
   //Setters
-  inline void set_native_time(uint64_t t)
+  inline void set_time(uint64_t t)
   {
-    timestamp_.set_native(t);
+    timestamp_ = t;
   }
 
-  inline void set_timestamp(const TimeStamp& ts)
-  {
-    timestamp_ = ts;
-  }
+//  inline void set_native_time(uint64_t t)
+//  {
+//    timestamp_.set_native(t);
+//  }
 
-  inline void delay_ns(double ns)
-  {
-    timestamp_.delay(ns);
-  }
+//  inline void set_timestamp(const TimeStamp& ts)
+//  {
+//    timestamp_ = ts;
+//  }
+
+//  inline void delay_ns(double ns)
+//  {
+//    timestamp_.delay(ns);
+//  }
 
   inline void set_value(size_t idx, uint32_t val)
   {
@@ -115,7 +126,8 @@ public:
   inline std::string debug() const
   {
     std::stringstream ss;
-    ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
+    ss << "[ch" << source_channel_ << "|t" << timestamp_;
+//    ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
     if (traces_.size())
       ss << "|ntraces=" << traces_.size();
     for (auto &v : values_)

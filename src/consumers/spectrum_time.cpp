@@ -146,9 +146,15 @@ void TimeSpectrum::_push_stats(const Status& newBlock)
   Spectrum::_push_stats(newBlock);
 
   if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
+  {
     value_idx_.resize(newBlock.channel() + 1, -1);
+    timebase_.resize(newBlock.channel() + 1);
+  }
   if (newBlock.event_model().name_to_val.count(val_name_))
+  {
     value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
+    timebase_[newBlock.channel()] = newBlock.event_model().timebase;
+  }
 }
 
 void TimeSpectrum::_push_event(const Event& e)
@@ -160,7 +166,7 @@ void TimeSpectrum::_push_event(const Event& e)
       || !time_resolution_)
     return;
 
-  double nsecs = e.timestamp().nanosecs();
+  double nsecs = timebase_[c].to_nanosec(e.timestamp());
 
   coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
 
@@ -179,7 +185,6 @@ void TimeSpectrum::_push_event(const Event& e)
   }
 
   data_->add_one(coords_);
-
   total_count_++;
   recent_count_++;
 }

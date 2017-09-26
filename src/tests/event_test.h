@@ -16,8 +16,6 @@ TEST(Event, Init)
   hm.add_trace("wave", {3});
   DAQuiri::Event h2(2, hm);
   ASSERT_EQ(2, h2.channel());
-  ASSERT_EQ(DAQuiri::TimeBase(7,5),
-            h2.timestamp().base());
   ASSERT_EQ(1, h2.value_count());
   ASSERT_EQ(1, h2.trace_count());
   EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1 0]", h2.debug());
@@ -53,12 +51,9 @@ TEST(Event, Time)
   DAQuiri::EventModel hm;
   hm.timebase = DAQuiri::TimeBase(2,1);
   DAQuiri::Event h(2, hm);
-  ASSERT_EQ(DAQuiri::TimeBase(2,1), h.timestamp().base());
-  h.set_native_time(10);
-  ASSERT_EQ(20, h.timestamp().nanosecs());
-  h.set_timestamp(DAQuiri::TimeStamp(10, DAQuiri::TimeBase(7,5)));
-  ASSERT_EQ(14, h.timestamp().nanosecs());
-  EXPECT_EQ("[ch2|t10x(7/5)]", h.debug());
+  h.set_time(10);
+  ASSERT_EQ(10, h.timestamp());
+  EXPECT_EQ("[ch2|t10]", h.debug());
 }
 
 TEST(Event, Comparators)

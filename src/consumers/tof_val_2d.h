@@ -33,9 +33,10 @@ protected:
 
   //from status manifest
   std::vector<int> value_idx_;
+  std::vector<TimeBase> timebase_;
 
   // recent pulse times
-  std::map<int, uint64_t> pulse_times_;
+  std::vector<double> pulse_times_;
 
   std::vector<double> domain_;
 

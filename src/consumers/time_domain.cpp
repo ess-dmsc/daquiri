@@ -110,6 +110,18 @@ bool TimeDomain::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
+void TimeDomain::_push_stats(const Status& newBlock)
+{
+  if (!this->channel_relevant(newBlock.channel()))
+    return;
+
+  Spectrum::_push_stats(newBlock);
+
+  if (newBlock.channel() >= static_cast<int16_t>(timebase_.size()))
+    timebase_.resize(newBlock.channel() + 1);
+  timebase_[newBlock.channel()] = newBlock.event_model().timebase;
+}
+
 void TimeDomain::_push_event(const Event& e)
 {
   const auto& c = e.channel();
@@ -118,7 +130,7 @@ void TimeDomain::_push_event(const Event& e)
       || !time_resolution_)
     return;
 
-  double nsecs = e.timestamp().nanosecs();
+  double nsecs = timebase_[c].to_nanosec(e.timestamp());
 
   coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
 

@@ -19,6 +19,7 @@ protected:
 
   //event processing
   void _push_event(const Event&) override;
+  void _push_stats(const Status&) override;
   bool channel_relevant(int16_t channel) const override;
 
   //cached parameters
@@ -28,6 +29,9 @@ protected:
   double units_multiplier_{1};
 
   std::vector<double> domain_;
+
+  //from status manifest
+  std::vector<TimeBase> timebase_;
 
   //reserve memory
   Coords coords_ {0};

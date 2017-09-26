@@ -59,7 +59,7 @@ bool Spectrum::_initialize()
 bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
 {
   return (channel < static_cast<int16_t>(idx.size()))
-      && (idx.at(channel) >= 0);
+      && (idx[channel] >= 0);
 }
 
 PreciseFloat Spectrum::calc_recent_rate(const Status& status)

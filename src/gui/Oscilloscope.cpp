@@ -132,8 +132,8 @@ void Oscilloscope::replot()
         continue;
 
       QPlot::HistMap1D hist;
-      for (size_t j=0; j < trace.trace(0).size(); ++j)
-        hist[trace.timestamp().nanosecs() * 0.001] = trace.trace(0).at(j);
+//      for (size_t j=0; j < trace.trace(0).size(); ++j)
+//        hist[trace.timestamp().nanosecs() * 0.001] = trace.trace(0).at(j);
 
       if ((static_cast<int>(i) < my_channels.size()) && (my_channels[i].visible))
         ui->widgetPlot->addGraph(hist, QPen(my_channels[i].color, 1));

@@ -33,6 +33,7 @@ protected:
 
   //from status manifest
   std::vector<int> value_idx_;
+  std::vector<TimeBase> timebase_;
 
   std::vector<double> domain_;
 

@@ -603,7 +603,7 @@ void Engine::builder_chronological(SpillQueue data_queue,
             if ((!q->events.empty()) &&
                 (q->events.front().timestamp() == oldest.timestamp()))
             {
-              q->events.pop_front();
+//              q->events.pop_front(); //HACK HACK HACK
               presort_compares++;
               break;
             }

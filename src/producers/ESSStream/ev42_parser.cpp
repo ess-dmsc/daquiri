@@ -146,6 +146,8 @@ SpillPtr ev42_events::process_payload(void* msg,
   ret->stats[output_channel_].set_value("pulse_time", time_high);
   ret->stats[output_channel_].set_value("buf_id", buf_id);
 
+  ret->events.reserve(t_len);
+
   for (auto i=0; i < t_len; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
@@ -155,7 +157,7 @@ SpillPtr ev42_events::process_payload(void* msg,
     if (id) //must be non0?
     {
       Event e(output_channel_, evt_model_);
-      e.set_native_time(time);
+      e.set_time(time);
       geometry_.interpret_id(e, id);
       ret->events.push_back(e);
     }

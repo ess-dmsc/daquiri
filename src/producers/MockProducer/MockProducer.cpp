@@ -296,7 +296,7 @@ void MockProducer::add_hit(Spill& spill)
   int16_t chan0 {0};
 
   Event h(chan0, model_hit);
-  h.set_native_time(clock_);
+  h.set_time(clock_);
   for (size_t i=0; i < dists_.size(); ++i)
     h.set_value(i, generate(i));
 
@@ -356,6 +356,8 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 
     std::uniform_real_distribution<> dis(0, 1);
     uint32_t tothits = (rate * spill_interval_);
+    spill->events.reserve(tothits);
+
     for (uint32_t i=0; i< tothits; i++)
     {
       if (spill_lambda_ < 100)

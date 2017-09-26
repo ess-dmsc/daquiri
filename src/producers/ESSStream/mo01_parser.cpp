@@ -136,7 +136,7 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
 //  DBG << "Received GEMHist\n" << debug(hist);
 
   Event e(hists_channel_, hists_model_);
-  e.set_native_time(utime);
+  e.set_time(utime);
 
   grab_hist(e, 0, hist.xstrips());
   grab_hist(e, 1, hist.ystrips());
@@ -172,7 +172,7 @@ void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos> > *
   for (size_t i=0; i < data->Length(); ++i)
   {
     Event e(chan, trace_model_);
-    e.set_native_time(utime);
+    e.set_time(utime);
     auto element = data->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());

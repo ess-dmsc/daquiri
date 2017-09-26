@@ -28,8 +28,11 @@ protected:
   std::string units_name_;
   double units_multiplier_{1};
 
+  //from status manifest
+  std::vector<TimeBase> timebase_;
+
   // recent pulse times
-  std::map<int, uint64_t> pulse_times_;
+  std::vector<double> pulse_times_;
 
   std::vector<double> domain_;
 

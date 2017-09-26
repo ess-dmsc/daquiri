@@ -103,26 +103,33 @@ void TOF1D::_push_spill(const Spill& spill)
 {
   for (const auto& q : spill.stats)
   {
-    if (this->channel_relevant(q.second.channel()) &&
-        q.second.stats().count("pulse_time"))
-      pulse_times_[q.second.channel()] = q.second.stats().at("pulse_time");
+    if ((q.first < 0) ||
+        !this->channel_relevant(q.second.channel()))
+      continue;
+
+    timebase_.resize(q.first + 1);
+    pulse_times_.resize(q.first + 1, -1);
+
+    timebase_[q.first] = q.second.event_model().timebase;
+    if (q.second.stats().count("pulse_time"))
+      pulse_times_[q.first] = timebase_[q.first].to_nanosec(q.second.stats()["pulse_time"]);
   }
 
   Spectrum::_push_spill(spill);
 }
-
 
 void TOF1D::_push_event(const Event& e)
 {
   const auto& c = e.channel();
 
   if (!this->channel_relevant(c)
-      || !pulse_times_.count(c)
+      || (c < 0)
+      || (c >= pulse_times_.size())
+      || (pulse_times_[c] < 0)
       || !time_resolution_)
     return;
 
-  double nsecs = e.timestamp().nanosecs() -
-      TimeStamp(pulse_times_[c], e.timestamp().base()).nanosecs();
+  double nsecs = timebase_[c].to_nanosec(e.timestamp()) - pulse_times_[c];
 
   if (nsecs < 0)
     return;

@@ -390,8 +390,10 @@ void ListModeForm::spillSelectionChanged(int row)
       det += " (" + dets_[chan].id() + ")";
 
     add_to_table(ui->tableHits, i, 0, QS(det) );
-    add_to_table(ui->tableHits, i, 1, QS(hit.timestamp().debug()) );
-    add_to_table(ui->tableHits, i, 2, QS(to_str_decimals(hit.timestamp().nanosecs(), 0)) );
+    add_to_table(ui->tableHits, i, 1, QString::number(hit.timestamp()) );
+    if (hitmodels_.count(chan))
+      add_to_table(ui->tableHits, i, 2,
+                   QS(to_str_decimals(hitmodels_[chan].timebase.to_nanosec(hit.timestamp()), 0)) );
   }
 
 
