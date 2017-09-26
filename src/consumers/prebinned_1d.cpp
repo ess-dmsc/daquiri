@@ -95,17 +95,17 @@ bool Prebinned1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void Prebinned1D::_push_stats(const Status& newBlock)
+void Prebinned1D::_push_stats_pre(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
-
-  Spectrum::_push_stats(newBlock);
 
   if (newBlock.channel() >= static_cast<int16_t>(trace_idx_.size()))
     trace_idx_.resize(newBlock.channel() + 1, -1);
   if (newBlock.event_model().name_to_trace.count(trace_name_))
     trace_idx_[newBlock.channel()] = newBlock.event_model().name_to_trace.at(trace_name_);
+
+  Spectrum::_push_stats_pre(newBlock);
 }
 
 void Prebinned1D::_push_event(const Event& e)

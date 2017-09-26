@@ -103,17 +103,17 @@ bool Histogram1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void Histogram1D::_push_stats(const Status& newBlock)
+void Histogram1D::_push_stats_pre(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
-
-  Spectrum::_push_stats(newBlock);
 
   if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
     value_idx_.resize(newBlock.channel() + 1, -1);
   if (newBlock.event_model().name_to_val.count(val_name_))
     value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val[val_name_];
+
+  Spectrum::_push_stats_pre(newBlock);
 }
 
 void Histogram1D::_push_event(const Event& e)

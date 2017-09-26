@@ -18,7 +18,7 @@ protected:
   void _recalc_axes() override;
 
   //event processing
-  void _push_spill(const Spill&spill) override;
+  void _push_stats_pre(const Status&) override;
   void _push_event(const Event&) override;
   bool channel_relevant(int16_t channel) const override;
 

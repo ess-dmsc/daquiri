@@ -99,23 +99,24 @@ bool TOF1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOF1D::_push_spill(const Spill& spill)
+void TOF1D::_push_stats_pre(const Status& status)
 {
-  for (const auto& q : spill.stats)
+  if (!this->channel_relevant(status.channel()))
+    return;
+
+  auto c = status.channel();
+
+  if (c >= timebase_.size())
   {
-    if ((q.first < 0) ||
-        !this->channel_relevant(q.second.channel()))
-      continue;
-
-    timebase_.resize(q.first + 1);
-    pulse_times_.resize(q.first + 1, -1);
-
-    timebase_[q.first] = q.second.event_model().timebase;
-    if (q.second.stats().count("pulse_time"))
-      pulse_times_[q.first] = timebase_[q.first].to_nanosec(q.second.stats()["pulse_time"]);
+    timebase_.resize(c + 1);
+    pulse_times_.resize(c + 1, -1);
   }
 
-  Spectrum::_push_spill(spill);
+  timebase_[c] = status.event_model().timebase;
+  if (status.stats().count("pulse_time"))
+    pulse_times_[c] = timebase_[c].to_nanosec(status.stats()["pulse_time"]);
+
+  Spectrum::_push_stats_pre(status);
 }
 
 void TOF1D::_push_event(const Event& e)

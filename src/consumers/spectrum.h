@@ -11,8 +11,8 @@ public:
 
 protected:
   bool _initialize() override;
-  void _push_spill(const Spill&spill) override;
-  void _push_stats(const Status& status) override;
+  void _push_stats_pre(const Status& status) override;
+  void _push_stats_post(const Status& status) override;
   void _flush() override;
 
   virtual bool channel_relevant(int16_t) const = 0;

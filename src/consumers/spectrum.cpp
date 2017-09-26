@@ -130,7 +130,7 @@ PreciseFloat Spectrum::calc_chan_times(stats_info_t& chan)
 }
 
 
-void Spectrum::_push_stats(const Status& status)
+void Spectrum::_push_stats_post(const Status& status)
 {
   if (!this->channel_relevant(status.channel()))
     return;
@@ -139,9 +139,6 @@ void Spectrum::_push_stats(const Status& status)
 
   bool chan_new = (chan_stats.count(status.channel()) == 0);
   bool new_start = (status.type() == StatusType::start);
-
-  if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
-    metadata_.set_attribute(Setting("start_time", status.time()), false);
 
   if (!chan_new
       && new_start
@@ -194,28 +191,21 @@ void Spectrum::_push_stats(const Status& status)
   this->_recalc_axes();
 }
 
-void Spectrum::_push_spill(const Spill& spill)
+void Spectrum::_push_stats_pre(const Status& status)
 {
+  if (!this->channel_relevant(status.channel()))
+    return;
+
+  if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
+    metadata_.set_attribute(Setting("start_time", status.time()), false);
+
   if (clear_next_spill_)
   {
-    bool relevant {false};
-    for (auto &q : spill.stats)
-      if (this->channel_relevant(q.first))
-      {
-        relevant = true;
-        break;
-      }
-
-    if (relevant)
-    {
-      data_->clear();
-      total_count_ = 0;
-      recent_count_ = 0;
-      clear_next_spill_ = false;
-    }
+    data_->clear();
+    total_count_ = 0;
+    recent_count_ = 0;
+    clear_next_spill_ = false;
   }
-
-  Consumer::_push_spill(spill);
 }
 
 void Spectrum::_flush()

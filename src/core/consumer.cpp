@@ -71,11 +71,14 @@ void Consumer::_push_spill(const Spill& spill)
   if (!spill.detectors.empty())
     this->_set_detectors(spill.detectors);
 
+  for (auto &q : spill.stats)
+    this->_push_stats_pre(q.second);
+
   for (auto &q : spill.events)
     this->_push_event(q);
 
   for (auto &q : spill.stats)
-    this->_push_stats(q.second);
+    this->_push_stats_post(q.second);
 
 //  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
 //      << spill.events.size() << " events in "

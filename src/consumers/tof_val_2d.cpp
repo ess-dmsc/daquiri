@@ -108,36 +108,29 @@ bool TOFVal2D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOFVal2D::_push_spill(const Spill& spill)
-{
-  for (const auto& q : spill.stats)
-  {
-    if ((q.first < 0) ||
-        !this->channel_relevant(q.second.channel()))
-      continue;
-
-    timebase_.resize(q.first + 1);
-    pulse_times_.resize(q.first + 1, -1);
-
-    timebase_[q.first] = q.second.event_model().timebase;
-    if (q.second.stats().count("pulse_time"))
-      pulse_times_[q.first] = timebase_[q.first].to_nanosec(q.second.stats()["pulse_time"]);
-  }
-
-  Spectrum::_push_spill(spill);
-}
-
-void TOFVal2D::_push_stats(const Status& newBlock)
+void TOFVal2D::_push_stats_pre(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
 
-  Spectrum::_push_stats(newBlock);
+  auto c = newBlock.channel();
 
-  if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
-    value_idx_.resize(newBlock.channel() + 1, -1);
+  if (c >= static_cast<int16_t>(value_idx_.size()))
+  {
+    value_idx_.resize(c + 1, -1);
+    timebase_.resize(c + 1);
+    pulse_times_.resize(c + 1, -1);
+  }
+
+  timebase_[c] = newBlock.event_model().timebase;
+
   if (newBlock.event_model().name_to_val.count(val_name_))
-    value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
+    value_idx_[c] = newBlock.event_model().name_to_val.at(val_name_);
+
+  if (newBlock.stats().count("pulse_time"))
+    pulse_times_[c] = timebase_[c].to_nanosec(newBlock.stats()["pulse_time"]);
+
+  Spectrum::_push_stats_pre(newBlock);
 }
 
 void TOFVal2D::_push_event(const Event& e)

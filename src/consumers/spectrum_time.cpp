@@ -138,12 +138,10 @@ bool TimeSpectrum::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TimeSpectrum::_push_stats(const Status& newBlock)
+void TimeSpectrum::_push_stats_pre(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
-
-  Spectrum::_push_stats(newBlock);
 
   if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
   {
@@ -155,6 +153,8 @@ void TimeSpectrum::_push_stats(const Status& newBlock)
     value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
     timebase_[newBlock.channel()] = newBlock.event_model().timebase;
   }
+
+  Spectrum::_push_stats_pre(newBlock);
 }
 
 void TimeSpectrum::_push_event(const Event& e)

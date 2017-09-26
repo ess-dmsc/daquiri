@@ -110,16 +110,16 @@ bool TimeDomain::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TimeDomain::_push_stats(const Status& newBlock)
+void TimeDomain::_push_stats_pre(const Status& newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;
 
-  Spectrum::_push_stats(newBlock);
-
   if (newBlock.channel() >= static_cast<int16_t>(timebase_.size()))
     timebase_.resize(newBlock.channel() + 1);
   timebase_[newBlock.channel()] = newBlock.event_model().timebase;
+
+  Spectrum::_push_stats_pre(newBlock);
 }
 
 void TimeDomain::_push_event(const Event& e)

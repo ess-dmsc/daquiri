@@ -105,12 +105,10 @@ void Histogram2D::_recalc_axes()
   data_->recalc_axes();
 }
 
-void Histogram2D::_push_stats(const Status& manifest)
+void Histogram2D::_push_stats_pre(const Status& manifest)
 {
   if (!this->channel_relevant(manifest.channel()))
     return;
-
-  Spectrum::_push_stats(manifest);
 
   if (manifest.channel() >= static_cast<int16_t>(x_idx_.size()))
   {
@@ -121,6 +119,8 @@ void Histogram2D::_push_stats(const Status& manifest)
     x_idx_[manifest.channel()] = manifest.event_model().name_to_val.at(x_name_);
   if (manifest.event_model().name_to_val.count(y_name_))
     y_idx_[manifest.channel()] = manifest.event_model().name_to_val.at(y_name_);
+
+  Spectrum::_push_stats_pre(manifest);
 }
 
 void Histogram2D::_flush()

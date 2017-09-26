@@ -19,7 +19,7 @@ protected:
 
   //event processing
   void _push_event(const Event&) override;
-  void _push_stats(const Status&) override;
+  void _push_stats_pre(const Status&) override;
   bool channel_relevant(int16_t channel) const override;
 
   //cached parameters
