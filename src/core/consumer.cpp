@@ -66,7 +66,7 @@ void Consumer::push_spill(const Spill& spill)
 
 void Consumer::_push_spill(const Spill& spill)
 {
-  CustomTimer addspill_timer(true);
+//  CustomTimer addspill_timer(true);
 
   if (!spill.detectors.empty())
     this->_set_detectors(spill.detectors);

@@ -76,8 +76,6 @@ private:
   bool daq_running() const;
 
   //threads
-  void builder_chronological(SpillQueue data_queue,
-                             ProjectPtr project);
 
   void builder_naive(SpillQueue data_queue,
                      ProjectPtr project);
