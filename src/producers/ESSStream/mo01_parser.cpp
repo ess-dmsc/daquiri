@@ -75,7 +75,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
 {
   SpillPtr ret;
   auto em = GetMonitorMessage(msg);
-  if (is_empty(*em))
+  if (is_empty(em))
     return nullptr;
 
   CustomTimer timer(true);
@@ -87,7 +87,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
     ret = Spill::make_new(StatusType::running, {hists_channel_});
     ret->stats[hists_channel_].set_model(hists_model_);
 
-    produce_hists(*em->data_as_GEMHist(), utime, ret);
+    produce_hists(*reinterpret_cast<const GEMHist*>(em->data()), utime, ret);
   }
 
   if (type == DataField::GEMTrack)
@@ -98,7 +98,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
     ret->stats[trace_x_channel_].set_model(trace_model_);
     ret->stats[trace_y_channel_].set_model(trace_model_);
 
-    produce_tracks(*em->data_as_GEMTrack(), utime, ret);
+    produce_tracks(*reinterpret_cast<const GEMTrack*>(em->data()), utime, ret);
   }
 
   stats.time_start = stats.time_end = utime;
@@ -109,12 +109,12 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
   return ret;
 }
 
-bool mo01_nmx::is_empty(const MonitorMessage& m)
+bool mo01_nmx::is_empty(const MonitorMessage* m)
 {
-  auto type = m.data_type();
+  auto type = m->data_type();
   if (type == DataField::GEMHist)
   {
-    auto hist = m.data_as_GEMHist();
+    auto hist = reinterpret_cast<const GEMHist*>(m->data());
     if (hist->xstrips()->Length())
       return false;
     if (hist->ystrips()->Length())
@@ -122,7 +122,7 @@ bool mo01_nmx::is_empty(const MonitorMessage& m)
   }
   if (type == DataField::GEMTrack)
   {
-    auto track = m.data_as_GEMTrack();
+    auto track = reinterpret_cast<const GEMTrack*>(m->data());
     if (track->xtrack()->Length())
       return false;
     if (track->ytrack()->Length())
