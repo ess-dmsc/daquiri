@@ -18,7 +18,7 @@ TEST(Event, Init)
   ASSERT_EQ(2, h2.channel());
   ASSERT_EQ(1, h2.value_count());
   ASSERT_EQ(1, h2.trace_count());
-  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1 0]", h2.debug());
+  EXPECT_EQ("[ch2|t0|ntraces=1 0]", h2.debug());
 }
 
 TEST(Event, Value)
@@ -30,7 +30,7 @@ TEST(Event, Value)
 //  ASSERT_ANY_THROW(h.value(2));
   ASSERT_NO_THROW(h.set_value(0,42));
   ASSERT_EQ(42, h.value(0));
-  EXPECT_EQ("[ch2|t0x(7/5) 42]", h.debug());
+  EXPECT_EQ("[ch2|t0 42]", h.debug());
 }
 
 TEST(Event, Trace)
@@ -43,7 +43,7 @@ TEST(Event, Trace)
   ASSERT_NO_THROW(h.set_trace(0, {3,6,9}));
   ASSERT_EQ(std::vector<uint32_t>({3,6,9}),
             h.trace(0));
-  EXPECT_EQ("[ch2|t0x(7/5)|ntraces=1]", h.debug());
+  EXPECT_EQ("[ch2|t0|ntraces=1]", h.debug());
 }
 
 TEST(Event, Time)
