@@ -52,6 +52,7 @@ private:
   std::string kafka_topic_name_;
   int kafka_timeout_ {1000};
   int spoof_clock_ {0};
+  bool heartbeat_ {false};
 
   TimeBase time_base_;
   std::shared_ptr<fb_parser> parser_;

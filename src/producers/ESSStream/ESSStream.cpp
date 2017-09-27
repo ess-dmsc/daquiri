@@ -39,6 +39,9 @@ ESSStream::ESSStream()
   spoof.set_enum(2, "use earliest event");
   add_definition(spoof);
 
+  SettingMeta hb(mp + "Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
+  add_definition(hb);
+
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
   pars.set_enum(1, "ev42_events");
@@ -54,6 +57,7 @@ ESSStream::ESSStream()
   root.set_enum(3, mp + "TimebaseMult");
   root.set_enum(4, mp + "TimebaseDiv");
   root.set_enum(5, mp + "SpoofClock");
+  root.set_enum(6, mp + "Heartbeat");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -246,6 +250,7 @@ void ESSStream::die()
     RdKafka::wait_destroyed(5000);
     stream_.reset();
   }
+  clock_ = 0;
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
@@ -288,17 +293,6 @@ SpillPtr ESSStream::get_message()
 
   switch (message->err())
   {
-  case RdKafka::ERR__TIMED_OUT:
-    return nullptr;
-
-  case RdKafka::ERR__PARTITION_EOF:
-    /* Last message */
-    //    if (exit_eof && ++eof_cnt == partition_cnt)
-    //      WARN << "%% EOF reached for all " << partition_cnt <<
-    //                   " partition(s)";
-    //    WARN << "Partition EOF error: " << message->errstr();
-    return nullptr;
-
   case RdKafka::ERR__UNKNOWN_TOPIC:
     WARN << "Unknown topic: " << message->errstr();
     return nullptr;
@@ -306,6 +300,17 @@ SpillPtr ESSStream::get_message()
   case RdKafka::ERR__UNKNOWN_PARTITION:
     WARN << "Unknown partition: " << message->errstr();
     return nullptr;
+
+  case RdKafka::ERR__TIMED_OUT:
+//    return nullptr;
+
+  case RdKafka::ERR__PARTITION_EOF:
+    /* Last message */
+    //    if (exit_eof && ++eof_cnt == partition_cnt)
+    //      WARN << "%% EOF reached for all " << partition_cnt <<
+    //                   " partition(s)";
+    //    WARN << "Partition EOF error: " << message->errstr();
+//    return nullptr;
 
   case RdKafka::ERR_NO_ERROR:
     //    msg_cnt++;
@@ -328,15 +333,18 @@ SpillPtr ESSStream::get_message()
 
     //    DBG << "Received Kafka message " << debug(message);
 
-    if (parser_ && message->len())
+    if (parser_)
     {
+      SpillPtr spill;
       fb_parser::PayloadStats stats;
 
-      auto spill = parser_->process_payload(message->payload(),
-                                            time_base_,
-                                            (spoof_clock_ == 1) ? (++clock_) : 0,
-                                            stats);
-      if (!spill & spoof_clock_)
+      if (message->len())
+        spill = parser_->process_payload(message->payload(),
+                                         time_base_,
+                                         (spoof_clock_ == 1) ? (++clock_) : 0,
+                                         stats);
+
+      if (!spill & heartbeat_ && spoof_clock_)
         spill = parser_->dummy_spill((spoof_clock_ == 1) ? (++clock_) : 0,
                                      stats);
 
