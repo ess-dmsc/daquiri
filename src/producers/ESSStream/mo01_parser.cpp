@@ -28,11 +28,8 @@ mo01_nmx::mo01_nmx()
   root.set_enum(2, mp + "ChannelTraceY");
   add_definition(root);
 
-  hists_model_.add_trace("strips_x", {UINT16_MAX+1});
-  hists_model_.add_trace("strips_y", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_x", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_y", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_cluster", {UINT16_MAX+1});
+  hists_model_.add_trace("histx", {1500});
+  hists_model_.add_trace("histy", {1500});
 
   trace_model_.add_value("strip", 0);
   trace_model_.add_value("time", 0);
@@ -115,9 +112,9 @@ bool mo01_nmx::is_empty(const MonitorMessage* m)
   if (type == DataField::GEMHist)
   {
     auto hist = reinterpret_cast<const GEMHist*>(m->data());
-    if (hist->xstrips()->Length())
+    if (hist->xhist()->Length())
       return false;
-    if (hist->ystrips()->Length())
+    if (hist->yhist()->Length())
       return false;
   }
   if (type == DataField::GEMTrack)
@@ -138,42 +135,74 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
   Event e(hists_channel_, hists_model_);
   e.set_time(utime);
 
-  grab_hist(e, 0, hist.xstrips());
-  grab_hist(e, 1, hist.ystrips());
-  grab_hist(e, 2, hist.xspectrum());
-  grab_hist(e, 3, hist.yspectrum());
-  grab_hist(e, 4, hist.cluster_spectrum());
+  auto xhist = hist.xhist();
+  if (xhist->Length())
+  {
+    std::vector<uint32_t> vals(xhist->Length(), 0);
+    for (size_t i=0; i < xhist->Length(); ++i)
+      vals[i] = xhist->Get(i);
+    e.set_trace(0, vals);
+  }
+
+  auto yhist = hist.yhist();
+  if (yhist->Length())
+  {
+    std::vector<uint32_t> vals(yhist->Length(), 0);
+    for (size_t i=0; i < yhist->Length(); ++i)
+      vals[i] = yhist->Get(i);
+    e.set_trace(1, vals);
+  }
 
   ret->events.push_back(e);
 }
 
-void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
+std::string mo01_nmx::debug(const GEMHist& hist)
 {
-  if (!data->Length())
-    return;
-  std::vector<uint32_t> vals(data->Length(), 0);
-  for (size_t i=0; i < data->Length(); ++i)
-    vals[i] = data->Get(i);
-  e.set_trace(idx, vals);
+  std::stringstream ss;
+
+  auto xhist = hist.xhist();
+  if (xhist->Length())
+  {
+    ss << "  x: ";
+    for (size_t i=0; i < xhist->Length(); ++i)
+      ss << " " << xhist->Get(i);
+    ss << "\n";
+  }
+
+  auto yhist = hist.yhist();
+  if (yhist->Length())
+  {
+    ss << "  y: ";
+    for (size_t i=0; i < yhist->Length(); ++i)
+      ss << " " << yhist->Get(i);
+    ss << "\n";
+  }
+
+  return ss.str();
 }
 
 void mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime, SpillPtr ret)
 {
 //  DBG << "Received GEMTrack\n" << debug(track);
 
-//  auto time = track.time_offset();
-  grab_track(track.xtrack(), utime, trace_x_channel_, ret);
-  grab_track(track.ytrack(), utime, trace_y_channel_, ret);
-}
-
-void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos> > *data,
-                          uint64_t utime, int16_t chan, SpillPtr ret)
-{
-  for (size_t i=0; i < data->Length(); ++i)
+  auto xtrack = track.xtrack();
+  for (size_t i=0; i < xtrack->Length(); ++i)
   {
-    Event e(chan, trace_model_);
+    Event e(trace_x_channel_, trace_model_);
     e.set_time(utime);
-    auto element = data->Get(i);
+    auto element = xtrack->Get(i);
+    e.set_value(0, element->strip());
+    e.set_value(1, element->time());
+    e.set_value(2, element->adc());
+    ret->events.push_back(e);
+  }
+
+  auto ytrack = track.ytrack();
+  for (size_t i=0; i < ytrack->Length(); ++i)
+  {
+    Event e(trace_y_channel_, trace_model_);
+    e.set_time(utime);
+    auto element = ytrack->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());
     e.set_value(2, element->adc());
@@ -181,50 +210,40 @@ void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos> > *
   }
 }
 
-std::string mo01_nmx::debug(const GEMHist& hist)
-{
-  std::stringstream ss;
-  if (hist.xstrips()->Length())
-    ss << "  strips_x: " << print_hist(hist.xstrips()) << "\n";
-  if (hist.ystrips()->Length())
-    ss << "  strips_y: " << print_hist(hist.ystrips()) << "\n";
-  if (hist.xspectrum()->Length())
-    ss << "  adc_x: " << print_hist(hist.xspectrum()) << "\n";
-  if (hist.yspectrum()->Length())
-    ss << "  adc_y: " << print_hist(hist.yspectrum()) << "\n";
-  if (hist.cluster_spectrum()->Length())
-    ss << "  adc_cluster: " << print_hist(hist.cluster_spectrum()) << "\n";
-  return ss.str();
-}
-
-std::string mo01_nmx::print_hist(const flatbuffers::Vector<uint32_t>* data)
-{
-  std::stringstream ss;
-  for (size_t i=0; i < data->Length(); ++i)
-    ss << " " << data->Get(i);
-  return ss.str();
-}
 
 std::string mo01_nmx::debug(const GEMTrack& track)
 {
   std::stringstream ss;
-  if (track.xtrack()->Length())
-    ss << "  x: " << print_track(track.xtrack()) << "\n";
-  if (track.ytrack()->Length())
-    ss << "  y: " << print_track(track.ytrack()) << "\n";
-  return ss.str();
-}
 
-std::string mo01_nmx::print_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data)
-{
-  std::stringstream ss;
-  for (size_t i=0; i < data->Length(); ++i)
+  auto xtrack = track.xtrack();
+  if (xtrack->Length())
   {
-    auto element = data->Get(i);
-    ss << "(" << element->strip()
-       << "," << element->time()
-       << ")=" << element->adc()
-       << " ";
+    ss << "  x: ";
+    for (size_t i=0; i < xtrack->Length(); ++i)
+    {
+      auto element = xtrack->Get(i);
+      ss << "(" << element->strip()
+         << "," << element->time()
+         << ")=" << element->adc()
+         << " ";
+    }
+    ss << "\n";
   }
+
+  auto ytrack = track.ytrack();
+  if (ytrack->Length())
+  {
+    ss << "  y: ";
+    for (size_t i=0; i < ytrack->Length(); ++i)
+    {
+      auto element = ytrack->Get(i);
+      ss << "(" << element->strip()
+         << "," << element->time()
+         << ")=" << element->adc()
+         << " ";
+    }
+    ss << "\n";
+  }
+
   return ss.str();
 }
