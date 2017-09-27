@@ -28,5 +28,7 @@ class fb_parser : public Producer
     virtual SpillPtr process_payload(void*, TimeBase tb,
                                    uint64_t utime,
                                    PayloadStats& stats) = 0;
+    virtual SpillPtr dummy_spill(uint64_t utime,
+                                   PayloadStats& stats) = 0;
 
 };

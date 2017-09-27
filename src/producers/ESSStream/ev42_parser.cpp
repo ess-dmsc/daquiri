@@ -147,7 +147,6 @@ SpillPtr ev42_events::process_payload(void* msg,
   ret->stats[output_channel_].set_value("buf_id", buf_id);
 
   ret->events.reserve(t_len);
-
   for (auto i=0; i < t_len; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
@@ -171,6 +170,18 @@ SpillPtr ev42_events::process_payload(void* msg,
   }
 
   stats.time_spent += timer.s();
+
+  return ret;
+}
+
+SpillPtr ev42_events::dummy_spill(uint64_t utime, PayloadStats& stats)
+{
+  SpillPtr ret {nullptr};
+
+  ret = Spill::make_new(StatusType::running, {output_channel_});
+  ret->stats[output_channel_].set_value("pulse_time", utime);
+
+  stats.time_start = stats.time_end = utime;
 
   return ret;
 }

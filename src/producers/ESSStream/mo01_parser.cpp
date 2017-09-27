@@ -106,6 +106,19 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
   return ret;
 }
 
+SpillPtr mo01_nmx::dummy_spill(uint64_t utime, PayloadStats& stats)
+{
+  SpillPtr ret {nullptr};
+
+  ret = Spill::make_new(StatusType::running,
+  {hists_channel_, trace_x_channel_, trace_y_channel_});
+//  ret->stats[output_channel_].set_value("pulse_time", utime);
+
+  stats.time_start = stats.time_end = utime;
+
+  return ret;
+}
+
 bool mo01_nmx::is_empty(const MonitorMessage* m)
 {
   auto type = m->data_type();

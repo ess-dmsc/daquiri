@@ -20,7 +20,7 @@ protected:
 protected:
   bool clear_next_spill_ {false};
   bool clear_periodically_ {false};
-  uint64_t clear_at_ {0};
+  double clear_at_ {0};
   double recent_total_time_ {0};
 
   // cached results:

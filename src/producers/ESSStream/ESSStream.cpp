@@ -336,6 +336,10 @@ SpillPtr ESSStream::get_message()
                                             time_base_,
                                             (spoof_clock_ == 1) ? (++clock_) : 0,
                                             stats);
+      if (!spill & spoof_clock_)
+        spill = parser_->dummy_spill((spoof_clock_ == 1) ? (++clock_) : 0,
+                                     stats);
+
       if (spill)
       {
         for (auto& s : spill->stats)

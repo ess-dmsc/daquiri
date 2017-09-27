@@ -24,6 +24,8 @@ class mo01_nmx : public fb_parser
     SpillPtr process_payload(void*, TimeBase tb,
                            uint64_t utime,
                            PayloadStats& stats) override;
+    SpillPtr dummy_spill(uint64_t utime,
+                         PayloadStats& stats) override;
 
   private:
     // cached params

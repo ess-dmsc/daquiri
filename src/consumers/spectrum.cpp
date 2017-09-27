@@ -39,10 +39,10 @@ Spectrum::Spectrum()
   clear_p.set_flag("preset");
   base_options.branches.add(clear_p);
 
-  SettingMeta clear_at("clear_at", SettingType::integer,
+  SettingMeta clear_at("clear_at", SettingType::floating,
                        "Clear at real-time threshold");
   clear_at.set_val("min", 0);
-  clear_at.set_val("units", "s");
+  clear_at.set_val("units", "ms");
   clear_at.set_flag("preset");
   base_options.branches.add(clear_at);
 
@@ -52,7 +52,7 @@ Spectrum::Spectrum()
 bool Spectrum::_initialize()
 {
   clear_periodically_ = metadata_.get_attribute("clear_periodically").triggered();
-  clear_at_ = metadata_.get_attribute("clear_at").get_number();
+  clear_at_ = metadata_.get_attribute("clear_at").get_number() * 0.001;
   return false;
 }
 
