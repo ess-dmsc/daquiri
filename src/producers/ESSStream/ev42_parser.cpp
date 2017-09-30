@@ -146,7 +146,8 @@ SpillPtr ev42_events::process_payload(void* msg,
   ret->stats[output_channel_].set_value("pulse_time", time_high);
   ret->stats[output_channel_].set_value("buf_id", buf_id);
 
-  ret->events.reserve(t_len);
+  ret->events.resize(t_len, Event(output_channel_, evt_model_));
+  size_t event_count {0};
   for (auto i=0; i < t_len; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
@@ -155,10 +156,9 @@ SpillPtr ev42_events::process_payload(void* msg,
     const auto& id = em->detector_id()->Get(i);
     if (id) //must be non0?
     {
-      Event e(output_channel_, evt_model_);
-      e.set_time(time);
-      geometry_.interpret_id(e, id);
-      ret->events.push_back(e);
+      geometry_.interpret_id(ret->events[event_count], id);
+      ret->events[event_count].set_time(time);
+      event_count++;
     }
 
     if (i==0)
@@ -168,6 +168,7 @@ SpillPtr ev42_events::process_payload(void* msg,
 
 //    DBG << "Time " << stats.time_start << " - " << stats.time_end;
   }
+  ret->events.resize(event_count);
 
   stats.time_spent += timer.s();
 

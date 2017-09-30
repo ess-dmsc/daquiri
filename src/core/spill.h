@@ -12,16 +12,28 @@ class Spill;
 using SpillPtr = std::shared_ptr<Spill>;
 using ListData = std::vector<SpillPtr>;
 
+//class EventBuffer
+//{
+//  public:
+//    EventBuffer();
+//    EventBuffer(size_t s, EventModel e);
+//    Event& operator [] (size_t i);
+
+//  private:
+//    std::vector<Event> data_;
+//    size_t size_ {0};
+//};
+
 class Spill
 {
   public:
     boost::posix_time::ptime   time
     {boost::posix_time::microsec_clock::universal_time()};
-    std::vector<char>          data;   // raw from device
-    std::vector<Event>         events; // parsed
-    std::map<int16_t, Status> stats; // per channel
-    std::vector<Detector> detectors; // per channel
-    Setting                   state;
+    std::vector<char>           data; // raw from device
+    std::vector<Event>        events; // parsed
+    std::map<int16_t, Status>  stats; // per channel
+    std::vector<Detector>  detectors; // per channel
+    Setting                    state;
 
   public:
     bool empty();
