@@ -69,22 +69,19 @@ SpillPtr mo01_nmx::stop_spill() const
   {hists_channel_, trace_x_channel_, trace_y_channel_});
 }
 
-SpillPtr mo01_nmx::dummy_spill(uint64_t utime, PayloadStats& stats)
+SpillPtr mo01_nmx::dummy_spill(uint64_t utime)
 {
   SpillPtr ret {nullptr};
 
   ret = Spill::make_new(StatusType::running,
   {hists_channel_, trace_x_channel_, trace_y_channel_});
-//  ret->stats[output_channel_].set_value("pulse_time", utime);
 
   stats.time_start = stats.time_end = utime;
-
+  stats.time_spent = 0;
   return ret;
 }
 
-SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
-                                 uint64_t utime,
-                                 PayloadStats &stats)
+SpillPtr mo01_nmx::process_payload(void* msg, uint64_t utime)
 {
   SpillPtr ret;
   auto em = GetMonitorMessage(msg);
@@ -96,7 +93,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
   auto type = em->data_type();
   if (type == DataField::GEMHist)
   {
-    hists_model_.timebase = tb;
+    hists_model_.timebase = timebase;
     ret = Spill::make_new(StatusType::running, {hists_channel_});
     ret->stats[hists_channel_].set_model(hists_model_);
 
@@ -105,7 +102,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
 
   if (type == DataField::GEMTrack)
   {
-    trace_model_.timebase = tb;
+    trace_model_.timebase = timebase;
     ret = Spill::make_new(StatusType::running,
     {trace_x_channel_, trace_y_channel_});
     ret->stats[trace_x_channel_].set_model(trace_model_);
@@ -115,10 +112,7 @@ SpillPtr mo01_nmx::process_payload(void* msg, TimeBase tb,
   }
 
   stats.time_start = stats.time_end = utime;
-
-  //  ret->stats[traces_channel_].set_value("pulse_time", time_high);
-  stats.time_spent += timer.s();
-
+  stats.time_spent = timer.s();
   return ret;
 }
 

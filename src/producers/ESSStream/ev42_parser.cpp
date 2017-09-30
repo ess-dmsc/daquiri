@@ -109,46 +109,42 @@ SpillPtr ev42_events::stop_spill() const
   return Spill::make_new(StatusType::stop, {output_channel_});
 }
 
-SpillPtr ev42_events::process_payload(void* msg,
-                                    TimeBase tb, uint64_t utime,
-                                    PayloadStats &stats)
+SpillPtr ev42_events::dummy_spill(uint64_t utime)
+{
+  SpillPtr ret {nullptr};
+
+  ret = Spill::make_new(StatusType::running, {output_channel_});
+  ret->stats[output_channel_].set_value("pulse_time", utime);
+
+  stats.time_start = stats.time_end = utime;
+  stats.time_spent = 0;
+
+  return ret;
+}
+
+SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
 {
   SpillPtr ret {nullptr};
   auto em = GetEventMessage(msg);
 
-  auto buf_id = em->message_id();
-  if (buf_id < latest_buf_id_)
-    WARN << "Buffer out of order (" << buf_id
-         << "<" << latest_buf_id_ << ") "
-         << debug(*em);
-  latest_buf_id_ = std::max(latest_buf_id_, buf_id);
+  size_t events = event_count(em);
 
-  std::string source_name = em->source_name()->str();
-
-  auto t_len = em->time_of_flight()->Length();
-  auto p_len = em->detector_id()->Length();
-  if ((t_len != p_len) || !t_len)
-  {
-    DBG << "Empty buffer " << debug(*em);
+  if (!events)
     return ret;
-  }
 
   CustomTimer timer(true);
 
-  evt_model_ = geometry_.model(tb);
+  uint64_t time_high = (utime ? (utime << 32) : em->pulse_time());
 
-  uint64_t time_high = em->pulse_time();
-  if (utime)
-    time_high = utime << 32;
-
+  evt_model_ = geometry_.model(timebase);
   ret = Spill::make_new(StatusType::running, {output_channel_});
   ret->stats[output_channel_].set_model(evt_model_);
   ret->stats[output_channel_].set_value("pulse_time", time_high);
-  ret->stats[output_channel_].set_value("buf_id", buf_id);
+  //ret->stats[output_channel_].set_value("buf_id", buf_id);
 
-  ret->events.resize(t_len, Event(output_channel_, evt_model_));
+  ret->events.resize(events, Event(output_channel_, evt_model_));
   size_t event_count {0};
-  for (auto i=0; i < t_len; ++i)
+  for (auto i=0; i < events; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
     time |= time_high;
@@ -170,31 +166,44 @@ SpillPtr ev42_events::process_payload(void* msg,
   }
   ret->events.resize(event_count);
 
-  stats.time_spent += timer.s();
+  stats.time_spent = timer.s();
 
   return ret;
 }
 
-SpillPtr ev42_events::dummy_spill(uint64_t utime, PayloadStats& stats)
+size_t ev42_events::event_count(const EventMessage* em)
 {
-  SpillPtr ret {nullptr};
+  //bool is_well_ordered = eval_ordering(em);
+  //std::string source_name = em->source_name()->str();
 
-  ret = Spill::make_new(StatusType::running, {output_channel_});
-  ret->stats[output_channel_].set_value("pulse_time", utime);
+  auto t_len = em->time_of_flight()->Length();
+  auto p_len = em->detector_id()->Length();
+  if ((t_len != p_len) || !t_len)
+    return 0;
 
-  stats.time_start = stats.time_end = utime;
+  return t_len;
+}
 
+bool ev42_events::eval_ordering(const EventMessage* em)
+{
+  auto buf_id = em->message_id();
+  bool ret = !(buf_id < latest_buf_id_);
+  if (!ret)
+    WARN << "Buffer out of order (" << buf_id
+         << "<" << latest_buf_id_ << ") "
+         << debug(em);
+  latest_buf_id_ = std::max(latest_buf_id_, buf_id);
   return ret;
 }
 
-std::string ev42_events::debug(const EventMessage& em)
+std::string ev42_events::debug(const EventMessage* em)
 {
   std::stringstream ss;
 
-  ss << em.source_name()->str() << " #" << em.message_id()
-     << " time=" << em.pulse_time()
-     << " tof_size=" << em.time_of_flight()->Length()
-     << " det_size=" << em.detector_id()->Length();
+  ss << em->source_name()->str() << " #" << em->message_id()
+     << " time=" << em->pulse_time()
+     << " tof_size=" << em->time_of_flight()->Length()
+     << " det_size=" << em->detector_id()->Length();
 
   return ss.str();
 }

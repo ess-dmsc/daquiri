@@ -336,25 +336,22 @@ SpillPtr ESSStream::get_message()
     if (parser_)
     {
       SpillPtr spill;
-      fb_parser::PayloadStats stats;
+      parser_->timebase = time_base_;
 
       if (message->len())
         spill = parser_->process_payload(message->payload(),
-                                         time_base_,
-                                         (spoof_clock_ == 1) ? (++clock_) : 0,
-                                         stats);
+                                         (spoof_clock_ == 1) ? (++clock_) : 0);
 
       if (!spill & heartbeat_ && spoof_clock_)
-        spill = parser_->dummy_spill((spoof_clock_ == 1) ? (++clock_) : 0,
-                                     stats);
+        spill = parser_->dummy_spill((spoof_clock_ == 1) ? (++clock_) : 0);
 
       if (spill)
       {
         for (auto& s : spill->stats)
         {
-          s.second.set_value("native_time", stats.time_end);
+          s.second.set_value("native_time", parser_->stats.time_end);
           if (spoof_clock_ != 0)
-            s.second.set_value("pulse_time", stats.time_start);
+            s.second.set_value("pulse_time", parser_->stats.time_start);
 
 //          DBG << "<ESSStream> setting native time (" << s.first << ") "
 //              << stats.time_end << " -> " << s.second.stats()["native_time"];
@@ -363,7 +360,7 @@ SpillPtr ESSStream::get_message()
         }
       }
 
-      time_spent_ += stats.time_spent;
+      time_spent_ += parser_->stats.time_spent;
       return spill;
     }
 
