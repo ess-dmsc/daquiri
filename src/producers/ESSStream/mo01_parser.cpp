@@ -85,61 +85,34 @@ SpillPtr mo01_nmx::process_payload(void* msg, uint64_t utime)
 {
   SpillPtr ret;
   auto em = GetMonitorMessage(msg);
-  if (is_empty(em))
-    return nullptr;
+
+  hists_model_.timebase = timebase;
+  trace_model_.timebase = timebase;
+  stats.time_start = stats.time_end = utime;
 
   CustomTimer timer(true);
-
   auto type = em->data_type();
   if (type == DataField::GEMHist)
-  {
-    hists_model_.timebase = timebase;
-    ret = Spill::make_new(StatusType::running, {hists_channel_});
-    ret->stats[hists_channel_].set_model(hists_model_);
-
-    produce_hists(*reinterpret_cast<const GEMHist*>(em->data()), utime, ret);
-  }
-
-  if (type == DataField::GEMTrack)
-  {
-    trace_model_.timebase = timebase;
-    ret = Spill::make_new(StatusType::running,
-    {trace_x_channel_, trace_y_channel_});
-    ret->stats[trace_x_channel_].set_model(trace_model_);
-    ret->stats[trace_y_channel_].set_model(trace_model_);
-
-    produce_tracks(*reinterpret_cast<const GEMTrack*>(em->data()), utime, ret);
-  }
-
-  stats.time_start = stats.time_end = utime;
+    ret = produce_hists(*reinterpret_cast<const GEMHist*>(em->data()), utime);
+  else if (type == DataField::GEMTrack)
+    ret = produce_tracks(*reinterpret_cast<const GEMTrack*>(em->data()), utime);
   stats.time_spent = timer.s();
+
   return ret;
 }
 
-bool mo01_nmx::is_empty(const MonitorMessage* m)
+SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
 {
-  auto type = m->data_type();
-  if (type == DataField::GEMHist)
-  {
-    auto hist = reinterpret_cast<const GEMHist*>(m->data());
-    if (hist->xstrips()->Length())
-      return false;
-    if (hist->ystrips()->Length())
-      return false;
-  }
-  if (type == DataField::GEMTrack)
-  {
-    auto track = reinterpret_cast<const GEMTrack*>(m->data());
-    if (track->xtrack()->Length())
-      return false;
-    if (track->ytrack()->Length())
-      return false;
-  }
-  return true;
-}
+  if (!hist.xstrips()->Length() &&
+      !hist.xstrips()->Length() &&
+      !hist.xspectrum()->Length() &&
+      !hist.yspectrum()->Length() &&
+      !hist.cluster_spectrum()->Length())
+    return nullptr;
 
-void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
-{
+  auto ret = Spill::make_new(StatusType::running, {hists_channel_});
+  ret->stats[hists_channel_].set_model(hists_model_);
+
 //  DBG << "Received GEMHist\n" << debug(hist);
 
   Event e(hists_channel_, hists_model_);
@@ -152,6 +125,25 @@ void mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime, SpillPtr ret)
   grab_hist(e, 4, hist.cluster_spectrum());
 
   ret->events.push_back(e);
+  return ret;
+}
+
+SpillPtr mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime)
+{
+  if (!track.xtrack()->Length() && !track.ytrack()->Length())
+    return nullptr;
+
+  auto ret = Spill::make_new(StatusType::running, {trace_x_channel_, trace_y_channel_});
+  ret->stats[trace_x_channel_].set_model(trace_model_);
+  ret->stats[trace_y_channel_].set_model(trace_model_);
+
+//  DBG << "Received GEMTrack\n" << debug(track);
+
+//  auto time = track.time_offset();
+  grab_track(track.xtrack(), utime, trace_x_channel_, ret);
+  grab_track(track.ytrack(), utime, trace_y_channel_, ret);
+
+  return ret;
 }
 
 void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
@@ -162,15 +154,6 @@ void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_
   for (size_t i=0; i < data->Length(); ++i)
     vals[i] = data->Get(i);
   e.set_trace(idx, vals);
-}
-
-void mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime, SpillPtr ret)
-{
-//  DBG << "Received GEMTrack\n" << debug(track);
-
-//  auto time = track.time_offset();
-  grab_track(track.xtrack(), utime, trace_x_channel_, ret);
-  grab_track(track.ytrack(), utime, trace_y_channel_, ret);
 }
 
 void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos> > *data,
