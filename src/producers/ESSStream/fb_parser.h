@@ -17,6 +17,9 @@ class fb_parser : public Producer
         double time_spent {0};
     };
 
+    TimeBase timebase;
+    PayloadStats stats;
+
     fb_parser() : Producer() {}
     virtual ~fb_parser() {}
 
@@ -25,10 +28,6 @@ class fb_parser : public Producer
 
     virtual SpillPtr start_spill() const = 0;
     virtual SpillPtr stop_spill() const = 0;
-    virtual SpillPtr process_payload(void*, TimeBase tb,
-                                   uint64_t utime,
-                                   PayloadStats& stats) = 0;
-    virtual SpillPtr dummy_spill(uint64_t utime,
-                                   PayloadStats& stats) = 0;
-
+    virtual SpillPtr dummy_spill(uint64_t utime) = 0;
+    virtual SpillPtr process_payload(void*, uint64_t utime) = 0;
 };

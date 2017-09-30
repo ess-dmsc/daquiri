@@ -20,11 +20,8 @@ public:
 
   SpillPtr start_spill() const override;
   SpillPtr stop_spill() const override;
-  SpillPtr process_payload(void*, TimeBase tb,
-                         uint64_t utime,
-                         PayloadStats& stats) override;
-  SpillPtr dummy_spill(uint64_t utime,
-                       PayloadStats& stats) override;
+  SpillPtr dummy_spill(uint64_t utime) override;
+  SpillPtr process_payload(void*, uint64_t utime) override;
 
 private:
   // cached params
@@ -34,5 +31,7 @@ private:
 
   uint64_t latest_buf_id_ {0};
 
-  std::string debug(const EventMessage&);
+  bool eval_ordering(const EventMessage*);
+  size_t event_count(const EventMessage*);
+  std::string debug(const EventMessage*);
 };

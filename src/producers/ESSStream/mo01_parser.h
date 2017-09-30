@@ -21,11 +21,8 @@ class mo01_nmx : public fb_parser
 
     SpillPtr start_spill() const override;
     SpillPtr stop_spill() const override;
-    SpillPtr process_payload(void*, TimeBase tb,
-                           uint64_t utime,
-                           PayloadStats& stats) override;
-    SpillPtr dummy_spill(uint64_t utime,
-                         PayloadStats& stats) override;
+    SpillPtr dummy_spill(uint64_t utime) override;
+    SpillPtr process_payload(void*, uint64_t utime) override;
 
   private:
     // cached params
