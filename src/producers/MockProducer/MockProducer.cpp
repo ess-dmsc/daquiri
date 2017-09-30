@@ -293,16 +293,14 @@ void MockProducer::worker_run(MockProducer* callback,
 
 void MockProducer::add_hit(Spill& spill)
 {
-  int16_t chan0 {0};
-
-  Event h(chan0, model_hit);
-  h.set_time(clock_);
+  auto& e = spill.events.last();
+  e.set_time(clock_);
   for (size_t i=0; i < dists_.size(); ++i)
-    h.set_value(i, generate(i));
+    e.set_value(i, generate(i));
 
 //  make_trace(h, 1000);
 
-  spill.events.push_back(h);
+  ++ spill.events;
 }
 
 uint16_t MockProducer::generate(size_t i)
@@ -356,7 +354,8 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 
     std::uniform_real_distribution<> dis(0, 1);
     uint32_t tothits = (rate * spill_interval_);
-    spill->events.reserve(tothits);
+
+    spill->events.reserve(tothits, Event(chan0, model_hit));
 
     for (uint32_t i=0; i< tothits; i++)
     {
@@ -373,6 +372,8 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
       clock_ += event_interval;
     }
   }
+
+  spill->events.finalize();
 
   fill_stats(spill->stats[chan0]);
 

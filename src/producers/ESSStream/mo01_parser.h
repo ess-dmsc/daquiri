@@ -1,6 +1,8 @@
 #pragma once
 
 #include "fb_parser.h"
+#include "mo01_nmx_generated.h"
+
 
 using namespace DAQuiri;
 
@@ -34,11 +36,16 @@ class mo01_nmx : public fb_parser
     EventModel hists_model_;
     EventModel trace_model_;
 
-    bool is_empty(const MonitorMessage *);
+    SpillPtr produce_hists(const GEMHist&, uint64_t utime);
+    SpillPtr produce_tracks(const GEMTrack&, uint64_t utime);
 
-    void produce_hists(const GEMHist&, uint64_t utime, SpillPtr);
-    void produce_tracks(const GEMTrack&, uint64_t utime, SpillPtr);
+    static void grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data);
+    void grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,
+                    uint64_t utime, int16_t chan, SpillPtr ret);
 
-    std::string debug(const GEMHist&);
-    std::string debug(const GEMTrack&);
+    static std::string debug(const GEMHist&);
+    static std::string debug(const GEMTrack&);
+
+    static std::string print_hist(const flatbuffers::Vector<uint32_t>* data);
+    static std::string print_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data);
 };

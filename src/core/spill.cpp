@@ -4,6 +4,7 @@
 
 namespace DAQuiri {
 
+
 SpillPtr Spill::make_new(StatusType t,
                          std::initializer_list<int16_t> channels)
 {
