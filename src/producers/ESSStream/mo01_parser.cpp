@@ -116,6 +116,7 @@ SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
   grab_hist(e, 0, hist.xhist());
   grab_hist(e, 1, hist.yhist());
 
+  ret->events++;
   ret->events.finalize();
 
   return ret;
