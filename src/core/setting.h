@@ -13,7 +13,8 @@ enum Match
   name    = 1 << 1, //deprecate?
   address = 1 << 2, //deprecate?
   indices = 1 << 3,
-  stype   = 1 << 4
+  stype   = 1 << 4,
+  value   = 1 << 5
 };
 
 inline Match operator|(Match a, Match b)

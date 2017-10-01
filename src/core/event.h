@@ -9,7 +9,6 @@ class Event
 {
 private:
   int16_t       source_channel_ {-1};
-//  TimeStamp     timestamp_;
   uint64_t      timestamp_ {0};
   std::vector<uint32_t>              values_;
   std::vector<std::vector<uint32_t>> traces_;
@@ -36,11 +35,6 @@ public:
   {
     return source_channel_;
   }
-
-//  inline const TimeStamp& timestamp() const
-//  {
-//    return timestamp_;
-//  }
 
   inline uint64_t timestamp() const
   {
@@ -70,25 +64,15 @@ public:
   }
 
   //Setters
+  inline void set_channel(int16_t c)
+  {
+    source_channel_ = c;
+  }
+
   inline void set_time(uint64_t t)
   {
     timestamp_ = t;
   }
-
-//  inline void set_native_time(uint64_t t)
-//  {
-//    timestamp_.set_native(t);
-//  }
-
-//  inline void set_timestamp(const TimeStamp& ts)
-//  {
-//    timestamp_ = ts;
-//  }
-
-//  inline void delay_ns(double ns)
-//  {
-//    timestamp_.delay(ns);
-//  }
 
   inline void set_value(size_t idx, uint32_t val)
   {

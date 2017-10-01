@@ -1,5 +1,4 @@
 #include "mo01_parser.h"
-#include "mo01_nmx_generated.h"
 
 #include "custom_timer.h"
 #include "custom_logger.h"
@@ -112,10 +111,11 @@ SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
 
   auto ret = Spill::make_new(StatusType::running, {hists_channel_});
   ret->stats[hists_channel_].set_model(hists_model_);
+  ret->events.reserve(1, Event(hists_channel_, hists_model_));
 
 //  DBG << "Received GEMHist\n" << debug(hist);
 
-  Event e(hists_channel_, hists_model_);
+  auto&e = ret->events.last();
   e.set_time(utime);
 
   grab_hist(e, 0, hist.xstrips());
@@ -124,7 +124,9 @@ SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
   grab_hist(e, 3, hist.yspectrum());
   grab_hist(e, 4, hist.cluster_spectrum());
 
-  ret->events.push_back(e);
+  ret->events++;
+  ret->events.finalize();
+
   return ret;
 }
 
@@ -137,11 +139,15 @@ SpillPtr mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime)
   ret->stats[trace_x_channel_].set_model(trace_model_);
   ret->stats[trace_y_channel_].set_model(trace_model_);
 
-//  DBG << "Received GEMTrack\n" << debug(track);
+  //  DBG << "Received GEMTrack\n" << debug(track);
 
-//  auto time = track.time_offset();
+  ret->events.reserve(track.xtrack()->Length() + track.ytrack()->Length(),
+                      Event(0, trace_model_));
+
   grab_track(track.xtrack(), utime, trace_x_channel_, ret);
   grab_track(track.ytrack(), utime, trace_y_channel_, ret);
+
+  ret->events.finalize();
 
   return ret;
 }
@@ -156,18 +162,19 @@ void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_
   e.set_trace(idx, vals);
 }
 
-void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos> > *data,
+void mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,
                           uint64_t utime, int16_t chan, SpillPtr ret)
 {
   for (size_t i=0; i < data->Length(); ++i)
   {
-    Event e(chan, trace_model_);
+    auto& e = ret->events.last();
+    e.set_channel(chan);
     e.set_time(utime);
-    auto element = data->Get(i);
+    const auto& element = data->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());
     e.set_value(2, element->adc());
-    ret->events.push_back(e);
+    ret->events++;
   }
 }
 

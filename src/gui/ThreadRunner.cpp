@@ -318,7 +318,7 @@ void ThreadRunner::run()
     {
       engine_.get_all_settings();
       auto tree = engine_.pull_settings();
-      tree.erase(one_setting_, Match::id);
+      tree.erase(one_setting_, Match::id | Match::value);
       engine_.initialize(tree);
       action_ = kSettingsRefresh;
     }

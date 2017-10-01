@@ -114,6 +114,8 @@ Pattern Setting::pattern() const
 
 bool Setting::compare(const Setting &other, Match m) const
 {
+  if ((m & Match::value) && (other != *this))
+    return false;
   if ((m & Match::stype) && !other.is(metadata_.type()))
     return false;
   if ((m & Match::id) && (id() != other.id()))
@@ -690,6 +692,7 @@ std::string Setting::val_to_string() const
            is(SettingType::color) ||
            is(SettingType::detector) ||
            is(SettingType::file) ||
+           is(SettingType::stem) ||
            is(SettingType::dir))
     ss << value_text;
   else if (is(SettingType::time))
