@@ -100,34 +100,21 @@ SpillPtr mo01_nmx::process_payload(void* msg, uint64_t utime)
 
 SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
 {
-  if (!hist.xhist()->Length() && !hist.yhist()->Length())
+  if (!hist.xhist()->Length() &&
+      !hist.yhist()->Length())
     return nullptr;
 
-//  DBG << "Received GEMHist\n" << debug(hist);
   auto ret = Spill::make_new(StatusType::running, {hists_channel_});
   ret->stats[hists_channel_].set_model(hists_model_);
   ret->events.reserve(1, Event(hists_channel_, hists_model_));
 
+//  DBG << "Received GEMHist\n" << debug(hist);
+
   auto&e = ret->events.last();
   e.set_time(utime);
 
-  const auto& xhist = hist.xhist();
-  if (xhist->Length())
-  {
-    std::vector<uint32_t> vals(xhist->Length(), 0);
-    for (size_t i=0; i < xhist->Length(); ++i)
-      vals[i] = xhist->Get(i);
-    e.set_trace(0, vals);
-  }
-
-  const auto& yhist = hist.yhist();
-  if (yhist->Length())
-  {
-    std::vector<uint32_t> vals(yhist->Length(), 0);
-    for (size_t i=0; i < yhist->Length(); ++i)
-      vals[i] = yhist->Get(i);
-    e.set_trace(1, vals);
-  }
+  grab_hist(e, 0, hist.xhist());
+  grab_hist(e, 1, hist.yhist());
 
   ret->events.finalize();
 
@@ -136,43 +123,20 @@ SpillPtr mo01_nmx::produce_hists(const GEMHist& hist, uint64_t utime)
 
 SpillPtr mo01_nmx::produce_tracks(const GEMTrack& track, uint64_t utime)
 {
-  const auto& xtrack = track.xtrack();
-  const auto& ytrack = track.ytrack();
-
-  if (!xtrack->Length() && !ytrack->Length())
+  if (!track.xtrack()->Length() && !track.ytrack()->Length())
     return nullptr;
 
-//  DBG << "Received GEMTrack\n" << debug(track);
   auto ret = Spill::make_new(StatusType::running, {trace_x_channel_, trace_y_channel_});
   ret->stats[trace_x_channel_].set_model(trace_model_);
   ret->stats[trace_y_channel_].set_model(trace_model_);
 
-  ret->events.reserve(xtrack->Length() + ytrack->Length() + 1,
+  //  DBG << "Received GEMTrack\n" << debug(track);
+
+  ret->events.reserve(track.xtrack()->Length() + track.ytrack()->Length(),
                       Event(0, trace_model_));
 
-  for (size_t i=0; i < xtrack->Length(); ++i)
-  {
-    auto& e = ret->events.last();
-    e.set_channel(trace_x_channel_);
-    e.set_time(utime);
-    const auto& element = xtrack->Get(i);
-    e.set_value(0, element->strip());
-    e.set_value(1, element->time());
-    e.set_value(2, element->adc());
-    ++ ret->events;
-  }
-
-  for (size_t i=0; i < ytrack->Length(); ++i)
-  {
-    auto& e = ret->events.last();
-    e.set_channel(trace_y_channel_);
-    e.set_time(utime);
-    const auto& element = ytrack->Get(i);
-    e.set_value(0, element->strip());
-    e.set_value(1, element->time());
-    e.set_value(2, element->adc());
-    ++ ret->events;
-  }
+  grab_track(track.xtrack(), utime, trace_x_channel_, ret);
+  grab_track(track.ytrack(), utime, trace_y_channel_, ret);
 
   ret->events.finalize();
 
