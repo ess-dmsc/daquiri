@@ -9,12 +9,38 @@
 namespace Profiles
 {
 
+bool has_settings_dir()
+{
+  QSettings settings;
+  settings.beginGroup("Program");
+  auto d = settings.value("settings_directory", "").toString();
+  return !d.isEmpty();
+}
+
+QString default_settings_dir()
+{
+  return QDir::homePath() + "/daquiri/settings";
+}
+
 QString settings_dir()
 {
   QSettings settings;
   settings.beginGroup("Program");
-  return settings.value("settings_directory",
-                        QDir::homePath() + "/daquiri/settings").toString();
+  return settings.value("settings_directory", default_settings_dir()).toString();
+}
+
+void select_settings_dir(QString dir)
+{
+  if (dir.isEmpty())
+    return;
+  QSettings settings;
+  settings.beginGroup("Program");
+  settings.setValue("settings_directory",
+                    QDir(dir).absolutePath());
+
+  QDir profpath(profiles_dir());
+  if (!profpath.exists())
+    profpath.mkpath(".");
 }
 
 QString profiles_dir()
@@ -60,20 +86,6 @@ nlohmann::json get_profile(QString name)
 nlohmann::json current_profile()
 {
   return get_profile(current_profile_name());
-}
-
-void select_settings_dir(QString dir)
-{
-  if (dir.isEmpty())
-    return;
-  QSettings settings;
-  settings.beginGroup("Program");
-  settings.setValue("settings_directory",
-                    QDir(dir).absolutePath());
-
-  QDir profpath(profiles_dir());
-  if (!profpath.exists())
-    profpath.mkpath(".");
 }
 
 void save_profile(const nlohmann::json& data)

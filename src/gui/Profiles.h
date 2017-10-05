@@ -6,7 +6,9 @@
 namespace Profiles
 {
 
+bool has_settings_dir();
 QString settings_dir();
+QString default_settings_dir();
 void select_settings_dir(QString dir);
 
 QString profiles_dir();

@@ -52,7 +52,7 @@ daquiri::daquiri(QWidget *parent,
 
   loadSettings();
 
-  connect(ui->tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested(int)));
+  connect(ui->tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(close_tab_at(int)));
 
   QToolButton *tb = new QToolButton();
   tb->setIcon(QIcon(":/icons/oxy/16/filenew.png"));
@@ -85,6 +85,9 @@ daquiri::daquiri(QWidget *parent,
           main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
 //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
 //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
+
+  if (!Profiles::has_settings_dir())
+    initialize_settings_dir();
 
   if (open_new_project && !start_daq)
     open_project(nullptr, false);
@@ -157,7 +160,7 @@ void daquiri::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void daquiri::tabCloseRequested(int index)
+void daquiri::close_tab_at(int index)
 {
   if ((index < 0) || (index >= ui->tabs->count()))
     return;
@@ -197,7 +200,7 @@ void daquiri::update_settings(DAQuiri::Setting sets,
       open_new_project_ && start_daq_)
   {
     open_new_project_ = false;
-    QTimer::singleShot(500, this, SLOT(open_new_proj()));
+    QTimer::singleShot(100, this, SLOT(open_new_proj()));
   }
 }
 
@@ -244,32 +247,27 @@ void daquiri::saveSettings()
   settings.setValue("splitter", ui->splitter->saveState());
 }
 
-void daquiri::updateStatusText(QString text)
-{
-  ui->statusBar->showMessage(text);
-}
-
 void daquiri::on_splitter_splitterMoved(int /*pos*/, int /*index*/)
 {
   ui->logBox->verticalScrollBar()->setValue(ui->logBox->verticalScrollBar()->maximum());
 }
 
-void daquiri::add_closable_tab(QWidget* widget, QString tooltip)
+void daquiri::add_closable_tab(QWidget* widget)
 {
-  CloseTabButton *cb = new CloseTabButton(widget);
+  close_tab_widgetButton *cb = new close_tab_widgetButton(widget);
   cb->setIcon( QIcon(":/icons/oxy/16/application_exit.png"));
   //  tb->setIconSize(QSize(16, 16));
-  cb->setToolTip(tooltip);
+  cb->setToolTip("Close");
   cb->setFlat(true);
-  connect(cb, SIGNAL(closeTab(QWidget*)), this, SLOT(closeTab(QWidget*)));
+  connect(cb, SIGNAL(close_tab_widget(QWidget*)), this, SLOT(close_tab_widget(QWidget*)));
   ui->tabs->addTab(widget, widget->windowTitle());
   ui->tabs->tabBar()->setTabButton(ui->tabs->count()-1, QTabBar::RightSide, cb);
 }
 
-void daquiri::closeTab(QWidget* w)
+void daquiri::close_tab_widget(QWidget* w)
 {
   int idx = ui->tabs->indexOf(w);
-  tabCloseRequested(idx);
+  close_tab_at(idx);
 }
 
 void daquiri::reorder_tabs()
@@ -287,7 +285,7 @@ void daquiri::tabs_moved(int, int)
 void daquiri::open_list()
 {
   ListModeForm *newListForm = new ListModeForm(runner_thread_, this);
-  add_closable_tab(newListForm, "Close");
+  add_closable_tab(newListForm);
 
   connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
@@ -311,17 +309,22 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
   ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
                                               current_dets_,
                                               proj, this);
-  connect(newSpectraForm, SIGNAL(requestClose(QWidget*)), this, SLOT(closeTab(QWidget*)));
+  connect(newSpectraForm, SIGNAL(requestClose(QWidget*)), this, SLOT(close_tab_widget(QWidget*)));
 
   connect(newSpectraForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
           newSpectraForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
 
-  add_closable_tab(newSpectraForm, "Close");
+  add_closable_tab(newSpectraForm);
   ui->tabs->setCurrentWidget(newSpectraForm);
   reorder_tabs();
 
   newSpectraForm->toggle_push(true, engine_status_);
   if (start)
     QTimer::singleShot(500, newSpectraForm, SLOT(start_DAQ()));
+}
+
+void daquiri::initialize_settings_dir()
+{
+
 }
