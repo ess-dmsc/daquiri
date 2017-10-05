@@ -44,23 +44,22 @@ public:
 
 private:
   Ui::daquiri *ui;
-
-  Container<DAQuiri::Detector>    detectors_;
-  std::vector<DAQuiri::Detector>  current_dets_;
-  ThreadRunner                runner_thread_;
-  DAQuiri::ProducerStatus engine_status_;
-  QString profile_description_;
+  QMenu menu_open_;
 
   //connect gui with boost logger framework
   std::stringstream log_stream_;
   LogEmitter        my_emitter_;
   LogStreamBuffer   text_buffer_;
 
+  Container<DAQuiri::Detector>   detectors_;
+  std::vector<DAQuiri::Detector> current_dets_;
+  ThreadRunner                   runner_thread_;
+  DAQuiri::ProducerStatus engine_status_;
+  QString profile_description_;
+
   SettingsForm* main_tab_ {nullptr};
 
-  bool gui_enabled_;
-
-  QMenu  menuOpen;
+  bool gui_enabled_ {true};
 
   bool open_new_project_ {false};
   bool start_daq_ {false};
@@ -92,10 +91,8 @@ private slots:
 
   void on_splitter_splitterMoved(int pos, int index);
 
-  bool hasTab(QString);
-
   void tabs_moved(int, int);
-  void addClosableTab(QWidget*, QString);
+  void add_closable_tab(QWidget*, QString);
   void tab_changed(int);
 
   void open_list();

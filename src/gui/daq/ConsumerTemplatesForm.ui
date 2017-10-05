@@ -91,7 +91,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Add new</string>
+        <string>Clone</string>
        </property>
        <property name="text">
         <string/>

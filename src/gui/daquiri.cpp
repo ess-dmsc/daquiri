@@ -54,8 +54,6 @@ daquiri::daquiri(QWidget *parent,
 
   connect(ui->tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested(int)));
 
-  gui_enabled_ = true;
-
   QToolButton *tb = new QToolButton();
   tb->setIcon(QIcon(":/icons/oxy/16/filenew.png"));
   tb->setMinimumWidth(35);
@@ -71,9 +69,9 @@ daquiri::daquiri(QWidget *parent,
   // Add tab button to current tab. Button will be enabled, but tab -- not
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
-  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(open_project()));
-  menuOpen.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
-  tb->setMenu(&menuOpen);
+  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(open_project()));
+  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
+  tb->setMenu(&menu_open_);
 
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
   connect(ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
@@ -256,7 +254,7 @@ void daquiri::on_splitter_splitterMoved(int /*pos*/, int /*index*/)
   ui->logBox->verticalScrollBar()->setValue(ui->logBox->verticalScrollBar()->maximum());
 }
 
-void daquiri::addClosableTab(QWidget* widget, QString tooltip)
+void daquiri::add_closable_tab(QWidget* widget, QString tooltip)
 {
   CloseTabButton *cb = new CloseTabButton(widget);
   cb->setIcon( QIcon(":/icons/oxy/16/application_exit.png"));
@@ -286,18 +284,10 @@ void daquiri::tabs_moved(int, int)
   reorder_tabs();
 }
 
-bool daquiri::hasTab(QString tofind)
-{
-  for (int i = 0; i < ui->tabs->count(); ++i)
-    if (ui->tabs->tabText(i) == tofind)
-      return true;
-  return false;
-}
-
 void daquiri::open_list()
 {
   ListModeForm *newListForm = new ListModeForm(runner_thread_, this);
-  addClosableTab(newListForm, "Close");
+  add_closable_tab(newListForm, "Close");
 
   connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
@@ -327,7 +317,7 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
           newSpectraForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
 
-  addClosableTab(newSpectraForm, "Close");
+  add_closable_tab(newSpectraForm, "Close");
   ui->tabs->setCurrentWidget(newSpectraForm);
   reorder_tabs();
 
