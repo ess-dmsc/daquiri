@@ -10,6 +10,7 @@ find_package(Qt5Widgets REQUIRED)
 
 file(GLOB ${PROJECT_NAME}_resources
   resources/*.qrc
+  qplot/src/qplot/*.qrc
   widgets/ColorWidgets/src/*.qrc)
 
 file(GLOB ${PROJECT_NAME}_ui
