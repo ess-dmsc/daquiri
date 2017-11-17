@@ -27,4 +27,7 @@ if (DAQuiri_gui)
   add_subdirectory(gui)
 endif ()
 
-add_subdirectory(tests)
+#option(test "Build all tests." ON)
+#if (test)
+  add_subdirectory(tests)
+#endif ()
