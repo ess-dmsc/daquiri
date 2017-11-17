@@ -17,13 +17,12 @@ target_include_directories(
   ${PROJECT_NAME}
   PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
   PUBLIC ${core_INCLUDE_DIRS}
-  PUBLIC ${h5cc_INCLUDE_DIRS}
   PRIVATE ${EIGEN3_INCLUDE_DIR}
 )
 
 target_link_libraries(
   ${PROJECT_NAME}
-  ${h5cc_LIBRARIES}
+  h5cpp_shared
 )
 
 # Expose public includes

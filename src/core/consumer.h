@@ -31,8 +31,8 @@ public:
   //named constructors, used by factory
   bool from_prototype(const ConsumerMetadata&);
 
-  bool load(H5CC::Group&, bool withdata);
-  void save(H5CC::Group&) const;
+  bool load(hdf5::node::Group&, bool withdata);
+  void save(hdf5::node::Group&) const;
 
   //data acquisition
   void push_spill(const Spill&);

@@ -1,31 +1,27 @@
 #pragma once
 
 #include "json.hpp"
-#include "H5CC_Enum.h"
-#include "H5CC_File.h"
+#include <h5cpp/hdf5.hpp>
 
 using json = nlohmann::json;
 
-namespace H5CC
+namespace hdf5
 {
 
-void to_json(json& j, const Enum<int16_t>& e);
-void from_json(const json& j, Enum<int16_t>& e);
+//void to_json(json& j, const Enum<int16_t>& e);
+//void from_json(const json& j, Enum<int16_t>& e);
 
-void to_json(json& j, const H5CC::DataSet& d);
+void to_json(json& j, const node::Group& g);
+void attr_to_json(json& j, const attribute::Attribute& g);
+void to_json(json& j, const node::Dataset& d);
 
-template<typename T> void to_json(json& j, const H5CC::Groupoid<T>& g);
+void from_json(const json& j, node::Group& g);
 
-template<typename T> void from_json(const json& j, H5CC::Groupoid<T>& g);
+void attribute_from_json(const json& j, const std::string& name, node::Group& g);
+void dataset_from_json(const json& j, const std::string& name, node::Group& g);
 
-template<typename T> json attribute_to_json(const H5CC::Location<T>& g,
-                                            const std::string& name);
-template<typename T> void attribute_from_json(const json& j, const std::string& name,
-                                              H5CC::Location<T>& g);
-template<typename T> void dataset_from_json(const json& j, const std::string& name,
-                                            H5CC::Groupoid<T>& g);
+node::Group require_group(node::Group& g, std::string name);
+bool has_group(const node::Group& g, std::string name);
+bool has_dataset(const node::Group& g, std::string name);
 
 }
-
-#include "h5json.tpp"
-

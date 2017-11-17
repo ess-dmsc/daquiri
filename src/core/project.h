@@ -70,8 +70,8 @@ public:
   std::map<int64_t, ConsumerPtr> get_sinks(int32_t dimensions = -1);
   std::map<int64_t, ConsumerPtr> get_sinks(std::string type);
 
-  void to_h5(H5CC::Group &group) const;
-  void from_h5(H5CC::Group &group, bool with_sinks, bool with_full_sinks);
+  void to_h5(hdf5::node::Group &group) const;
+  void from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks);
 
 private:
   void clear_helper();

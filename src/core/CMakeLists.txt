@@ -14,10 +14,10 @@ project(core CXX)
 
 # Git commit SHA1
 execute_process(COMMAND
-    git rev-parse HEAD
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE GIT_SHA1
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  git rev-parse HEAD
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE GIT_SHA1
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 add_definitions(-DGIT_VERSION="${GIT_SHA1}")
 add_definitions(-DCMAKE_SYSTEM="${CMAKE_SYSTEM}")
@@ -43,27 +43,26 @@ target_include_directories(
   ${PROJECT_NAME}
   PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
   PUBLIC ${PROJECT_BINARY_DIR}
-  PUBLIC ${h5cc_INCLUDE_DIRS}
-  PUBLIC ${json_INCLUDE_DIRS}
   PUBLIC ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
   ${PROJECT_NAME}
-  ${h5cc_LIBRARIES}
+  h5cpp_shared
   ${Boost_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
+  ${HDF5_LIBRARIES}
 )
 
 #ADD_DEPENDENCIES(${PROJECT_NAME} core_compiletime)
 
 # Expose public includes
 set(${PROJECT_NAME}_INCLUDE_DIRS
-    ${${PROJECT_NAME}_INCLUDE_DIRS}
-    ${h5cc_INCLUDE_DIRS}
-    ${json_INCLUDE_DIRS}
-CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+  ${${PROJECT_NAME}_INCLUDE_DIRS}
+#  h5cpp_shared
+  ${json_INCLUDE_DIRS}
+  CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 
 set(${PROJECT_NAME}_LIBRARIES
-    ${PROJECT_NAME}
-    PARENT_SCOPE)
+  ${PROJECT_NAME}
+  PARENT_SCOPE)

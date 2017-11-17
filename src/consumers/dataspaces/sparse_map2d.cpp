@@ -1,5 +1,6 @@
 #include "sparse_map2d.h"
 #include "ascii_tree.h"
+#include "h5json.h"
 
 namespace DAQuiri
 {
@@ -93,15 +94,27 @@ void SparseMap2D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap2D::save(H5CC::Group& g) const
+void SparseMap2D::save(hdf5::node::Group& g) const
 {
-  auto dgroup = g.require_group("data");
-  auto didx = dgroup.require_dataset<uint16_t>("indices", {spectrum_.size(), 2}, {128,2});
-  auto dcts = dgroup.require_dataset<long double>("counts", {spectrum_.size()}, {128});
+  auto dgroup = hdf5::require_group(g, "data");
+
+  hdf5::property::LinkCreationList lcpl;
+  hdf5::property::DatasetCreationList dcpl;
+  dcpl.layout(hdf5::property::DatasetLayout::CHUNKED);
+
+  hdf5::dataspace::Simple i_space({spectrum_.size(),2});
+  dcpl.chunk({128,2});
+  auto didx = dgroup.create_dataset("indices", hdf5::datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+
+  hdf5::dataspace::Simple c_space({spectrum_.size()});
+  dcpl.chunk({128});
+  auto dcts = dgroup.create_dataset("counts", hdf5::datatype::create<double>(), c_space, lcpl, dcpl);
+
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
-  std::vector<long double> dc(spectrum_.size());
+  std::vector<double> dc(spectrum_.size());
   size_t i = 0;
+  
   for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
   {
     dx[i] = it->first.first;
@@ -109,35 +122,54 @@ void SparseMap2D::save(H5CC::Group& g) const
     dc[i] = static_cast<long double>(it->second);
     i++;
   }
-  didx.write(dx, {spectrum_.size(), 1}, {0,0});
-  didx.write(dy, {spectrum_.size(), 1}, {0,1});
+
+  hdf5::dataspace::Hyperslab slab;
+  slab.block({spectrum_.size(), 1});
+
+  slab.offset({0,0});
+  didx.write(dx, slab);
+
+  slab.offset({0,1});
+  didx.write(dy, slab);
+
   dcts.write(dc);
 }
 
-void SparseMap2D::load(H5CC::Group& g)
+void SparseMap2D::load(hdf5::node::Group& g)
 {
-  if (!g.has_group("data"))
+  if (!hdf5::has_group(g, "data"))
     return;
-  auto dgroup = g.open_group("data");
+  auto dgroup = hdf5::node::Group(g.nodes["data"]);
 
-  if (!dgroup.has_dataset("indices") || !dgroup.has_dataset("counts"))
-    return;
-
-  auto didx = dgroup.open_dataset("indices");
-  auto dcts = dgroup.open_dataset("counts");
-
-  if ((didx.shape().rank() != 2) ||
-      (dcts.shape().rank() != 1) ||
-      (didx.shape().dim(0) != dcts.shape().dim(0)))
+  if (!hdf5::has_dataset(dgroup, "indices") ||
+      !hdf5::has_dataset(dgroup, "counts"))
     return;
 
-  std::vector<uint16_t> dx(didx.shape().dim(0));
-  std::vector<uint16_t> dy(didx.shape().dim(0));
-  std::vector<long double> dc(didx.shape().dim(0));
+  auto didx = hdf5::node::Dataset(dgroup.nodes["indices"]);
+  auto dcts = hdf5::node::Dataset(dgroup.nodes["counts"]);
 
-  didx.read(dx, {dx.size(), 1}, {0,0});
-  didx.read(dy, {dy.size(), 1}, {0,1});
-  dcts.read(dc, {dx.size()}, {0});
+  auto didx_ds = hdf5::dataspace::Simple(didx.dataspace());
+  auto dcts_ds = hdf5::dataspace::Simple(dcts.dataspace());
+  if ((didx_ds.current_dimensions().size() != 2) ||
+      (dcts_ds.current_dimensions().size() != 1) ||
+      (didx_ds.current_dimensions()[0] !=
+          dcts_ds.current_dimensions()[0]))
+    return;
+
+  std::vector<uint16_t> dx(didx_ds.current_dimensions()[0]);
+  std::vector<uint16_t> dy(didx_ds.current_dimensions()[0]);
+  std::vector<double> dc(didx_ds.current_dimensions()[0]);
+
+  hdf5::dataspace::Hyperslab slab;
+  slab.block({dx.size(), 1});
+
+  slab.offset(0,0);
+  didx.read(dx, slab);
+
+  slab.offset(0,1);
+  didx.read(dy, slab);
+
+  dcts.read(dc);
 
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
