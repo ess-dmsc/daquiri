@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(core CXX)
 
+if(APPLE)
+  add_definitions(-DUSE_BOOST_MUTEX=1)
+endif()
+
 # Build time in UTC ISO 8601
 #FILE (WRITE ${CMAKE_BINARY_DIR}/core_compiletime.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
 #FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(WRITE core_compiletime.h \"#ifndef TIMESTAMP_H\\n\")\n")
