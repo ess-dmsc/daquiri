@@ -1,72 +1,33 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(core CXX)
+set(this_target ${PROJECT_NAME}_core)
 
 if(APPLE)
   add_definitions(-DUSE_BOOST_MUTEX=1)
 endif()
 
-# Build time in UTC ISO 8601
-#FILE (WRITE ${CMAKE_BINARY_DIR}/core_compiletime.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(WRITE core_compiletime.h \"#ifndef TIMESTAMP_H\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define TIMESTAMP_H\\n\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#define _TIMEZ_ \\\"\${TIMEZ}\\\"\\n\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/core_compiletime.cmake "FILE(APPEND core_compiletime.h \"#endif // TIMESTAMP_H\\n\")\n")
-#ADD_CUSTOM_TARGET (
-#    core_compiletime
-#    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/core_compiletime.cmake
-#    ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/core_compiletime.cmake)
-
-# Git commit SHA1
-execute_process(COMMAND
-  git rev-parse HEAD
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE GIT_SHA1
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-add_definitions(-DGIT_VERSION="${GIT_SHA1}")
-add_definitions(-DCMAKE_SYSTEM="${CMAKE_SYSTEM}")
-add_definitions(-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
-
-# Boost
-#SET(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS
-  system thread timer date_time log log_setup REQUIRED)
-#link_directories( ${BOOST_LIBRARY_DIRS} )
-
-file(GLOB ${PROJECT_NAME}_SOURCES *.cpp util/*.cpp)
-file(GLOB ${PROJECT_NAME}_HEADERS *.h util/*.h)
-dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
+file(GLOB ${this_target}_SOURCES *.cpp util/*.cpp)
+file(GLOB ${this_target}_HEADERS *.h util/*.h)
+dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
-  ${PROJECT_NAME}
-  ${${PROJECT_NAME}_SOURCES}
-  ${${PROJECT_NAME}_HEADERS}
+  ${this_target}
+  ${${this_target}_SOURCES}
+  ${${this_target}_HEADERS}
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
-  PUBLIC ${PROJECT_BINARY_DIR}
+  ${this_target}
+  PUBLIC ${${this_target}_INCLUDE_DIRS}
+#  PUBLIC ${PROJECT_BINARY_DIR}
   PUBLIC ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
-  ${PROJECT_NAME}
-  h5cpp_shared
-  ${Boost_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${HDF5_LIBRARIES}
+  ${this_target}
+  PUBLIC h5cpp_shared
+  PUBLIC ${Boost_LIBRARIES}
+  PUBLIC ${COVERAGE_LIBRARIES}
 )
 
-#ADD_DEPENDENCIES(${PROJECT_NAME} core_compiletime)
+enable_coverage(${this_target})
 
-# Expose public includes
-set(${PROJECT_NAME}_INCLUDE_DIRS
-  ${${PROJECT_NAME}_INCLUDE_DIRS}
-#  h5cpp_shared
-  ${json_INCLUDE_DIRS}
-  CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-
-set(${PROJECT_NAME}_LIBRARIES
-  ${PROJECT_NAME}
-  PARENT_SCOPE)
+#ADD_DEPENDENCIES(${this_target} buildinfo)

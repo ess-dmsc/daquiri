@@ -1,27 +1,25 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(producers CXX)
+set(this_target ${PROJECT_NAME}_producers)
 
 set(autoreg_source ${PROJECT_BINARY_DIR}/producers_autoreg.cpp)
 
-list(APPEND ${PROJECT_NAME}_headers
-  ${PROJECT_SOURCE_DIR}/producers_autoreg.h)
-dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_headers}")
+list(APPEND ${this_target}_HEADERS
+  ${CMAKE_CURRENT_LIST_DIR}/producers_autoreg.h)
+dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
-  ${PROJECT_NAME}
+  ${this_target} STATIC
   ${autoreg_source}
-  ${${PROJECT_NAME}_headers}
+  ${${this_target}_HEADERS}
 )
 
-include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
-  PRIVATE ${core_INCLUDE_DIRS}
+target_include_directories(
+  ${this_target}
+  PUBLIC ${${this_target}_INCLUDE_DIRS}
 )
 
 foreach(prod ${DAQuiri_enabled_producers})
   add_subdirectory(${prod})
-  include_directories(${PROJECT_NAME} PUBLIC ${${prod}_INCLUDE_DIRS})
+  target_include_directories(${this_target} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/${prod})
   set(prod_reg_includes "${prod_reg_includes} #include \"${prod}.h\"\n")
   set(prod_reg_cmds "${prod_reg_cmds}  DAQUIRI_REGISTER_PRODUCER(${prod})\n")
 endforeach(prod)
@@ -34,16 +32,7 @@ file(APPEND ${autoreg_source} ${prod_reg_cmds})
 file(APPEND ${autoreg_source} "}\n")
 
 target_link_libraries(
-  ${PROJECT_NAME}
-  ${core_LIBRARIES}
-  ${DAQuiri_enabled_producers}
+  ${this_target}
+  PRIVATE ${PROJECT_NAME}_core
+  PRIVATE ${DAQuiri_enabled_producers}
 )
-
-# Expose public includes
-set(${PROJECT_NAME}_INCLUDE_DIRS
-    ${${PROJECT_NAME}_INCLUDE_DIRS}
-CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-
-set(${PROJECT_NAME}_LIBRARIES
-    ${PROJECT_NAME}
-    PARENT_SCOPE)

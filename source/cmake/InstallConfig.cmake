@@ -4,6 +4,8 @@
 # included rather realy in the global project configuration.
 #
 
+include(GNUInstallDirs) #Required for CMAKE_INSTALL_XXX
+
 if((CMAKE_HOST_SYSTEM_NAME MATCHES Linux) AND
     (CMAKE_SYSTEM_NAME MATCHES Linux))
     # --- if we are building on Linux for Linux ----

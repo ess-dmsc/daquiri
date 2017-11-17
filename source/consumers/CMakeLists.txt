@@ -1,35 +1,25 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(consumers CXX)
+set(this_target ${PROJECT_NAME}_consumers)
 
 find_package(Eigen3 REQUIRED)
 
-file(GLOB ${PROJECT_NAME}_SOURCES *.cpp dataspaces/*.cpp)
-file(GLOB ${PROJECT_NAME}_HEADERS *.h dataspaces/*.h)
-dirs_of(${PROJECT_NAME}_INCLUDE_DIRS "${${PROJECT_NAME}_HEADERS}")
+file(GLOB_RECURSE ${this_target}_SOURCES *.cpp)
+file(GLOB_RECURSE ${this_target}_HEADERS *.h)
+dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
-  ${PROJECT_NAME}
-  ${${PROJECT_NAME}_SOURCES}
-  ${${PROJECT_NAME}_HEADERS}
+  ${this_target} STATIC
+  ${${this_target}_SOURCES}
+  ${${this_target}_HEADERS}
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
-  PUBLIC ${core_INCLUDE_DIRS}
+  ${this_target}
+  PUBLIC ${${this_target}_INCLUDE_DIRS}
   PRIVATE ${EIGEN3_INCLUDE_DIR}
 )
 
 target_link_libraries(
-  ${PROJECT_NAME}
-  h5cpp_shared
+  ${this_target}
+  PRIVATE ${PROJECT_NAME}_core
+  PRIVATE h5cpp_shared
 )
-
-# Expose public includes
-set(${PROJECT_NAME}_INCLUDE_DIRS
-    ${${PROJECT_NAME}_INCLUDE_DIRS}
-CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-
-set(${PROJECT_NAME}_LIBRARIES
-    ${PROJECT_NAME}
-    PARENT_SCOPE)

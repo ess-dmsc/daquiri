@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-project(daquiri_gui CXX)
+set(this_target ${PROJECT_NAME})
+
+include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
 #For Qt
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -8,31 +9,31 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
 
-file(GLOB ${PROJECT_NAME}_resources
+file(GLOB ${this_target}_resources
   resources/*.qrc
   qplot/src/qplot/*.qrc
   widgets/ColorWidgets/src/*.qrc)
 
-file(GLOB ${PROJECT_NAME}_ui
+file(GLOB ${this_target}_ui
   *.ui
   daq/*.ui
   widgets/*.ui
   widgets/ColorWidgets/src/*.ui)
 
-file(GLOB ${PROJECT_NAME}_sources
+file(GLOB ${this_target}_sources
   *.cpp
   daq/*.cpp
   widgets/*.cpp
   widgets/ColorWidgets/src/*.cpp)
 
-file(GLOB ${PROJECT_NAME}_headers
+file(GLOB ${this_target}_headers
   *.h
   daq/*.h
   widgets/*.h
   widgets/ColorWidgets/include/*.hpp
   ${PROJECT_BINARY_DIR}/*.h)
 
-dirs_of(${PROJECT_NAME}_include_dirs "${${PROJECT_NAME}_headers}")
+dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
 file(GLOB_RECURSE qplot_sources qplot/src/qplot/*.cpp)
 file(GLOB_RECURSE qplot_headers qplot/src/qplot/*.h)
@@ -43,35 +44,29 @@ find_package(OpenGL REQUIRED)
 add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 add_executable(
-  ${PROJECT_NAME}
-  ${${PROJECT_NAME}_resources}
-  ${${PROJECT_NAME}_sources}
-  ${${PROJECT_NAME}_headers}
-  ${${PROJECT_NAME}_ui}
+  ${this_target}
+  ${${this_target}_resources}
+  ${${this_target}_sources}
+  ${${this_target}_headers}
+  ${${this_target}_ui}
   ${qplot_sources}
   ${qplot_headers}
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PRIVATE ${${PROJECT_NAME}_include_dirs}
-  PRIVATE ${PROJECT_BINARY_DIR}
-  PRIVATE ${h5cc_INCLUDE_DIRS}
-  PRIVATE ${core_INCLUDE_DIRS}
-  PRIVATE ${consumers_INCLUDE_DIRS}
-  PRIVATE ${producers_INCLUDE_DIRS}
+  ${this_target}
+  PRIVATE ${${this_target}_include_dirs}
   PRIVATE ${qplot_include_dirs}
   PRIVATE ${OPENGL_INCLUDE_DIR}
 )
 
 target_link_libraries(
-  ${PROJECT_NAME}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${h5cc_LIBRARIES}
-  ${core_LIBRARIES}
-  ${producers_LIBRARIES}
-  ${consumers_LIBRARIES}
+  ${this_target}
+  ${PROJECT_NAME}_core
+  ${PROJECT_NAME}_producers
+  ${PROJECT_NAME}_consumers
   ${OPENGL_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
-qt5_use_modules(${PROJECT_NAME} Widgets PrintSupport)
+qt5_use_modules(${this_target} Widgets PrintSupport)
