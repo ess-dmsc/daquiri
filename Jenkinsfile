@@ -29,7 +29,7 @@ node ("qt && boost && fedora") {
                     CMAKE_PREFIX_PATH=$HDF5_ROOT \
                     cmake -DCOV=on -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
                     -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;ESSStream \
-                    ../code/src"
+                    ../code"
             }
         } catch (e) {
             failure_function(e, 'CMake failed')
@@ -45,15 +45,15 @@ node ("qt && boost && fedora") {
 
         try {
             stage("Run test") {
-                sh "./tests/daquiri_tests --gtest_output=xml:LogTests.xml"
-                junit '*Tests.xml'
+                sh "make run_tests"
+                junit 'tests/test_results.xml'
                 // Publish test coverage results.
                 sh "make coverage"
                 step([
                     $class: 'CoberturaPublisher',
                     autoUpdateHealth: false,
                     autoUpdateStability: false,
-                    coberturaReportFile: 'coverage.xml',
+                    coberturaReportFile: 'tests/coverage/coverage.xml',
                     failUnhealthy: false,
                     failUnstable: false,
                     maxNumberOfBuilds: 0,
@@ -63,7 +63,7 @@ node ("qt && boost && fedora") {
                 ])
           }
         } catch (e) {
-            junit '*Tests.xml'
+            junit 'tests/test_results.xml'
             failure_function(e, 'Tests failed')
         }
 
