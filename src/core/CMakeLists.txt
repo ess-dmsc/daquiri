@@ -39,17 +39,11 @@ add_library(
   ${${PROJECT_NAME}_HEADERS}
 )
 
-#add_dependencies(${PROJECT_NAME} h5cpp_shared)
-
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC ${${PROJECT_NAME}_INCLUDE_DIRS}
   PUBLIC ${PROJECT_BINARY_DIR}
-  PUBLIC ${json_INCLUDE_DIRS}
   PUBLIC ${Boost_INCLUDE_DIRS}
-#  PUBLIC ${h5cpp_INCLUDE_DIR}
-#  PUBLIC ${HDF5_INCLUDE_DIRS}
-#  PUBLIC h5cpp_shared
 )
 
 target_link_libraries(

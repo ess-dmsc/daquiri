@@ -29,13 +29,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
   add_subdirectory(config)
 endif()
 
-# json++
-list (APPEND json_INCLUDE_DIRS
-  ${CMAKE_CURRENT_SOURCE_DIR}/external/json/src)
-
-#add_subdirectory(external/h5cpp)
 find_package(h5cpp REQUIRED)
-#find_package(HDF5 REQUIRED COMPONENTS C)
 
 add_subdirectory(core)
 add_subdirectory(consumers)
