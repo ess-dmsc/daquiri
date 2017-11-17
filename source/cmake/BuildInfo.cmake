@@ -1,0 +1,48 @@
+# Git commit SHA1
+execute_process(COMMAND
+  git rev-parse HEAD
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE BUILDINFO_GIT_SHA1
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Git commit hash
+execute_process(COMMAND
+  git rev-parse --short HEAD
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE BUILDINFO_GIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Git commit branch name
+execute_process(COMMAND
+  git symbolic-ref --short HEAD
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE BUILDINFO_GIT_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if (NOT BUILDINFO_GIT_BRANCH)
+  set(BUILDINFO_GIT_BRANCH $ENV{BRANCH_NAME})
+endif ()
+
+string(TIMESTAMP BUILDINFO_DATE %Y-%m-%d)
+string(TIMESTAMP BUILDINFO_TIME %H:%M:%S)
+string(TIMESTAMP BUILDINFO_TIMESTAMP UTC)
+
+#execute_process(COMMAND "date" "+%F %H:%M:%S" OUTPUT_VARIABLE date OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(BUILDINFO_SYSTEM "${CMAKE_SYSTEM}")
+set(BUILDINFO_SYSTEM "${CMAKE_SYSTEM_PROCESSOR}")
+
+add_definitions(-DGIT_VERSION="${BUILDINFO_GIT_SHA1}")
+add_definitions(-DCMAKE_SYSTEM="${CMAKE_SYSTEM}")
+add_definitions(-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
+
+# Build time in UTC ISO 8601
+#FILE (WRITE ${CMAKE_BINARY_DIR}/buildinfo.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(WRITE buildinfo.h \"#ifndef TIMESTAMP_H\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#define TIMESTAMP_H\\n\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#define _TIMEZ_ \\\"\${TIMEZ}\\\"\\n\\n\")\n")
+#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#endif // TIMESTAMP_H\\n\")\n")
+#ADD_CUSTOM_TARGET (
+#    buildinfo
+#    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/buildinfo.cmake
+#    ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/buildinfo.cmake)

@@ -1,19 +1,14 @@
-[submodule "src/external/h5"]
-	path = src/external/h5
-	url = https://github.com/ess-dmsc/h5cc.git
-        ignore = dirty
-[submodule "src/external/json"]
-	path = src/external/json
-	url = https://github.com/nlohmann/json.git
-        ignore = dirty
-[submodule "src/gui/widgets/ColorWidgets"]
-	path = src/gui/widgets/ColorWidgets
+[submodule "source/gui/widgets/ColorWidgets"]
+	path = source/gui/widgets/ColorWidgets
 	url = https://github.com/mbasaglia/Qt-Color-Widgets.git
         ignore = dirty
-[submodule "src/gui/qplot"]
-	path = src/gui/qplot
+[submodule "source/gui/qplot"]
+	path = source/gui/qplot
 	url = https://github.com/ess-dmsc/qplot.git
         ignore = dirty
-[submodule "src/producers/ESSStream/streaming-data-types"]
-	path = src/producers/ESSStream/streaming-data-types
+[submodule "source/producers/ESSStream/streaming-data-types"]
+	path = source/producers/ESSStream/streaming-data-types
 	url = https://github.com/ess-dmsc/streaming-data-types.git
+[submodule "source/producers/ESSStream/logical-geometry"]
+	path = source/producers/ESSStream/logical-geometry
+	url = https://github.com/ess-dmsc/logical-geometry.git

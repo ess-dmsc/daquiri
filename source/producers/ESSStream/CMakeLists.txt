@@ -1,0 +1,33 @@
+set(this_target ESSStream)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules)
+
+find_package(LibRDKafka)
+if (NOT LIBRDKAFKA_FOUND)
+  message(FATAL_ERROR "Unable to proceed as librdkafka could not be found.")
+endif ()
+
+file(GLOB_RECURSE ${this_target}_SOURCES *.cpp)
+file(GLOB_RECURSE ${this_target}_HEADERS *.h)
+dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
+
+add_library(
+  ${this_target}
+  ${${this_target}_SOURCES}
+  ${${this_target}_HEADERS}
+)
+
+target_include_directories(
+  ${this_target}
+  PRIVATE ${${this_target}_INCLUDE_DIRS}
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/streaming-data-types/schemas
+)
+
+target_link_libraries(
+  ${this_target}
+  PRIVATE ${PROJECT_NAME}_core
+  PRIVATE ${LibRDKafka_LIBRARIES}
+)
+
+add_subdirectory(streaming-data-types)
+add_dependencies(${this_target} flatbuffers_generate)
