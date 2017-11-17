@@ -7,7 +7,7 @@ DummyDevice="off"
 MockProducer="off"
 ESSStream="off"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../src" && pwd )/config"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../source" && pwd )/config"
 FILE=$DIR"/CMakeLists.txt"
 
 mkdir -p $DIR

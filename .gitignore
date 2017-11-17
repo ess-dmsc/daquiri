@@ -3,7 +3,7 @@ cmake-build-*/
 
 /build
 /install
-/src/config/*
+/source/config/*
 *.app
 *.desktop
 *.user
