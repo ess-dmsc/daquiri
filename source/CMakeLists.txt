@@ -1,16 +1,9 @@
-cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
-project(daquiri
-  LANGUAGES CXX C
-#  VERSION 0.0.1
-  )
-
 option(test "Build all tests." ON)
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
 
-#set(EXTRA_MODULES_DIR ${PROJECT_SOURCE_DIR}/cmake)
 set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
 
