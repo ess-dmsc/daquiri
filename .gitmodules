@@ -17,3 +17,6 @@
 [submodule "src/producers/ESSStream/streaming-data-types"]
 	path = src/producers/ESSStream/streaming-data-types
 	url = https://github.com/ess-dmsc/streaming-data-types.git
+[submodule "src/external/h5cpp"]
+	path = src/external/h5cpp
+	url = https://github.com/ess-dmsc/h5cpp.git

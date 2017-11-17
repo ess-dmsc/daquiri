@@ -1,7 +1,6 @@
 #pragma once
 
 #include "consumer.h"
-#include "H5CC_Group.h"
 #include "unique_mangle.h"
 
 namespace DAQuiri {
@@ -20,7 +19,7 @@ class ConsumerFactory {
 
     ConsumerPtr create_type(std::string type) const;
     ConsumerPtr create_from_prototype(const ConsumerMetadata& tem) const;
-    ConsumerPtr create_from_h5(H5CC::Group &group, bool withdata = true) const;
+    ConsumerPtr create_from_h5(hdf5::node::Group &group, bool withdata = true) const;
     ConsumerPtr create_copy(ConsumerPtr other) const;
 
     ConsumerMetadata create_prototype(std::string type) const;

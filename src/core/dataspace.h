@@ -1,7 +1,7 @@
 #pragma once
 
 #include <initializer_list>
-#include "H5CC_Group.h"
+#include <h5cpp/hdf5.hpp>
 #include "precise_float.h"
 #include "calibration.h"
 
@@ -62,8 +62,8 @@ public:
   virtual void add_one(const Coords&) = 0;
   virtual void recalc_axes() = 0;
 
-  virtual void load(H5CC::Group&) = 0;
-  virtual void save(H5CC::Group&) const = 0;
+  virtual void load(hdf5::node::Group&) = 0;
+  virtual void save(hdf5::node::Group&) const = 0;
 
   //retrieve axis-values for given dimension (can be precalculated energies)
   uint16_t dimensions() const;

@@ -20,8 +20,8 @@ class Dense1D : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
-    void save(H5CC::Group&) const override;
-    void load(H5CC::Group&) override;
+    void save(hdf5::node::Group&) const override;
+    void load(hdf5::node::Group&) override;
 
   protected:
     // data

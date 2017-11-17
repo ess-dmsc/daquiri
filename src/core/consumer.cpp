@@ -178,13 +178,15 @@ void Consumer::set_attributes(const Setting &settings)
 /// Save and load ///
 /////////////////////
 
-bool Consumer::load(H5CC::Group& g, bool withdata)
+bool Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
-  if (!g.has_group("metadata"))
+  if (!hdf5::has_group(g, "metadata"))
     return false;
 
-  from_json(json(g.open_group("metadata")), metadata_);
+  json j;
+  hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
+  metadata_ = j;
 //  metadata_.from_json(g.open_group("metadata"));
 
   bool ret = this->_initialize();
@@ -198,15 +200,16 @@ bool Consumer::load(H5CC::Group& g, bool withdata)
   return ret;
 }
 
-void Consumer::save(H5CC::Group& g) const
+void Consumer::save(hdf5::node::Group& g) const
 {
   SHARED_LOCK_ST
-  g.write_attribute("type", this->my_type());
+  hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
+  a.write(this->my_type());
+//  g.write_attribute("type", this->my_type());
 
-//  json j = metadata_.to_json();
-  auto mdg = g.require_group("metadata");
+  auto mdg = hdf5::require_group(g, "metadata");
 
-  H5CC::from_json(json(metadata_), mdg);
+  hdf5::from_json(json(metadata_), mdg);
 
   if (data_)
     data_->save(g);

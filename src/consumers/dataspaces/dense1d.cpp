@@ -1,4 +1,5 @@
 #include "dense1d.h"
+#include "h5json.h"
 
 namespace DAQuiri
 {
@@ -83,26 +84,29 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   return result;
 }
 
-void Dense1D::save(H5CC::Group& g) const
+void Dense1D::save(hdf5::node::Group& g) const
 {
   std::vector<double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<double>(spectrum_[i]);
-  auto dset = g.require_dataset<double>("data", {maxchan_});
+  auto dset = g.create_dataset("data",
+                               hdf5::datatype::create<std::vector<double>>(),
+                               hdf5::dataspace::create(d));
+//  auto dset = g.require_dataset<double>("data", {maxchan_});
   dset.write(d);
 }
 
-void Dense1D::load(H5CC::Group& g)
+void Dense1D::load(hdf5::node::Group& g)
 {
-  if (!g.has_dataset("data"))
+  if (!hdf5::has_dataset(g, "data"))
     return;
-  H5CC::DataSet dset = g.open_dataset("data");
-  H5CC::Shape shape = dset.shape();
-  if (shape.rank() != 1)
+  auto dset = hdf5::node::Dataset(g["data"]);
+  auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
+  if (shape.size() != 1)
     return;
 
-  std::vector<double> rdata(shape.dim(0));
-  dset.read(rdata, {rdata.size()}, {0});
+  std::vector<double> rdata(shape[0]);
+  dset.read(rdata);
 
   if (spectrum_.size() < rdata.size())
   {
