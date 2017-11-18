@@ -1,13 +1,10 @@
 #pragma once
 
 #include "producer.h"
-#include "ess_geometry.h"
-#include <librdkafka/rdkafkacpp.h>
-
 #include <atomic>
 #include <thread>
+#include <librdkafka/rdkafkacpp.h>
 #include "fb_parser.h"
-
 
 using namespace DAQuiri;
 

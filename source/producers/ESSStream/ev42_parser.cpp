@@ -5,6 +5,7 @@
 #include "custom_logger.h"
 
 ev42_events::ev42_events()
+: geometry_(1,1,1,1)
 {
   std::string mp {"ev42_events/"};
 
@@ -12,27 +13,30 @@ ev42_events::ev42_events()
   dc.set_val("min", 0);
   add_definition(dc);
 
-  SettingMeta vc(mp + "DimensionCount", SettingType::integer, "Dimensions");
-  vc.set_val("min", 1);
-  vc.set_val("max", 16);
-  add_definition(vc);
+  SettingMeta ex(mp + "extent_x", SettingType::integer, "Extent X");
+  ex.set_val("min", 1);
+  add_definition(ex);
 
-  SettingMeta valname(mp + "Dimension/Name", SettingType::text, "Dimension name");
-  add_definition(valname);
+  SettingMeta ey(mp + "extent_y", SettingType::integer, "Extent Y");
+  ey.set_val("min", 1);
+  add_definition(ey);
 
-  SettingMeta pc(mp + "Dimension/Extent", SettingType::integer, "Dimension extent");
-  pc.set_val("min", 1);
-  add_definition(pc);
+  SettingMeta ez(mp + "extent_z", SettingType::integer, "Extent Z");
+  ez.set_val("min", 1);
+  add_definition(ez);
 
-  SettingMeta val(mp + "Dimension", SettingType::stem);
-  val.set_enum(0, mp + "Dimension/Name");
-  val.set_enum(1, mp + "Dimension/Extent");
-  add_definition(val);
+  SettingMeta ep(mp + "panels", SettingType::integer, "Panel count");
+  ep.set_val("min", 1);
+  add_definition(ep);
+
 
   SettingMeta root("ev42_events", SettingType::stem);
   root.set_flag("producer");
   root.set_enum(0, mp + "OutputChannel");
-  root.set_enum(1, mp + "DimensionCount");
+  root.set_enum(1, mp + "extent_x");
+  root.set_enum(2, mp + "extent_y");
+  root.set_enum(3, mp + "extent_z");
+  root.set_enum(4, mp + "panels");
   add_definition(root);
 }
 
@@ -40,31 +44,12 @@ void ev42_events::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);
 
-  auto dims = geometry_.names_.size();
-
   set.set(Setting::integer("ev42_events/OutputChannel", output_channel_));
-  set.set(Setting::integer("ev42_events/DimensionCount", integer_t(dims)));
 
-  while (set.branches.has_a(Setting({"ev42_events/Dimension", SettingType::stem})))
-    set.branches.remove_a(Setting({"ev42_events/Dimension", SettingType::stem}));
-
-  for (int i=0; i < int(dims); ++i)
-  {
-    Setting v = get_rich_setting("ev42_events/Dimension");
-    v.set_indices({i});
-    v.branches = get_rich_setting("ev42_events/Dimension").branches;
-    std::string name;
-    if (i < geometry_.names_.size())
-    {
-      name = geometry_.names_[i];
-      v.set(Setting::text("ev42_events/Dimension/Name", name));
-      v.set(Setting::integer("ev42_events/Dimension/Extent",
-                             geometry_.dimensions_.at(name)));
-    }
-    for (auto& vv : v.branches)
-      vv.set_indices({i});
-    set.branches.add_a(v);
-  }
+  set.set(Setting::integer("ev42_events/extent_x", integer_t(geometry_.nx())));
+  set.set(Setting::integer("ev42_events/extent_y", integer_t(geometry_.ny())));
+  set.set(Setting::integer("ev42_events/extent_z", integer_t(geometry_.nz())));
+  set.set(Setting::integer("ev42_events/panels", integer_t(geometry_.np())));
 }
 
 
@@ -73,30 +58,16 @@ void ev42_events::write_settings_bulk(const Setting& settings)
   auto set = enrich_and_toggle_presets(settings);
 
   output_channel_ = set.find({"ev42_events/OutputChannel"}).get_number();
-  auto dims = set.find({"ev42_events/DimensionCount"}).get_number();
-  if ((dims < 1) || (dims > 16))
-    dims = 1;
+  geometry_.nx(set.find({"ev42_events/extent_x"}).get_number());
+  geometry_.ny(set.find({"ev42_events/extent_y"}).get_number());
+  geometry_.nz(set.find({"ev42_events/extent_z"}).get_number());
+  geometry_.np(set.find({"ev42_events/panels"}).get_number());
 
-  geometry_ = GeometryInterpreter();
-  for (Setting v : set.branches)
-  {
-    if (v.id() != "ev42_events/Dimension")
-      continue;
-    auto indices = v.indices();
-    if (!indices.size())
-      continue;
-    size_t idx = *indices.begin();
-    //    DBG << "Write idx " << idx;
-    if (idx >= dims)
-      continue;
-    auto name = v.find({"ev42_events/Dimension/Name"}).get_text();
-    size_t ext = v.find({"ev42_events/Dimension/Extent"}).get_number();
-    geometry_.add_dimension(name, ext);
-  }
-
-  for (size_t i=geometry_.names_.size();
-       i < dims; ++i)
-    geometry_.add_dimension("", 1);
+  evt_model_ = EventModel();
+  evt_model_.add_value("x", geometry_.nx());
+  evt_model_.add_value("y", geometry_.ny());
+  evt_model_.add_value("z", geometry_.nz());
+  evt_model_.add_value("panel", geometry_.np());
 }
 
 SpillPtr ev42_events::start_spill() const
@@ -136,7 +107,7 @@ SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
 
   uint64_t time_high = (utime ? (utime << 32) : em->pulse_time());
 
-  evt_model_ = geometry_.model(timebase);
+  evt_model_.timebase = timebase;
   ret = Spill::make_new(StatusType::running, {output_channel_});
   ret->stats[output_channel_].set_model(evt_model_);
   ret->stats[output_channel_].set_value("pulse_time", time_high);
@@ -147,21 +118,22 @@ SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
   {
     uint64_t time = em->time_of_flight()->Get(i);
     time |= time_high;
-
-    const auto& id = em->detector_id()->Get(i);
-    if (id) //must be non0?
-    {
-      auto& evt = ret->events.last();
-      geometry_.interpret_id(evt, id);
-      evt.set_time(time);
-      ++ ret->events;
-    }
-
     if (i==0)
       stats.time_start = time;
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
 
+    const auto& id = em->detector_id()->Get(i);
+    if (geometry_.valid_id(id)) //must be non0?
+    {
+      auto& evt = ret->events.last();
+      evt.set_value(0, geometry_.x(id));
+      evt.set_value(1, geometry_.y(id));
+      evt.set_value(2, geometry_.z(id));
+      evt.set_value(3, geometry_.p(id));
+      evt.set_time(time);
+      ++ ret->events;
+    }
 //    DBG << "Time " << stats.time_start << " - " << stats.time_end;
   }
   ret->events.finalize();

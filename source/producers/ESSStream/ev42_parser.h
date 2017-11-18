@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fb_parser.h"
-#include "ess_geometry.h"
+#include "ESSGeometry.h"
 
 using namespace DAQuiri;
 
@@ -26,8 +26,8 @@ public:
 private:
   // cached params
   int16_t output_channel_ {0};
-  GeometryInterpreter geometry_;
-  EventModel evt_model_; //temp
+  ESSGeometry geometry_;
+  EventModel evt_model_;
 
   uint64_t latest_buf_id_ {0};
 
