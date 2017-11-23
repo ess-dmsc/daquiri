@@ -20,6 +20,5 @@ target_include_directories(
 
 target_link_libraries(
   ${this_target}
-  PRIVATE ${PROJECT_NAME}_core
-  PRIVATE h5cpp_shared
+  PUBLIC ${PROJECT_NAME}_core
 )

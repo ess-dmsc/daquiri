@@ -3,6 +3,7 @@
 #include "ConsumerDialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include<QSettings>
 #include "json_file.h"
 
 using namespace DAQuiri;
@@ -136,11 +137,33 @@ ConsumerTemplatesForm::ConsumerTemplatesForm(Container<ConsumerMetadata> &newdb,
   table_model_.update();
   ui->spectraSetupView->resizeColumnsToContents();
   ui->spectraSetupView->resizeRowsToContents();
+
+  loadSettings();
 }
 
 ConsumerTemplatesForm::~ConsumerTemplatesForm()
 {
   delete ui;
+}
+
+void ConsumerTemplatesForm::loadSettings()
+{
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  ui->checkAutosaveTemplates->setChecked(settings.value("autosave_templates", true).toBool());
+  ui->checkConfirmTemplates->setChecked(settings.value("confirm_templates", true).toBool());
+  ui->checkAskSaveProject->setChecked(settings.value("ask_save_project", true).toBool());
+  settings.endGroup();
+}
+
+void ConsumerTemplatesForm::saveSettings()
+{
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  settings.setValue("autosave_templates", ui->checkAutosaveTemplates->isChecked());
+  settings.setValue("confirm_templates", ui->checkConfirmTemplates->isChecked());
+  settings.setValue("ask_save_project", ui->checkAskSaveProject->isChecked());
+  settings.endGroup();
 }
 
 void ConsumerTemplatesForm::selection_changed(QItemSelection, QItemSelection) {
@@ -284,18 +307,35 @@ void ConsumerTemplatesForm::on_pushDelete_clicked()
 
 void ConsumerTemplatesForm::on_pushSetDefault_clicked()
 {
-  //ask sure?
-  to_json_file(templates_, root_dir_.toStdString() + "/default_sinks.tem");
+  int reply = QMessageBox::warning(this, "Set default?",
+                                   "Set current templates as default?",
+                                   QMessageBox::Yes|QMessageBox::Cancel);
+  if (reply != QMessageBox::Yes)
+  {
+    return;
+  }
+  save_default();
 }
 
 void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 {
-  //ask sure?
+  int reply = QMessageBox::warning(this, "Reset to defaults?",
+                                   "Reset to default templete configuration?",
+                                   QMessageBox::Yes|QMessageBox::Cancel);
+  if (reply != QMessageBox::Yes)
+  {
+    return;
+  }
   templates_ = from_json_file(root_dir_.toStdString() + "/default_sinks.tem");
 
   selection_model_.reset();
   table_model_.update();
   toggle_push();
+}
+
+void ConsumerTemplatesForm::save_default()
+{
+  to_json_file(templates_, root_dir_.toStdString() + "/default_sinks.tem");
 }
 
 void ConsumerTemplatesForm::on_pushClear_clicked()
@@ -328,4 +368,13 @@ void ConsumerTemplatesForm::on_pushDown_clicked()
                                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   table_model_.update();
   toggle_push();
+}
+
+void ConsumerTemplatesForm::on_buttonBox_accepted()
+{
+  if (ui->checkAutosaveTemplates->isChecked())
+  {
+    save_default();
+  }
+  saveSettings();
 }

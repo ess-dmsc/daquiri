@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
 
   if (!parser.isSet("h"))
   {
+    hdf5::error::Singleton::instance().auto_print(false);
+
     producers_autoreg();
     consumers_autoreg();
 

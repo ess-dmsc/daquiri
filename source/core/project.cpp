@@ -244,25 +244,24 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 }
 
 void Project::to_h5(hdf5::node::Group &group) const {
-//  group.write_attribute("git_version", std::string(GIT_VERSION));
 
   group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
 
-  if (!spills_.empty()) {
-    auto sg = hdf5::require_group(group, "spills");
+//  if (!spills_.empty()) {
+//    auto sg = hdf5::require_group(group, "spills");
 
-    int i = 0;
-    size_t len = std::to_string(spills_.size() - 1).size();
-    for (auto &s :spills_) {
-      std::string name = std::to_string(i++);
-      if (name.size() < len)
-        name = std::string(len - name.size(), '0').append(name);
+//    int i = 0;
+//    size_t len = std::to_string(spills_.size() - 1).size();
+//    for (auto &s :spills_) {
+//      std::string name = std::to_string(i++);
+//      if (name.size() < len)
+//        name = std::string(len - name.size(), '0').append(name);
 
-      auto ssg = hdf5::require_group(sg, name);
+//      auto ssg = hdf5::require_group(sg, name);
 
-      hdf5::from_json(json(s), ssg);
-    }
-  }
+//      hdf5::from_json(json(s), ssg);
+//    }
+//  }
 
   if (!sinks_.empty()) {
     auto sg = hdf5::require_group(group, "sinks");
@@ -276,11 +275,10 @@ void Project::to_h5(hdf5::node::Group &group) const {
 
       auto ssg = hdf5::require_group(sg, name);
 
-//      ssg.write_attribute("index", q.first);
-
       ssg.attributes.create<int64_t>("index").write(q.first);
 
-      q.second->save(ssg);
+      if (q.second->dimensions() == 1)
+        q.second->save(ssg);
     }
   }
 
@@ -342,7 +340,7 @@ void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_
 
 void Project::write_h5(std::string file_name) {
   try {
-    auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::TRUNCATE);
+    auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
     auto group = hdf5::require_group(f, "project");
     to_h5(group);
@@ -354,31 +352,32 @@ void Project::write_h5(std::string file_name) {
     identity_ = file_name;
     cond_.notify_all();
   }
-  catch (...) {
-    ERR << "<Project> Failed to write h5 " << file_name;
-    printException();
+  catch (std::exception& e) {
+    ERR << "<Project> Failed to write '"
+        << file_name << "'\n"
+        << hdf5::error::print_nested(e);
   }
 }
 
 void Project::read_h5(std::string file_name,
                       bool with_sinks,
                       bool with_full_sinks) {
-//  try
-//  {
-  auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
-  auto f = file.root();
-  auto group = hdf5::require_group(f, "project");
-  from_h5(group, with_sinks, with_full_sinks);
+  try {
+    auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
+    auto f = file.root();
+    auto group = hdf5::require_group(f, "project");
+    from_h5(group, with_sinks, with_full_sinks);
 
-  unique_lock lock(mutex_);
-  identity_ = file_name;
-  cond_.notify_all();
-//  }
-//  catch (...)
-//  {
-//    ERR << "<Project> Failed to read h5 " << file_name;
-//    printException();
-//  }
+    unique_lock lock(mutex_);
+    identity_ = file_name;
+    cond_.notify_all();
+  }
+  catch (std::exception &e) {
+    ERR << "<Project> Failed to read '"
+        << file_name << "'\n"
+        << hdf5::error::print_nested(e);
+    ERR << "<Project> Failed to read h5 " << file_name;
+  }
 }
 
 }

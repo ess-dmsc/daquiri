@@ -89,11 +89,21 @@ void Dense1D::save(hdf5::node::Group& g) const
   std::vector<double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<double>(spectrum_[i]);
-  auto dset = g.create_dataset("data",
-                               hdf5::datatype::create<std::vector<double>>(),
-                               hdf5::dataspace::create(d));
+
+  auto dtype = hdf5::datatype::create<double>();
+  auto dspace = hdf5::dataspace::Simple({maxchan_});
+
+//  auto dset = g.create_dataset("data", dtype, dspace);
+//  auto dset = g.create_dataset("data",
+//                               hdf5::datatype::create<double>(),
+//                               dspace);
+
+//  auto dset = g.create_dataset("data",
+//                               hdf5::datatype::create<double>(),
+//                               hdf5::dataspace::Simple({maxchan_}, {maxchan_}));
+
 //  auto dset = g.require_dataset<double>("data", {maxchan_});
-  dset.write(d);
+//  dset.write(d);
 }
 
 void Dense1D::load(hdf5::node::Group& g)
