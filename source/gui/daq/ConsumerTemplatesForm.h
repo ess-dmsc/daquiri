@@ -55,7 +55,6 @@ private:
   std::vector<DAQuiri::Detector> current_dets_;
 
 private slots:
-
   void on_pushImport_clicked();
   void on_pushExport_clicked();
   void on_pushNew_clicked();
@@ -73,4 +72,10 @@ private slots:
   void on_pushUp_clicked();
   void on_pushDown_clicked();
   void on_pushClone_clicked();
+  void on_buttonBox_accepted();
+
+  void loadSettings();
+  void saveSettings();
+
+  void save_default();
 };

@@ -81,7 +81,10 @@ void ProjectForm::closeEvent(QCloseEvent *event)
     }
   }
 
-  if (project_->changed())
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+
+  if (project_->changed() && settings.value("ask_save_project", true).toBool())
   {
     int reply = QMessageBox::warning(this, "Project contents changed",
                                      "Discard?",
@@ -249,13 +252,20 @@ void ProjectForm::on_pushMcaStart_clicked()
   }
   else
   {
-    ConsumerTemplatesForm* newDialog =
-        new ConsumerTemplatesForm(spectra_templates_,
-                                  current_dets_,
-                                  Profiles::current_profile_dir(),
-                                  this);
-    connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
-    newDialog->exec();
+    QSettings settings;
+    settings.beginGroup("DAQ_behavior");
+    if (settings.value("confirm_templates", true).toBool())
+    {
+      ConsumerTemplatesForm* newDialog =
+          new ConsumerTemplatesForm(spectra_templates_,
+                                    current_dets_,
+                                    Profiles::current_profile_dir(),
+                                    this);
+      connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
+      newDialog->exec();
+    }
+    else
+      start_DAQ();
   }
 }
 

@@ -19,6 +19,7 @@ These libraries are expected in default locations:
 - librdkafka
 - flatbuffers (headers and `flatc` executable)
 - eigen3
+- [h5cpp](https://github.com/ess-dmsc/h5cpp)
 
 Tooling
 - cmake (minimum tested is 2.8.11)

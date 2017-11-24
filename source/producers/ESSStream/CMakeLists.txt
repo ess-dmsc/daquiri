@@ -7,8 +7,8 @@ if (NOT LIBRDKAFKA_FOUND)
   message(FATAL_ERROR "Unable to proceed as librdkafka could not be found.")
 endif ()
 
-file(GLOB_RECURSE ${this_target}_SOURCES *.cpp)
-file(GLOB_RECURSE ${this_target}_HEADERS *.h)
+file(GLOB ${this_target}_SOURCES *.cpp)
+file(GLOB ${this_target}_HEADERS *.h ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src/*.h)
 dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
@@ -21,6 +21,7 @@ target_include_directories(
   ${this_target}
   PRIVATE ${${this_target}_INCLUDE_DIRS}
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/streaming-data-types/schemas
+  PRIVATE ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src
 )
 
 target_link_libraries(
