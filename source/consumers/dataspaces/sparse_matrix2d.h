@@ -1,7 +1,11 @@
 #pragma once
 
 #include "dataspace.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #include <Eigen/Sparse>
+#pragma GCC diagnostic pop
 
 namespace DAQuiri
 {
@@ -40,7 +44,8 @@ class SparseMatrix2D : public Dataspace
         limits_[0] = x;
       if (y > limits_[1])
         limits_[1] = y;
-      if ((spectrum_.rows() <= limits_[0]) || (spectrum_.cols() <= limits_[1]))
+      if ((spectrum_.rows() <= static_cast<int64_t>(limits_[0])) ||
+          (spectrum_.cols() <= static_cast<int64_t>(limits_[1])))
         this->reserve(limits_);
     }
 
@@ -62,8 +67,8 @@ class SparseMatrix2D : public Dataspace
     bool is_symmetric();
 
     void fill_list(EntryList &result,
-                   size_t min0, size_t max0,
-                   size_t min1, size_t max1) const;
+                   int64_t min0, int64_t max0,
+                   int64_t min1, int64_t max1) const;
 };
 
 }

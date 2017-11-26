@@ -22,6 +22,8 @@ Consumer1D::Consumer1D(QWidget *parent)
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
+  connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
+
   setLayout(fl);
 }
 
@@ -86,6 +88,26 @@ void Consumer1D::update()
     plot_->zoomOut();
 }
 
+void Consumer1D::scaleChanged(QString sn)
+{
+  if (!plot_
+      || !consumer_
+      || (consumer_->dimensions() != 1))
+    return;
+
+  ConsumerMetadata md = consumer_->metadata();
+  auto st = md.get_attribute("preferred_scale");
+  for (auto e : st.metadata().enum_map())
+  {
+    if (e.second == sn.toStdString())
+    {
+      st.select(e.first);
+      break;
+    }
+  }
+  consumer_->set_attribute(st);
+}
+
 void Consumer1D::refresh()
 {
   plot_->replot(QCustomPlot::rpQueuedRefresh);
@@ -93,6 +115,7 @@ void Consumer1D::refresh()
 
 void Consumer1D::mouseWheel (QWheelEvent *event)
 {
+  Q_UNUSED(event)
   user_zoomed_ = true;
 }
 

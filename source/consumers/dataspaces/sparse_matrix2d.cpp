@@ -56,7 +56,7 @@ PreciseFloat SparseMatrix2D::get(const Coords&  coords) const
 
 EntryList SparseMatrix2D::range(std::vector<Pair> list) const
 {
-  size_t min0, min1, max0, max1;
+  int64_t min0, min1, max0, max1;
   if (list.size() != dimensions())
   {
     min0 = min1 = 0;
@@ -82,8 +82,8 @@ EntryList SparseMatrix2D::range(std::vector<Pair> list) const
 }
 
 void SparseMatrix2D::fill_list(EntryList& result,
-                         size_t min0, size_t max0,
-                         size_t min1, size_t max1) const
+                         int64_t min0, int64_t max0,
+                         int64_t min1, int64_t max1) const
 {
   for (int k=0; k < spectrum_.outerSize(); ++k)
   {
@@ -186,7 +186,7 @@ void SparseMatrix2D::load(hdf5::node::Group& g)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
-std::string SparseMatrix2D::data_debug(const std::string &prepend) const
+std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {
   double maximum {0};
   for (int k=0; k < spectrum_.outerSize(); ++k)

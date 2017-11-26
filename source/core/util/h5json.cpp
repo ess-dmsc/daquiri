@@ -72,7 +72,6 @@ void to_json(json &j, const node::Group &g)
 
 void attr_to_json(json &j, const attribute::Attribute &a)
 {
-  int val = 0;
   if (a.datatype() == datatype::create<float>()) {
     float val;
     a.read(val);
@@ -195,24 +194,31 @@ void from_json(const json &j, node::Group &g)
 
 void to_json(json &j, const node::Dataset &d)
 {
-//  auto dsp = d.dataspace();
-//  auto s = dsp. d.shape();
-//  j["___shape"] = s.shape();
-//  if (s.is_extendable())
-//    j["___extends"] = s.max_shape();
-//  if (d.is_chunked())
-//    j["___chunk"] = d.chunk_shape().shape();
-//  for (auto a : d.attributes())
-//    j[a] = attribute_to_json(d, a);
+  auto dsp = dataspace::Simple(d.dataspace());
+  auto dims = dsp.current_dimensions();
+  auto maxdims = dsp.maximum_dimensions();
+  j["___shape"] = dims;
+  if (dims != maxdims)
+    j["___extends"] = maxdims;
+  auto cl = d.creation_list();
+  if (cl.layout() == property::DatasetLayout::CHUNKED)
+    j["___chunk"] = cl.chunk();
+
+  for (auto a : d.attributes)
+    attr_to_json(j, a);
 }
 
-void dataset_from_json(const json &j, const std::string &name,
-                       node::Group &g)
+void dataset_from_json(const json &j,
+                       __attribute__((unused)) const std::string &name,
+                       __attribute__((unused)) node::Group &g)
 {
   std::vector<hsize_t> shape = j["___shape"];
-  std::vector<hsize_t> chunk;
+
+  std::vector<hsize_t> extends;
   if (j.count("___extends") && j["___extends"].is_array())
-    shape = j["___extends"].get<std::vector<hsize_t>>();
+    extends = j["___extends"].get<std::vector<hsize_t>>();
+
+  std::vector<hsize_t> chunk;
   if (j.count("___chunk") && j["___chunk"].is_array())
     chunk = j["___chunk"].get<std::vector<hsize_t>>();
 //  auto dset = g.create_dataset<int>(name, shape, chunk);

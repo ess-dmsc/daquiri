@@ -56,12 +56,14 @@ void SelectorWidget::setItems(QVector<SelectorItem> items) {
   update();
 }
 
-QVector<SelectorItem> SelectorWidget::items() {
+QVector<SelectorItem> SelectorWidget::items()
+{
   return my_items_;
 }
 
-
-void SelectorWidget::recalcDim(int w, int h) {
+void SelectorWidget::recalcDim(int w, int h)
+{
+  Q_UNUSED(h)
   max_wide = w / rect_w_;
   height_total = my_items_.size() / max_wide;
   width_last = my_items_.size() % max_wide;

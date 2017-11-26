@@ -75,8 +75,8 @@ Dataspace::Dataspace(uint16_t dimensions)
 }
 
 Dataspace::Dataspace(const Dataspace& other)
-  : dimensions_(other.dimensions_)
-  , axes_ (other.axes_)
+  : axes_ (other.axes_)
+  , dimensions_(other.dimensions_)
 {}
 
 EntryList Dataspace::all_data() const

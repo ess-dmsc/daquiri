@@ -9,8 +9,8 @@
 using namespace DAQuiri;
 
 ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(Container<ConsumerMetadata>& templates, QObject *parent)
-  : QAbstractTableModel(parent),
-    templates_(templates)
+  : QAbstractTableModel(parent)
+  , templates_(templates)
 {
 }
 
@@ -96,7 +96,8 @@ void ConsumerTemplatesTableModel::update() {
 
 Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 {
-  Qt::ItemFlags myflags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | QAbstractTableModel::flags(index) & ~Qt::ItemIsSelectable;
+  Qt::ItemFlags myflags =
+      QAbstractTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
   return myflags;
 }
 
@@ -107,14 +108,14 @@ Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 
 ConsumerTemplatesForm::ConsumerTemplatesForm(Container<ConsumerMetadata> &newdb,
                                                std::vector<Detector> current_dets,
-                                               QString savedir, QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::ConsumerTemplatesForm),
-  table_model_(newdb),
-  selection_model_(&table_model_),
-  templates_(newdb),
-  current_dets_(current_dets),
-  root_dir_(savedir)
+                                               QString savedir, QWidget *parent)
+  : QDialog(parent)
+  , ui(new Ui::ConsumerTemplatesForm)
+  , templates_(newdb)
+  , table_model_(newdb)
+  , selection_model_(&table_model_)
+  , root_dir_(savedir)
+  , current_dets_(current_dets)
 {
   ui->setupUi(this);
 
@@ -151,6 +152,7 @@ void ConsumerTemplatesForm::loadSettings()
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
   ui->checkAutosaveTemplates->setChecked(settings.value("autosave_templates", true).toBool());
+  ui->checkAutosaveDAQ->setChecked(settings.value("autosave_daq", true).toBool());
   ui->checkConfirmTemplates->setChecked(settings.value("confirm_templates", true).toBool());
   ui->checkAskSaveProject->setChecked(settings.value("ask_save_project", true).toBool());
   settings.endGroup();
@@ -161,6 +163,7 @@ void ConsumerTemplatesForm::saveSettings()
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
   settings.setValue("autosave_templates", ui->checkAutosaveTemplates->isChecked());
+  settings.setValue("autosave_daq", ui->checkAutosaveDAQ->isChecked());
   settings.setValue("confirm_templates", ui->checkConfirmTemplates->isChecked());
   settings.setValue("ask_save_project", ui->checkAskSaveProject->isChecked());
   settings.endGroup();

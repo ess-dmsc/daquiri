@@ -13,6 +13,10 @@ TOFVal2D::TOFVal2D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time of flight vs. value 2D spectrum");
 
+  SettingMeta app("appearance", SettingType::text, "Plot appearance");
+  app.set_flag("gradient-name");
+  base_options.branches.add(Setting(app));
+
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);

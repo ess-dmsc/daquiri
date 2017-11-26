@@ -19,22 +19,22 @@ using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
                        std::vector<Detector>& current_dets,
-                       ProjectPtr proj, QWidget *parent) :
-  QWidget(parent),
-  interruptor_(false),
-  project_(proj),
-  runner_thread_(thread),
-  detectors_(detectors),
-  current_dets_(current_dets),
-  my_run_(false),
-  ui(new Ui::ProjectForm)
+                       ProjectPtr proj, QWidget *parent)
+  : QWidget(parent)
+  , ui(new Ui::ProjectForm)
+  , runner_thread_(thread)
+  , detectors_(detectors)
+  , current_dets_(current_dets)
+  , project_(proj)
+  , interruptor_(false)
+  , my_run_(false)
 {
   ui->setupUi(this);
 
   if (!project_)
     project_ = ProjectPtr(new Project());
-  else
-    DBG << "project already exists";
+//  else
+//    DBG << "project already exists";
 
   //connect with runner
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
@@ -103,36 +103,46 @@ void ProjectForm::closeEvent(QCloseEvent *event)
 
 void ProjectForm::loadSettings()
 {
-  QSettings settings_;
+  QSettings settings;
 
-  settings_.beginGroup("Program");
-  data_directory_ = settings_.value("save_directory", QDir::currentPath()).toString();
-  settings_.endGroup();
+  settings.beginGroup("Program");
+  data_directory_ = settings.value("save_directory", QDir::currentPath()).toString();
+  settings.endGroup();
 
   spectra_templates_ =
       from_json_file(Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
 
-  settings_.beginGroup("McaDaq");
-  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
-  ui->toggleIndefiniteRun->setChecked(settings_.value("run_indefinite", false).toBool());
+  settings.beginGroup("Daq");
+  ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
+  ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", false).toBool());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 
-  settings_.endGroup();
+  settings.endGroup();
 }
 
 void ProjectForm::saveSettings()
 {
-  QSettings settings_;
+  QSettings settings;
 
-  settings_.beginGroup("Program");
-  settings_.setValue("save_directory", data_directory_);
-  settings_.endGroup();
+  settings.beginGroup("Program");
+  settings.setValue("save_directory", data_directory_);
+  settings.endGroup();
 
-  settings_.beginGroup("McaDaq");
-  settings_.setValue("run_secs", QVariant::fromValue(ui->timeDuration->total_seconds()));
-  settings_.setValue("run_indefinite", ui->toggleIndefiniteRun->isChecked());
+  settings.beginGroup("Daq");
+  settings.setValue("run_secs", QVariant::fromValue(ui->timeDuration->total_seconds()));
+  settings.setValue("run_indefinite", ui->toggleIndefiniteRun->isChecked());
+  settings.endGroup();
 
-  settings_.endGroup();
+  settings.beginGroup("DAQ_behavior");
+  if (settings.value("autosave_daq", true).toBool()
+      && !project_->empty())
+  {
+    spectra_templates_.clear();
+    for (auto &q : project_->get_sinks())
+      spectra_templates_.add_a(q.second->metadata());
+    to_json_file(spectra_templates_,
+                 Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
+  }
 }
 
 void ProjectForm::toggle_push(bool enable, ProducerStatus status)
@@ -140,7 +150,7 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status)
   bool online = (status & ProducerStatus::can_run);
   bool nonempty = !project_->empty();
 
-  ui->pushMcaStart->setEnabled(enable && online && !my_run_);
+  ui->pushStart->setEnabled(enable && online && !my_run_);
 
   ui->timeDuration->setEnabled(enable && online && !ui->toggleIndefiniteRun->isChecked());
   ui->toggleIndefiniteRun->setEnabled(enable && online);
@@ -238,7 +248,7 @@ void ProjectForm::on_pushEditSpectra_clicked()
   newDialog->exec();
 }
 
-void ProjectForm::on_pushMcaStart_clicked()
+void ProjectForm::on_pushStart_clicked()
 {
   if (!project_->empty())
   {
@@ -275,7 +285,7 @@ void ProjectForm::start_DAQ()
     return;
 
   emit toggleIO(false);
-  ui->pushMcaStop->setEnabled(true);
+  ui->pushStop->setEnabled(true);
 
   if (project_->empty())
   {
@@ -336,10 +346,10 @@ void ProjectForm::newProject()
   ui->Plot1d->setSpectra(project_);
 }
 
-void ProjectForm::on_pushMcaStop_clicked()
+void ProjectForm::on_pushStop_clicked()
 {
-  ui->pushMcaStop->setEnabled(false);
-  //INFO << "MCA acquisition interrupted by user";
+  ui->pushStop->setEnabled(false);
+  //INFO << " acquisition interrupted by user";
   interruptor_.store(true);
 }
 
@@ -347,7 +357,7 @@ void ProjectForm::run_completed()
 {
   if (my_run_) {
     //INFO << "ProjectForm received signal for run completed";
-    ui->pushMcaStop->setEnabled(false);
+    ui->pushStop->setEnabled(false);
     my_run_ = false;
 
     update_plots();

@@ -16,13 +16,13 @@
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
                            Container<Detector>& detectors,
-                           QWidget *parent) :
-  QWidget(parent),
-  runner_thread_(thread),
-  detectors_(detectors),
-  tree_settings_model_(this),
-  table_settings_model_(this),
-  ui(new Ui::SettingsForm)
+                           QWidget *parent)
+  : QWidget(parent)
+  , ui(new Ui::SettingsForm)
+  , detectors_(detectors)
+  , runner_thread_(thread)
+  , table_settings_model_(this)
+  , tree_settings_model_(this)
 {
   ui->setupUi(this);
   ui->Oscil->setVisible(false);
@@ -107,17 +107,17 @@ void SettingsForm::update(const DAQuiri::Setting &tree,
   } else
     ui->Oscil->setVisible(false);
 
-  bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
-  bool can_gain_match = false;
-  bool can_optimize = false;
-  for (auto &q : settings_table_)
-    for (auto & p: q.optimizations())
-    {
-      if (p.metadata().has_flag("gain"))
-        can_gain_match = true;
-      if (p.metadata().has_flag("optimize"))
-        can_optimize = true;
-    }
+//  bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
+//  bool can_gain_match = false;
+//  bool can_optimize = false;
+//  for (auto &q : settings_table_)
+//    for (auto &p : q.optimizations())
+//    {
+//      if (p.metadata().has_flag("gain"))
+//        can_gain_match = true;
+//      if (p.metadata().has_flag("optimize"))
+//        can_optimize = true;
+//    }
 
 
   //update dets in DB as well?

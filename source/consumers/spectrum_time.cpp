@@ -12,6 +12,10 @@ TimeSpectrum::TimeSpectrum()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Spectra in time series");
 
+  SettingMeta app("appearance", SettingType::text, "Plot appearance");
+  app.set_flag("gradient-name");
+  base_options.branches.add(Setting(app));
+
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);

@@ -37,8 +37,8 @@ public slots:
   void start_DAQ();
 
 private slots:
-  void on_pushMcaStart_clicked();
-  void on_pushMcaStop_clicked();
+  void on_pushStart_clicked();
+  void on_pushStop_clicked();
   void run_completed();
   void on_pushEditSpectra_clicked();
   void update_plots();

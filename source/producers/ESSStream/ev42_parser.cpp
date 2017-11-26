@@ -114,7 +114,7 @@ SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
   //ret->stats[output_channel_].set_value("buf_id", buf_id);
 
   ret->events.reserve(events, Event(output_channel_, evt_model_));
-  for (auto i=0; i < events; ++i)
+  for (size_t i=0; i < events; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
     time |= time_high;

@@ -122,7 +122,7 @@ void ProfilesForm::update_profiles()
   ui->tableProfiles2->setColumnCount(2);
 
   auto thisprofile = Profiles::current_profile_name();
-  for (size_t i=0; i < profiles_.size(); ++i)
+  for (auto i=0; i < profiles_.size(); ++i)
   {
     QBrush background = (thisprofile == profiles_[i].id) ?
           QBrush(Qt::green) : QBrush(Qt::white);

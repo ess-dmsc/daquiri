@@ -9,13 +9,13 @@
 
 using namespace DAQuiri;
 
-ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent) :
-  QWidget(parent),
-  ui(new Ui::ListModeForm),
-  runner_thread_(thread),
-  attr_model_(this),
-  interruptor_(false),
-  my_run_(false)
+ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent)
+  : QWidget(parent)
+  , ui(new Ui::ListModeForm)
+  , runner_thread_(thread)
+  , interruptor_(false)
+  , my_run_(false)
+  , attr_model_(this)
 {
   ui->setupUi(this);
 
