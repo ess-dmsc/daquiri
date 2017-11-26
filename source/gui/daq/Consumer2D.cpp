@@ -24,6 +24,9 @@ Consumer2D::Consumer2D(QWidget *parent)
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
+  connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
+  connect(plot_, SIGNAL(gradientChanged(QString)), this, SLOT(gradientChanged(QString)));
+
   setLayout(fl);
 }
 
@@ -48,6 +51,9 @@ void Consumer2D::update()
     auto st = md.get_attribute("preferred_scale");
     auto scale = st.metadata().enum_name(st.selection());
     plot_->setScaleType(QString::fromStdString(scale));
+
+    auto app = md.get_attribute("appearance").get_text();
+    plot_->setGradient(QString::fromStdString(app));
     initial_scale_ = true;
   }
 
@@ -90,6 +96,40 @@ void Consumer2D::update()
   //  DBG << "<Plot2D> plotting took " << guiside.ms() << " ms";
 }
 
+void Consumer2D::scaleChanged(QString sn)
+{
+  if (!plot_
+      || !consumer_
+      || (consumer_->dimensions() != 2))
+    return;
+
+  ConsumerMetadata md = consumer_->metadata();
+  auto st = md.get_attribute("preferred_scale");
+  for (auto e : st.metadata().enum_map())
+  {
+    if (e.second == sn.toStdString())
+    {
+      DBG << "Matched " << e.second << "=" << e.first;
+      st.select(e.first);
+      break;
+    }
+  }
+  consumer_->set_attribute(st);
+}
+
+void Consumer2D::gradientChanged(QString g)
+{
+  if (!plot_
+      || !consumer_
+      || (consumer_->dimensions() != 2))
+    return;
+
+  ConsumerMetadata md = consumer_->metadata();
+  auto st = md.get_attribute("appearance");
+  st.set_text(g.toStdString());
+  consumer_->set_attribute(st);
+}
+
 void Consumer2D::refresh()
 {
   plot_->replot(QCustomPlot::rpQueuedRefresh);
@@ -98,6 +138,7 @@ void Consumer2D::refresh()
 
 void Consumer2D::mouseWheel (QWheelEvent *event)
 {
+  Q_UNUSED(event)
   user_zoomed_ = true;
 }
 

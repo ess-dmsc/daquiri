@@ -81,6 +81,7 @@ void ProjectView::setSpectra(ProjectPtr new_set)
 
 void ProjectView::selectorItemToggled(SelectorItem item)
 {
+  Q_UNUSED(item)
   enforce_all();
   update_plots();
 }
@@ -212,7 +213,7 @@ void ProjectView::updateUI()
 
 void ProjectView::enforce_all()
 {
-  size_t initial = consumers_.size();
+  auto initial = consumers_.size();
   for (auto item : selector_->items())
     enforce_item(item);
   if (consumers_.size() != initial)
@@ -284,12 +285,11 @@ void ProjectView::hideAll()
 void ProjectView::randAll()
 {
   for (auto &q : project_->get_sinks())
-    for (auto &q : project_->get_sinks())
-      if (q.second)
-      {
-        auto col = generateColor().name(QColor::HexArgb).toStdString();
-        q.second->set_attribute(Setting::color("appearance", col));
-      }
+    if (q.second)
+    {
+      auto col = generateColor().name(QColor::HexArgb).toStdString();
+      q.second->set_attribute(Setting::color("appearance", col));
+    }
   updateUI();
   update();
 }

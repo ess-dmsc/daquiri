@@ -16,6 +16,10 @@ Image2D::Image2D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image");
 
+  SettingMeta app("appearance", SettingType::text, "Plot appearance");
+  app.set_flag("gradient-name");
+  base_options.branches.add(Setting(app));
+
   SettingMeta x_name("x_name", SettingType::text);
   x_name.set_flag("preset");
   x_name.set_val("description", "Name of event value for x coordinate");

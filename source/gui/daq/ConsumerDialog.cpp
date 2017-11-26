@@ -63,8 +63,11 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
     ui->spinDets->setValue(current_detectors_.size());
     on_comboType_activated(ui->comboType->currentText());
     Setting col = sink_metadata_.get_attribute("appearance");
-    col.set_text(generateColor().name(QColor::HexArgb).toStdString());
-    sink_metadata_.set_attribute(col);
+    if (!col.metadata().has_flag("gradient-name"))
+    {
+      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+      sink_metadata_.set_attribute(col);
+    }
   }
 
   updateData();

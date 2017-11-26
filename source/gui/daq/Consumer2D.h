@@ -16,6 +16,8 @@ public:
 private slots:
   void mouseWheel (QWheelEvent *event);
   void zoomedOut();
+  void scaleChanged(QString);
+  void gradientChanged(QString);
 
 private:
   QPlot::Plot2D* plot_ {nullptr};

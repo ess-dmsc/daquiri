@@ -20,6 +20,8 @@
 
 #include <QApplication>
 
+#include <QPlot.h>
+
 using namespace color_widgets;
 using namespace DAQuiri;
 
@@ -202,7 +204,17 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
   else if (set.is(SettingType::duration))
     return new TimeDurationWidget(parent);
   else if (set.is(SettingType::text))
-    return new QLineEdit(parent);
+  {
+    if (set.metadata().has_flag("gradient-name"))
+    {
+      QComboBox *editor = new QComboBox(parent);
+      for (auto &q : QPlot::Gradients::defaultGradients().names())
+        editor->addItem(q, q);
+      return editor;
+    }
+    else
+      return new QLineEdit(parent);
+  }
   else if (set.is(SettingType::binary))
   {
     emit ask_binary(set, index);
@@ -276,7 +288,6 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
                       QVariant::fromValue(q.first));
     return editor;
   }
-
   return QStyledItemDelegate::createEditor(parent, option, index);
 }
 
@@ -292,7 +303,8 @@ void SettingDelegate::setEditorData(QWidget *editor,
 
   if (QComboBox *cb = qobject_cast<QComboBox*>(editor))
   {
-    if (set.is(SettingType::detector))
+    if (set.is(SettingType::detector) ||
+        (set.is(SettingType::text) && set.metadata().has_flag("gradient-name")))
     {
       int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)
@@ -368,7 +380,10 @@ void SettingDelegate::setModelData(QWidget *editor,
     QStyledItemDelegate::setModelData(editor, model, index);
 }
 
-void SettingDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void SettingDelegate::updateEditorGeometry(QWidget *editor,
+                                           const QStyleOptionViewItem &option,
+                                           const QModelIndex &index) const
 {
+  Q_UNUSED(index);
   editor->setGeometry(option.rect);
 }

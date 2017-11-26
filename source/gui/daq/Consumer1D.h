@@ -16,6 +16,7 @@ class Consumer1D : public AbstractConsumerWidget
   private slots:
     void mouseWheel (QWheelEvent *event);
     void zoomedOut();
+    void scaleChanged(QString);
 
   private:
     QPlot::Multi1D* plot_ {nullptr};

@@ -283,7 +283,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushMcaStart">
+        <widget class="QPushButton" name="pushStart">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -321,7 +321,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushMcaStop">
+        <widget class="QPushButton" name="pushStop">
          <property name="enabled">
           <bool>false</bool>
          </property>

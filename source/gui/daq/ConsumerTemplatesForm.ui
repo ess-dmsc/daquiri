@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
+    <width>1042</width>
     <height>531</height>
    </rect>
   </property>
@@ -521,6 +521,13 @@
       <property name="bottomMargin">
        <number>3</number>
       </property>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="checkAutosaveTemplates">
+        <property name="text">
+         <string>Auto save template changes</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1">
        <widget class="QCheckBox" name="checkConfirmTemplates">
         <property name="text">
@@ -528,17 +535,17 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="checkAutosaveDAQ">
+        <property name="text">
+         <string>Autosave in-DAQ changes to templates</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="3">
        <widget class="QCheckBox" name="checkAskSaveProject">
         <property name="text">
          <string>Ask to save acquired data when closing tab</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkAutosaveTemplates">
-        <property name="text">
-         <string>Auto save template changes</string>
         </property>
        </widget>
       </item>
