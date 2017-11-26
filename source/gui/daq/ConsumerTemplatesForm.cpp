@@ -97,8 +97,7 @@ void ConsumerTemplatesTableModel::update() {
 Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 {
   Qt::ItemFlags myflags =
-      (QAbstractTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable)
-      & ~Qt::ItemIsSelectable;
+      QAbstractTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
   return myflags;
 }
 
