@@ -6,11 +6,11 @@
 
 #include "Profiles.h"
 
-ThreadRunner::ThreadRunner(QObject *parent) :
-  QThread(parent),
-  engine_(Engine::singleton()),
-  terminating_(false),
-  running_(false)
+ThreadRunner::ThreadRunner(QObject *parent)
+  : QThread(parent)
+  , engine_(Engine::singleton())
+  , running_(false)
+  , terminating_(false)
 {
   idle_refresh_.store(false);
   idle_refresh_frequency_.store(1);
@@ -275,8 +275,7 @@ void ThreadRunner::run()
       engine_.get_all_settings();
       emit settingsUpdated(engine_.pull_settings(),
                            engine_.get_detectors(),
-                           engine_.status()
-                           ^ DAQuiri::ProducerStatus::can_run
+                           (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
                            | DAQuiri::ProducerStatus::running);
       interruptor_->store(false);
       engine_.acquire(project_, *interruptor_, timeout_);
@@ -288,8 +287,7 @@ void ThreadRunner::run()
       interruptor_->store(false);
       emit settingsUpdated(engine_.pull_settings(),
                            engine_.get_detectors(),
-                           engine_.status()
-                           ^ DAQuiri::ProducerStatus::can_run
+                           (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
                            | DAQuiri::ProducerStatus::running);
       ListData newListRun
           = engine_.acquire_list(*interruptor_, timeout_);

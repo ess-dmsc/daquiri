@@ -14,16 +14,16 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
                                Container<Detector>& detDB,
                                bool has_sink_parent,
                                bool allow_edit_type,
-                               QWidget *parent) :
-  QDialog(parent),
-  sink_metadata_(sink_metadata),
-//  det_selection_model_(&det_table_model_),
-  current_detectors_(current_detectors),
-  changed_(false),
-  has_sink_parent_(has_sink_parent),
-  attr_model_(this),
-  detectors_(detDB),
-  ui(new Ui::ConsumerDialog)
+                               QWidget *parent)
+  : QDialog(parent)
+  , ui(new Ui::ConsumerDialog)
+  , sink_metadata_(sink_metadata)
+//,  det_selection_model_(&det_table_model_)
+  , attr_model_(this)
+  , detectors_(detDB)
+  , current_detectors_(current_detectors)
+  , changed_(false)
+  , has_sink_parent_(has_sink_parent)
 {
   ui->setupUi(this);
   ui->labelWarning->setVisible(false);
@@ -211,6 +211,7 @@ void ConsumerDialog::on_pushDetEdit_clicked()
 
 void ConsumerDialog::changeDet(Detector newDetector)
 {
+  Q_UNUSED(newDetector)
 //  QModelIndexList ixl = ui->tableDetectors->selectionModel()->selectedRows();
 //  if (ixl.empty())
 //    return;

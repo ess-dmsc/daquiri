@@ -363,6 +363,11 @@ SpillPtr ESSStream::get_message()
       time_spent_ += parser_->stats.time_spent;
       return spill;
     }
+    else
+    {
+      WARN << "Consume failed. No parser to inerpret buffer.";
+      return nullptr;
+    }
 
 
   default:

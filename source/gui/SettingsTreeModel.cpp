@@ -63,7 +63,7 @@ bool SettingsTreeItem::replace_data(const Setting &data)
 
 SettingsTreeItem::~SettingsTreeItem()
 {
-  parentItem == nullptr;
+//  parentItem == nullptr;
   qDeleteAll(childItems);
 }
 
@@ -356,7 +356,7 @@ QVariant SettingsTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
   SettingsTreeItem *item = getItem(index);
 
-  int row = index.row();
+//  int row = index.row();
   int col = index.column();
 
   if (role == Qt::DisplayRole) {
@@ -383,8 +383,8 @@ QVariant SettingsTreeModel::data(const QModelIndex &index, int role) const
       }
     }
   }
-  else
-    return QVariant();
+
+  return QVariant();
 }
 
 Qt::ItemFlags SettingsTreeModel::flags(const QModelIndex &index) const
@@ -416,6 +416,7 @@ QVariant SettingsTreeModel::headerData(int section, Qt::Orientation orientation,
                                   int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+  {
     if (section == 0)
       return "setting";
     else if (section == 1)
@@ -431,6 +432,7 @@ QVariant SettingsTreeModel::headerData(int section, Qt::Orientation orientation,
         return "notes";
     else if (section == 5)
       return "notes";
+  }
 
   return QVariant();
 }

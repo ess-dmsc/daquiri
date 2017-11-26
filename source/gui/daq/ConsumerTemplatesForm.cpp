@@ -9,8 +9,8 @@
 using namespace DAQuiri;
 
 ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(Container<ConsumerMetadata>& templates, QObject *parent)
-  : QAbstractTableModel(parent),
-    templates_(templates)
+  : QAbstractTableModel(parent)
+  , templates_(templates)
 {
 }
 
@@ -108,14 +108,14 @@ Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 
 ConsumerTemplatesForm::ConsumerTemplatesForm(Container<ConsumerMetadata> &newdb,
                                                std::vector<Detector> current_dets,
-                                               QString savedir, QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::ConsumerTemplatesForm),
-  templates_(newdb),
-  table_model_(newdb),
-  selection_model_(&table_model_),
-  root_dir_(savedir),
-  current_dets_(current_dets)
+                                               QString savedir, QWidget *parent)
+  : QDialog(parent)
+  , ui(new Ui::ConsumerTemplatesForm)
+  , templates_(newdb)
+  , table_model_(newdb)
+  , selection_model_(&table_model_)
+  , root_dir_(savedir)
+  , current_dets_(current_dets)
 {
   ui->setupUi(this);
 

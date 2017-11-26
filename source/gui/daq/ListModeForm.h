@@ -42,12 +42,10 @@ protected:
 private:
   Ui::ListModeForm     *ui;
   ThreadRunner        &runner_thread_;
-  bool my_run_;
   Interruptor interruptor_;
-
+  bool my_run_;
 
   DAQuiri::ListData     list_data_;
-
 
   std::vector<DAQuiri::Event>      hits_;
   std::vector<DAQuiri::Detector> dets_;

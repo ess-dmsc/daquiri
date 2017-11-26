@@ -7,10 +7,10 @@
 #define FACTOR_h 60
 #define FACTOR_day 24
 
-TimeDurationWidget::TimeDurationWidget(QWidget *parent) :
-  QWidget(parent),
-  us_enabled_(true),
-  ui(new Ui::TimeDurationWidget)
+TimeDurationWidget::TimeDurationWidget(QWidget *parent)
+  : QWidget(parent)
+  , ui(new Ui::TimeDurationWidget)
+  , us_enabled_(true)
 {
   ui->setupUi(this);
 }

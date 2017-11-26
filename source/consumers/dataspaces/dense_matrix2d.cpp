@@ -177,7 +177,7 @@ void DenseMatrix2D::load(hdf5::node::Group& g)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
-std::string DenseMatrix2D::data_debug(const std::string &prepend) const
+std::string DenseMatrix2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {
   uint64_t maximum {0};
   for (int k=0; k < spectrum_.rows(); ++k)
