@@ -7,7 +7,8 @@
 
 namespace DAQuiri {
 
-Project::Project(const Project &other) {
+Project::Project(const Project &other)
+{
   ready_ = true;
   newdata_ = true;
   changed_ = true;
@@ -20,49 +21,61 @@ Project::Project(const Project &other) {
   DBG << "<Project> deep copy performed";
 }
 
-std::string Project::identity() const {
+std::string Project::identity() const
+{
   UNIQUE_LOCK_EVENTUALLY
   return identity_;
 }
 
-std::list<Spill> Project::spills() const {
+std::list<Spill> Project::spills() const
+{
   UNIQUE_LOCK_EVENTUALLY
   return spills_;
 }
 
-void Project::clear() {
+void Project::clear()
+{
   UNIQUE_LOCK_EVENTUALLY
   clear_helper();
   cond_.notify_all();
 }
 
-void Project::clear_helper() {
+void Project::clear_helper()
+{
   //private, no lock needed
-  if (!sinks_.empty() || !spills_.empty())
+  if (!sinks_.empty()
+      )
+//      || !spills_.empty())
     changed_ = true;
 
   sinks_.clear();
-  spills_.clear();
+//  spills_.clear();
   current_index_ = 0;
 }
 
-void Project::flush() {
+void Project::flush()
+{
   UNIQUE_LOCK_EVENTUALLY
 
   if (!sinks_.empty())
-    for (auto &q: sinks_) {
+  {
+    for (auto &q: sinks_)
+    {
       //DBG << "closing " << q->name();
       q.second->flush();
     }
+  }
 }
 
-void Project::activate() {
+void Project::activate()
+{
   UNIQUE_LOCK_EVENTUALLY
   ready_ = true;
   cond_.notify_all();
 }
 
-bool Project::wait_ready() {
+bool Project::wait_ready()
+{
   UNIQUE_LOCK_EVENTUALLY
   while (!ready_)
     cond_.wait(ulock);
@@ -70,14 +83,16 @@ bool Project::wait_ready() {
   return true;
 }
 
-bool Project::new_data() {
+bool Project::new_data()
+{
   UNIQUE_LOCK_EVENTUALLY
   bool ret = newdata_;
   newdata_ = false;
   return ret;
 }
 
-bool Project::changed() const {
+bool Project::changed() const
+{
   UNIQUE_LOCK_EVENTUALLY
   for (auto &q : sinks_)
     if (q.second->changed())
@@ -86,17 +101,20 @@ bool Project::changed() const {
   return changed_;
 }
 
-void Project::mark_changed() {
+void Project::mark_changed()
+{
   UNIQUE_LOCK_EVENTUALLY
   changed_ = true;
 }
 
-bool Project::empty() const {
+bool Project::empty() const
+{
   UNIQUE_LOCK_EVENTUALLY
   return sinks_.empty();
 }
 
-std::vector<std::string> Project::types() const {
+std::vector<std::string> Project::types() const
+{
   UNIQUE_LOCK_EVENTUALLY
   std::set<std::string> my_types;
   for (auto &q: sinks_)
@@ -105,7 +123,8 @@ std::vector<std::string> Project::types() const {
   return output;
 }
 
-ConsumerPtr Project::get_sink(int64_t idx) {
+ConsumerPtr Project::get_sink(int64_t idx)
+{
   UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
   if (sinks_.count(idx))
@@ -114,7 +133,8 @@ ConsumerPtr Project::get_sink(int64_t idx) {
     return nullptr;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions) {
+std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions)
+{
   UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
 
@@ -128,7 +148,8 @@ std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions) {
   return ret;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type) {
+std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type)
+{
   UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as sink implemented as thread-safe
 
@@ -141,7 +162,8 @@ std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type) {
 
 //client should activate replot after loading all files, as loading multiple
 // sink might create a long queue of plot update signals
-int64_t Project::add_sink(ConsumerPtr sink) {
+int64_t Project::add_sink(ConsumerPtr sink)
+{
   if (!sink)
     return 0;
   UNIQUE_LOCK_EVENTUALLY
@@ -154,7 +176,8 @@ int64_t Project::add_sink(ConsumerPtr sink) {
   return current_index_;
 }
 
-int64_t Project::add_sink(ConsumerMetadata prototype) {
+int64_t Project::add_sink(ConsumerMetadata prototype)
+{
   UNIQUE_LOCK_EVENTUALLY
 
   ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototype);
@@ -168,7 +191,8 @@ int64_t Project::add_sink(ConsumerMetadata prototype) {
   return current_index_;
 }
 
-void Project::delete_sink(int64_t idx) {
+void Project::delete_sink(int64_t idx)
+{
   UNIQUE_LOCK_EVENTUALLY
 
   if (!sinks_.count(idx))
@@ -184,7 +208,8 @@ void Project::delete_sink(int64_t idx) {
     current_index_ = 0;
 }
 
-void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes) {
+void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
+{
   UNIQUE_LOCK_EVENTUALLY
 
   clear_helper();
@@ -205,21 +230,18 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes) {
   cond_.notify_all();
 }
 
-void Project::add_spill(SpillPtr one_spill) {
+void Project::add_spill(SpillPtr one_spill)
+{
   UNIQUE_LOCK_EVENTUALLY
 
   for (auto &q: sinks_)
     q.second->push_spill(*one_spill);
 
-  if (!one_spill->detectors.empty()
-      || !one_spill->state.branches.empty())
-    spills_.push_back(*one_spill);
+//  if (!one_spill->detectors.empty()
+//      || !one_spill->state.branches.empty())
+//    spills_.push_back(*one_spill);
 
-  if ((!one_spill->stats.empty())
-      || (!one_spill->events.empty())
-      || (!one_spill->data.empty())
-      || (!one_spill->state.branches.empty())
-      || (!one_spill->detectors.empty()))
+  if (!one_spill->empty())
     changed_ = true;
 
   ready_ = true;
@@ -227,24 +249,27 @@ void Project::add_spill(SpillPtr one_spill) {
   cond_.notify_all();
 }
 
-void Project::save() {
+void Project::save()
+{
   UNIQUE_LOCK_EVENTUALLY
 
   if (/*changed_ && */(identity_ != "New project"))
     save_as(identity_);
 }
 
-void Project::save_as(std::string file_name) {
+void Project::save_as(std::string file_name)
+{
   write_h5(file_name);
 }
 
-void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks) {
+void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
+{
   if (hdf5::file::is_hdf5_file(file_name))
     read_h5(file_name, with_sinks, with_full_sinks);
 }
 
-void Project::to_h5(hdf5::node::Group &group) const {
-
+void Project::to_h5(hdf5::node::Group &group) const
+{
   group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
 
 //  if (!spills_.empty()) {
@@ -287,25 +312,26 @@ void Project::to_h5(hdf5::node::Group &group) const {
   newdata_ = true;
 }
 
-void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks) {
+void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks)
+{
   UNIQUE_LOCK_EVENTUALLY
   clear_helper();
 
-  if (hdf5::has_group(group, "spills"))
-  {
-    auto sgroup = hdf5::node::Group(group["spills"]);
-    for (auto n : sgroup.nodes)
-    {
-      if (n.type() != hdf5::node::Type::GROUP)
-        continue;
-      auto g = hdf5::node::Group(n);
+//  if (hdf5::has_group(group, "spills"))
+//  {
+//    auto sgroup = hdf5::node::Group(group["spills"]);
+//    for (auto n : sgroup.nodes)
+//    {
+//      if (n.type() != hdf5::node::Type::GROUP)
+//        continue;
+//      auto g = hdf5::node::Group(n);
 
-      json j;
-      hdf5::to_json(j, g);
-      Spill sp = j;
-      spills_.push_back(sp);
-    }
-  }
+//      json j;
+//      hdf5::to_json(j, g);
+//      Spill sp = j;
+//      spills_.push_back(sp);
+//    }
+//  }
 
   if (!with_sinks)
     return;
@@ -338,8 +364,10 @@ void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_
   newdata_ = true;
 }
 
-void Project::write_h5(std::string file_name) {
-  try {
+void Project::write_h5(std::string file_name)
+{
+  try
+  {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
     auto group = hdf5::require_group(f, "project");
@@ -361,8 +389,10 @@ void Project::write_h5(std::string file_name) {
 
 void Project::read_h5(std::string file_name,
                       bool with_sinks,
-                      bool with_full_sinks) {
-  try {
+                      bool with_full_sinks)
+{
+  try
+  {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
     auto f = file.root();
     auto group = hdf5::require_group(f, "project");

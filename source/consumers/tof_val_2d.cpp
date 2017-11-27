@@ -112,7 +112,7 @@ bool TOFVal2D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOFVal2D::_push_stats_pre(const Status& newBlock)
+void TOFVal2D::_push_stats_pre(const Setting &newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;

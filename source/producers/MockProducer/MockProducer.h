@@ -63,7 +63,7 @@ protected:
   uint64_t recent_pulse_time_ {0};
 
   SpillPtr get_spill(StatusType t, double seconds);
-  void fill_stats(Status& status) const;
+  void fill_stats(Spill& spill) const;
   void add_hit(Spill&);
   static void make_trace(Event& h, uint16_t baseline);
   uint16_t generate(size_t i);

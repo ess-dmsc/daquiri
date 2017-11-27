@@ -110,7 +110,7 @@ bool TimeDomain::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TimeDomain::_push_stats_pre(const Status& newBlock)
+void TimeDomain::_push_stats_pre(const Setting &newBlock)
 {
   if (!this->channel_relevant(newBlock.channel()))
     return;

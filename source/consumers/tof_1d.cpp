@@ -99,7 +99,7 @@ bool TOF1D::channel_relevant(int16_t channel) const
   return ((channel >= 0) && channels_.relevant(channel));
 }
 
-void TOF1D::_push_stats_pre(const Status& status)
+void TOF1D::_push_stats_pre(const Setting &status)
 {
   if (!this->channel_relevant(status.channel()))
     return;

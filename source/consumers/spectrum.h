@@ -4,6 +4,15 @@
 
 using namespace DAQuiri;
 
+struct Status
+{
+  StatusType               type;
+  boost::posix_time::ptime time;
+  std::map<std::string, Setting> stats;
+  TimeBase tb;
+};
+
+
 class Spectrum : public Consumer
 {
 public:
@@ -11,11 +20,9 @@ public:
 
 protected:
   bool _initialize() override;
-  void _push_stats_pre(const Status& status) override;
-  void _push_stats_post(const Status& status) override;
+  void _push_stats_pre(const Spill& spill) override;
+  void _push_stats_post(const Spill& spill) override;
   void _flush() override;
-
-  virtual bool channel_relevant(int16_t) const = 0;
 
 protected:
   bool clear_next_spill_ {false};
@@ -28,7 +35,7 @@ protected:
 
   // instantaneous rate:
   PreciseFloat recent_count_ {0};
-  Status recent_start_, recent_end_;
+  Spill recent_start_, recent_end_;
 
   struct stats_info_t
   {
@@ -36,10 +43,10 @@ protected:
       boost::posix_time::time_duration real;
       boost::posix_time::time_duration live;
   };
-  std::map<int, stats_info_t> chan_stats;
+  stats_info_t chan_stats;
 
-  static bool value_relevant(int16_t channel, const std::vector<int>& idx);
+  PreciseFloat calc_chan_times();
+  PreciseFloat calc_recent_rate(const Spill& spill);
 
-  PreciseFloat calc_chan_times(stats_info_t& chan);
-  PreciseFloat calc_recent_rate(const Status& status);
+  static Status extract(const Spill& spill);
 };

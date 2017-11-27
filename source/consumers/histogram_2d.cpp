@@ -39,11 +39,6 @@ Histogram2D::Histogram2D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -53,7 +48,6 @@ bool Histogram2D::_initialize()
 
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
-  add_channels_ = metadata_.get_attribute("add_channels").pattern();
   downsample_ = metadata_.get_attribute("downsample").get_number();
 
   return true;
@@ -61,7 +55,6 @@ bool Histogram2D::_initialize()
 
 void Histogram2D::_init_from_file()
 {
-  metadata_.set_attribute(Setting("add_channels", add_channels_));
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
   metadata_.set_attribute(Setting::text("x_name", "value1"));
   metadata_.set_attribute(Setting::text("y_name", "value2"));
@@ -109,22 +102,15 @@ void Histogram2D::_recalc_axes()
   data_->recalc_axes();
 }
 
-void Histogram2D::_push_stats_pre(const Status& manifest)
+void Histogram2D::_push_stats_pre(const Spill &spill)
 {
-  if (!this->channel_relevant(manifest.channel()))
+  if (!this->_accept_spill(spill))
     return;
 
-  if (manifest.channel() >= static_cast<int16_t>(x_idx_.size()))
-  {
-    x_idx_.resize(manifest.channel() + 1, -1);
-    y_idx_.resize(manifest.channel() + 1, -1);
-  }
-  if (manifest.event_model().name_to_val.count(x_name_))
-    x_idx_[manifest.channel()] = manifest.event_model().name_to_val.at(x_name_);
-  if (manifest.event_model().name_to_val.count(y_name_))
-    y_idx_[manifest.channel()] = manifest.event_model().name_to_val.at(y_name_);
+  x_idx_ = spill.event_model.name_to_val.at(x_name_);
+  y_idx_ = spill.event_model.name_to_val.at(y_name_);
 
-  Spectrum::_push_stats_pre(manifest);
+  Spectrum::_push_stats_pre(spill);
 }
 
 void Histogram2D::_flush()
@@ -134,19 +120,15 @@ void Histogram2D::_flush()
 
 void Histogram2D::_push_event(const Event& e)
 {
-  if (!this->event_relevant(e))
-    return;
-  const auto& c = e.channel();
-
   if (downsample_)
   {
-    coords_[0] = (e.value(x_idx_[c]) >> downsample_);
-    coords_[1] = (e.value(y_idx_[c]) >> downsample_);
+    coords_[0] = (e.value(x_idx_) >> downsample_);
+    coords_[1] = (e.value(y_idx_) >> downsample_);
   }
   else
   {
-    coords_[0] = e.value(x_idx_[c]);
-    coords_[1] = e.value(y_idx_[c]);
+    coords_[0] = e.value(x_idx_);
+    coords_[1] = e.value(y_idx_);
   }
 
   data_->add_one(coords_);
@@ -154,18 +136,15 @@ void Histogram2D::_push_event(const Event& e)
   recent_count_++;
 }
 
-bool Histogram2D::channel_relevant(int16_t channel) const
+bool Histogram2D::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) &&
-          add_channels_.relevant(channel)
+  return (Spectrum::_accept_spill(spill)
+          && spill.event_model.name_to_val.count(x_name_)
+          && spill.event_model.name_to_val.count(y_name_)
           );
 }
 
-bool Histogram2D::event_relevant(const Event& e) const
+bool Histogram2D::_accept_events()
 {
-  const auto& c = e.channel();
-  return (this->channel_relevant(c) &&
-          value_relevant(c, x_idx_) &&
-          value_relevant(c, y_idx_)
-          );
+  return (x_idx_ >= 0) && (y_idx_ >= 0);
 }

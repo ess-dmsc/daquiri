@@ -402,7 +402,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
-  spill->detectors = detectors_;
+//  spill->detectors = detectors_;
   parsed_queue.enqueue(spill);
 
   if (!daq_start(&parsed_queue))
@@ -473,7 +473,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   spill = std::make_shared<Spill>();
   _get_all_settings();
   spill->state = settings_;
-  spill->detectors = detectors_;
+//  spill->detectors = detectors_;
   result.push_back(spill);
 
   SynchronizedQueue<SpillPtr> parsed_queue;

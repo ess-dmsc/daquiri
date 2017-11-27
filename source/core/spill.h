@@ -1,9 +1,11 @@
 #pragma once
 
-#include "status.h"
+//#include "status.h"
 #include "setting.h"
 #include "detector.h"
 #include "event.h"
+
+enum class StatusType { start, running, stop };
 
 namespace DAQuiri {
 
@@ -41,21 +43,25 @@ class EventBuffer
 class Spill
 {
   public:
-    boost::posix_time::ptime   time
-    {boost::posix_time::microsec_clock::universal_time()};
-    std::vector<char>           data; // raw from device
-    std::map<int16_t, Status>  stats; // per channel
-    std::vector<Detector>  detectors; // per channel
+    Spill() {}
+    Spill(StatusType t);
+
+    std::string                stream_id;
+    StatusType                 type {StatusType::running};
+    boost::posix_time::ptime   time {boost::posix_time::microsec_clock::universal_time()};
+//    std::map<int16_t, Status>  stats; // per channel
+//    std::vector<Detector>      detectors; // per channel
     Setting                    state;
 
-//    std::vector<Event>        events; // parsed
-    EventBuffer events;
+    std::vector<char> raw; // raw from device
+    EventModel        event_model;
+    EventBuffer       events;
 
   public:
     bool empty();
     std::string to_string() const;
-    static SpillPtr make_new(StatusType t,
-                             std::initializer_list<int16_t> channels);
+//    static SpillPtr make_new(StatusType t,
+//                             std::initializer_list<int16_t> channels);
 };
 
 

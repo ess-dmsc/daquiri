@@ -114,7 +114,7 @@ void Image2D::_recalc_axes()
   data_->recalc_axes();
 }
 
-void Image2D::_push_stats_pre(const Status& manifest)
+void Image2D::_push_stats_pre(const Setting &manifest)
 {
   if (!this->channel_relevant(manifest.channel()))
     return;

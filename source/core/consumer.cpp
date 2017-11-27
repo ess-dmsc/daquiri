@@ -11,18 +11,9 @@ Consumer::Consumer()
 {
   Setting attributes = metadata_.attributes();
 
-  SettingMeta name("name", SettingType::text);
-  name.set_val("description", "Short label");
-  attributes.branches.add(name);
-
-  SettingMeta vis("visible", SettingType::boolean);
-  vis.set_val("description", "Plot visible");
-  attributes.branches.add(vis);
-
-  SettingMeta start_time("start_time", SettingType::time);
-  start_time.set_val("description", "Start time");
-  start_time.set_flag("readonly");
-  attributes.branches.add(start_time);
+  SettingMeta stream("stream_id", SettingType::text, "Stream ID");
+  stream.set_flag("preset");
+  attributes.branches.add(stream);
 
   metadata_.overwrite_all_attributes(attributes);
 }
@@ -30,6 +21,8 @@ Consumer::Consumer()
 bool Consumer::_initialize()
 {
   metadata_.disable_presets();
+  stream_id_ = metadata_.get_attribute("stream_id").get_text();
+
   return false; //abstract sink indicates failure to init
 }
 
@@ -64,21 +57,25 @@ void Consumer::push_spill(const Spill& spill)
   this->_push_spill(spill);
 }
 
+bool Consumer::_accept_spill(const Spill& spill)
+{
+  return (spill.stream_id == stream_id_);
+}
+
 void Consumer::_push_spill(const Spill& spill)
 {
 //  CustomTimer addspill_timer(true);
 
-  if (!spill.detectors.empty())
-    this->_set_detectors(spill.detectors);
+//  if (!spill.detectors.empty())
+//    this->_set_detectors(spill.detectors);
 
-  for (auto &q : spill.stats)
-    this->_push_stats_pre(q.second);
+  this->_push_stats_pre(spill);
 
-  for (auto &q : spill.events)
-    this->_push_event(q);
+  if (this->_accept_events())
+    for (auto &q : spill.events)
+      this->_push_event(q);
 
-  for (auto &q : spill.stats)
-    this->_push_stats_post(q.second);
+  this->_push_stats_post(spill);
 
 //  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
 //      << spill.events.size() << " events in "

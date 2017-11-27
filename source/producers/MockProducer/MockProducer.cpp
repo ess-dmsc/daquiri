@@ -332,7 +332,7 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 {
   int16_t chan0 {0};
 
-  SpillPtr spill = Spill::make_new(t, {chan0});
+  SpillPtr spill = std::make_shared<Spill>(t);
 
   recent_pulse_time_ = clock_;
 
@@ -375,21 +375,24 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 
   spill->events.finalize();
 
-  fill_stats(spill->stats[chan0]);
+  fill_stats(*spill);
 
   return spill;
 }
 
-void MockProducer::fill_stats(Status& status) const
+void MockProducer::fill_stats(Spill &spill) const
 {
-  status.set_model(model_hit);
+
+  spill.event_model = model_hit;
 
   double duration = clock_;
   double duration_live = duration * (1.0 - dead_);
   double duration_trigger = duration * (1.0 - 0.5 * dead_);
 
-  status.set_value("native_time", duration);
-  status.set_value("live_time", duration_live);
-  status.set_value("live_trigger", duration_trigger);
-  status.set_value("pulse_time", double(recent_pulse_time_));
+  spill.state = Setting::stem("stats");
+
+  spill.state.branches.add_a(Setting::floating("native_time", duration));
+  spill.state.branches.add_a(Setting::floating("live_time", duration_live));
+  spill.state.branches.add_a(Setting::floating("live_trigger", duration_trigger));
+  spill.state.branches.add_a(Setting::floating("pulse_time", double(recent_pulse_time_)));
 }

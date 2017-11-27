@@ -7,6 +7,14 @@ Spectrum::Spectrum()
 {
   Setting base_options = metadata_.attributes();
 
+  SettingMeta name("name", SettingType::text);
+  name.set_val("description", "Short label");
+  base_options.branches.add(name);
+
+  SettingMeta vis("visible", SettingType::boolean);
+  vis.set_val("description", "Plot visible");
+  base_options.branches.add(vis);
+
   SettingMeta sca("preferred_scale", SettingType::menu, "Initial plotting scale for counts");
   sca.set_flag("preset");
   sca.set_enum(0, "Linear");
@@ -17,6 +25,11 @@ Spectrum::Spectrum()
   totalcount.set_flag("readonly");
   totalcount.set_val("min", 0);
   base_options.branches.add(totalcount);
+
+  SettingMeta start_time("start_time", SettingType::time);
+  start_time.set_val("description", "Start time");
+  start_time.set_flag("readonly");
+  base_options.branches.add(start_time);
 
   SettingMeta live_time("live_time", SettingType::duration, "Live time");
   live_time.set_flag("readonly");
@@ -51,31 +64,43 @@ Spectrum::Spectrum()
 
 bool Spectrum::_initialize()
 {
+  Consumer::_initialize();
+
   clear_periodically_ = metadata_.get_attribute("clear_periodically").triggered();
   clear_at_ = metadata_.get_attribute("clear_at").get_number() * 0.001;
   return false;
 }
 
-bool Spectrum::value_relevant(int16_t channel, const std::vector<int>& idx)
+Status Spectrum::extract(const Spill& spill)
 {
-  return (channel < static_cast<int16_t>(idx.size()))
-      && (idx[channel] >= 0);
+  Status ret;
+  ret.type = spill.type;
+  ret.time = spill.time;
+  ret.tb = spill.event_model.timebase;
+  Setting native_time = spill.state.find(Setting("native_time"));
+  if (native_time)
+    ret.stats["native_time"] = native_time;
+  auto live_time = spill.state.find(Setting("live_time"));
+  if (live_time)
+    ret.stats["live_time"] = live_time;
+  return ret;
 }
 
-PreciseFloat Spectrum::calc_recent_rate(const Status& status)
+PreciseFloat Spectrum::calc_recent_rate(const Spill &spill)
 {
-  if (recent_end_.time().is_not_a_date_time())
-    recent_end_ = status;
+  if (recent_end_.time.is_not_a_date_time())
+    recent_end_ = spill;
 
   recent_start_ = recent_end_;
-  recent_end_ = status;
+  recent_end_ = spill;
 
 //  DBG << recent_end_.stats()["native_time"]
 //      <<  " - " << recent_start_.stats()["native_time"];
 
   Setting rate = metadata_.get_attribute("instant_rate");
-  auto diff = recent_end_.stats()["native_time"] - recent_start_.stats()["native_time"];
-  PreciseFloat recent_time = recent_end_.event_model().timebase.to_sec(diff);
+  auto diff = recent_end_.state.find(Setting("native_time")).get_number()
+      - recent_start_.state.find(Setting("native_time")).get_number();
+  PreciseFloat recent_time = recent_end_.event_model.timebase.to_sec(diff);
 
   rate.set_number(0);
   if (recent_time > 0)
@@ -87,16 +112,16 @@ PreciseFloat Spectrum::calc_recent_rate(const Status& status)
   return recent_time;
 }
 
-PreciseFloat Spectrum::calc_chan_times(stats_info_t& chan)
+PreciseFloat Spectrum::calc_chan_times()
 {
-  Status start = chan.stats.front();
+  Status start = chan_stats.stats.front();
 
   PreciseFloat rt {0},lt {0};
   PreciseFloat real {0}, live {0};
 
-  for (auto &q : chan.stats)
+  for (auto &q : chan_stats.stats)
   {
-    if (q.type() == StatusType::start)
+    if (q.type == StatusType::start)
     {
       real += rt;
       live += lt;
@@ -105,70 +130,76 @@ PreciseFloat Spectrum::calc_chan_times(stats_info_t& chan)
     else
     {
       PreciseFloat diff_real{0}, diff_live{0};
-      if (q.stats().count("native_time") && start.stats().count("native_time"))
-        diff_real = q.stats().at("native_time") - start.stats().at("native_time");
-      if (q.stats().count("live_time") && start.stats().count("live_time"))
-        diff_live = q.stats().at("live_time") - start.stats().at("live_time");
+      if (q.stats.count("native_time") && start.stats.count("native_time"))
+        diff_real = q.stats.at("native_time").get_number()
+            - start.stats.at("native_time").get_number();
+      if (q.stats.count("live_time") && start.stats.count("live_time"))
+        diff_live = q.stats.at("live_time").get_number()
+            - start.stats.at("live_time").get_number();
 
-      lt = rt = q.event_model().timebase.to_microsec(diff_real);
+      lt = rt = q.tb.to_microsec(diff_real);
       if (diff_live)
-        lt = q.event_model().timebase.to_microsec(diff_live);
+        lt = q.tb.to_microsec(diff_live);
     }
   }
 
-  if (chan.stats.back().type() != StatusType::start)
+  if (chan_stats.stats.back().type != StatusType::start)
   {
     real += rt;
     live += lt;
     //        DBG << "<Spectrum> \"" << metadata_.name << "\" RT + "
     //               << rt << " = " << real << "   LT + " << lt << " = " << live;
   }
-  chan.real = boost::posix_time::microseconds(real);
-  chan.live = boost::posix_time::microseconds(live);
+  chan_stats.real = boost::posix_time::microseconds(real);
+  chan_stats.live = boost::posix_time::microseconds(live);
 
   return real;
 }
 
 
-void Spectrum::_push_stats_post(const Status& status)
+void Spectrum::_push_stats_post(const Spill &spill)
 {
-  if (!this->channel_relevant(status.channel()))
+  if (!this->_accept_spill(spill))
     return;
 
 //  DBG << "new native time = " << status.stats()["native_time"];
 
-  bool chan_new = (chan_stats.count(status.channel()) == 0);
-  bool new_start = (status.type() == StatusType::start);
+//  bool chan_new = (chan_stats.count(spill.channel()) == 0);
+  bool new_start = (spill.type == StatusType::start);
 
-  if (!chan_new
-      && new_start
-      && (chan_stats[status.channel()].stats.back().type() == StatusType::running))
-    chan_stats[status.channel()].stats.back().set_type(StatusType::stop);
+  if (
+//      !chan_new &&
+      new_start &&
+      (chan_stats.stats.back().type == StatusType::running))
+    chan_stats.stats.back().type = StatusType::stop;
 
-  recent_total_time_ += calc_recent_rate(status);
+  recent_total_time_ += calc_recent_rate(spill);
 //  DBG << "Recent total time " << recent_total_time_;
 
-  if (!chan_new && (chan_stats[status.channel()].stats.back().type() == StatusType::running))
-    chan_stats[status.channel()].stats.pop_back();
+  if (
+//      !chan_new &&
+      (chan_stats.stats.back().type == StatusType::running))
+    chan_stats.stats.pop_back();
 
-  chan_stats[status.channel()].stats.push_back(status);
+  chan_stats.stats.push_back(extract(spill));
 
-  if (!chan_new)
+  if (
+//      !chan_new &&
+      true
+      )
   {
-    PreciseFloat real = calc_chan_times(chan_stats[status.channel()]);
+    PreciseFloat real = calc_chan_times();
 
     Setting live_time = metadata_.get_attribute("live_time");
     Setting real_time = metadata_.get_attribute("real_time");
 
     live_time.set_duration(boost::posix_time::microseconds(real));
     real_time.set_duration(boost::posix_time::microseconds(real));
-    for (auto &q : chan_stats)
-      if (q.second.real.total_milliseconds() < real_time.duration().total_milliseconds())
-        real_time.set_duration(q.second.real);
+    if (chan_stats.real.total_milliseconds() < real_time.duration().total_milliseconds())
+      real_time.set_duration(chan_stats.real);
 
-    for (auto &q : chan_stats)
-      if (q.second.live.total_milliseconds() < live_time.duration().total_milliseconds())
-        live_time.set_duration(q.second.live);
+    if (chan_stats.live.total_milliseconds() < live_time.duration().total_milliseconds())
+      live_time.set_duration(chan_stats.live);
 
     metadata_.set_attribute(live_time, false);
     metadata_.set_attribute(real_time, false);
@@ -191,13 +222,13 @@ void Spectrum::_push_stats_post(const Status& status)
   this->_recalc_axes();
 }
 
-void Spectrum::_push_stats_pre(const Status& status)
+void Spectrum::_push_stats_pre(const Spill &spill)
 {
-  if (!this->channel_relevant(status.channel()))
-    return;
+//  if (!this->channel_relevant(status.channel()))
+//    return;
 
   if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
-    metadata_.set_attribute(Setting("start_time", status.time()), false);
+    metadata_.set_attribute(Setting("start_time", spill.time), false);
 
   if (clear_next_spill_)
   {

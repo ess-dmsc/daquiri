@@ -32,11 +32,6 @@ Histogram1D::Histogram1D()
   val_name.set_flag("preset");
   base_options.branches.add(val_name);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -46,7 +41,6 @@ bool Histogram1D::_initialize()
   downsample_ = metadata_.get_attribute("downsample").get_number();
   cutoff_bin_ = metadata_.get_attribute("cutoff").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
-  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   this->_recalc_axes();
   return true;
@@ -55,12 +49,7 @@ bool Histogram1D::_initialize()
 void Histogram1D::_init_from_file()
 {
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
-
-  channels_.resize(1);
-  channels_.set_gates(std::vector<bool>({true}));
-
-  metadata_.set_attribute(Setting("add_channels", channels_));
-
+  metadata_.set_attribute(Setting::integer("cutoff", cutoff_bin_));
   Spectrum::_init_from_file();
 }
 
@@ -98,36 +87,34 @@ void Histogram1D::_recalc_axes()
   data_->recalc_axes();
 }
 
-bool Histogram1D::channel_relevant(int16_t channel) const
+bool Histogram1D::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) && channels_.relevant(channel));
+  return (Spectrum::_accept_spill(spill)
+          &&
+          spill.event_model.name_to_val.count(val_name_));
 }
 
-void Histogram1D::_push_stats_pre(const Status& newBlock)
+void Histogram1D::_push_stats_pre(const Spill& spill)
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  if (!this->_accept_spill(spill))
     return;
 
-  if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
-    value_idx_.resize(newBlock.channel() + 1, -1);
-  if (newBlock.event_model().name_to_val.count(val_name_))
-    value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val[val_name_];
+  value_idx_ = spill.event_model.name_to_val.at(val_name_);
 
-  Spectrum::_push_stats_pre(newBlock);
+  Spectrum::_push_stats_pre(spill);
 }
 
-void Histogram1D::_push_event(const Event& e)
+bool Histogram1D::_accept_events()
 {
-  const auto& c = e.channel();
+  return (value_idx_ >= 0);
+}
 
-  if (!this->channel_relevant(c) ||
-      !value_relevant(c, value_idx_))
-    return;
-
+void Histogram1D::_push_event(const Event& event)
+{
   if (downsample_)
-    coords_[0] = (e.value(value_idx_[c]) >> downsample_);
+    coords_[0] = (event.value(value_idx_) >> downsample_);
   else
-    coords_[0] = e.value(value_idx_[c]);
+    coords_[0] = event.value(value_idx_);
 
   if (coords_[0] < cutoff_bin_)
     return;

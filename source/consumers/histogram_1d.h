@@ -18,18 +18,19 @@ protected:
   void _recalc_axes() override;
 
   //event processing
-  void _push_event(const Event&) override;
-  void _push_stats_pre(const Status&) override;
-  bool channel_relevant(int16_t channel) const override;
+  void _push_event(const Event& event) override;
+  void _push_stats_pre(const Spill&spill) override;
+//  bool channel_relevant(int16_t channel) const override;
+  bool _accept_spill(const Spill& spill) override;
+  bool _accept_events() override;
 
   // cached parameters:
   uint16_t downsample_ {0};
   uint32_t cutoff_bin_ {0};
-  Pattern channels_;
   std::string val_name_;
 
   //from status manifest
-  std::vector<int> value_idx_;
+  int value_idx_ {-1};
 
   //reserve memory
   Coords coords_ {0};
