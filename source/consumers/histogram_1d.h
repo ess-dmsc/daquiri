@@ -20,7 +20,6 @@ protected:
   //event processing
   void _push_event(const Event& event) override;
   void _push_stats_pre(const Spill&spill) override;
-//  bool channel_relevant(int16_t channel) const override;
   bool _accept_spill(const Spill& spill) override;
   bool _accept_events() override;
 

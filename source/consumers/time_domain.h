@@ -18,12 +18,13 @@ protected:
   void _recalc_axes() override;
 
   //event processing
-  void _push_event(const Event&) override;
-  void _push_stats_pre(const Setting&) override;
-  bool channel_relevant(int16_t channel) const override;
+  void _push_event(const Event& event) override;
+  void _push_stats_pre(const Spill& spill) override;
+
+  bool _accept_spill(const Spill& spill) override;
+  bool _accept_events() override;
 
   //cached parameters
-  Pattern channels_;
   double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
@@ -31,7 +32,7 @@ protected:
   std::vector<double> domain_;
 
   //from status manifest
-  std::vector<TimeBase> timebase_;
+  TimeBase timebase_;
 
   //reserve memory
   Coords coords_ {0};

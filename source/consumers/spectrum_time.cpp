@@ -43,11 +43,6 @@ TimeSpectrum::TimeSpectrum()
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -58,7 +53,6 @@ bool TimeSpectrum::_initialize()
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   downsample_ = metadata_.get_attribute("downsample").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
-  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
@@ -74,29 +68,13 @@ bool TimeSpectrum::_initialize()
 
 //  DBG << "One bin = " << 1.0 / time_resolution_ / units_multiplier_;
 
-  int adds = 1;//0;
-  //  std::vector<bool> gts = add_channels_.gates();
-  //  for (size_t i=0; i < gts.size(); ++i)
-  //    if (gts[i])
-  //      adds++;
-
-  if (adds != 1)
-  {
-    WARN << "<TimeSpectrum> Cannot initialize. Add pattern must have 1 selected channel.";
-    return false;
-  }
-
   this->_recalc_axes();
   return true;
 }
 
 void TimeSpectrum::_init_from_file()
 {
-  channels_.resize(1);
-  channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("add_channels", channels_));
   metadata_.set_attribute(Setting::integer("value_downsample", downsample_));
-
   Spectrum::_init_from_file();
 }
 
@@ -137,47 +115,38 @@ void TimeSpectrum::_recalc_axes()
   data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
-bool TimeSpectrum::channel_relevant(int16_t channel) const
+bool TimeSpectrum::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) && channels_.relevant(channel));
+  return (Spectrum::_accept_spill(spill)
+          && spill.event_model.name_to_val.count(val_name_));
 }
 
-void TimeSpectrum::_push_stats_pre(const Setting &newBlock)
+bool TimeSpectrum::_accept_events()
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  return (value_idx_ >= 0) && (0 != time_resolution_);
+}
+
+void TimeSpectrum::_push_stats_pre(const Spill& spill)
+{
+  if (!this->_accept_spill(spill))
     return;
 
-  if (newBlock.channel() >= static_cast<int16_t>(value_idx_.size()))
-  {
-    value_idx_.resize(newBlock.channel() + 1, -1);
-    timebase_.resize(newBlock.channel() + 1);
-  }
-  if (newBlock.event_model().name_to_val.count(val_name_))
-  {
-    value_idx_[newBlock.channel()] = newBlock.event_model().name_to_val.at(val_name_);
-    timebase_[newBlock.channel()] = newBlock.event_model().timebase;
-  }
+  value_idx_ = spill.event_model.name_to_val.at(val_name_);
+  timebase_ = spill.event_model.timebase;
 
-  Spectrum::_push_stats_pre(newBlock);
+  Spectrum::_push_stats_pre(spill);
 }
 
 void TimeSpectrum::_push_event(const Event& e)
 {
-  const auto& c = e.channel();
-
-  if (!this->channel_relevant(c)
-      || !value_relevant(c, value_idx_)
-      || !time_resolution_)
-    return;
-
-  double nsecs = timebase_[c].to_nanosec(e.timestamp());
+  double nsecs = timebase_.to_nanosec(e.timestamp());
 
   coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
 
   if (downsample_)
-    coords_[1] = (e.value(value_idx_[c]) >> downsample_);
+    coords_[1] = (e.value(value_idx_) >> downsample_);
   else
-    coords_[1] = e.value(value_idx_[c]);
+    coords_[1] = e.value(value_idx_);
 
   if (coords_[0] >= domain_.size())
   {

@@ -44,11 +44,6 @@ TOFVal2D::TOFVal2D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -56,7 +51,6 @@ bool TOFVal2D::_initialize()
 {
   Spectrum::_initialize();
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
-  channels_ = metadata_.get_attribute("add_channels").pattern();
   val_name_ = metadata_.get_attribute("value_name").get_text();
   downsample_ = metadata_.get_attribute("value_downsample").get_number();
 
@@ -74,11 +68,7 @@ void TOFVal2D::_init_from_file()
 {
 //  metadata_.set_attribute(Setting::integer("resolution", bits_));
 
-  channels_.resize(1);
-  channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("add_channels", channels_));
   metadata_.set_attribute(Setting::integer("value_downsample", downsample_));
-
   Spectrum::_init_from_file();
 }
 
@@ -107,49 +97,36 @@ void TOFVal2D::_recalc_axes()
   data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
-bool TOFVal2D::channel_relevant(int16_t channel) const
+bool TOFVal2D::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) && channels_.relevant(channel));
+  return (Spectrum::_accept_spill(spill)
+          && spill.event_model.name_to_val.count(val_name_));
 }
 
-void TOFVal2D::_push_stats_pre(const Setting &newBlock)
+bool TOFVal2D::_accept_events()
 {
-  if (!this->channel_relevant(newBlock.channel()))
+  return (value_idx_ >= 0) &&
+      (0 != time_resolution_) &&
+      (pulse_time_ >= 0);
+}
+
+void TOFVal2D::_push_stats_pre(const Spill& spill)
+{
+  if (!this->_accept_spill(spill))
     return;
 
-  auto c = newBlock.channel();
+  timebase_ = spill.event_model.timebase;
 
-  if (c >= static_cast<int16_t>(value_idx_.size()))
-  {
-    value_idx_.resize(c + 1, -1);
-    timebase_.resize(c + 1);
-    pulse_times_.resize(c + 1, -1);
-  }
+  value_idx_ = spill.event_model.name_to_val.at(val_name_);
+  pulse_time_ = timebase_.to_nanosec(
+        spill.state.find(Setting("pulse_time")).get_number());
 
-  timebase_[c] = newBlock.event_model().timebase;
-
-  if (newBlock.event_model().name_to_val.count(val_name_))
-    value_idx_[c] = newBlock.event_model().name_to_val.at(val_name_);
-
-  if (newBlock.stats().count("pulse_time"))
-    pulse_times_[c] = timebase_[c].to_nanosec(newBlock.stats()["pulse_time"]);
-
-  Spectrum::_push_stats_pre(newBlock);
+  Spectrum::_push_stats_pre(spill);
 }
 
 void TOFVal2D::_push_event(const Event& e)
 {
-  const auto& c = e.channel();
-
-  if (!this->channel_relevant(c)
-      || !value_relevant(c, value_idx_)
-      || (c < 0)
-      || (c >= pulse_times_.size())
-      || (pulse_times_[c] < 0)
-      || !time_resolution_)
-    return;
-
-  double nsecs = timebase_[c].to_nanosec(e.timestamp()) - pulse_times_[c];
+  double nsecs = timebase_.to_nanosec(e.timestamp()) - pulse_time_;
 
   if (nsecs < 0)
     return;
@@ -157,9 +134,9 @@ void TOFVal2D::_push_event(const Event& e)
   coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
   if (downsample_)
-    coords_[1] = (e.value(value_idx_[c]) >> downsample_);
+    coords_[1] = (e.value(value_idx_) >> downsample_);
   else
-    coords_[1] = e.value(value_idx_[c]);
+    coords_[1] = e.value(value_idx_);
 
   if (coords_[0] >= domain_.size())
   {

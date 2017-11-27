@@ -32,18 +32,12 @@ TOF1D::TOF1D()
   units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
 bool TOF1D::_initialize()
 {
   Spectrum::_initialize();
-  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
@@ -58,10 +52,6 @@ bool TOF1D::_initialize()
 void TOF1D::_init_from_file()
 {
 //  metadata_.set_attribute(Setting::integer("time_resolution", bits_));
-
-  channels_.resize(1);
-  channels_.set_gates(std::vector<bool>({true}));
-  metadata_.set_attribute(Setting("add_channels", channels_));
 
   Spectrum::_init_from_file();
 }
@@ -94,43 +84,31 @@ void TOF1D::_recalc_axes()
   data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
-bool TOF1D::channel_relevant(int16_t channel) const
+bool TOF1D::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) && channels_.relevant(channel));
+  return (Spectrum::_accept_spill(spill));
 }
 
-void TOF1D::_push_stats_pre(const Setting &status)
+bool TOF1D::_accept_events()
 {
-  if (!this->channel_relevant(status.channel()))
-    return;
-
-  auto c = status.channel();
-
-  if (c >= timebase_.size())
-  {
-    timebase_.resize(c + 1);
-    pulse_times_.resize(c + 1, -1);
-  }
-
-  timebase_[c] = status.event_model().timebase;
-  if (status.stats().count("pulse_time"))
-    pulse_times_[c] = timebase_[c].to_nanosec(status.stats()["pulse_time"]);
-
-  Spectrum::_push_stats_pre(status);
+  return ((pulse_time_ >= 0) && (0 != time_resolution_));
 }
 
-void TOF1D::_push_event(const Event& e)
+void TOF1D::_push_stats_pre(const Spill& spill)
 {
-  const auto& c = e.channel();
-
-  if (!this->channel_relevant(c)
-      || (c < 0)
-      || (c >= pulse_times_.size())
-      || (pulse_times_[c] < 0)
-      || !time_resolution_)
+  if (!this->_accept_spill(spill))
     return;
 
-  double nsecs = timebase_[c].to_nanosec(e.timestamp()) - pulse_times_[c];
+  timebase_ = spill.event_model.timebase;
+  pulse_time_ = timebase_.to_nanosec(
+        spill.state.find(Setting("pulse_time")).get_number());
+
+  Spectrum::_push_stats_pre(spill);
+}
+
+void TOF1D::_push_event(const Event& event)
+{
+  double nsecs = timebase_.to_nanosec(event.timestamp()) - pulse_time_;
 
   if (nsecs < 0)
     return;

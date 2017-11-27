@@ -18,23 +18,22 @@ protected:
   void _recalc_axes() override;
 
   void _push_event(const Event&) override;
-  void _push_stats_pre(const Setting&) override;
+  void _push_stats_pre(const Spill&spill) override;
   void _flush() override;
 
-  bool channel_relevant(int16_t channel) const override;
-  bool event_relevant(const Event& e) const;
+  bool _accept_spill(const Spill& spill) override;
+  bool _accept_events() override;
 
   //cached parameters
   std::string x_name_;
   std::string y_name_;
   std::string val_name_;
-  Pattern add_channels_;
   uint16_t downsample_ {0};
 
   //from status manifest
-  std::vector<int> x_idx_;
-  std::vector<int> y_idx_;
-  std::vector<int> val_idx_;
+  int x_idx_ {-1};
+  int y_idx_ {-1};
+  int val_idx_ {-1};
 
   //reserve memory
   Entry entry_ {{0, 0}, 0};

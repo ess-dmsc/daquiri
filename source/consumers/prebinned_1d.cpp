@@ -22,11 +22,6 @@ Prebinned1D::Prebinned1D()
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
-  SettingMeta add_channels("add_channels", SettingType::pattern, "Channels to bin");
-  add_channels.set_flag("preset");
-  add_channels.set_val("chans", 1);
-  base_options.branches.add(add_channels);
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -34,7 +29,6 @@ bool Prebinned1D::_initialize()
 {
   Spectrum::_initialize();
   trace_name_ = metadata_.get_attribute("value_name").get_text();
-  channels_ = metadata_.get_attribute("add_channels").pattern();
 
   this->_recalc_axes();
   return true;
@@ -42,11 +36,6 @@ bool Prebinned1D::_initialize()
 
 void Prebinned1D::_init_from_file()
 {
-  channels_.resize(1);
-  channels_.set_gates(std::vector<bool>({true}));
-
-  metadata_.set_attribute(Setting("add_channels", channels_));
-
   Spectrum::_init_from_file();
 }
 
@@ -90,33 +79,31 @@ void Prebinned1D::_recalc_axes()
   data_->set_axis(0, ax);
 }
 
-bool Prebinned1D::channel_relevant(int16_t channel) const
+bool Prebinned1D::_accept_spill(const Spill& spill)
 {
-  return ((channel >= 0) && channels_.relevant(channel));
+  return (Spectrum::_accept_spill(spill)
+          &&
+          spill.event_model.name_to_trace.count(trace_name_));
 }
 
-void Prebinned1D::_push_stats_pre(const Setting &newBlock)
+bool Prebinned1D::_accept_events()
 {
-  if (!this->channel_relevant(newBlock.channel()))
-    return;
-
-  if (newBlock.channel() >= static_cast<int16_t>(trace_idx_.size()))
-    trace_idx_.resize(newBlock.channel() + 1, -1);
-  if (newBlock.event_model().name_to_trace.count(trace_name_))
-    trace_idx_[newBlock.channel()] = newBlock.event_model().name_to_trace.at(trace_name_);
-
-  Spectrum::_push_stats_pre(newBlock);
+  return (trace_idx_ >= 0);
 }
 
-void Prebinned1D::_push_event(const Event& e)
+void Prebinned1D::_push_stats_pre(const Spill& spill)
 {
-  const auto& c = e.channel();
-
-  if (!this->channel_relevant(c) ||
-      !value_relevant(c, trace_idx_))
+  if (!this->_accept_spill(spill))
     return;
 
-  const auto trace = e.trace(trace_idx_.at(c));
+  trace_idx_ = spill.event_model.name_to_trace.at(trace_name_);
+
+  Spectrum::_push_stats_pre(spill);
+}
+
+void Prebinned1D::_push_event(const Event& event)
+{
+  const auto trace = event.trace(trace_idx_);
 
   if (trace.size() >= domain_.size())
   {

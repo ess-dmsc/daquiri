@@ -19,8 +19,10 @@ protected:
 
   //event processing
   void _push_event(const Event&) override;
-  void _push_stats_pre(const Setting&) override;
-  bool channel_relevant(int16_t channel) const override;
+  void _push_stats_pre(const Spill &spill) override;
+
+  bool _accept_spill(const Spill& spill) override;
+  bool _accept_events() override;
 
   // cached parameters:
   double time_resolution_ {1};
@@ -28,12 +30,11 @@ protected:
   double units_multiplier_{1};
 
   uint16_t downsample_ {0};
-  Pattern channels_;
   std::string val_name_;
 
   //from status manifest
-  std::vector<int> value_idx_;
-  std::vector<TimeBase> timebase_;
+  int value_idx_ {-1};
+  TimeBase timebase_;
 
   std::vector<double> domain_;
 

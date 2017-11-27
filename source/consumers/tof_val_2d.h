@@ -18,24 +18,25 @@ protected:
   void _recalc_axes() override;
 
   //event processing
-  void _push_stats_pre(const Setting&) override;
+  void _push_stats_pre(const Spill& spill) override;
   void _push_event(const Event&) override;
-  bool channel_relevant(int16_t channel) const override;
+
+  bool _accept_spill(const Spill& spill) override;
+  bool _accept_events() override;
 
   // cached parameters:
   double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
-  Pattern channels_;
   std::string val_name_;
   uint16_t downsample_ {0};
 
   //from status manifest
-  std::vector<int> value_idx_;
-  std::vector<TimeBase> timebase_;
+  int value_idx_ {-1};
+  TimeBase timebase_;
 
   // recent pulse times
-  std::vector<double> pulse_times_;
+  double pulse_time_ {-1};
 
   std::vector<double> domain_;
 

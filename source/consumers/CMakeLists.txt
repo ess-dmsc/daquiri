@@ -8,13 +8,7 @@ dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
   ${this_target} STATIC
-  consumers_autoreg.cpp
-  spectrum.cpp
-  histogram_1d.cpp
-  histogram_2d.cpp
-  dataspaces/dense1d.cpp
-  dataspaces/sparse_matrix2d.cpp
-#  ${${this_target}_SOURCES}
+  ${${this_target}_SOURCES}
   ${${this_target}_HEADERS}
 )
 
