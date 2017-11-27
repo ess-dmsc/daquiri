@@ -50,7 +50,7 @@ private:
   std::vector<DAQuiri::Event>      hits_;
   std::vector<DAQuiri::Detector> dets_;
   std::map<int16_t, DAQuiri::EventModel> hitmodels_;
-  std::map<int16_t, DAQuiri::Status> stats_;
+//  std::map<int16_t, DAQuiri::Status> stats_;
   Container<DAQuiri::Detector> spill_detectors_;
 
 //  TableDetectors det_table_model_;
