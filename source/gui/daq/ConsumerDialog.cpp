@@ -56,18 +56,16 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
 //  ui->tableDetectors->show();
 
   attr_model_.set_show_address_(false);
+
+  //this could be done better!!
   attr_model_.set_show_read_only(has_sink_parent_);
+//  attr_model_.set_show_read_only(true);
 
   if (sink_metadata_ == ConsumerMetadata())
   {
     ui->spinDets->setValue(current_detectors_.size());
     on_comboType_activated(ui->comboType->currentText());
-    Setting col = sink_metadata_.get_attribute("appearance");
-    if (!col.metadata().has_flag("gradient-name"))
-    {
-      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
-      sink_metadata_.set_attribute(col);
-    }
+//    initialize_gui_specific(sink_metadata_);
   }
 
   updateData();
@@ -351,22 +349,28 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
 {
   ConsumerMetadata md =
       ConsumerFactory::singleton().create_prototype(arg1.toStdString());
-  if (md != ConsumerMetadata())
+  if (md == ConsumerMetadata())
   {
-    auto old = sink_metadata_.attributes_flat();
-    sink_metadata_ = md;
-    on_spinDets_valueChanged(ui->spinDets->value());
-    sink_metadata_.set_attributes(old);
-
-    Setting col = sink_metadata_.get_attribute("appearance");
-    if (col.get_text().empty())
-    {
-      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
-      sink_metadata_.set_attribute(col);
-    }
-
-    updateData();
+    QMessageBox msgBox;
+    msgBox.setText("Beware! Factory could not produce prototype for this spectrum type.");
+    msgBox.exec();
+    return;
   }
-  else
-    WARN << "Problem with spectrum type. Factory cannot make template for " << arg1.toStdString();
+  auto old = sink_metadata_.attributes_flat();
+  sink_metadata_ = md;
+  on_spinDets_valueChanged(ui->spinDets->value());
+  sink_metadata_.set_attributes(old);
+  initialize_gui_specific(sink_metadata_);
+  updateData();
 }
+
+void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
+{
+  Setting col = md.get_attribute("appearance");
+  if (!col.metadata().has_flag("gradient-name"))
+  {
+    col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+    md.set_attribute(col);
+  }
+}
+

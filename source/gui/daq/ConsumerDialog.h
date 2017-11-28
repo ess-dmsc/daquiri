@@ -64,4 +64,6 @@ private:
     void updateData();
     void open_close_locks();
     void toggle_push();
+
+    static void initialize_gui_specific(DAQuiri::ConsumerMetadata& md);
 };

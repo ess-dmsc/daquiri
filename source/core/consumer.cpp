@@ -40,8 +40,13 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
   if (metadata_.type() != newtemplate.type())
     return false;
 
-//  metadata_.overwrite_all_attributes(newtemplate.attributes());
-  metadata_.set_attributes(newtemplate.attributes_flat());
+  for (const auto& a : newtemplate.attributes_flat())
+  {
+    if (a.metadata().has_flag("readonly") && !a.metadata().has_flag("preset"))
+      continue;
+    metadata_.set_attribute(a);
+  }
+//  metadata_.set_attributes(newtemplate.attributes_flat());
 
   metadata_.detectors.clear(); // really?
 

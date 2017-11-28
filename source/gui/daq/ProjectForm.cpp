@@ -139,7 +139,7 @@ void ProjectForm::saveSettings()
   {
     spectra_templates_.clear();
     for (auto &q : project_->get_sinks())
-      spectra_templates_.add_a(q.second->metadata());
+      spectra_templates_.add_a(q.second->metadata().prototype());
     to_json_file(spectra_templates_,
                  Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
   }

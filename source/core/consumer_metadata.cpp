@@ -11,6 +11,17 @@ ConsumerMetadata::ConsumerMetadata(std::string tp,
   , type_description_(descr)
 {}
 
+ConsumerMetadata ConsumerMetadata::prototype() const
+{
+  auto ret = *this;
+
+  ret.attributes_.enable_if_flag(true, "preset");
+  ret.attributes_.cull_readonly();
+
+  return ret;
+}
+
+
 bool ConsumerMetadata::shallow_equals(const ConsumerMetadata& other) const
 {
   return operator ==(other);
@@ -81,10 +92,7 @@ std::list<Setting> ConsumerMetadata::attributes_flat() const
   std::list<Setting> ret;
   for (auto a : aaa)
   {
-    if (a.metadata().has_flag("hidden")
-        || (a.metadata().has_flag("readonly") && !a.metadata().has_flag("preset")))
-      continue;
-    else if (!a.is(SettingType::stem))
+    if (!a.is(SettingType::stem))
       ret.push_back(a);
   }
   return ret;

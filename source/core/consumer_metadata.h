@@ -10,6 +10,8 @@ public:
   ConsumerMetadata();
   ConsumerMetadata(std::string tp, std::string descr);
 
+  ConsumerMetadata prototype() const;
+
   // attributes
   Setting attributes() const;
   std::list<Setting> attributes_flat() const;
