@@ -1,11 +1,34 @@
 #pragma once
 
-//#include "status.h"
 #include "setting.h"
 #include "detector.h"
 #include "event.h"
 
-enum class StatusType { start, running, stop };
+enum class StatusType { start, running, stop, daq_status };
+
+inline StatusType type_from_str(std::string type)
+{
+  if (type == "start")
+    return StatusType::start;
+  else if (type == "stop")
+    return StatusType::stop;
+  else if (type == "running")
+    return StatusType::running;
+  else
+    return StatusType::daq_status;
+}
+
+inline std::string type_to_str(StatusType type)
+{
+  if (type == StatusType::start)
+    return "start";
+  else if (type == StatusType::stop)
+    return "stop";
+  else if (type == StatusType::running)
+    return "running";
+  else
+    return "daq_status";
+}
 
 namespace DAQuiri {
 
@@ -47,10 +70,8 @@ class Spill
     Spill(StatusType t);
 
     std::string                stream_id;
-    StatusType                 type {StatusType::running};
+    StatusType                 type {StatusType::daq_status};
     boost::posix_time::ptime   time {boost::posix_time::microsec_clock::universal_time()};
-//    std::map<int16_t, Status>  stats; // per channel
-//    std::vector<Detector>      detectors; // per channel
     Setting                    state;
 
     std::vector<char> raw; // raw from device
@@ -60,8 +81,6 @@ class Spill
   public:
     bool empty();
     std::string to_string() const;
-//    static SpillPtr make_new(StatusType t,
-//                             std::initializer_list<int16_t> channels);
 };
 
 

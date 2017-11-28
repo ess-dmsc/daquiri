@@ -158,22 +158,16 @@
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="listSpills">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QTableWidget" name="tableSpills">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>300</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>300</width>
+             <width>400</width>
              <height>16777215</height>
             </size>
            </property>
@@ -194,7 +188,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QTableWidget" name="tableHits">
+          <widget class="QTableWidget" name="tableEvents">
            <property name="minimumSize">
             <size>
              <width>200</width>
@@ -217,7 +211,36 @@
           </widget>
          </item>
          <item>
-          <widget class="QTableWidget" name="tableHitValues">
+          <widget class="QTableWidget" name="tableValues">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>400</width>
+             <height>300</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelEventTraces">
+           <property name="text">
+            <string>Event traces</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableWidget" name="tableTraces">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -245,7 +268,7 @@
      <item>
       <widget class="QLabel" name="labelState">
        <property name="text">
-        <string>DAQ system status</string>
+        <string>Structured metadata</string>
        </property>
       </widget>
      </item>

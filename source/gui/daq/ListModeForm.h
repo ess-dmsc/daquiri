@@ -17,43 +17,44 @@ class ListModeForm;
 
 class ListModeForm : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  explicit ListModeForm(ThreadRunner&, QWidget *parent = 0);
-  ~ListModeForm();
+  public:
+    explicit ListModeForm(ThreadRunner&, QWidget *parent = 0);
+    ~ListModeForm();
 
-signals:
-  void toggleIO(bool);
+  signals:
+    void toggleIO(bool);
 
-private slots:
-  void spillSelectionChanged(int);
-  void event_selection_changed(QItemSelection,QItemSelection);
-  void toggle_push(bool online, DAQuiri::ProducerStatus);
+  private slots:
+    void event_selection_changed(QItemSelection,QItemSelection);
+    void spill_selection_changed(QItemSelection,QItemSelection);
+    void toggle_push(bool online, DAQuiri::ProducerStatus);
 
-  void on_pushListStart_clicked();
-  void on_pushListStop_clicked();
-  void list_completed(DAQuiri::ListData);
+    void on_pushListStart_clicked();
+    void on_pushListStop_clicked();
+    void list_completed(DAQuiri::ListData);
 
-protected:
-  void closeEvent(QCloseEvent*);
+  protected:
+    void closeEvent(QCloseEvent*);
 
-private:
-  Ui::ListModeForm     *ui;
-  ThreadRunner        &runner_thread_;
-  Interruptor interruptor_;
-  bool my_run_;
+  private:
+    Ui::ListModeForm* ui;
 
-  DAQuiri::ListData     list_data_;
+    ThreadRunner& runner_thread_;
+    Interruptor   interruptor_;
+    bool          my_run_;
 
-  std::vector<DAQuiri::Event>      hits_;
-  std::map<int16_t, DAQuiri::EventModel> hitmodels_;
+    DAQuiri::ListData list_data_;
 
-  SettingsTreeModel               attr_model_;
-  SettingDelegate     attr_delegate_;
+    DAQuiri::EventModel         event_model_;
+    std::vector<DAQuiri::Event> events_;
 
-  void displayHit(int idx);
+    SettingsTreeModel   attr_model_;
+    SettingDelegate     attr_delegate_;
 
-  void loadSettings();
-  void saveSettings();
+    void displayHit(int idx);
+
+    void loadSettings();
+    void saveSettings();
 };

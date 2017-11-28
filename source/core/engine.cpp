@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#define THREAD_CLOSE_WAIT_TIME_MS 100
+
 //#include "core_compiletime.h"
 
 namespace DAQuiri {
@@ -413,7 +415,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   while (daq_running())
   {
-    wait_ms(500);
+    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       if (timeout > 0)
@@ -439,11 +441,11 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   spill->state = settings_;
   parsed_queue.enqueue(spill);
 
-  wait_ms(500);
+  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
   while (parsed_queue.size() > 0)
-    wait_ms(500);
+    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
   parsed_queue.stop();
-  wait_ms(500);
+  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
   INFO << "<Engine> Acquisition finished";
@@ -486,7 +488,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   while (daq_running())
   {
-    wait_ms(500);
+    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       INFO << "  RUNNING Elapsed: " << total_timer.done()
@@ -508,7 +510,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   spill->state = settings_;
   parsed_queue.enqueue(spill);
 
-  wait_ms(500);
+  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   while (parsed_queue.size() > 0)
     result.push_back(SpillPtr(parsed_queue.dequeue()));
