@@ -214,10 +214,11 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
 
   clear_helper();
 
-  for (size_t i = 0; i < prototypes.size(); i++) {
+  for (const auto& definition : prototypes)
+  {
 //    DBG << "Creating sink " << prototypes.get(i).debug();
 
-    ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototypes.get(i));
+    ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(definition);
     if (sink) {
       sinks_[++current_index_] = sink;
 //      DBG << "Added sink " << sink->debug();

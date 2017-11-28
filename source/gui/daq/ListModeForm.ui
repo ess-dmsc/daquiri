@@ -238,39 +238,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="labelStats">
-           <property name="text">
-            <string>End of spill statistics</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTableWidget" name="tableStats">
-           <property name="minimumSize">
-            <size>
-             <width>200</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>400</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelStatsInfo">
-           <property name="text">
-            <string>Hit model</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -284,35 +251,6 @@
      </item>
      <item>
       <widget class="QTreeView" name="treeAttribs">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>150</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>820</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelDetectors">
-       <property name="text">
-        <string>Detectors</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QTableView" name="tableDetectors">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>

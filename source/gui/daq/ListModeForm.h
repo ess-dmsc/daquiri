@@ -29,7 +29,6 @@ signals:
 private slots:
   void spillSelectionChanged(int);
   void event_selection_changed(QItemSelection,QItemSelection);
-  void stats_selection_changed(QItemSelection,QItemSelection);
   void toggle_push(bool online, DAQuiri::ProducerStatus);
 
   void on_pushListStart_clicked();
@@ -48,18 +47,12 @@ private:
   DAQuiri::ListData     list_data_;
 
   std::vector<DAQuiri::Event>      hits_;
-  std::vector<DAQuiri::Detector> dets_;
   std::map<int16_t, DAQuiri::EventModel> hitmodels_;
-//  std::map<int16_t, DAQuiri::Status> stats_;
-  Container<DAQuiri::Detector> spill_detectors_;
 
-//  TableDetectors det_table_model_;
   SettingsTreeModel               attr_model_;
   SettingDelegate     attr_delegate_;
 
-
   void displayHit(int idx);
-  void displayStats(int idx);
 
   void loadSettings();
   void saveSettings();

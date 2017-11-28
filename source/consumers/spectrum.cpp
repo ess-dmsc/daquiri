@@ -16,7 +16,6 @@ Spectrum::Spectrum()
   base_options.branches.add(vis);
 
   SettingMeta sca("preferred_scale", SettingType::menu, "Initial plotting scale for counts");
-  sca.set_flag("preset");
   sca.set_enum(0, "Linear");
   sca.set_enum(1, "Logarithmic");
   base_options.branches.add(sca);
