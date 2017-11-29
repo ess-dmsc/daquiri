@@ -396,17 +396,14 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 
 void MockProducer::fill_stats(Spill &spill) const
 {
-
   spill.event_model = event_definition_;
 
   double duration = clock_;
   double duration_live = duration * (1.0 - dead_);
   double duration_trigger = duration * (1.0 - 0.5 * dead_);
 
-  spill.state = Setting::stem("stats");
-
-  spill.state.branches.add_a(Setting::floating("native_time", duration));
-  spill.state.branches.add_a(Setting::floating("live_time", duration_live));
-  spill.state.branches.add_a(Setting::floating("live_trigger", duration_trigger));
-  spill.state.branches.add_a(Setting::floating("pulse_time", double(recent_pulse_time_)));
+  spill.state.branches.add(Setting::floating("native_time", duration));
+  spill.state.branches.add(Setting::floating("live_time", duration_live));
+  spill.state.branches.add(Setting::floating("live_trigger", duration_trigger));
+  spill.state.branches.add(Setting::floating("pulse_time", double(recent_pulse_time_)));
 }

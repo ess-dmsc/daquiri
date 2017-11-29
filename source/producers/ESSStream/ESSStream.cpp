@@ -23,25 +23,6 @@ ESSStream::ESSStream()
   add_definition(pi);
 
 
-  SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
-  tm.set_val("min", 1);
-  tm.set_val("units", "ns");
-  add_definition(tm);
-
-  SettingMeta td(mp + "TimebaseDiv", SettingType::integer, "Timebase divider");
-  td.set_val("min", 1);
-  td.set_val("units", "1/ns");
-  add_definition(td);
-
-  SettingMeta spoof(mp + "SpoofClock", SettingType::menu, "Spoof pulse time");
-  spoof.set_enum(0, "no");
-  spoof.set_enum(1, "monotonous counter");
-  spoof.set_enum(2, "use earliest event");
-  add_definition(spoof);
-
-  SettingMeta hb(mp + "Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
-  add_definition(hb);
-
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
   pars.set_enum(1, "ev42_events");
@@ -54,10 +35,6 @@ ESSStream::ESSStream()
   root.set_enum(0, mp + "KafkaBroker");
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
-  root.set_enum(3, mp + "TimebaseMult");
-  root.set_enum(4, mp + "TimebaseDiv");
-  root.set_enum(5, mp + "SpoofClock");
-  root.set_enum(6, mp + "Heartbeat");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -125,11 +102,6 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
 
-  set.set(Setting::integer("ESSStream/TimebaseMult", time_base_.multiplier()));
-  set.set(Setting::integer("ESSStream/TimebaseDiv", time_base_.divider()));
-
-  set.set(Setting::integer("ESSStream/SpoofClock", spoof_clock_));
-
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
 
@@ -152,11 +124,6 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
-
-  time_base_ = TimeBase(set.find({"ESSStream/TimebaseMult"}).get_number(),
-                        set.find({"ESSStream/TimebaseDiv"}).get_number());
-
-  spoof_clock_ = set.find({"ESSStream/SpoofClock"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
@@ -256,13 +223,9 @@ void ESSStream::die()
 
 void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
 {
-  DBG << "<ESSStream> Starting run   "
-      << "  timebase " << callback->time_base_.debug() << "ns";
+  DBG << "<ESSStream> Starting run"; //more info!!!
 
   uint64_t spills {0};
-
-  if (callback->parser_)
-    spills += callback->parser_->start_spill(spill_queue);
 
   callback->time_spent_ = 0;
 
@@ -270,7 +233,7 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
     spills += callback->get_message(spill_queue);
 
   if (callback->parser_)
-    spills += callback->parser_->stop_spill(spill_queue);
+    spills += callback->parser_->stop(spill_queue);
 
   callback->run_status_.store(3);
   DBG << "<ESSStream> Finished run"
@@ -329,32 +292,10 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
 
     if (parser_)
     {
-      parser_->timebase = time_base_;
+      if (!message->len())
+        return 0;
 
-
-      uint64_t num_produced = 0;
-
-      if (message->len())
-        num_produced = parser_->process_payload(spill_queue, message->payload(),
-                                         (spoof_clock_ == 1) ? (++clock_) : 0);
-
-      if (!num_produced & heartbeat_ && spoof_clock_)
-        num_produced = parser_->dummy_spill(spill_queue, (spoof_clock_ == 1) ? (++clock_) : 0);
-
-//      if (num_produced)
-//      {
-//        for (auto& s : spill->stats)
-//        {
-//          s.second.set_value("native_time", parser_->stats.time_end);
-//          if (spoof_clock_ != 0)
-//            s.second.set_value("pulse_time", parser_->stats.time_start);
-
-////          DBG << "<ESSStream> setting native time (" << s.first << ") "
-////              << stats.time_end << " -> " << s.second.stats()["native_time"];
-////          DBG << "pulse time (" << s.first << ")"
-////                 " = " << s.second.stats()["pulse_time"];
-//        }
-//      }
+      uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
 
       time_spent_ += parser_->stats.time_spent;
       return num_produced;

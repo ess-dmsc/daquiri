@@ -18,11 +18,8 @@ public:
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;
 
-  uint64_t start_spill(SpillQueue spill_queue) const override;
-  uint64_t stop_spill(SpillQueue spill_queue) const override;
-  uint64_t dummy_spill(SpillQueue spill_queue, uint64_t utime) override;
-  uint64_t process_payload(SpillQueue spill_queue,
-                               void*, uint64_t utime) override;
+  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
+  uint64_t stop(SpillQueue spill_queue) override;
 
 
 private:
@@ -30,10 +27,16 @@ private:
   std::string stream_id_;
   ESSGeometry geometry_;
   EventModel event_definition_;
+  TimeBase time_base_;
+  int spoof_clock_ {0};
+  bool heartbeat_ {false};
+
 
   uint64_t latest_buf_id_ {0};
+  bool started_ {false};
+  uint64_t spoofed_time_ {0};
 
   bool eval_ordering(const EventMessage*);
-  size_t event_count(const EventMessage*);
+  size_t events_in_buffer(const EventMessage*);
   std::string debug(const EventMessage*);
 };

@@ -17,7 +17,6 @@ class fb_parser : public Producer
         double time_spent {0};
     };
 
-    TimeBase timebase;
     PayloadStats stats;
 
     fb_parser() : Producer() {}
@@ -26,9 +25,6 @@ class fb_parser : public Producer
     void boot() override;
     void die() override;
 
-    virtual uint64_t start_spill(SpillQueue spill_queue) const = 0;
-    virtual uint64_t stop_spill(SpillQueue spill_queue) const = 0;
-    virtual uint64_t dummy_spill(SpillQueue spill_queue, uint64_t utime) = 0;
-    virtual uint64_t process_payload(SpillQueue spill_queue,
-                                     void*, uint64_t utime) = 0;
+    virtual uint64_t process_payload(SpillQueue spill_queue, void* msg) = 0;
+    virtual uint64_t stop(SpillQueue spill_queue) = 0;
 };

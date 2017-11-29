@@ -8,7 +8,10 @@ namespace DAQuiri {
 Spill::Spill(std::string id, StatusType t)
   : stream_id (id)
   , type (t)
-{}
+{
+  if (t != StatusType::daq_status)
+    state = Setting::stem("stats");
+}
 
 bool Spill::empty()
 {
