@@ -125,18 +125,18 @@ void Oscilloscope::replot()
   {
     QVector<SelectorItem> my_channels = ui->selectorChannels->items();
 
-    for (size_t i=0; i < traces_.size(); i++)
+
+    for (const auto& t : traces_)
     {
-      Event trace = traces_.at(i);
-      if (!trace.trace(0).size())
+      if (!t.second.trace(0).size())
         continue;
 
-      QPlot::HistMap1D hist;
+//      QPlot::HistMap1D hist;
 //      for (size_t j=0; j < trace.trace(0).size(); ++j)
 //        hist[trace.timestamp().nanosecs() * 0.001] = trace.trace(0).at(j);
 
-      if ((static_cast<int>(i) < my_channels.size()) && (my_channels[i].visible))
-        ui->widgetPlot->addGraph(hist, QPen(my_channels[i].color, 1));
+//      if ((static_cast<int>(i) < my_channels.size()) && (my_channels[i].visible))
+//        ui->widgetPlot->addGraph(hist, QPen(my_channels[i].color, 1));
     }
   }
 

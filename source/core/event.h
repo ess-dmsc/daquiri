@@ -8,7 +8,6 @@ namespace DAQuiri {
 class Event
 {
 private:
-  int16_t       source_channel_ {-1};
   uint64_t      timestamp_ {0};
   std::vector<uint32_t>              values_;
   std::vector<std::vector<uint32_t>> traces_;
@@ -16,9 +15,8 @@ private:
 public:
   inline Event() {}
 
-  inline Event(int16_t sourcechan, const EventModel &model)
-    : source_channel_(sourcechan)
-    , values_ (model.values)
+  inline Event(const EventModel &model)
+    : values_ (model.values)
   {
     for (auto t : model.traces)
     {
@@ -30,11 +28,6 @@ public:
   }
 
   //Accessors
-  inline const int16_t& channel() const
-  {
-    return source_channel_;
-  }
-
   inline uint64_t timestamp() const
   {
     return timestamp_;
@@ -55,6 +48,13 @@ public:
     return values_[idx];
   }
 
+  inline std::vector<uint32_t>& trace(size_t idx)
+  {
+    if (idx >= traces_.size())
+      throw std::out_of_range("Event: bad trace index");
+    return traces_[idx];
+  }
+
   inline const std::vector<uint32_t>& trace(size_t idx) const
   {
     if (idx >= traces_.size())
@@ -63,11 +63,6 @@ public:
   }
 
   //Setters
-  inline void set_channel(int16_t c)
-  {
-    source_channel_ = c;
-  }
-
   inline void set_time(uint64_t t)
   {
     timestamp_ = t;
@@ -78,23 +73,22 @@ public:
     values_[idx] = val;
   }
 
-  inline void set_trace(size_t idx, const std::vector<uint32_t> &trc)
-  {
-    auto& t = traces_[idx];
-    if (t.size() == trc.size())
-    {
-      t = trc;
-      return;
-    }
-    size_t len = std::min(trc.size(), t.size());
-    for (size_t i=0; i < len; ++i)
-      t[i] = trc[i];
-  }
+//  inline void set_trace(size_t idx, const std::vector<uint32_t> &trc)
+//  {
+//    auto& t = traces_[idx];
+//    if (t.size() == trc.size())
+//    {
+//      t = trc;
+//      return;
+//    }
+//    size_t len = std::min(trc.size(), t.size());
+//    for (size_t i=0; i < len; ++i)
+//      t[i] = trc[i];
+//  }
 
   //Comparators
   inline bool operator==(const Event other) const
   {
-    if (source_channel_ != other.source_channel_) return false;
     if (timestamp_ != other.timestamp_) return false;
     if (values_ != other.values_) return false;
     if (traces_ != other.traces_) return false;
@@ -109,7 +103,7 @@ public:
   inline std::string debug() const
   {
     std::stringstream ss;
-    ss << "[ch" << source_channel_ << "|t" << timestamp_;
+    ss << "[t" << timestamp_;
     if (traces_.size())
       ss << "|ntraces=" << traces_.size();
     for (auto &v : values_)

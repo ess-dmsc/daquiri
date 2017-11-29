@@ -103,7 +103,7 @@ void Prebinned1D::_push_stats_pre(const Spill& spill)
 
 void Prebinned1D::_push_event(const Event& event)
 {
-  const auto trace = event.trace(trace_idx_);
+  const auto& trace = event.trace(trace_idx_);
 
   if (trace.size() >= domain_.size())
   {

@@ -238,8 +238,8 @@ OscilData Engine::oscilloscope()
 {
   UNIQUE_LOCK_EVENTUALLY_ST;
 
-  std::vector<Event> traces;
-  traces.resize(detectors_.size());
+  OscilData traces;
+//  traces.resize(detectors_.size());
 
   for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
@@ -247,8 +247,7 @@ OscilData Engine::oscilloscope()
       //DBG << "oscil > " << q.second->device_name();
       OscilData trc = q.second->oscilloscope();
       for (auto &p : trc)
-        if ((p.channel() >= 0) && (p.channel() < static_cast<int16_t>(traces.size())))
-          traces[p.channel()] = p;
+        traces[p.first] = p.second;
     }
   return traces;
 }

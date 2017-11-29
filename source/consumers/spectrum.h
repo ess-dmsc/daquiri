@@ -32,10 +32,10 @@ class Spectrum : public Consumer
 
     // cached results:
     PreciseFloat total_count_ {0};
+
     // instantaneous rate:
     PreciseFloat recent_count_ {0};
     double recent_total_time_ {0};
-
     Status recent_start_, recent_end_;
 
     std::list<Status> stats_;

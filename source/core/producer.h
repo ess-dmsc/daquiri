@@ -10,7 +10,7 @@ namespace DAQuiri {
 class Producer;
 using ProducerPtr = std::shared_ptr<Producer>;
 using SpillQueue = SynchronizedQueue<SpillPtr>*;
-using OscilData = std::vector<Event>;
+using OscilData = std::map<std::string, Event>;
 
 enum ProducerStatus
 {
