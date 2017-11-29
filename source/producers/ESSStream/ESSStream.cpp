@@ -3,7 +3,7 @@
 #include "custom_logger.h"
 
 #include "ev42_parser.h"
-#include "mo01_parser.h"
+//#include "mo01_parser.h"
 
 ESSStream::ESSStream()
 {
@@ -177,8 +177,8 @@ void ESSStream::select_parser(std::string t)
     parser_.reset();
   else if (t == "ev42_events")
     parser_ = std::make_shared<ev42_events>();
-  else if (t == "mo01_nmx")
-    parser_ = std::make_shared<mo01_nmx>();
+//  else if (t == "mo01_nmx")
+//    parser_ = std::make_shared<mo01_nmx>();
 }
 
 void ESSStream::boot()
@@ -259,24 +259,18 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
   DBG << "<ESSStream> Starting run   "
       << "  timebase " << callback->time_base_.debug() << "ns";
 
-  if (callback->parser_)
-    spill_queue->enqueue(callback->parser_->start_spill());
+  uint64_t spills {0};
 
-  uint64_t spills{2};
+  if (callback->parser_)
+    spills += callback->parser_->start_spill(spill_queue);
+
   callback->time_spent_ = 0;
 
   while (callback->run_status_.load() != 2)
-  {
-    auto spill = callback->get_message();
-    if (spill)
-    {
-      spills++;
-      spill_queue->enqueue(spill);
-    }
-  }
+    spills += callback->get_message(spill_queue);
 
   if (callback->parser_)
-    spill_queue->enqueue(callback->parser_->stop_spill());
+    spills += callback->parser_->stop_spill(spill_queue);
 
   callback->run_status_.store(3);
   DBG << "<ESSStream> Finished run"
@@ -286,7 +280,7 @@ void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
 }
 
 
-SpillPtr ESSStream::get_message()
+uint64_t ESSStream::get_message(SpillQueue spill_queue)
 {
   std::shared_ptr<RdKafka::Message> message
   {stream_->consume(kafka_timeout_)};
@@ -295,14 +289,14 @@ SpillPtr ESSStream::get_message()
   {
   case RdKafka::ERR__UNKNOWN_TOPIC:
     WARN << "Unknown topic: " << message->errstr();
-    return nullptr;
+    return 0;
 
   case RdKafka::ERR__UNKNOWN_PARTITION:
     WARN << "Unknown partition: " << message->errstr();
-    return nullptr;
+    return 0;
 
   case RdKafka::ERR__TIMED_OUT:
-//    return nullptr;
+//    return 0;
 
   case RdKafka::ERR__PARTITION_EOF:
     /* Last message */
@@ -310,7 +304,7 @@ SpillPtr ESSStream::get_message()
     //      WARN << "%% EOF reached for all " << partition_cnt <<
     //                   " partition(s)";
     //    WARN << "Partition EOF error: " << message->errstr();
-//    return nullptr;
+//    return 0;
 
   case RdKafka::ERR_NO_ERROR:
     //    msg_cnt++;
@@ -335,47 +329,49 @@ SpillPtr ESSStream::get_message()
 
     if (parser_)
     {
-      SpillPtr spill;
       parser_->timebase = time_base_;
 
+
+      uint64_t num_produced = 0;
+
       if (message->len())
-        spill = parser_->process_payload(message->payload(),
+        num_produced = parser_->process_payload(spill_queue, message->payload(),
                                          (spoof_clock_ == 1) ? (++clock_) : 0);
 
-      if (!spill & heartbeat_ && spoof_clock_)
-        spill = parser_->dummy_spill((spoof_clock_ == 1) ? (++clock_) : 0);
+      if (!num_produced & heartbeat_ && spoof_clock_)
+        num_produced = parser_->dummy_spill(spill_queue, (spoof_clock_ == 1) ? (++clock_) : 0);
 
-      if (spill)
-      {
-        for (auto& s : spill->stats)
-        {
-          s.second.set_value("native_time", parser_->stats.time_end);
-          if (spoof_clock_ != 0)
-            s.second.set_value("pulse_time", parser_->stats.time_start);
+//      if (num_produced)
+//      {
+//        for (auto& s : spill->stats)
+//        {
+//          s.second.set_value("native_time", parser_->stats.time_end);
+//          if (spoof_clock_ != 0)
+//            s.second.set_value("pulse_time", parser_->stats.time_start);
 
-//          DBG << "<ESSStream> setting native time (" << s.first << ") "
-//              << stats.time_end << " -> " << s.second.stats()["native_time"];
-//          DBG << "pulse time (" << s.first << ")"
-//                 " = " << s.second.stats()["pulse_time"];
-        }
-      }
+////          DBG << "<ESSStream> setting native time (" << s.first << ") "
+////              << stats.time_end << " -> " << s.second.stats()["native_time"];
+////          DBG << "pulse time (" << s.first << ")"
+////                 " = " << s.second.stats()["pulse_time"];
+//        }
+//      }
 
       time_spent_ += parser_->stats.time_spent;
-      return spill;
+      return num_produced;
     }
     else
     {
       WARN << "Consume failed. No parser to inerpret buffer.";
-      return nullptr;
+      return 0;
     }
 
 
   default:
     WARN << "Consume failed: " << message->errstr();
-    return nullptr;
+    return 0;
   }
 
-  return nullptr;
+  return 0;
 }
 
 std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)

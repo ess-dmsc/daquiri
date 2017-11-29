@@ -426,6 +426,16 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Minimum pause between replots</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinMinPause"/>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushForceRefresh">
          <property name="minimumSize">
           <size>

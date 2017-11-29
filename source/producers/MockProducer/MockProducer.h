@@ -44,6 +44,7 @@ protected:
   double   lambda_ {0};
   double   spill_lambda_ {100};
   double   dead_ {0};
+  std::string stream_id;
 
   size_t val_count_ {1};
   std::vector<std::string> vnames_;

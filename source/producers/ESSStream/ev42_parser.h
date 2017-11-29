@@ -18,13 +18,16 @@ public:
   void write_settings_bulk(const Setting&) override;
   void read_settings_bulk(Setting&) const override;
 
-  SpillPtr start_spill() const override;
-  SpillPtr stop_spill() const override;
-  SpillPtr dummy_spill(uint64_t utime) override;
-  SpillPtr process_payload(void*, uint64_t utime) override;
+  uint64_t start_spill(SpillQueue spill_queue) const override;
+  uint64_t stop_spill(SpillQueue spill_queue) const override;
+  uint64_t dummy_spill(SpillQueue spill_queue, uint64_t utime) override;
+  uint64_t process_payload(SpillQueue spill_queue,
+                               void*, uint64_t utime) override;
+
 
 private:
   // cached params
+  std::string stream_id_;
   int16_t output_channel_ {0};
   ESSGeometry geometry_;
   EventModel evt_model_;

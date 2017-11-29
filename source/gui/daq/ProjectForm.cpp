@@ -391,3 +391,8 @@ void ProjectForm::on_toggleIndefiniteRun_clicked()
 {
    ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 }
+
+void ProjectForm::on_spinMinPause_editingFinished()
+{
+  plot_thread_.set_wait_time(ui->spinMinPause->value());
+}

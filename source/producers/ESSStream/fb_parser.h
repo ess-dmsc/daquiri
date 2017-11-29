@@ -26,8 +26,9 @@ class fb_parser : public Producer
     void boot() override;
     void die() override;
 
-    virtual SpillPtr start_spill() const = 0;
-    virtual SpillPtr stop_spill() const = 0;
-    virtual SpillPtr dummy_spill(uint64_t utime) = 0;
-    virtual SpillPtr process_payload(void*, uint64_t utime) = 0;
+    virtual uint64_t start_spill(SpillQueue spill_queue) const = 0;
+    virtual uint64_t stop_spill(SpillQueue spill_queue) const = 0;
+    virtual uint64_t dummy_spill(SpillQueue spill_queue, uint64_t utime) = 0;
+    virtual uint64_t process_payload(SpillQueue spill_queue,
+                                     void*, uint64_t utime) = 0;
 };

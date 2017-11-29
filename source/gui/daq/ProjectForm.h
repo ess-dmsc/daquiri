@@ -56,7 +56,9 @@ private slots:
   void projectSaveAs();
   void projectOpen();
 
-private:
+  void on_spinMinPause_editingFinished();
+
+  private:
   Ui::ProjectForm *ui;
   ThreadRunner               &runner_thread_;
   Container<DAQuiri::Detector> &detectors_;

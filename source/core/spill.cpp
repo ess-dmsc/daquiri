@@ -5,8 +5,9 @@
 
 namespace DAQuiri {
 
-Spill::Spill(StatusType t)
-  : type (t)
+Spill::Spill(std::string id, StatusType t)
+  : stream_id (id)
+  , type (t)
 {}
 
 bool Spill::empty()

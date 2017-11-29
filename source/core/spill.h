@@ -67,7 +67,7 @@ class Spill
 {
   public:
     Spill() {}
-    Spill(StatusType t);
+    Spill(std::string id, StatusType t);
 
     std::string                stream_id;
     StatusType                 type {StatusType::daq_status};

@@ -7,6 +7,10 @@ MockProducer::MockProducer()
 {
   std::string mp {"MockProducer/"};
 
+  SettingMeta streamid(mp + "StreamID", SettingType::text, "DAQuiri stream ID");
+  streamid.set_flag("preset");
+  add_definition(streamid);
+
   SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
   si.set_val("min", 1);
   si.set_val("max", 1000000);
@@ -86,10 +90,11 @@ MockProducer::MockProducer()
 
   SettingMeta root("MockProducer", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, mp + "SpillInterval");
-  root.set_enum(1, mp + "Resolution");
-  root.set_enum(2, mp + "CountRate");
-  root.set_enum(3, mp + "DeadTime");
+  root.set_enum(0, mp + "StreamID");
+  root.set_enum(1, mp + "SpillInterval");
+  root.set_enum(2, mp + "Resolution");
+  root.set_enum(3, mp + "CountRate");
+  root.set_enum(4, mp + "DeadTime");
   root.set_enum(5, mp + "TimebaseMult");
   root.set_enum(6, mp + "TimebaseDiv");
   root.set_enum(7, mp + "Lambda");
@@ -157,6 +162,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);
 
+  set.set(Setting::text("MockProducer/StreamID", stream_id));
   set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
@@ -189,6 +195,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
+  stream_id = set.find({"MockProducer/StreamID"}).get_text();
   spill_interval_ = set.find({"MockProducer/SpillInterval"}).get_number();
   bits_ = set.find({"MockProducer/Resolution"}).get_number();
   count_rate_ = set.find({"MockProducer/CountRate"}).get_number();
@@ -332,7 +339,7 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 {
   int16_t chan0 {0};
 
-  SpillPtr spill = std::make_shared<Spill>(t);
+  SpillPtr spill = std::make_shared<Spill>(stream_id, t);
 
   recent_pulse_time_ = clock_;
 

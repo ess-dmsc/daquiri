@@ -9,9 +9,9 @@ ev42_events::ev42_events()
 {
   std::string mp {"ev42_events/"};
 
-  SettingMeta dc(mp + "OutputChannel", SettingType::integer, "Output data channel");
-  dc.set_val("min", 0);
-  add_definition(dc);
+  SettingMeta streamid(mp + "StreamID", SettingType::text, "DAQuiri stream ID");
+  streamid.set_flag("preset");
+  add_definition(streamid);
 
   SettingMeta ex(mp + "extent_x", SettingType::integer, "Extent X");
   ex.set_val("min", 1);
@@ -32,7 +32,7 @@ ev42_events::ev42_events()
 
   SettingMeta root("ev42_events", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, mp + "OutputChannel");
+  root.set_enum(0, mp + "StreamID");
   root.set_enum(1, mp + "extent_x");
   root.set_enum(2, mp + "extent_y");
   root.set_enum(3, mp + "extent_z");
@@ -44,7 +44,7 @@ void ev42_events::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);
 
-  set.set(Setting::integer("ev42_events/OutputChannel", output_channel_));
+  set.set(Setting::text("ev42_events/StreamID", stream_id_));
 
   set.set(Setting::integer("ev42_events/extent_x", integer_t(geometry_.nx())));
   set.set(Setting::integer("ev42_events/extent_y", integer_t(geometry_.ny())));
@@ -57,7 +57,7 @@ void ev42_events::write_settings_bulk(const Setting& settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
-  output_channel_ = set.find({"ev42_events/OutputChannel"}).get_number();
+  stream_id_ = set.find({"ev42_events/StreamID"}).get_text();
   geometry_.nx(set.find({"ev42_events/extent_x"}).get_number());
   geometry_.ny(set.find({"ev42_events/extent_y"}).get_number());
   geometry_.nz(set.find({"ev42_events/extent_z"}).get_number());
@@ -70,30 +70,31 @@ void ev42_events::write_settings_bulk(const Setting& settings)
   evt_model_.add_value("panel", geometry_.np());
 }
 
-SpillPtr ev42_events::start_spill() const
+uint64_t ev42_events::start_spill(SpillQueue spill_queue) const
 {
-  return Spill::make_new(StatusType::start, {output_channel_});
+  spill_queue->enqueue(std::make_shared<Spill>(stream_id_, StatusType::start));
+  return 1;
 }
 
-SpillPtr ev42_events::stop_spill() const
+uint64_t ev42_events::stop_spill(SpillQueue spill_queue) const
 {
-  return Spill::make_new(StatusType::stop, {output_channel_});
+  spill_queue->enqueue(std::make_shared<Spill>(stream_id_, StatusType::stop));
+  return 1;
 }
 
-SpillPtr ev42_events::dummy_spill(uint64_t utime)
+uint64_t ev42_events::dummy_spill(SpillQueue spill_queue, uint64_t utime)
 {
-  SpillPtr ret {nullptr};
-
-  ret = Spill::make_new(StatusType::running, {output_channel_});
-  ret->stats[output_channel_].set_value("pulse_time", utime);
+  SpillPtr ret = std::make_shared<Spill>(stream_id_, StatusType::running);
+//  ret->stats[output_channel_].set_value("pulse_time", utime);
 
   stats.time_start = stats.time_end = utime;
   stats.time_spent = 0;
 
-  return ret;
+  spill_queue->enqueue(ret);
+  return 1;
 }
 
-SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
+uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg, uint64_t utime)
 {
   SpillPtr ret {nullptr};
   auto em = GetEventMessage(msg);
@@ -101,19 +102,20 @@ SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
   size_t events = event_count(em);
 
   if (!events)
-    return ret;
+    return 0;
 
   CustomTimer timer(true);
 
   uint64_t time_high = (utime ? (utime << 32) : em->pulse_time());
 
   evt_model_.timebase = timebase;
-  ret = Spill::make_new(StatusType::running, {output_channel_});
-  ret->stats[output_channel_].set_model(evt_model_);
-  ret->stats[output_channel_].set_value("pulse_time", time_high);
-  //ret->stats[output_channel_].set_value("buf_id", buf_id);
+  ret = std::make_shared<Spill>(stream_id_, StatusType::running);
 
-  ret->events.reserve(events, Event(output_channel_, evt_model_));
+  ret->event_model = evt_model_;
+//  ret->state.set_value("pulse_time", time_high);
+//  //ret->stats[output_channel_].set_value("buf_id", buf_id);
+
+  ret->events.reserve(events, Event(0, evt_model_));
   for (size_t i=0; i < events; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
@@ -140,7 +142,8 @@ SpillPtr ev42_events::process_payload(void* msg, uint64_t utime)
 
   stats.time_spent = timer.s();
 
-  return ret;
+  spill_queue->enqueue(ret);
+  return 1;
 }
 
 size_t ev42_events::event_count(const EventMessage* em)

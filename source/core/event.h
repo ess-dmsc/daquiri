@@ -18,7 +18,6 @@ public:
 
   inline Event(int16_t sourcechan, const EventModel &model)
     : source_channel_(sourcechan)
-//    , timestamp_(0, model.timebase)
     , values_ (model.values)
   {
     for (auto t : model.traces)
@@ -111,7 +110,6 @@ public:
   {
     std::stringstream ss;
     ss << "[ch" << source_channel_ << "|t" << timestamp_;
-//    ss << "[ch" << source_channel_ << "|t" << timestamp_.debug();
     if (traces_.size())
       ss << "|ntraces=" << traces_.size();
     for (auto &v : values_)

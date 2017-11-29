@@ -39,7 +39,7 @@ private:
 
 private:
   std::atomic<int> run_status_ {0};
-  std::thread *runner_ {nullptr};
+  std::thread* runner_ {nullptr};
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;
@@ -57,7 +57,8 @@ private:
   uint64_t clock_ {0};
   double time_spent_ {0};
 
-  SpillPtr get_message();
+  uint64_t get_message(SpillQueue);
+//  SpillPtr get_message();
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
   void select_parser(std::string);
 };
