@@ -63,11 +63,11 @@ void ev42_events::write_settings_bulk(const Setting& settings)
   geometry_.nz(set.find({"ev42_events/extent_z"}).get_number());
   geometry_.np(set.find({"ev42_events/panels"}).get_number());
 
-  evt_model_ = EventModel();
-  evt_model_.add_value("x", geometry_.nx());
-  evt_model_.add_value("y", geometry_.ny());
-  evt_model_.add_value("z", geometry_.nz());
-  evt_model_.add_value("panel", geometry_.np());
+  event_definition_ = EventModel();
+  event_definition_.add_value("x", geometry_.nx());
+  event_definition_.add_value("y", geometry_.ny());
+  event_definition_.add_value("z", geometry_.nz());
+  event_definition_.add_value("panel", geometry_.np());
 }
 
 uint64_t ev42_events::start_spill(SpillQueue spill_queue) const
@@ -85,7 +85,6 @@ uint64_t ev42_events::stop_spill(SpillQueue spill_queue) const
 uint64_t ev42_events::dummy_spill(SpillQueue spill_queue, uint64_t utime)
 {
   SpillPtr ret = std::make_shared<Spill>(stream_id_, StatusType::running);
-//  ret->stats[output_channel_].set_value("pulse_time", utime);
 
   stats.time_start = stats.time_end = utime;
   stats.time_spent = 0;
@@ -108,14 +107,13 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg, uint64_
 
   uint64_t time_high = (utime ? (utime << 32) : em->pulse_time());
 
-  evt_model_.timebase = timebase;
+  event_definition_.timebase = timebase;
   ret = std::make_shared<Spill>(stream_id_, StatusType::running);
 
-  ret->event_model = evt_model_;
+  ret->event_model = event_definition_;
 //  ret->state.set_value("pulse_time", time_high);
-//  //ret->stats[output_channel_].set_value("buf_id", buf_id);
 
-  ret->events.reserve(events, Event(0, evt_model_));
+  ret->events.reserve(events, event_definition_);
   for (size_t i=0; i < events; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);

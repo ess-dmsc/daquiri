@@ -28,9 +28,8 @@ public:
 private:
   // cached params
   std::string stream_id_;
-  int16_t output_channel_ {0};
   ESSGeometry geometry_;
-  EventModel evt_model_;
+  EventModel event_definition_;
 
   uint64_t latest_buf_id_ {0};
 
