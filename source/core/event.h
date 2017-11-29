@@ -73,19 +73,6 @@ public:
     values_[idx] = val;
   }
 
-//  inline void set_trace(size_t idx, const std::vector<uint32_t> &trc)
-//  {
-//    auto& t = traces_[idx];
-//    if (t.size() == trc.size())
-//    {
-//      t = trc;
-//      return;
-//    }
-//    size_t len = std::min(trc.size(), t.size());
-//    for (size_t i=0; i < len; ++i)
-//      t[i] = trc[i];
-//  }
-
   //Comparators
   inline bool operator==(const Event other) const
   {

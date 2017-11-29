@@ -32,7 +32,7 @@ uint32_t ValueDefinition::generate(std::default_random_engine& gen)
 
 void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
 {
-  auto trc = e.trace(index);
+  auto& trc = e.trace(index);
 
   size_t onset = double(trc.size()) * trace_onset;
   size_t peak = double(trc.size()) * (trace_onset + trace_risetime);
@@ -40,7 +40,7 @@ void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
   //rise
   double slope_up = double(val) / double(peak-onset);
   for (size_t i = onset; i < peak; ++i)
-    trc[i] = i * slope_up;
+    trc[i] = (i - onset) * slope_up;
 
   //fall
   double slope_down = double(val) / double(trc.size() * 10);
@@ -50,8 +50,8 @@ void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
   // add baseline & noise
   for (size_t i=0; i < trc.size(); ++i)
     trc[i] += trace_baseline
-        - trace_baseline/10
-        + trace_baseline ? ((rand() % trace_baseline) / 5) : 0;
+        + trace_baseline ? ((rand() % trace_baseline) / 5
+                             - trace_baseline/10) : 0;
 }
 
 

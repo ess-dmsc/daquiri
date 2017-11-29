@@ -47,6 +47,14 @@ ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent)
   ui->tableValues->horizontalHeader()->setStretchLastSection(true);
   ui->tableValues->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+  ui->tableTraces->setSelectionMode(QAbstractItemView::SingleSelection);
+  ui->tableTraces->setSelectionBehavior(QAbstractItemView::SelectRows);
+  ui->tableTraces->horizontalHeader()->setStretchLastSection(true);
+  ui->tableTraces->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  connect(ui->tableTraces->selectionModel(),
+          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+          this, SLOT(trace_selection_changed(QItemSelection,QItemSelection)));
+
   ui->treeAttribs->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->treeAttribs->setModel(&attr_model_);
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
@@ -58,10 +66,10 @@ ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent)
   ui->treeAttribs->setVisible(false);
   ui->labelState->setVisible(false);
 
-//  ui->labelEvents->setVisible(false);
-//  ui->tableEvents->setVisible(false);
-//  ui->labelEventVals->setVisible(false);
-//  ui->tableValues->setVisible(false);
+  //  ui->labelEvents->setVisible(false);
+  //  ui->tableEvents->setVisible(false);
+  //  ui->labelEventVals->setVisible(false);
+  //  ui->tableValues->setVisible(false);
 }
 
 void ListModeForm::loadSettings()
@@ -132,12 +140,9 @@ void ListModeForm::closeEvent(QCloseEvent *event)
 
 void ListModeForm::displayHit(int idx)
 {
-  ui->tracePlot->clearGraphs();
-
   if ( (idx < 0) || (idx >= static_cast<int>(events_.size())))
   {
     ui->tableValues->clear();
-    ui->tracePlot->replot();
     return;
   }
 
@@ -156,36 +161,28 @@ void ListModeForm::displayHit(int idx)
     else
       add_to_table(ui->tableValues, i, 0, QString::number(i));
     add_to_table(ui->tableValues, i, 1, QString::number(event.value(i)));
+    //    add_to_table(ui->tableValues, i, 2, QString::number(event.value(i)));
   }
 
-  if (event.trace_count() &&  event.trace(0).size())
+
+  ui->tableTraces->setRowCount(event.value_count());
+  ui->tableTraces->setColumnCount(3);
+  ui->tableTraces->setHorizontalHeaderItem(0, new QTableWidgetItem("Name", QTableWidgetItem::Type));
+  ui->tableTraces->setHorizontalHeaderItem(1, new QTableWidgetItem("Rank", QTableWidgetItem::Type));
+  ui->tableTraces->setHorizontalHeaderItem(2, new QTableWidgetItem("Dims", QTableWidgetItem::Type));
+
+  for (size_t i = 0; i < event.trace_count(); ++i)
   {
-    uint32_t trace_length = event.trace(0).size();
-    QVector<double> x(trace_length), y(trace_length);
-//    int chan = event.channel();
-//    Detector this_det;
-
-    //    if ((chan > -1) && (chan < list_data_->run.detectors.size()))
-    //      this_det = list_data_->run.detectors[chan];
-
-//    Calibration this_calibration = this_det.best_calib(16);
-
-    for (std::size_t j=0; j<trace_length; j++)
-    {
-      x[j] = j;
-//      y[j] = this_calibration.transform(event.trace(0).at(j), 16);
-      y[j] = event.trace(0).at(j);
-    }
-
-    ui->tracePlot->addGraph();
-    ui->tracePlot->graph(0)->addData(x, y);
-    ui->tracePlot->graph(0)->setPen(QPen(Qt::darkGreen));
+    if (i < event_model_.trace_names.size())
+      add_to_table(ui->tableTraces, i, 0, QS(event_model_.trace_names.at(i)));
+    else
+      add_to_table(ui->tableTraces, i, 0, QString::number(i));
+    add_to_table(ui->tableTraces, i, 1, QString::number(event_model_.traces[i].size()));
+    QString dims;
+    for (auto d : event_model_.traces[i])
+      dims += QString::number(d) + " ";
+    add_to_table(ui->tableTraces, i, 2, dims);
   }
-
-  ui->tracePlot->xAxis->setLabel("time (ticks)"); //can do better....
-  ui->tracePlot->yAxis->setLabel("keV");
-  ui->tracePlot->rescaleAxes();
-  ui->tracePlot->replot();
 }
 
 void ListModeForm::on_pushListStart_clicked()
@@ -267,10 +264,10 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
   ui->treeAttribs->setVisible(false);
   ui->labelState->setVisible(false);
 
-//  ui->labelEvents->setVisible(false);
-//  ui->tableEvents->setVisible(false);
-//  ui->labelEventVals->setVisible(false);
-//  ui->tableValues->setVisible(false);
+  //  ui->labelEvents->setVisible(false);
+  //  ui->tableEvents->setVisible(false);
+  //  ui->labelEventVals->setVisible(false);
+  //  ui->tableValues->setVisible(false);
 
   if ((row >= 0) && (row < static_cast<int>(list_data_.size())))
   {
@@ -284,10 +281,10 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
       ui->labelState->setVisible(sp->state != Setting());
       event_model_ = sp->event_model;
 
-//      ui->labelEvents->setVisible(events_.size());
-//      ui->tableEvents->setVisible(events_.size());
-//      ui->labelEventVals->setVisible(events_.size());
-//      ui->tableValues->setVisible(events_.size());
+      //      ui->labelEvents->setVisible(events_.size());
+      //      ui->tableEvents->setVisible(events_.size());
+      //      ui->labelEventVals->setVisible(events_.size());
+      //      ui->tableValues->setVisible(events_.size());
     }
   }
 
@@ -315,4 +312,40 @@ void ListModeForm::event_selection_changed(QItemSelection, QItemSelection)
   if (!ui->tableEvents->selectionModel()->selectedIndexes().empty())
     idx = ui->tableEvents->selectionModel()->selectedIndexes().first().row();
   displayHit(idx);
+}
+
+void ListModeForm::trace_selection_changed(QItemSelection, QItemSelection)
+{
+  ui->tracePlot->clearGraphs();
+
+  if (ui->tableEvents->selectionModel()->selectedIndexes().empty() ||
+      ui->tableTraces->selectionModel()->selectedIndexes().empty())
+  {
+    ui->tracePlot->replot();
+    return;
+  }
+
+  int event_i = ui->tableEvents->selectionModel()->selectedIndexes().first().row();
+  int trace_i = ui->tableTraces->selectionModel()->selectedIndexes().first().row();
+
+  auto trace = events_[event_i].trace(trace_i);
+
+  uint32_t trace_length = trace.size();
+  QVector<double> x(trace_length), y(trace_length);
+
+  for (size_t i=0; i<trace_length; i++)
+  {
+    x[i] = i;
+    //      y[j] = this_calibration.transform(event.trace(0).at(j), 16);
+    y[i] = trace.at(i);
+  }
+
+  ui->tracePlot->addGraph();
+  ui->tracePlot->graph(0)->addData(x, y);
+  ui->tracePlot->graph(0)->setPen(QPen(Qt::darkGreen));
+
+//  ui->tracePlot->xAxis->setLabel("time (ticks)"); //can do better....
+//  ui->tracePlot->yAxis->setLabel("keV");
+  ui->tracePlot->rescaleAxes();
+  ui->tracePlot->replot();
 }
