@@ -70,6 +70,12 @@ bool Spectrum::_initialize()
   return false;
 }
 
+bool Spectrum::_accept_spill(const Spill& spill)
+{
+  return (Consumer::_accept_spill(spill)
+          && (spill.type != StatusType::daq_status));
+}
+
 Status Spectrum::extract(const Spill& spill)
 {
   Status ret;
@@ -85,21 +91,20 @@ Status Spectrum::extract(const Spill& spill)
   return ret;
 }
 
-PreciseFloat Spectrum::calc_recent_rate(const Spill &spill)
+PreciseFloat Spectrum::calc_recent_rate(const Spill& spill)
 {
   if (recent_end_.time.is_not_a_date_time())
-    recent_end_ = spill;
-
+    recent_end_ = extract(spill);
   recent_start_ = recent_end_;
-  recent_end_ = spill;
+  recent_end_ = extract(spill);
 
 //  DBG << recent_end_.stats()["native_time"]
 //      <<  " - " << recent_start_.stats()["native_time"];
 
   Setting rate = metadata_.get_attribute("instant_rate");
-  auto diff = recent_end_.state.find(Setting("native_time")).get_number()
-      - recent_start_.state.find(Setting("native_time")).get_number();
-  PreciseFloat recent_time = recent_end_.event_model.timebase.to_sec(diff);
+  auto diff = recent_end_.stats["native_time"].get_number()
+      - recent_start_.stats["native_time"].get_number();
+  PreciseFloat recent_time = recent_end_.tb.to_sec(diff);
 
   rate.set_number(0);
   if (recent_time > 0)
@@ -111,14 +116,14 @@ PreciseFloat Spectrum::calc_recent_rate(const Spill &spill)
   return recent_time;
 }
 
-PreciseFloat Spectrum::calc_chan_times()
+void Spectrum::calc_cumulative()
 {
-  Status start = chan_stats.stats.front();
+  Status start = stats_.front();
 
   PreciseFloat rt {0},lt {0};
   PreciseFloat real {0}, live {0};
 
-  for (auto &q : chan_stats.stats)
+  for (auto &q : stats_)
   {
     if (q.type == StatusType::start)
     {
@@ -142,66 +147,36 @@ PreciseFloat Spectrum::calc_chan_times()
     }
   }
 
-  if (chan_stats.stats.back().type != StatusType::start)
+  if (stats_.back().type != StatusType::start)
   {
     real += rt;
     live += lt;
     //        DBG << "<Spectrum> \"" << metadata_.name << "\" RT + "
     //               << rt << " = " << real << "   LT + " << lt << " = " << live;
   }
-  chan_stats.real = boost::posix_time::microseconds(real);
-  chan_stats.live = boost::posix_time::microseconds(live);
-
-  return real;
+  real_time_ = boost::posix_time::microseconds(real);
+  live_time_ = boost::posix_time::microseconds(live);
 }
 
 
-void Spectrum::_push_stats_post(const Spill &spill)
+void Spectrum::_push_stats_post(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
 
-//  DBG << "new native time = " << status.stats()["native_time"];
-
-//  bool chan_new = (chan_stats.count(spill.channel()) == 0);
-  bool new_start = (spill.type == StatusType::start);
-
-  if (
-//      !chan_new &&
-      new_start &&
-      (chan_stats.stats.back().type == StatusType::running))
-    chan_stats.stats.back().type = StatusType::stop;
-
   recent_total_time_ += calc_recent_rate(spill);
-//  DBG << "Recent total time " << recent_total_time_;
 
-  if (
-//      !chan_new &&
-      (chan_stats.stats.back().type == StatusType::running))
-    chan_stats.stats.pop_back();
+  if (stats_.size() &&
+      (stats_.back().type == StatusType::running))
+    stats_.pop_back();
 
-  chan_stats.stats.push_back(extract(spill));
+  stats_.push_back(extract(spill));
 
-  if (
-//      !chan_new &&
-      true
-      )
+  if (stats_.size())
   {
-    PreciseFloat real = calc_chan_times();
-
-    Setting live_time = metadata_.get_attribute("live_time");
-    Setting real_time = metadata_.get_attribute("real_time");
-
-    live_time.set_duration(boost::posix_time::microseconds(real));
-    real_time.set_duration(boost::posix_time::microseconds(real));
-    if (chan_stats.real.total_milliseconds() < real_time.duration().total_milliseconds())
-      real_time.set_duration(chan_stats.real);
-
-    if (chan_stats.live.total_milliseconds() < live_time.duration().total_milliseconds())
-      live_time.set_duration(chan_stats.live);
-
-    metadata_.set_attribute(live_time, false);
-    metadata_.set_attribute(real_time, false);
+    calc_cumulative();
+    metadata_.set_attribute(Setting("live_time", live_time_), false);
+    metadata_.set_attribute(Setting("real_time", real_time_), false);
 
     //      DBG << "<Spectrum> \"" << metadata_.name << "\"  ********* "
     //             << "RT = " << to_simple_string(metadata_.real_time)
@@ -211,7 +186,8 @@ void Spectrum::_push_stats_post(const Spill &spill)
 
   metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
 
-  if (!new_start && clear_periodically_ && data_ &&
+  if ((spill.type != StatusType::start) &&
+      clear_periodically_ && data_ &&
       (clear_at_ < recent_total_time_))
   {
     recent_total_time_ -= clear_at_;
@@ -223,8 +199,8 @@ void Spectrum::_push_stats_post(const Spill &spill)
 
 void Spectrum::_push_stats_pre(const Spill &spill)
 {
-//  if (!this->channel_relevant(status.channel()))
-//    return;
+  if (!this->_accept_spill(spill))
+    return;
 
   if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
     metadata_.set_attribute(Setting("start_time", spill.time), false);
