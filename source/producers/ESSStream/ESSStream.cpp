@@ -1,9 +1,10 @@
 #include "ESSStream.h"
+#include "ev42_parser.h"
+#include "mo01_parser.h"
 
 #include "custom_logger.h"
 
-#include "ev42_parser.h"
-#include "mo01_parser.h"
+#define THREAD_CLOSE_WAIT_TIME_MS 100
 
 ESSStream::ESSStream()
 {
@@ -17,11 +18,15 @@ ESSStream::ESSStream()
   topic.set_flag("preset");
   add_definition(topic);
 
-  SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka timeout");
+  SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka consume timeout");
   pi.set_val("min", 1);
   pi.set_val("units", "ms");
   add_definition(pi);
 
+  SettingMeta ti(mp + "KafkaDecomission", SettingType::integer, "Kafka termination timeout");
+  ti.set_val("min", 1);
+  ti.set_val("units", "ms");
+  add_definition(ti);
 
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
@@ -29,12 +34,12 @@ ESSStream::ESSStream()
   pars.set_enum(2, "mo01_nmx");
   add_definition(pars);
 
-
   SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
   root.set_enum(0, mp + "KafkaBroker");
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
+  root.set_enum(3, mp + "KafkaDecomission");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -81,7 +86,7 @@ bool ESSStream::daq_stop()
     runner_ = nullptr;
   }
 
-  wait_ms(500);
+  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   run_status_.store(0);
   return true;
@@ -101,6 +106,7 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
+  set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
@@ -124,6 +130,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
+  kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
@@ -214,7 +221,7 @@ void ESSStream::die()
     stream_->close();
     // Wait for RdKafka to decommission, avoids complaints of memory leak from
     // valgrind etc.
-    RdKafka::wait_destroyed(5000);
+    RdKafka::wait_destroyed(kafka_decomission_wait_);
     stream_.reset();
   }
   clock_ = 0;

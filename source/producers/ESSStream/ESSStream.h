@@ -47,7 +47,8 @@ private:
   // cached params
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
-  int kafka_timeout_ {1000};
+  uint16_t kafka_timeout_ {1000};
+  uint16_t kafka_decomission_wait_ {5000};
 
   std::shared_ptr<fb_parser> parser_;
 
