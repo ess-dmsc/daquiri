@@ -56,7 +56,7 @@ private slots:
   void projectSaveAs();
   void projectOpen();
 
-  void on_spinMinPause_editingFinished();
+  void on_doubleSpinMinPause_editingFinished();
 
   private:
   Ui::ProjectForm *ui;

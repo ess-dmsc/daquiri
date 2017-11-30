@@ -115,9 +115,10 @@ void ProjectForm::loadSettings()
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
   ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", false).toBool());
-  ui->spinMinPause->setValue(settings.value("min_pause", 1).toInt());
+  ui->doubleSpinMinPause->setValue(settings.value("min_pause", 1.0).toDouble());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 
+  on_doubleSpinMinPause_editingFinished();
   settings.endGroup();
 }
 
@@ -132,7 +133,7 @@ void ProjectForm::saveSettings()
   settings.beginGroup("Daq");
   settings.setValue("run_secs", QVariant::fromValue(ui->timeDuration->total_seconds()));
   settings.setValue("run_indefinite", ui->toggleIndefiniteRun->isChecked());
-  settings.setValue("min_pause", ui->spinMinPause->value());
+  settings.setValue("min_pause", ui->doubleSpinMinPause->value());
   settings.endGroup();
 
   settings.beginGroup("DAQ_behavior");
@@ -394,7 +395,7 @@ void ProjectForm::on_toggleIndefiniteRun_clicked()
    ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 }
 
-void ProjectForm::on_spinMinPause_editingFinished()
+void ProjectForm::on_doubleSpinMinPause_editingFinished()
 {
-  plot_thread_.set_wait_time(ui->spinMinPause->value());
+  plot_thread_.set_wait_time(ui->doubleSpinMinPause->value() * 1000);
 }

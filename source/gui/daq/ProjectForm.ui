@@ -439,12 +439,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinMinPause">
+        <widget class="QDoubleSpinBox" name="doubleSpinMinPause">
          <property name="maximumSize">
           <size>
            <width>16777215</width>
            <height>25</height>
           </size>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
          </property>
         </widget>
        </item>

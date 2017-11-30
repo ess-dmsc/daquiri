@@ -12,7 +12,7 @@ public:
   explicit ThreadPlotSignal(QObject *parent = 0)
     : QThread(parent)
     , terminating_(false)
-    , wait_s_(3)
+    , wait_ms_(1000)
   {}
 
   void monitor_source(DAQuiri::ProjectPtr pj)
@@ -33,7 +33,7 @@ public:
 
   void set_wait_time(uint16_t time)
   {
-    wait_s_.store(time);
+    wait_ms_.store(time);
   }
 
   DAQuiri::ProjectPtr current_source()
@@ -58,7 +58,7 @@ protected:
       emit plot_ready();
 //      DBG << "<ThreadPlotSignal> Plot ready";
       if (!terminating_.load())
-        QThread::sleep(wait_s_.load());
+        QThread::msleep(wait_ms_.load());
     }
 //    DBG << "<ThreadPlot> loop ended";
   }
@@ -67,7 +67,7 @@ private:
   QMutex mutex_;
   DAQuiri::ProjectPtr project_;
   boost::atomic<bool> terminating_;
-  boost::atomic<uint16_t> wait_s_;
+  boost::atomic<uint16_t> wait_ms_;
 
   void terminate_helper()
   {

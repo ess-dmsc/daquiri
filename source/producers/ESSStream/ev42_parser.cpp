@@ -129,6 +129,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
   CustomTimer timer(true);
   uint64_t pushed_spills = 0;
+  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
 
   auto em = GetEventMessage(msg);
 
@@ -181,6 +182,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   if (!started_)
   {
     auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", time_high));
     spill_queue->enqueue(start_spill);
     started_ = true;

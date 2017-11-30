@@ -15,7 +15,7 @@ Spectrum::Spectrum()
   vis.set_val("description", "Plot visible");
   base_options.branches.add(vis);
 
-  SettingMeta sca("preferred_scale", SettingType::menu, "Initial plotting scale for counts");
+  SettingMeta sca("preferred_scale", SettingType::menu, "Plot scale for counts");
   sca.set_enum(0, "Linear");
   sca.set_enum(1, "Logarithmic");
   base_options.branches.add(sca);
@@ -58,6 +58,12 @@ Spectrum::Spectrum()
   clear_at.set_flag("preset");
   base_options.branches.add(clear_at);
 
+  SettingMeta cusing("clear_using", SettingType::menu, "Clear time reference");
+  cusing.set_enum(0, "Producer wall clock (receipt of data)");
+  cusing.set_enum(1, "Consumer wall clock (time of binning)");
+  cusing.set_enum(2, "native_time provided by DAQ");
+  base_options.branches.add(cusing);
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -67,6 +73,7 @@ bool Spectrum::_initialize()
 
   clear_periodically_ = metadata_.get_attribute("clear_periodically").triggered();
   clear_at_ = metadata_.get_attribute("clear_at").get_number() * 0.001;
+  clear_reference_timer_ = metadata_.get_attribute("clear_using").selection();
   return false;
 }
 
@@ -80,8 +87,9 @@ Status Spectrum::extract(const Spill& spill)
 {
   Status ret;
   ret.type = spill.type;
-  ret.time = spill.time;
-  ret.tb = spill.event_model.timebase;
+  ret.producer_time = spill.time;
+  ret.consumer_time = boost::posix_time::microsec_clock::universal_time();
+  ret.timebase = spill.event_model.timebase;
   Setting native_time = spill.state.find(Setting("native_time"));
   if (native_time)
     ret.stats["native_time"] = native_time;
@@ -91,29 +99,46 @@ Status Spectrum::extract(const Spill& spill)
   return ret;
 }
 
-PreciseFloat Spectrum::calc_recent_rate(const Spill& spill)
+void Spectrum::calc_recent_rate(const Spill& spill)
 {
-  if (recent_end_.time.is_not_a_date_time())
+//  DBG << "Processing spill " << spill.stream_id << " "
+//      << type_to_str(spill.type) << "  " << spill.time;
+
+  if (recent_end_.producer_time.is_not_a_date_time())
     recent_end_ = extract(spill);
   recent_start_ = recent_end_;
   recent_end_ = extract(spill);
 
-//  DBG << recent_end_.stats()["native_time"]
-//      <<  " - " << recent_start_.stats()["native_time"];
-
-  Setting rate = metadata_.get_attribute("instant_rate");
   auto diff = recent_end_.stats["native_time"].get_number()
       - recent_start_.stats["native_time"].get_number();
-  PreciseFloat recent_time = recent_end_.tb.to_sec(diff);
+  PreciseFloat recent_native_time = recent_end_.timebase.to_sec(diff);
 
-  rate.set_number(0);
-  if (recent_time > 0)
-    rate.set_number(recent_count_ / recent_time);
+  boost::posix_time::time_duration dif2
+      = recent_end_.producer_time - recent_start_.producer_time;
+  PreciseFloat recent_producer_wall_time = dif2.total_milliseconds() * 0.001;
 
-  metadata_.set_attribute(rate, false);
+  boost::posix_time::time_duration dif3
+      = recent_end_.consumer_time - recent_start_.consumer_time;
+  PreciseFloat recent_consumer_wall_time = dif3.total_milliseconds() * 0.001;
+
+//  DBG << recent_end_.producer_time << " - "
+//      << recent_start_.producer_time
+//      << " = " << recent_producer_wall_time;
+
+  double instrate = 0;
+  if (recent_native_time > 0)
+    instrate = recent_count_ / recent_native_time;
+  metadata_.set_attribute(Setting::floating("instant_rate", instrate), false);
+
   recent_count_ = 0;
 
-  return recent_time;
+  recent_native_time_ += recent_native_time;
+  recent_producer_wall_time_ += recent_producer_wall_time;
+  recent_consumer_wall_time_ += recent_consumer_wall_time;
+
+//  DBG << "Recent times " << recent_native_time_
+//      << " " << recent_producer_wall_time_
+//      << " " << recent_consumer_wall_time_;
 }
 
 void Spectrum::calc_cumulative()
@@ -141,9 +166,9 @@ void Spectrum::calc_cumulative()
         diff_live = q.stats.at("live_time").get_number()
             - start.stats.at("live_time").get_number();
 
-      lt = rt = q.tb.to_microsec(diff_real);
+      lt = rt = q.timebase.to_microsec(diff_real);
       if (diff_live)
-        lt = q.tb.to_microsec(diff_live);
+        lt = q.timebase.to_microsec(diff_live);
     }
   }
 
@@ -164,7 +189,7 @@ void Spectrum::_push_stats_post(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
-  recent_total_time_ += calc_recent_rate(spill);
+  calc_recent_rate(spill);
 
   if (stats_.size() &&
       (stats_.back().type == StatusType::running))
@@ -186,11 +211,21 @@ void Spectrum::_push_stats_post(const Spill& spill)
 
   metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
 
+  double* recent_time = &recent_producer_wall_time_;
+  if (clear_reference_timer_ == 1)
+    recent_time = &recent_consumer_wall_time_;
+  else if (clear_reference_timer_ == 2)
+    recent_time = &recent_native_time_;
+
   if ((spill.type != StatusType::start) &&
       clear_periodically_ && data_ &&
-      (clear_at_ < recent_total_time_))
+      ((*recent_time) > clear_at_))
   {
-    recent_total_time_ -= clear_at_;
+//    DBG << "Clear triggered for " << metadata_.get_attribute("name").get_text()
+//        << " using " << clear_reference_timer_ << " satisfied "
+//        << (*recent_time) << " > " << clear_at_;
+
+    (*recent_time) -= clear_at_;
     clear_next_spill_ = true;
   }
 
