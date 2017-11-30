@@ -54,24 +54,19 @@ daquiri::daquiri(QWidget *parent,
 
   connect(ui->tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(close_tab_at(int)));
 
-  QToolButton *tb = new QToolButton();
+  QPushButton *tb = new QPushButton();
   tb->setIcon(QIcon(":/icons/oxy/16/filenew.png"));
   tb->setMinimumWidth(35);
   tb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Ignored);
   tb->setToolTip("New project");
-  tb->setAutoRaise(true);
-  tb->setPopupMode(QToolButton::InstantPopup);
-  tb->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  tb->setArrowType(Qt::NoArrow);
+  tb->setFlat(true);
+  connect(tb, SIGNAL(clicked(bool)), this, SLOT(open_project()));
+
   // Add empty, not enabled tab to tabWidget
   ui->tabs->addTab(new QLabel("<center>Open new project by clicking \"+\"</center>"), QString());
   ui->tabs->setTabEnabled(0, false);
   // Add tab button to current tab. Button will be enabled, but tab -- not
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
-
-  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(open_project()));
-  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Raw list", this, SLOT(open_list()));
-  tb->setMenu(&menu_open_);
 
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
   connect(ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
@@ -83,8 +78,9 @@ daquiri::daquiri(QWidget *parent,
   connect(main_tab_, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
           main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
-//  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
-//  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
+  connect(main_tab_, SIGNAL(requestList()), this, SLOT(open_list()));
+  //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
+  //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
 
   if (!Profiles::has_settings_dir())
     initialize_settings_dir();

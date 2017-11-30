@@ -168,6 +168,7 @@ void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
   bool online = (status & DAQuiri::ProducerStatus::booted);
 
   ui->pushSettingsRefresh->setEnabled(enable && online);
+  ui->pushRequestList->setEnabled(enable && online);
   ui->pushAddProducer->setEnabled(enable && !online);
   ui->pushRemoveProducer->setEnabled(enable && !online);
 
@@ -344,4 +345,9 @@ void SettingsForm::on_pushRemoveProducer_clicked()
         runner_thread_.remove_producer(set);
       }
     }
+}
+
+void SettingsForm::on_pushRequestList_clicked()
+{
+  emit requestList();
 }

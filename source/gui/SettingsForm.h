@@ -36,6 +36,7 @@ class SettingsForm : public QWidget
 
   signals:
     void toggleIO(bool);
+    void requestList();
 
   protected:
     void closeEvent(QCloseEvent*);
@@ -70,6 +71,8 @@ class SettingsForm : public QWidget
 
     void on_pushAddProducer_clicked();
     void on_pushRemoveProducer_clicked();
+
+    void on_pushRequestList_clicked();
 
   private:
     Ui::SettingsForm *ui;
