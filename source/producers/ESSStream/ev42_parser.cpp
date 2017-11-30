@@ -5,7 +5,6 @@
 #include "custom_logger.h"
 
 ev42_events::ev42_events()
-: geometry_(1,1,1,1)
 {
   std::string mp {"ev42_events/"};
 
@@ -77,8 +76,10 @@ void ev42_events::read_settings_bulk(Setting &set) const
   set.set(Setting::integer(mp + "extent_z", integer_t(geometry_.nz())));
   set.set(Setting::integer(mp + "panels", integer_t(geometry_.np())));
 
-  set.set(Setting::integer(mp + "TimebaseMult", time_base_.multiplier()));
-  set.set(Setting::integer(mp + "TimebaseDiv", time_base_.divider()));
+  set.set(Setting::integer(mp + "TimebaseMult",
+                           event_definition_.timebase.multiplier()));
+  set.set(Setting::integer(mp + "TimebaseDiv",
+                           event_definition_.timebase.divider()));
   set.set(Setting::integer(mp + "SpoofClock", spoof_clock_));
   set.set(Setting::boolean(mp + "Heartbeat", heartbeat_));
 }
@@ -96,14 +97,15 @@ void ev42_events::write_settings_bulk(const Setting& settings)
   geometry_.nz(set.find({mp + "extent_z"}).get_number());
   geometry_.np(set.find({mp + "panels"}).get_number());
 
-  time_base_ = TimeBase(set.find({mp + "TimebaseMult"}).get_number(),
-                        set.find({mp + "TimebaseDiv"}).get_number());
-
   spoof_clock_ = set.find({mp + "SpoofClock"}).get_number();
   heartbeat_ = set.find({mp + "Heartbeat"}).triggered();
 
   event_definition_ = EventModel();
-  event_definition_.timebase = time_base_;
+
+  uint32_t mult = set.find({mp + "TimebaseMult"}).get_number();
+  uint32_t div = set.find({mp + "TimebaseDiv"}).get_number();
+  event_definition_.timebase = TimeBase(mult ? mult : 1, div ? div : 1);
+
   event_definition_.add_value("x", geometry_.nx());
   event_definition_.add_value("y", geometry_.ny());
   event_definition_.add_value("z", geometry_.nz());
@@ -122,23 +124,6 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
   }
   return 0;
 }
-
-//uint64_t ev42_events::dummy_spill(SpillQueue spill_queue, uint64_t utime)
-//{
-//  SpillPtr ret = std::make_shared<Spill>(stream_id_, StatusType::running);
-
-//  stats.time_start = stats.time_end = utime;
-//  stats.time_spent = 0;
-
-//  if (!started_)
-//  {
-//    spill_queue->enqueue(std::make_shared<Spill>(stream_id_, StatusType::start));
-//    started_ = false;
-//  }
-
-//  spill_queue->enqueue(ret);
-//  return 1;
-//}
 
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {

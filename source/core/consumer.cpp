@@ -76,7 +76,7 @@ void Consumer::_push_spill(const Spill& spill)
 
   this->_push_stats_pre(spill);
 
-  if (this->_accept_events())
+  if (this->_accept_spill(spill) && this->_accept_events())
     for (auto &q : spill.events)
       this->_push_event(q);
 

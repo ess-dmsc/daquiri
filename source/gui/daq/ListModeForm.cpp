@@ -143,6 +143,7 @@ void ListModeForm::displayHit(int idx)
   if ( (idx < 0) || (idx >= static_cast<int>(events_.size())))
   {
     ui->tableValues->clear();
+    ui->tableTraces->clear();
     return;
   }
 
@@ -164,8 +165,7 @@ void ListModeForm::displayHit(int idx)
     //    add_to_table(ui->tableValues, i, 2, QString::number(event.value(i)));
   }
 
-
-  ui->tableTraces->setRowCount(event.value_count());
+  ui->tableTraces->setRowCount(event.trace_count());
   ui->tableTraces->setColumnCount(3);
   ui->tableTraces->setHorizontalHeaderItem(0, new QTableWidgetItem("Name", QTableWidgetItem::Type));
   ui->tableTraces->setHorizontalHeaderItem(1, new QTableWidgetItem("Rank", QTableWidgetItem::Type));
@@ -281,6 +281,8 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
       ui->labelState->setVisible(sp->state != Setting());
       event_model_ = sp->event_model;
 
+//      DBG << "Received event model " << event_model_;
+
       //      ui->labelEvents->setVisible(events_.size());
       //      ui->tableEvents->setVisible(events_.size());
       //      ui->labelEventVals->setVisible(events_.size());
@@ -301,7 +303,7 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
                  QS(to_str_decimals(event_model_.timebase.to_nanosec(event.timestamp()), 0)) );
   }
 
-  displayHit(-1);
+  event_selection_changed(QItemSelection(), QItemSelection());
 
   this->setCursor(Qt::ArrowCursor);
 }

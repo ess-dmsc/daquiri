@@ -297,8 +297,9 @@ void ConsumerTemplatesForm::on_pushDelete_clicked()
 
   std::list<int> torem;
 
+  // must remove them in reverse order
   for (auto &ix : ixl)
-    torem.push_back(ix.row());
+    torem.push_front(ix.row());
 
   for (auto &i : torem)
     templates_.remove(i);

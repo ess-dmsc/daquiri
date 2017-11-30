@@ -428,7 +428,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Minimum pause between replots</string>
+          <string>Min refresh frequency (secs)</string>
          </property>
         </widget>
        </item>

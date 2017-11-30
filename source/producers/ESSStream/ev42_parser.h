@@ -25,16 +25,17 @@ public:
 private:
   // cached params
   std::string stream_id_;
-  ESSGeometry geometry_;
+  ESSGeometry geometry_ {1,1,1,1};
   EventModel event_definition_;
-  TimeBase time_base_;
   int spoof_clock_ {0};
   bool heartbeat_ {false};
 
-
-  uint64_t latest_buf_id_ {0};
+  // to ensure expected stream structure
   bool started_ {false};
   uint64_t spoofed_time_ {0};
+
+  // stream error checking
+  uint64_t latest_buf_id_ {0};
 
   bool eval_ordering(const EventMessage*);
   size_t events_in_buffer(const EventMessage*);

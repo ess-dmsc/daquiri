@@ -3,7 +3,7 @@
 #include "custom_logger.h"
 
 #include "ev42_parser.h"
-//#include "mo01_parser.h"
+#include "mo01_parser.h"
 
 ESSStream::ESSStream()
 {
@@ -144,8 +144,8 @@ void ESSStream::select_parser(std::string t)
     parser_.reset();
   else if (t == "ev42_events")
     parser_ = std::make_shared<ev42_events>();
-//  else if (t == "mo01_nmx")
-//    parser_ = std::make_shared<mo01_nmx>();
+  else if (t == "mo01_nmx")
+    parser_ = std::make_shared<mo01_nmx>();
 }
 
 void ESSStream::boot()
@@ -282,7 +282,7 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
         tsname = "create time";
       else if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_LOG_APPEND_TIME)
         tsname = "log append time";
-      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
+//      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
     }
 
     if (message->key())

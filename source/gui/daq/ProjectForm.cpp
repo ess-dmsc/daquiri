@@ -115,6 +115,7 @@ void ProjectForm::loadSettings()
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
   ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", false).toBool());
+  ui->spinMinPause->setValue(settings.value("min_pause", 1).toInt());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 
   settings.endGroup();
@@ -131,6 +132,7 @@ void ProjectForm::saveSettings()
   settings.beginGroup("Daq");
   settings.setValue("run_secs", QVariant::fromValue(ui->timeDuration->total_seconds()));
   settings.setValue("run_indefinite", ui->toggleIndefiniteRun->isChecked());
+  settings.setValue("min_pause", ui->spinMinPause->value());
   settings.endGroup();
 
   settings.beginGroup("DAQ_behavior");
