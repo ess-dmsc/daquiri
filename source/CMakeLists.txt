@@ -1,5 +1,8 @@
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
   add_subdirectory(config)
+else ()
+  set(DAQuiri_gui TRUE)
+  list(APPEND DAQuiri_enabled_producers ESSStream)
 endif ()
 
 set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
