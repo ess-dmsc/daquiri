@@ -44,7 +44,6 @@ class daquiri : public QMainWindow
 
   private:
     Ui::daquiri *ui;
-    QMenu menu_open_;
 
     //connect gui with boost logger framework
     std::stringstream log_stream_;

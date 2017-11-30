@@ -305,7 +305,8 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
   ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
                                               current_dets_,
                                               proj, this);
-  connect(newSpectraForm, SIGNAL(requestClose(QWidget*)), this, SLOT(close_tab_widget(QWidget*)));
+  connect(newSpectraForm, SIGNAL(requestClose(QWidget*)),
+          this, SLOT(close_tab_widget(QWidget*)));
 
   connect(newSpectraForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
   connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),

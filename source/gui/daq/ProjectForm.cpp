@@ -23,11 +23,10 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   : QWidget(parent)
   , ui(new Ui::ProjectForm)
   , runner_thread_(thread)
+  , interruptor_(false)
+  , project_(proj)
   , detectors_(detectors)
   , current_dets_(current_dets)
-  , project_(proj)
-  , interruptor_(false)
-  , my_run_(false)
 {
   ui->setupUi(this);
 
@@ -62,6 +61,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
 
 ProjectForm::~ProjectForm()
 {
+//  delete ui;
 }
 
 void ProjectForm::closeEvent(QCloseEvent *event)
@@ -73,14 +73,20 @@ void ProjectForm::closeEvent(QCloseEvent *event)
                                      QMessageBox::Yes|QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
-      runner_thread_.terminate();
-      runner_thread_.wait();
+      close_me_ = true;
+      on_pushStop_clicked();
+//      interruptor_.store(true);
+//      runner_thread_.terminate();
+//      runner_thread_.wait();
+//      emit toggleIO(true);
+      return;
     } else {
       event->ignore();
       return;
     }
   }
 
+  close_me_ = false;
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
 
@@ -161,6 +167,9 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status)
   ui->toolOpen->setEnabled(enable && !my_run_);
   ui->toolSave->setEnabled(enable && nonempty && !my_run_);
   ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
+
+  if (close_me_)
+    emit requestClose(this);
 }
 
 void ProjectForm::clearGraphs() //rename this
