@@ -89,41 +89,15 @@
          <height>25</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Change profile</string>
+       </property>
        <property name="text">
         <string>Change profile</string>
        </property>
        <property name="icon">
         <iconset resource="resources/icons.qrc">
          <normaloff>:/icons/oxy/16/system_switch_user.png</normaloff>:/icons/oxy/16/system_switch_user.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="toolDetectors">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Detectors</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources/icons.qrc">
-         <normaloff>:/icons/oxy/16/alacarte.png</normaloff>:/icons/oxy/16/alacarte.png</iconset>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::InstantPopup</enum>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextBesideIcon</enum>
        </property>
       </widget>
      </item>
@@ -146,6 +120,9 @@
          <width>16777215</width>
          <height>25</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Expand tree</string>
        </property>
        <property name="text">
         <string/>
@@ -185,6 +162,9 @@
          <height>25</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Add producer</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -223,53 +203,15 @@
          <height>25</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Remove producer</string>
+       </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset resource="resources/icons.qrc">
          <normaloff>:/icons/oxy/16/editdelete.png</normaloff>:/icons/oxy/16/editdelete.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushSettingsRefresh">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Force refresh</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources/icons.qrc">
-         <normaloff>:/icons/oxy/16/view_refresh.png</normaloff>:/icons/oxy/16/view_refresh.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -364,68 +306,54 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="pushSettingsRefresh">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Force refresh</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources/icons.qrc">
+         <normaloff>:/icons/oxy/16/view_refresh.png</normaloff>:/icons/oxy/16/view_refresh.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QSplitter" name="splitter">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="Oscilloscope" name="Oscil" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>800</width>
-        <height>16777215</height>
-       </size>
-      </property>
-     </widget>
-     <widget class="QTabWidget" name="tabsSettings">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>500</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="currentIndex">
-       <number>-1</number>
-      </property>
-     </widget>
-    </widget>
+    <widget class="QTreeView" name="treeViewSettings"/>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Oscilloscope</class>
-   <extends>QWidget</extends>
-   <header>Oscilloscope.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="resources/icons.qrc"/>
  </resources>

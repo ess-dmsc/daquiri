@@ -8,7 +8,6 @@
 #include "detector.h"
 #include "SettingDelegate.h"
 #include "SettingsTreeModel.h"
-#include "SettingsTableModel.h"
 
 #include "ThreadRunner.h"
 
@@ -50,22 +49,15 @@ class SettingsForm : public QWidget
     void on_pushSettingsRefresh_clicked();
 
     void toggle_push(bool enable, DAQuiri::ProducerStatus status);
-    void post_boot();
 
     void push_settings();
-    void push_from_table(DAQuiri::Setting setting);
     void chose_detector(int chan, std::string name);
 
     void ask_binary_tree(DAQuiri::Setting, QModelIndex index);
     void ask_execute_tree(DAQuiri::Setting, QModelIndex index);
-    void ask_binary_table(DAQuiri::Setting, QModelIndex index);
-    void ask_execute_table(DAQuiri::Setting, QModelIndex index);
 
     void on_checkShowRO_clicked();
     void on_bootButton_clicked();
-
-    void apply_detector_presets();
-    void open_detector_DB();
 
     void on_spinRefreshFrequency_valueChanged(int arg1);
 
@@ -73,9 +65,6 @@ class SettingsForm : public QWidget
 
     void profile_chosen(QString name, bool boot);
     void init_profile();
-
-
-    void refresh_oscil();
 
     void on_pushExpandAll_clicked();
 
@@ -91,20 +80,10 @@ class SettingsForm : public QWidget
     bool editing_ {false};
     bool exiting_ {false};
 
-    std::vector<DAQuiri::Detector> settings_table_;
-    QTableView*                    table_settings_view_;
-    SettingsTableModel             table_settings_model_;
-    SettingDelegate                table_settings_delegate_;
-
     Setting           settings_tree_;
-    QTreeView*        tree_settings_view_;
     SettingsTreeModel tree_settings_model_;
     SettingDelegate   tree_delegate_;
 
-    QMenu detectorOptions;
-
     void loadSettings();
     void saveSettings();
-    void chan_settings_to_det_DB();
-
 };

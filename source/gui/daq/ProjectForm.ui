@@ -72,13 +72,13 @@
          <property name="minimumSize">
           <size>
            <width>42</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>35</height>
+           <width>42</width>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">
@@ -125,13 +125,13 @@
          <property name="minimumSize">
           <size>
            <width>42</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>35</height>
+           <width>42</width>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">
@@ -178,13 +178,13 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>32</width>
-           <height>35</height>
+           <width>35</width>
+           <height>25</height>
           </size>
          </property>
          <property name="toolTip">
@@ -252,13 +252,13 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>35</height>
+           <width>35</width>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">
@@ -290,13 +290,13 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>35</height>
+           <width>35</width>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">
@@ -328,13 +328,13 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>35</height>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>35</height>
+           <width>35</width>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">
@@ -427,26 +427,39 @@
        </item>
        <item>
         <widget class="QLabel" name="label_2">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
          <property name="text">
           <string>Min refresh frequency (secs)</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinMinPause"/>
+        <widget class="QSpinBox" name="spinMinPause">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushForceRefresh">
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>35</height>
+           <height>25</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>35</height>
+           <height>25</height>
           </size>
          </property>
          <property name="toolTip">
@@ -457,7 +470,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/icons.qrc">
-           <normaloff>:/icons/oxy/32/view_refresh.png</normaloff>:/icons/oxy/32/view_refresh.png</iconset>
+           <normaloff>:/icons/oxy/16/view_refresh.png</normaloff>:/icons/oxy/16/view_refresh.png</iconset>
          </property>
          <property name="iconSize">
           <size>

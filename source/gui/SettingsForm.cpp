@@ -21,31 +21,21 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
   , ui(new Ui::SettingsForm)
   , detectors_(detectors)
   , runner_thread_(thread)
-  , table_settings_model_(this)
   , tree_settings_model_(this)
 {
   ui->setupUi(this);
-  ui->Oscil->setVisible(false);
 
   this->setWindowTitle("DAQ Settings");
 
   connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
           this, SLOT(update(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
-  connect(&runner_thread_, SIGNAL(bootComplete()), this, SLOT(post_boot()));
-
-  connect(&runner_thread_, SIGNAL(oscilReadOut(DAQuiri::OscilData)),
-          ui->Oscil, SLOT(oscil_complete(DAQuiri::OscilData)));
-
-  connect(ui->Oscil, SIGNAL(refresh_oscil()), this, SLOT(refresh_oscil()));
 
   current_status_ = DAQuiri::ProducerStatus::dead;
   tree_settings_model_.update(settings_tree_);
 
-  tree_settings_view_ = new QTreeView(this);
-  ui->tabsSettings->addTab(tree_settings_view_, "Settings tree");
-  tree_settings_view_->setModel(&tree_settings_model_);
-  tree_settings_view_->setItemDelegate(&tree_delegate_);
-  tree_settings_view_->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  ui->treeViewSettings->setModel(&tree_settings_model_);
+  ui->treeViewSettings->setItemDelegate(&tree_delegate_);
+  ui->treeViewSettings->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   tree_delegate_.set_detectors(detectors_);
   connect(&tree_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
   connect(&tree_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)), this,
@@ -55,36 +45,10 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
   connect(&tree_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
           this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
 
-  table_settings_view_ = new QTableView(this);
-  ui->tabsSettings->addTab(table_settings_view_, "Settings table");
-  table_settings_view_->setModel(&table_settings_model_);
-  table_settings_view_->setItemDelegate(&table_settings_delegate_);
-  table_settings_view_->horizontalHeader()->setStretchLastSection(true);
-  table_settings_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  table_settings_delegate_.set_detectors(detectors_);
-  table_settings_model_.update(settings_table_);
-  table_settings_view_->show();
-  connect(&table_settings_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
-  connect(&table_settings_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)),
-          this, SLOT(ask_execute_table(DAQuiri::Setting, QModelIndex)));
-  connect(&table_settings_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
-          this, SLOT(ask_binary_table(DAQuiri::Setting, QModelIndex)));
-  connect(&table_settings_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
-          this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
-
   connect(&tree_settings_model_, SIGNAL(tree_changed()),
           this, SLOT(push_settings()));
   connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)),
           this, SLOT(chose_detector(int,std::string)));
-
-  connect(&table_settings_model_, SIGNAL(setting_changed(DAQuiri::Setting)),
-          this, SLOT(push_from_table(DAQuiri::Setting)));
-  connect(&table_settings_model_, SIGNAL(detector_chosen(int, std::string)),
-          this, SLOT(chose_detector(int,std::string)));
-
-  detectorOptions.addAction("Apply saved settings", this, SLOT(apply_detector_presets()));
-  detectorOptions.addAction("Edit detector database", this, SLOT(open_detector_DB()));
-  ui->toolDetectors->setMenu(&detectorOptions);
 
   loadSettings();
 
@@ -100,25 +64,11 @@ void SettingsForm::update(const DAQuiri::Setting &tree,
                           const std::vector<DAQuiri::Detector> &channels,
                           DAQuiri::ProducerStatus status)
 {
-  bool oscil = (status & DAQuiri::ProducerStatus::can_oscil);
-  if (oscil) {
-    ui->Oscil->setVisible(true);
-    ui->Oscil->updateMenu(channels);
-  } else
-    ui->Oscil->setVisible(false);
-
+  Q_UNUSED(channels)
+  Q_UNUSED(status)
 //  bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
 //  bool can_gain_match = false;
 //  bool can_optimize = false;
-//  for (auto &q : settings_table_)
-//    for (auto &p : q.optimizations())
-//    {
-//      if (p.metadata().has_flag("gain"))
-//        can_gain_match = true;
-//      if (p.metadata().has_flag("optimize"))
-//        can_optimize = true;
-//    }
-
 
   //update dets in DB as well?
 
@@ -129,18 +79,10 @@ void SettingsForm::update(const DAQuiri::Setting &tree,
   }
 
   settings_tree_ = tree;
-  settings_table_ = channels;
-
   //  DBG << "tree received " << settings_tree_.branches.size();
 
-  tree_settings_view_->clearSelection();
-  //table_settings_view_->clearSelection();
-
+  ui->treeViewSettings->clearSelection();
   tree_settings_model_.update(settings_tree_);
-  table_settings_model_.update(settings_table_);
-
-  table_settings_view_->resizeColumnsToContents();
-  table_settings_view_->horizontalHeader()->setStretchLastSection(true);
 }
 
 void SettingsForm::begin_editing()
@@ -176,37 +118,6 @@ void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
   editing_ = false;
 }
 
-void SettingsForm::ask_binary_table(Setting set, QModelIndex index)
-{
-  if (set.metadata().enum_map().empty())
-    return;
-
-  editing_ = true;
-  BinaryWidget *editor = new BinaryWidget(set, qobject_cast<QWidget *> (parent()));
-  editor->setModal(true);
-  editor->exec();
-
-  if (!set.metadata().has_flag("readonly"))
-    table_settings_model_.setData(index, QVariant::fromValue(editor->get_setting().get_number()), Qt::EditRole);
-  editing_ = false;
-}
-
-void SettingsForm::ask_execute_table(Setting command, QModelIndex index)
-{
-  editing_ = true;
-
-  QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
-  editor->setText("Run " + QString::fromStdString(command.id()));
-  editor->setInformativeText("Will run command: " + QString::fromStdString(command.id()) + "\n Are you sure?");
-  editor->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-  editor->exec();
-
-  if (editor->standardButton(editor->clickedButton()) == QMessageBox::Yes)
-    table_settings_model_.setData(index, QVariant::fromValue(1), Qt::EditRole);
-  editing_ = false;
-}
-
-
 void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
   editing_ = true;
 
@@ -219,15 +130,6 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
   if (editor->standardButton(editor->clickedButton()) == QMessageBox::Yes)
     tree_settings_model_.setData(index, QVariant::fromValue(1), Qt::EditRole);
   editing_ = false;
-}
-
-void SettingsForm::push_from_table(Setting setting)
-{
-  editing_ = false;
-
-  //setting.indices.insert(chan);
-  emit toggleIO(false);
-  runner_thread_.do_set_setting(setting, Match::id | Match::indices);
 }
 
 void SettingsForm::chose_detector(int chan, std::string name)
@@ -260,8 +162,6 @@ void SettingsForm::closeEvent(QCloseEvent *event)
 
 void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
 {
-  ui->Oscil->toggle_push(enable, status);
-
   //  bool online = (status & DAQuiri::ProducerStatus::can_run);
 
   //busy status?!?!
@@ -275,13 +175,11 @@ void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
 
   if (enable)
   {
-    table_settings_view_->setEditTriggers(QAbstractItemView::AllEditTriggers);
-    tree_settings_view_->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    ui->treeViewSettings->setEditTriggers(QAbstractItemView::AllEditTriggers);
   }
   else
   {
-    table_settings_view_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tree_settings_view_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->treeViewSettings->setEditTriggers(QAbstractItemView::NoEditTriggers);
   }
 
   ui->bootButton->setEnabled(enable);
@@ -290,17 +188,15 @@ void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
   if (online)
   {
     ui->bootButton->setText("Reset");
+    ui->bootButton->setToolTip("Reset");
     ui->bootButton->setIcon(QIcon(":/icons/oxy/16/start.png"));
   }
   else
   {
     ui->bootButton->setText("Boot");
+    ui->bootButton->setToolTip("Reset");
     ui->bootButton->setIcon(QIcon(":/icons/boot16.png"));
   }
-
-  if ((current_status_ & DAQuiri::ProducerStatus::booted) &&
-      !(status & DAQuiri::ProducerStatus::booted))
-    chan_settings_to_det_DB();
 
   current_status_ = status;
 }
@@ -309,74 +205,27 @@ void SettingsForm::loadSettings()
 {
   QSettings settings;
   settings.beginGroup("Program");
-  ui->checkShowRO->setChecked(settings.value("settings_table_show_readonly", true).toBool());
+  ui->checkShowRO->setChecked(settings.value("settings_show_readonly", true).toBool());
   on_checkShowRO_clicked();
-
-  if (settings.value("settings_tab_tree", true).toBool())
-    ui->tabsSettings->setCurrentWidget(tree_settings_view_);
-  else
-    ui->tabsSettings->setCurrentWidget(table_settings_view_);
 }
 
 void SettingsForm::saveSettings()
 {
   QSettings settings;
-  if (current_status_ & DAQuiri::ProducerStatus::booted)
-    chan_settings_to_det_DB();
   settings.beginGroup("Program");
-  settings.setValue("settings_table_show_readonly", ui->checkShowRO->isChecked());
-  settings.setValue("settings_tab_tree", (ui->tabsSettings->currentWidget() == tree_settings_view_));
+  settings.setValue("settings_show_readonly", ui->checkShowRO->isChecked());
   settings.setValue("boot_on_startup", bool(current_status_ & DAQuiri::ProducerStatus::booted));
 }
-
-void SettingsForm::chan_settings_to_det_DB()
-{
-  for (auto &q : settings_table_)
-  {
-    if (q.id() == "none")
-      continue;
-    Detector det = detectors_.get(q);
-    if (det != Detector())
-    {
-      det.add_optimizations(q.optimizations());
-      detectors_.replace(det);
-    }
-  }
-}
-
 
 void SettingsForm::updateDetDB()
 {
   tree_delegate_.set_detectors(detectors_);
-  table_settings_delegate_.set_detectors(detectors_);
-
   tree_settings_model_.update(settings_tree_);
-  table_settings_model_.update(settings_table_);
-
-  table_settings_view_->horizontalHeader()->setStretchLastSection(true);
-  table_settings_view_->resizeColumnsToContents();
 }
 
 SettingsForm::~SettingsForm()
 {
   delete ui;
-}
-
-void SettingsForm::post_boot()
-{
-  apply_detector_presets(); //make this optional?
-}
-
-void SettingsForm::apply_detector_presets()
-{
-  emit toggleIO(false);
-
-  std::map<int, Detector> update;
-  for (size_t i=0; i < settings_table_.size(); ++i)
-    if (detectors_.has_a(settings_table_[i]))
-      update[i] = detectors_.get(settings_table_[i]);
-
-  runner_thread_.do_set_detectors(update);
 }
 
 void SettingsForm::on_pushSettingsRefresh_clicked()
@@ -386,21 +235,9 @@ void SettingsForm::on_pushSettingsRefresh_clicked()
   runner_thread_.do_refresh_settings();
 }
 
-void SettingsForm::open_detector_DB()
-{
-  //  WidgetDetectors *det_widget = new WidgetDetectors(this);
-  //  det_widget->setData(detectors_);
-  //  connect(det_widget, SIGNAL(detectorsUpdated()), this, SLOT(updateDetDB()));
-  //  det_widget->exec();
-}
-
 void SettingsForm::on_checkShowRO_clicked()
 {
-  //tree_settings_view_->clearSelection();
-  //table_settings_view_->clearSelection();
-
-  table_settings_model_.set_show_read_only(ui->checkShowRO->isChecked());
-  table_settings_model_.update(settings_table_);
+  //ui->treeViewSettings->clearSelection();
 
   tree_settings_model_.set_show_read_only(ui->checkShowRO->isChecked());
   tree_settings_model_.update(settings_tree_);
@@ -454,15 +291,9 @@ void SettingsForm::profile_chosen(QString name, bool boot)
   runner_thread_.do_initialize(name, boot);
 }
 
-void SettingsForm::refresh_oscil()
-{
-  emit toggleIO(false);
-  runner_thread_.do_oscil();
-}
-
 void SettingsForm::on_pushExpandAll_clicked()
 {
-  tree_settings_view_->expandAll();
+  ui->treeViewSettings->expandAll();
 }
 
 void SettingsForm::on_pushAddProducer_clicked()
@@ -503,7 +334,7 @@ void SettingsForm::on_pushAddProducer_clicked()
 
 void SettingsForm::on_pushRemoveProducer_clicked()
 {
-  auto idxs = tree_settings_view_->selectionModel()->selectedIndexes();
+  auto idxs = ui->treeViewSettings->selectionModel()->selectedIndexes();
   for (auto ixl : idxs)
     if (ixl.data(Qt::EditRole).canConvert<Setting>())
     {
