@@ -13,8 +13,7 @@ TOF1D::TOF1D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time of flight 1D spectrum");
 
-  SettingMeta app("appearance", SettingType::color);
-  app.set_val("description", "Plot appearance");
+  SettingMeta app("appearance", SettingType::color, "Appearance");
   base_options.branches.add(Setting(app));
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
@@ -23,13 +22,12 @@ TOF1D::TOF1D()
   res.set_val("units", "units (see below)");
   base_options.branches.add(res);
 
-  SettingMeta units("time_units", SettingType::menu, "Time units");
+  SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
   units.set_enum(0, "ns");
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
   metadata_.overwrite_all_attributes(base_options);

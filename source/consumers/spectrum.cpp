@@ -7,12 +7,10 @@ Spectrum::Spectrum()
 {
   Setting base_options = metadata_.attributes();
 
-  SettingMeta name("name", SettingType::text);
-  name.set_val("description", "Short label");
+  SettingMeta name("name", SettingType::text, "Name");
   base_options.branches.add(name);
 
-  SettingMeta vis("visible", SettingType::boolean);
-  vis.set_val("description", "Plot visible");
+  SettingMeta vis("visible", SettingType::boolean, "Visible");
   base_options.branches.add(vis);
 
   SettingMeta sca("preferred_scale", SettingType::menu, "Plot scale for counts");
@@ -25,8 +23,7 @@ Spectrum::Spectrum()
   totalcount.set_val("min", 0);
   base_options.branches.add(totalcount);
 
-  SettingMeta start_time("start_time", SettingType::time);
-  start_time.set_val("description", "Start time");
+  SettingMeta start_time("start_time", SettingType::time, "Start time");
   start_time.set_flag("readonly");
   base_options.branches.add(start_time);
 

@@ -16,7 +16,7 @@ Image2D::Image2D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Values-based 2D image");
 
-  SettingMeta app("appearance", SettingType::text, "Plot appearance");
+  SettingMeta app("appearance", SettingType::text, "Appearance");
   app.set_flag("gradient-name");
   base_options.branches.add(Setting(app));
 

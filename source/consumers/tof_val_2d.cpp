@@ -23,13 +23,12 @@ TOFVal2D::TOFVal2D()
   res.set_val("units", "units (see below)");
   base_options.branches.add(res);
 
-  SettingMeta units("time_units", SettingType::menu, "Time units");
+  SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
   units.set_enum(0, "ns");
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
   SettingMeta val_name("value_name", SettingType::text);

@@ -367,7 +367,7 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
 void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
 {
   Setting col = md.get_attribute("appearance");
-  if (!col.metadata().has_flag("gradient-name"))
+  if (!col.metadata().has_flag("gradient-name") && col.get_text().empty())
   {
     col.set_text(generateColor().name(QColor::HexArgb).toStdString());
     md.set_attribute(col);

@@ -19,16 +19,15 @@ TimeSpectrum::TimeSpectrum()
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
-  res.set_val("units", "units (see below)");
+  res.set_val("units", "Time units (see below)");
   base_options.branches.add(res);
 
-  SettingMeta units("time_units", SettingType::menu);
+  SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
   units.set_enum(0, "ns");
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  units.set_val("description", "Domain scale");
   base_options.branches.add(units);
 
   SettingMeta ds("downsample", SettingType::integer, "Downsample by");

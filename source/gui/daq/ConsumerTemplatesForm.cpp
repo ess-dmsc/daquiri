@@ -21,47 +21,7 @@ int ConsumerTemplatesTableModel::rowCount(const QModelIndex & /*parent*/) const
 
 int ConsumerTemplatesTableModel::columnCount(const QModelIndex & /*parent*/) const
 {
-  return 4;
-}
-
-QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) const
-{
-  int row = index.row();
-  int col = index.column();
-
-  if (role == Qt::BackgroundColorRole)
-  {
-    if (col == 0)
-    {
-      if (templates_.get(row).get_attribute("visible").triggered())
-        return QColor(QString::fromStdString(templates_.get(row).get_attribute("appearance").get_text()));
-      else
-        return QColor(Qt::black);
-    }
-    else
-      return QVariant();
-  }
-  else if (role == Qt::ForegroundRole)
-  {
-    if (col == 0)
-      return QColor(Qt::white);
-    else
-      return QVariant();
-  }
-  else if (role == Qt::DisplayRole)
-  {
-    switch (col) {
-    case 0:
-      return QString::fromStdString(" " + templates_.get(row).get_attribute("name").get_text() + " ");
-    case 1:
-      return QString::fromStdString(templates_.get(row).type());
-    case 2:
-      return QVariant::fromValue(templates_.get(row).get_attribute("resolution"));
-    case 3:
-      return QVariant::fromValue(templates_.get(row).get_attribute("add_channels"));
-    }
-  }
-  return QVariant();
+  return 7;
 }
 
 QVariant ConsumerTemplatesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -74,14 +34,44 @@ QVariant ConsumerTemplatesTableModel::headerData(int section, Qt::Orientation or
       case 0:
         return QString("name");
       case 1:
-        return QString("type");
+        return QString("visible");
       case 2:
-        return QString("resolution");
+        return QString("type");
       case 3:
-        return QString("add channels");
+        return QString("stream");
+      case 4:
+        return QString("appearance");
+      case 5:
+        return QString("scale");
       }
     } else if (orientation == Qt::Vertical) {
       return QString::number(section);
+    }
+  }
+  return QVariant();
+}
+
+QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) const
+{
+  int row = index.row();
+  int col = index.column();
+
+  if (role == Qt::DisplayRole)
+  {
+    switch (col)
+    {
+    case 0:
+      return QVariant::fromValue(templates_.get(row).get_attribute("name"));
+    case 1:
+      return QVariant::fromValue(templates_.get(row).get_attribute("visible"));
+    case 2:
+      return QString::fromStdString(templates_.get(row).type());
+    case 3:
+      return QVariant::fromValue(templates_.get(row).get_attribute("stream_id"));
+    case 4:
+      return QVariant::fromValue(templates_.get(row).get_attribute("appearance"));
+    case 5:
+      return QVariant::fromValue(templates_.get(row).get_attribute("preferred_scale"));
     }
   }
   return QVariant();

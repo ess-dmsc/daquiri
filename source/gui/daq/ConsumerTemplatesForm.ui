@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Data sink definitions</string>
+   <string>Consumer templates</string>
   </property>
   <property name="windowIcon">
    <iconset>
