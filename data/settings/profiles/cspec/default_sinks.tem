@@ -21,8 +21,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -34,8 +33,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -64,6 +62,84 @@
      },
      "type": "menu",
      "value": 0
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -127,8 +203,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -157,8 +232,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -222,8 +296,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -235,8 +308,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -265,6 +337,84 @@
      },
      "type": "menu",
      "value": 1
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -328,8 +478,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -358,8 +507,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -423,8 +571,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -436,8 +583,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -466,6 +612,84 @@
      },
      "type": "menu",
      "value": 1
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -529,8 +753,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -559,8 +782,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -624,8 +846,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -637,8 +858,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -667,6 +887,84 @@
      },
      "type": "menu",
      "value": 0
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -730,7 +1028,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -826,8 +1124,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -839,8 +1136,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -869,6 +1165,84 @@
      },
      "type": "menu",
      "value": 0
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -932,7 +1306,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -1028,8 +1402,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1041,8 +1414,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1071,6 +1443,84 @@
      },
      "type": "menu",
      "value": 0
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -1134,7 +1584,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -1230,8 +1680,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1243,8 +1692,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1273,6 +1721,84 @@
      },
      "type": "menu",
      "value": 1
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -1368,8 +1894,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -1467,8 +1992,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1480,8 +2004,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1510,6 +2033,84 @@
      },
      "type": "menu",
      "value": 1
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -1605,8 +2206,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -1704,8 +2304,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1717,8 +2316,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1747,6 +2345,84 @@
      },
      "type": "menu",
      "value": 1
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -1842,8 +2518,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"

@@ -21,8 +21,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -34,8 +33,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -127,8 +125,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -187,8 +184,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -200,8 +196,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -293,8 +288,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -353,8 +347,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -366,8 +359,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -459,7 +451,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -555,8 +547,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -568,8 +559,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -661,7 +651,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -773,8 +763,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -786,8 +775,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -879,7 +867,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -991,8 +979,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1004,8 +991,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1097,7 +1083,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -1193,8 +1179,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1206,8 +1191,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1299,8 +1283,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -1359,8 +1342,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1372,8 +1354,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1465,8 +1446,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -1525,8 +1505,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1538,8 +1517,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1631,8 +1609,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
@@ -1691,8 +1668,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -1704,8 +1680,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -1797,14 +1772,13 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
       "id": "appearance",
       "type": "color"
      },
      "type": "color",
-     "value": "#ffa2a02e"
+     "value": "#ffe0a12a"
     },
     {
      "id": "time_resolution",
@@ -1827,8 +1801,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
