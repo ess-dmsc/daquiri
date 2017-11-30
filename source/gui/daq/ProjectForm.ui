@@ -184,7 +184,7 @@
          <property name="maximumSize">
           <size>
            <width>35</width>
-           <height>25</height>
+           <height>30</height>
           </size>
          </property>
          <property name="toolTip">

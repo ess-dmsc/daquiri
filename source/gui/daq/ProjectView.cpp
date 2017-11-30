@@ -7,6 +7,7 @@
 #include "qt_util.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
+#include <boost/range/adaptor/reversed.hpp>
 
 using namespace DAQuiri;
 
@@ -214,7 +215,7 @@ void ProjectView::updateUI()
 void ProjectView::enforce_all()
 {
   auto initial = consumers_.size();
-  for (auto item : selector_->items())
+  for (auto item :boost::adaptors::reverse(selector_->items()))
     enforce_item(item);
   if (consumers_.size() != initial)
     enforce_tile_policy();

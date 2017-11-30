@@ -70,7 +70,7 @@ daquiri::daquiri(QWidget *parent,
   ui->tabs->tabBar()->setTabButton(0, QTabBar::RightSide, tb);
 
   menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "DAQ project", this, SLOT(open_project()));
-  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Live list mode", this, SLOT(open_list()));
+  menu_open_.addAction(QIcon(":/icons/oxy/16/filenew.png"), "Raw list", this, SLOT(open_list()));
   tb->setMenu(&menu_open_);
 
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));

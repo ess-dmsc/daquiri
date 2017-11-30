@@ -1,0 +1,1873 @@
+[
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Strips X"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ff2857de"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Strips Y"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ff139e1c"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_y"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "detector"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Cumulative"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Spectrum2"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xtrack"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Track X"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Night"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strip"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "time"
+    },
+    {
+     "id": "val_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for intensity",
+       "name": "val_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "val_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Image 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "ytrack"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Track Y"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Night"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strip"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "time"
+    },
+    {
+     "id": "val_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for intensity",
+       "name": "val_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "val_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Image 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "detector"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Current image"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1000.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Spectrum2"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "ADC X"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ff1ab6d9"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "ADC Y"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ff73c91e"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_y"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Cluster spectrum"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ffe32a0f"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_cluster"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "detector"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Activity"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#ffa2a02e"
+    },
+    {
+     "id": "time_resolution",
+     "metadata": {
+      "contents": {
+       "min": 1,
+       "name": "Time resolution",
+       "units": "units (see below)"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_resolution",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1.0
+    },
+    {
+     "id": "time_units",
+     "metadata": {
+      "contents": {
+       "description": "Domain scale",
+       "name": "Time units"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_units",
+      "items": [
+       {
+        "meaning": "ns",
+        "val": 0
+       },
+       {
+        "meaning": "μs",
+        "val": 3
+       },
+       {
+        "meaning": "ms",
+        "val": 6
+       },
+       {
+        "meaning": "s",
+        "val": 9
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 6
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Time-Activity 1D"
+ }
+]

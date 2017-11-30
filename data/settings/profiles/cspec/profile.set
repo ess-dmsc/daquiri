@@ -1,0 +1,108 @@
+{
+ "branches": [
+  {
+   "id": "Profile description",
+   "type": "text",
+   "value": "C-SPEC"
+  },
+  {
+   "branches": [
+    {
+     "id": "Total detectors",
+     "type": "integer",
+     "value": 1
+    },
+    {
+     "id": "Detector",
+     "indices": [
+      0
+     ],
+     "type": "detector",
+     "value": "unknown"
+    }
+   ],
+   "id": "Detectors",
+   "type": "stem"
+  },
+  {
+   "branches": [
+    {
+     "id": "ESSStream/KafkaBroker",
+     "type": "text",
+     "value": "localhost:9092"
+    },
+    {
+     "id": "ESSStream/KafkaTopic",
+     "type": "text",
+     "value": "C-SPEC_detector"
+    },
+    {
+     "id": "ESSStream/KafkaTimeout",
+     "type": "integer",
+     "value": 1000
+    },
+    {
+     "id": "ESSStream/Parser",
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "branches": [
+      {
+       "id": "ev42_events/StreamID",
+       "type": "text",
+       "value": "cspec"
+      },
+      {
+       "id": "ev42_events/extent_x",
+       "type": "integer",
+       "value": 16
+      },
+      {
+       "id": "ev42_events/extent_y",
+       "type": "integer",
+       "value": 48
+      },
+      {
+       "id": "ev42_events/extent_z",
+       "type": "integer",
+       "value": 8
+      },
+      {
+       "id": "ev42_events/panels",
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "id": "ev42_events/TimebaseMult",
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "id": "ev42_events/TimebaseDiv",
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "id": "ev42_events/SpoofClock",
+       "type": "menu",
+       "value": 1
+      },
+      {
+       "id": "ev42_events/Heartbeat",
+       "type": "boolean",
+       "value": true
+      }
+     ],
+     "id": "ev42_events",
+     "type": "stem"
+    }
+   ],
+   "id": "ESSStream",
+   "reference": "cspec",
+   "type": "stem"
+  }
+ ],
+ "id": "Engine",
+ "type": "stem"
+}

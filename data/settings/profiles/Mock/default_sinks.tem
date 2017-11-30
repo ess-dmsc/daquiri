@@ -1,0 +1,908 @@
+[
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyze"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "activity"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Initial plotting scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "description": "Plot appearance",
+       "name": "appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#807fba18"
+    },
+    {
+     "id": "time_resolution",
+     "metadata": {
+      "contents": {
+       "min": 1,
+       "name": "Time resolution",
+       "units": "units (see below)"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_resolution",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1.0
+    },
+    {
+     "id": "time_units",
+     "metadata": {
+      "contents": {
+       "description": "Domain scale",
+       "name": "Time units"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_units",
+      "items": [
+       {
+        "meaning": "ns",
+        "val": 0
+       },
+       {
+        "meaning": "μs",
+        "val": 3
+       },
+       {
+        "meaning": "ms",
+        "val": 6
+       },
+       {
+        "meaning": "s",
+        "val": 9
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 9
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Time-Activity 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyze"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "X Cumulative"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Initial plotting scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#80dab707"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 6
+    },
+    {
+     "id": "cutoff",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Hits rejected below minimum value"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "cutoff",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "name": "Name of event value to bin"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyze"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "X Instant"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Initial plotting scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "id": "appearance",
+      "type": "color"
+     },
+     "type": "color",
+     "value": "#80da0807"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 6
+    },
+    {
+     "id": "cutoff",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Hits rejected below minimum value"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "cutoff",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "name": "Name of event value to bin"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyze"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "XY"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Initial plotting scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Hot"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 6
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyze"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "description": "Short label",
+       "name": "name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "X-Time"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "description": "Plot visible",
+       "name": "visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Initial plotting scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Plot appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Candy"
+    },
+    {
+     "id": "time_resolution",
+     "metadata": {
+      "contents": {
+       "min": 1,
+       "name": "Time resolution",
+       "units": "units (see below)"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_resolution",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1.0
+    },
+    {
+     "id": "time_units",
+     "metadata": {
+      "contents": {
+       "description": "Domain scale",
+       "name": "time_units"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "time_units",
+      "items": [
+       {
+        "meaning": "ns",
+        "val": 0
+       },
+       {
+        "meaning": "μs",
+        "val": 3
+       },
+       {
+        "meaning": "ms",
+        "val": 6
+       },
+       {
+        "meaning": "s",
+        "val": 9
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 9
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 7
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "TimeSpectrum 2D"
+ }
+]
