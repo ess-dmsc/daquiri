@@ -33,11 +33,7 @@ enum class SettingType {none,
                         binary,     // as int + enem_map (+ branches)
                         indicator,  // as int + branches
 
-                        text,       // as text
-                        color,      // as text
-                        file,       // as text
-                        dir,        // as text
-                        detector    // as text DOES NOT SCALE
+                        text        // as text
                        };
 
 SettingType from_string(const std::string &type);
@@ -148,10 +144,6 @@ TT T SettingMeta::step() const
 {
   return get_num("step", T(1));
 }
-
-//  bool               writable    {true}; changed!!!
-//  bool               visible     {true};
-//  bool               saveworthy  {true};
 
 }
 

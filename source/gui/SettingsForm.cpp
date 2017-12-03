@@ -47,8 +47,8 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   connect(&tree_settings_model_, SIGNAL(tree_changed()),
           this, SLOT(push_settings()));
-  connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)),
-          this, SLOT(chose_detector(int,std::string)));
+//  connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)),
+//          this, SLOT(chose_detector(int,std::string)));
 
   loadSettings();
 

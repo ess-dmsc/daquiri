@@ -465,34 +465,6 @@ Setting Setting::text(std::string sid, std::string val)
   return ret;
 }
 
-Setting Setting::color(std::string sid, std::string val)
-{
-  Setting ret(SettingMeta(sid, SettingType::color));
-  ret.value_text = val;
-  return ret;
-}
-
-Setting Setting::file(std::string sid, std::string val)
-{
-  Setting ret(SettingMeta(sid, SettingType::file));
-  ret.value_text = val;
-  return ret;
-}
-
-Setting Setting::dir(std::string sid, std::string val)
-{
-  Setting ret(SettingMeta(sid, SettingType::dir));
-  ret.value_text = val;
-  return ret;
-}
-
-Setting Setting::detector(std::string sid, std::string val)
-{
-  Setting ret(SettingMeta(sid, SettingType::detector));
-  ret.value_text = val;
-  return ret;
-}
-
 Setting Setting::stem(std::string sid)
 {
   return Setting(SettingMeta(sid, SettingType::stem));
@@ -689,11 +661,7 @@ std::string Setting::val_to_string() const
   else if (is(SettingType::pattern))
     ss << value_pattern.debug();
   else if (is(SettingType::text) ||
-           is(SettingType::color) ||
-           is(SettingType::detector) ||
-           is(SettingType::file) ||
-           is(SettingType::stem) ||
-           is(SettingType::dir))
+           is(SettingType::stem))
     ss << value_text;
   else if (is(SettingType::time))
   {
@@ -800,11 +768,7 @@ void Setting::val_from_json(const json &j)
   else if (is(SettingType::duration))
     value_duration =
         boost::posix_time::duration_from_string(j.get<std::string>());
-  else if (is(SettingType::text) ||
-           is(SettingType::detector) ||
-           is(SettingType::color) ||
-           is(SettingType::file) ||
-           is(SettingType::dir))
+  else if (is(SettingType::text))
     value_text = j.get<std::string>();
 }
 

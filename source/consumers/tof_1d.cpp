@@ -13,7 +13,8 @@ TOF1D::TOF1D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time of flight 1D spectrum");
 
-  SettingMeta app("appearance", SettingType::color, "Appearance");
+  SettingMeta app("appearance", SettingType::text, "Appearance");
+  app.set_flag("color");
   base_options.branches.add(Setting(app));
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");

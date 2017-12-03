@@ -78,6 +78,6 @@ public:
 
 signals:
   void tree_changed();
-  void detector_chosen(int chan, std::string name);
+//  void detector_chosen(int chan, std::string name);
 
 };

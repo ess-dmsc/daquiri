@@ -21,8 +21,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -34,8 +33,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -47,7 +45,7 @@
      "id": "preferred_scale",
      "metadata": {
       "contents": {
-       "name": "Initial plotting scale for counts"
+       "name": "Plot scale for counts"
       },
       "id": "preferred_scale",
       "items": [
@@ -98,17 +96,45 @@
      "value": 0.0
     },
     {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
      "id": "appearance",
      "metadata": {
       "contents": {
-       "description": "Plot appearance",
-       "name": "appearance"
+       "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#807fba18"
+     "type": "text",
+     "value": "#806833e2"
     },
     {
      "id": "time_resolution",
@@ -131,8 +157,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "Time units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"
@@ -196,8 +221,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -209,8 +233,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -222,7 +245,7 @@
      "id": "preferred_scale",
      "metadata": {
       "contents": {
-       "name": "Initial plotting scale for counts"
+       "name": "Plot scale for counts"
       },
       "id": "preferred_scale",
       "items": [
@@ -273,16 +296,45 @@
      "value": 0.0
     },
     {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#80dab707"
+     "type": "text",
+     "value": "#8026ce63"
     },
     {
      "id": "downsample",
@@ -368,8 +420,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -381,8 +432,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -394,7 +444,7 @@
      "id": "preferred_scale",
      "metadata": {
       "contents": {
-       "name": "Initial plotting scale for counts"
+       "name": "Plot scale for counts"
       },
       "id": "preferred_scale",
       "items": [
@@ -445,16 +495,45 @@
      "value": 0.0
     },
     {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#80da0807"
+     "type": "text",
+     "value": "#808a10d6"
     },
     {
      "id": "downsample",
@@ -540,8 +619,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -553,8 +631,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -566,7 +643,7 @@
      "id": "preferred_scale",
      "metadata": {
       "contents": {
-       "name": "Initial plotting scale for counts"
+       "name": "Plot scale for counts"
       },
       "id": "preferred_scale",
       "items": [
@@ -617,10 +694,36 @@
      "value": 0.0
     },
     {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -716,8 +819,7 @@
      "id": "name",
      "metadata": {
       "contents": {
-       "description": "Short label",
-       "name": "name"
+       "name": "Name"
       },
       "id": "name",
       "type": "text"
@@ -729,8 +831,7 @@
      "id": "visible",
      "metadata": {
       "contents": {
-       "description": "Plot visible",
-       "name": "visible"
+       "name": "Visible"
       },
       "id": "visible",
       "type": "boolean"
@@ -742,7 +843,7 @@
      "id": "preferred_scale",
      "metadata": {
       "contents": {
-       "name": "Initial plotting scale for counts"
+       "name": "Plot scale for counts"
       },
       "id": "preferred_scale",
       "items": [
@@ -793,6 +894,32 @@
      "value": 0.0
     },
     {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
      "id": "appearance",
      "metadata": {
       "contents": {
@@ -813,7 +940,7 @@
       "contents": {
        "min": 1,
        "name": "Time resolution",
-       "units": "units (see below)"
+       "units": "Time units (see below)"
       },
       "flags": [
        "preset"
@@ -828,8 +955,7 @@
      "id": "time_units",
      "metadata": {
       "contents": {
-       "description": "Domain scale",
-       "name": "time_units"
+       "name": "Time units (domain)"
       },
       "flags": [
        "preset"

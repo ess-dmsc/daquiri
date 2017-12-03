@@ -16,10 +16,6 @@
   <property name="windowTitle">
    <string>Consumer templates</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/new/icons/qpx.xpm</normaloff>:/new/icons/qpx.xpm</iconset>
-  </property>
   <property name="modal">
    <bool>true</bool>
   </property>

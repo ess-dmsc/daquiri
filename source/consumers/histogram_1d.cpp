@@ -13,7 +13,8 @@ Histogram1D::Histogram1D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "1D Histogram");
 
-  SettingMeta app("appearance", SettingType::color, "Appearance");
+  SettingMeta app("appearance", SettingType::text, "Appearance");
+  app.set_flag("color");
   base_options.branches.add(Setting(app));
 
   SettingMeta ds("downsample", SettingType::integer, "Downsample by");

@@ -5,6 +5,7 @@
 #include "json_file.h"
 
 #define PROFILE_FILE_NAME "profile.set"
+#define PROFILE_PATH_DEFAULT "essproj/daquiri_config"
 
 namespace Profiles
 {
@@ -13,13 +14,13 @@ bool has_settings_dir()
 {
   QSettings settings;
   settings.beginGroup("Program");
-  auto d = settings.value("settings_directory", "").toString();
-  return !d.isEmpty();
+  return (settings.contains("settings_directory") &&
+          !settings.value("settings_directory", "").toString().isEmpty());
 }
 
 QString default_settings_dir()
 {
-  return QDir::homePath() + "/daquiri/settings";
+  return QDir::homePath() + "/" + PROFILE_PATH_DEFAULT;
 }
 
 QString settings_dir()

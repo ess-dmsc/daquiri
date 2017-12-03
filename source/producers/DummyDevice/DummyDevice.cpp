@@ -136,19 +136,22 @@ void DummyDevice::add_dummy_settings()
   SettingMeta a17(r + "/text", SettingType::text);
   add_definition(a17);
 
-  SettingMeta a18(r + "/Color", SettingType::color);
+  SettingMeta a18(r + "/Color", SettingType::text);
+  a18.set_flag("color");
   add_definition(a18);
 
-  SettingMeta a19(r + "/File", SettingType::file);
+  SettingMeta a19(r + "/File", SettingType::text);
+  a19.set_flag("file");
   a19.set_val("wildcards", "Bash file (*.sh)");
   add_definition(a19);
 
-  SettingMeta a20(r + "/Directory", SettingType::dir);
+  SettingMeta a20(r + "/Directory", SettingType::text);
+  a20.set_flag("directory");
   add_definition(a20);
 
-  SettingMeta a21(r + "/Detector", SettingType::detector);
+  SettingMeta a21(r + "/Detector", SettingType::text);
+  a21.set_flag("detector");
   add_definition(a21);
-
 
   SettingMeta a22(r + "/Command", SettingType::command);
   add_definition(a22);

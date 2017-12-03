@@ -17,7 +17,7 @@
      "indices": [
       0
      ],
-     "type": "detector",
+     "type": "text",
      "value": "unknown"
     }
    ],
@@ -44,6 +44,11 @@
     {
      "id": "ESSStream/Parser",
      "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "ESSStream/KafkaDecomission",
+     "type": "integer",
      "value": 1
     },
     {
@@ -123,6 +128,11 @@
      "id": "ESSStream/Parser",
      "type": "menu",
      "value": 2
+    },
+    {
+     "id": "ESSStream/KafkaDecomission",
+     "type": "integer",
+     "value": 1
     },
     {
      "branches": [

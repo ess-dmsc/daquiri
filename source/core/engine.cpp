@@ -178,7 +178,7 @@ void Engine::_read_settings_bulk()
       for (size_t i=0; i < detectors_.size(); ++i)
       {
         Setting det(SettingMeta("Detector",
-                                SettingType::detector,
+                                SettingType::text,
                                 "Detector " + std::to_string(i)));
         det.set_text(detectors_[i].id());
         det.set_indices({int32_t(i)});

@@ -64,84 +64,6 @@
      "value": 0
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -205,11 +127,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#803781db"
+     "type": "text",
+     "value": "#80075cbd"
     },
     {
      "id": "time_resolution",
@@ -339,84 +264,6 @@
      "value": 1
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -480,11 +327,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#80e8294f"
+     "type": "text",
+     "value": "#803fda18"
     },
     {
      "id": "time_resolution",
@@ -614,84 +464,6 @@
      "value": 1
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -755,11 +527,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ffe8294f"
+     "type": "text",
+     "value": "#80c72b58"
     },
     {
      "id": "time_resolution",
@@ -887,84 +662,6 @@
      },
      "type": "menu",
      "value": 0
-    },
-    {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -1167,84 +864,6 @@
      "value": 0
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -1445,84 +1064,6 @@
      "value": 0
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -1721,84 +1262,6 @@
      },
      "type": "menu",
      "value": 1
-    },
-    {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -2035,84 +1498,6 @@
      "value": 1
     },
     {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
-    },
-    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -2345,84 +1730,6 @@
      },
      "type": "menu",
      "value": 1
-    },
-    {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
     },
     {
      "id": "clear_periodically",

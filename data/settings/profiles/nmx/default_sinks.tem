@@ -127,11 +127,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ff2857de"
+     "type": "text",
+     "value": "#ffe53912"
     },
     {
      "id": "value_name",
@@ -290,11 +293,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ff139e1c"
+     "type": "text",
+     "value": "#803140da"
     },
     {
      "id": "value_name",
@@ -1285,11 +1291,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ff1ab6d9"
+     "type": "text",
+     "value": "#ffee00a8"
     },
     {
      "id": "value_name",
@@ -1448,11 +1457,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ff73c91e"
+     "type": "text",
+     "value": "#8031afcb"
     },
     {
      "id": "value_name",
@@ -1611,11 +1623,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ffe32a0f"
+     "type": "text",
+     "value": "#f119d031"
     },
     {
      "id": "value_name",
@@ -1774,11 +1789,14 @@
       "contents": {
        "name": "Appearance"
       },
+      "flags": [
+       "color"
+      ],
       "id": "appearance",
-      "type": "color"
+      "type": "text"
      },
-     "type": "color",
-     "value": "#ffe0a12a"
+     "type": "text",
+     "value": "#ffc2bb2b"
     },
     {
      "id": "time_resolution",

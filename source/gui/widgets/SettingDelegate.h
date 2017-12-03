@@ -7,7 +7,6 @@
 #include <QComboBox>
 #include "PatternWidget.h"
 #include "detector.h"
-//#include "qtcolorpicker.h"
 
 Q_DECLARE_METATYPE(DAQuiri::Detector)
 Q_DECLARE_METATYPE(DAQuiri::Setting)
@@ -49,4 +48,7 @@ signals:
 
 private:
   Container<DAQuiri::Detector> detectors_;
+
+  static void paintDetector(QPainter* painter, const QRect& rect,
+                            uint16_t idx, QString text);
 };

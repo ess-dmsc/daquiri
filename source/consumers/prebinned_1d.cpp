@@ -13,7 +13,8 @@ Prebinned1D::Prebinned1D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Prebinned 1D spectrum (or trace)");
 
-  SettingMeta app("appearance", SettingType::color, "Appearance");
+  SettingMeta app("appearance", SettingType::text, "Appearance");
+  app.set_flag("color");
   base_options.branches.add(Setting(app));
 
   SettingMeta val_name("value_name", SettingType::text);

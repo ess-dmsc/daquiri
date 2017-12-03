@@ -1,6 +1,5 @@
 #include "SettingDelegate.h"
 #include "setting.h"
-#include "qt_util.h"
 #include <QComboBox>
 #include <QPainter>
 #include <QDoubleSpinBox>
@@ -22,6 +21,9 @@
 
 #include <QPlot.h>
 
+#include "QColorExtensions.h"
+#include "QTimeExtensions.h"
+
 using namespace color_widgets;
 using namespace DAQuiri;
 
@@ -30,9 +32,27 @@ void SettingDelegate::set_detectors(const Container<Detector> &detectors)
   detectors_ = detectors;
 }
 
+void SettingDelegate::paintDetector(QPainter* painter,
+                                    const QRect& rect,
+                                    uint16_t idx,
+                                    QString text)
+{
+  painter->save();
+
+  QVector<QColor> palette {Qt::darkCyan, Qt::darkBlue, Qt::darkGreen, Qt::darkRed, Qt::darkYellow, Qt::darkMagenta, Qt::red, Qt::blue};
+  painter->setPen(QPen(palette[idx % palette.size()], 2));
+  QFont f = painter->font();
+  f.setBold(true);
+  painter->setFont(f);
+
+  painter->drawText(rect, Qt::AlignVCenter, text);
+  painter->restore();
+}
+
+
 void SettingDelegate::paint(QPainter *painter,
-                                   const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
+                            const QStyleOptionViewItem &option,
+                            const QModelIndex &index) const
 {
   if ((option.state & QStyle::State_Selected) &&
       !(option.state & QStyle::State_HasFocus))
@@ -65,6 +85,19 @@ void SettingDelegate::paint(QPainter *painter,
       painter->fillRect(option.rect, option.palette.highlight());
     pat.paint(painter, option.rect, option.palette);
   }
+  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("color"))
+  {
+    QColor c(QString::fromStdString(itemData.get_text()));
+    paintColor(painter, option.rect, c, true);
+  }
+  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("detector"))
+  {
+    uint16_t index = 0;
+    if (itemData.indices().size())
+      index = *itemData.indices().begin();
+    QString text = QString::fromStdString(itemData.get_text());
+    paintDetector(painter, option.rect, index, text);
+  }
   else
   {
     int flags = Qt::TextWordWrap | Qt::AlignVCenter;
@@ -88,33 +121,6 @@ void SettingDelegate::paint(QPainter *painter,
       painter->setFont(f);
       flags |= Qt::AlignCenter;
     }
-    else if (itemData.is(SettingType::color))
-    {
-      QColor c(QString::fromStdString(itemData.get_text()));
-      if (c.alpha() < 255)
-      {
-        QBrush b;
-        b.setTexture(QPixmap(QStringLiteral(":/color_widgets/alphaback.png")));
-        painter->fillRect(option.rect, b);
-      }
-      painter->fillRect(option.rect, c);
-      painter->setPen(QPen(inverseColor(c), 4));
-      QFont f = painter->font();
-      f.setBold(true);
-      painter->setFont(f);
-      flags |= Qt::AlignCenter;
-    }
-    else if (itemData.is(SettingType::detector))
-    {
-      QVector<QColor> palette {Qt::darkCyan, Qt::darkBlue, Qt::darkGreen, Qt::darkRed, Qt::darkYellow, Qt::darkMagenta, Qt::red, Qt::blue};
-      uint16_t index = 0;
-      if (itemData.indices().size())
-        index = *itemData.indices().begin();
-      painter->setPen(QPen(palette[index % palette.size()], 2));
-      QFont f = painter->font();
-      f.setBold(true);
-      painter->setFont(f);
-    }
     else
     {
       if (option.state & QStyle::State_Selected)
@@ -135,7 +141,7 @@ void SettingDelegate::paint(QPainter *painter,
 }
 
 QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                       const QModelIndex &index) const
+                                const QModelIndex &index) const
 {
   if (!index.data().canConvert<Setting>())
     return QStyledItemDelegate::sizeHint(option, index);
@@ -187,8 +193,8 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
 }
 
 QWidget *SettingDelegate::createEditor(QWidget *parent,
-                                              const QStyleOptionViewItem &option,
-                                              const QModelIndex &index) const
+                                       const QStyleOptionViewItem &option,
+                                       const QModelIndex &index) const
 
 {
   emit begin_editing();
@@ -203,18 +209,6 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
     return new QSpinBox(parent);
   else if (set.is(SettingType::duration))
     return new TimeDurationWidget(parent);
-  else if (set.is(SettingType::text))
-  {
-    if (set.metadata().has_flag("gradient-name"))
-    {
-      QComboBox *editor = new QComboBox(parent);
-      for (auto &q : QPlot::Gradients::defaultGradients().names())
-        editor->addItem(q, q);
-      return editor;
-    }
-    else
-      return new QLineEdit(parent);
-  }
   else if (set.is(SettingType::binary))
   {
     emit ask_binary(set, index);
@@ -225,13 +219,6 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
   {
     emit ask_execute(set, index);
     return nullptr;
-  }
-  else if (set.is(SettingType::color))
-  {
-    ColorSelector *editor = new ColorSelector(parent);
-    editor->setDisplayMode(ColorPreview::AllAlpha);
-    editor->setUpdateMode(ColorSelector::Confirm);
-    return editor;
   }
   else if (set.is(SettingType::time))
   {
@@ -247,17 +234,6 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
     editor->set_pattern(set.pattern(), 20, 8);
     return editor;
   }
-  else if (set.is(SettingType::detector))
-  {
-    QComboBox *editor = new QComboBox(parent);
-    editor->addItem("none", "none");
-    for (size_t i=0; i < detectors_.size(); i++)
-    {
-      QString name = QString::fromStdString(detectors_.get(i).id());
-      editor->addItem(name, name);
-    }
-    return editor;
-  }
   else if (set.is(SettingType::boolean))
   {
     QComboBox *editor = new QComboBox(parent);
@@ -265,20 +241,50 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
     editor->addItem("False", QVariant::fromValue(false));
     return editor;
   }
-  else if (set.is(SettingType::file))
+  else if (set.is(SettingType::text))
   {
-    QFileDialog *editor = new QFileDialog(parent, QString("Chose File"),
-                                          QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath(),
-                                          QString::fromStdString(set.metadata().get_string("wildcards","")));
-    editor->setFileMode(QFileDialog::ExistingFile);
-    return editor;
-  }
-  else if (set.is(SettingType::dir))
-  {
-    QFileDialog *editor = new QFileDialog(parent, QString("Chose Directory"),
-                                          QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath());
-    editor->setFileMode(QFileDialog::Directory);
-    return editor;
+    if (set.metadata().has_flag("color"))
+    {
+      ColorSelector *editor = new ColorSelector(parent);
+      editor->setDisplayMode(ColorPreview::AllAlpha);
+      editor->setUpdateMode(ColorSelector::Confirm);
+      return editor;
+    }
+    else if (set.metadata().has_flag("gradient-name"))
+    {
+      QComboBox *editor = new QComboBox(parent);
+      for (auto &q : QPlot::Gradients::defaultGradients().names())
+        editor->addItem(q, q);
+      return editor;
+    }
+    else if (set.metadata().has_flag("file"))
+    {
+      QFileDialog *editor = new QFileDialog(parent, QString("Chose File"),
+                                            QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath(),
+                                            QString::fromStdString(set.metadata().get_string("wildcards","")));
+      editor->setFileMode(QFileDialog::ExistingFile);
+      return editor;
+    }
+    else if (set.metadata().has_flag("directory"))
+    {
+      QFileDialog *editor = new QFileDialog(parent, QString("Chose Directory"),
+                                            QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath());
+      editor->setFileMode(QFileDialog::Directory);
+      return editor;
+    }
+    else if (set.metadata().has_flag("detector"))
+    {
+      QComboBox *editor = new QComboBox(parent);
+      editor->addItem("none", "none");
+      for (size_t i=0; i < detectors_.size(); i++)
+      {
+        QString name = QString::fromStdString(detectors_.get(i).id());
+        editor->addItem(name, name);
+      }
+      return editor;
+    }
+    else
+      return new QLineEdit(parent);
   }
   else if (set.is(SettingType::menu))
   {
@@ -292,7 +298,7 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
 }
 
 void SettingDelegate::setEditorData(QWidget *editor,
-                                           const QModelIndex &index) const
+                                    const QModelIndex &index) const
 {
   if (!index.data(Qt::EditRole).canConvert<Setting>())
   {
@@ -303,14 +309,7 @@ void SettingDelegate::setEditorData(QWidget *editor,
 
   if (QComboBox *cb = qobject_cast<QComboBox*>(editor))
   {
-    if (set.is(SettingType::detector) ||
-        (set.is(SettingType::text) && set.metadata().has_flag("gradient-name")))
-    {
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
-      if(cbIndex >= 0)
-        cb->setCurrentIndex(cbIndex);
-    }
-    else if (set.is(SettingType::boolean))
+    if (set.is(SettingType::boolean))
     {
       int cbIndex = cb->findData(QVariant::fromValue(set.get_number() != 0));
       if(cbIndex >= 0)
@@ -323,6 +322,13 @@ void SettingDelegate::setEditorData(QWidget *editor,
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
     }
+    else
+    {
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+    }
+
   }
   else if (QDoubleSpinBox *sb = qobject_cast<QDoubleSpinBox*>(editor))
   {
@@ -351,8 +357,8 @@ void SettingDelegate::setEditorData(QWidget *editor,
 }
 
 void SettingDelegate::setModelData(QWidget *editor,
-                                          QAbstractItemModel *model,
-                                          const QModelIndex &index) const
+                                   QAbstractItemModel *model,
+                                   const QModelIndex &index) const
 {
   if (PatternWidget *pe = qobject_cast<PatternWidget*>(editor))
     model->setData(index, QVariant::fromValue(pe->pattern()), Qt::EditRole);

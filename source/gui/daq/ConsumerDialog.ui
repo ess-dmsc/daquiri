@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Consumer metadata</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/new/icons/qpx.xpm</normaloff>:/new/icons/qpx.xpm</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="6" column="0">
     <widget class="QWidget" name="widgetDetectors" native="true">

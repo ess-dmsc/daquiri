@@ -6,6 +6,8 @@
 #include<QSettings>
 #include "json_file.h"
 
+#include "QFileExtensions.h"
+
 using namespace DAQuiri;
 
 ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(Container<ConsumerMetadata>& templates, QObject *parent)

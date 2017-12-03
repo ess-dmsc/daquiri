@@ -1,36 +1,15 @@
 #pragma once
 
 #include <QMainWindow>
+#include "SettingsForm.h"
 
 #include "custom_logger.h"
 #include "qt_boost_logger.h"
-
-#include <QPushButton>
-#include <QMenu>
-
 #include "producer.h"
-
-#include "SettingsForm.h"
-
 
 namespace Ui {
 class daquiri;
 }
-
-class close_tab_widgetButton : public QPushButton
-{
-    Q_OBJECT
-  public:
-    close_tab_widgetButton(QWidget* pt) : parent_tab_(pt) {
-      connect(this, SIGNAL(clicked(bool)), this, SLOT(closeme(bool)));
-    }
-  private slots:
-    void closeme(bool) { emit close_tab_widget(parent_tab_); }
-  signals:
-    void close_tab_widget(QWidget*);
-  protected:
-    QWidget *parent_tab_;
-};
 
 class daquiri : public QMainWindow
 {
@@ -91,14 +70,13 @@ class daquiri : public QMainWindow
     void open_new_proj();
     void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
 
-  private:
+    void initialize_settings_dir();
 
+  private:
     //helper functions
     void saveSettings();
     void loadSettings();
     void reorder_tabs();
     void add_closable_tab(QWidget*);
-
-    void initialize_settings_dir();
 };
 

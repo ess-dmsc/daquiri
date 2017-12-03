@@ -4,10 +4,11 @@
 #include "custom_timer.h"
 #include "boost/algorithm/string.hpp"
 #include "QHist.h"
-#include "qt_util.h"
+//#include "qt_util.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
 #include <boost/range/adaptor/reversed.hpp>
+#include "QColorExtensions.h"
 
 using namespace DAQuiri;
 
@@ -288,8 +289,12 @@ void ProjectView::randAll()
   for (auto &q : project_->get_sinks())
     if (q.second)
     {
-      auto col = generateColor().name(QColor::HexArgb).toStdString();
-      q.second->set_attribute(Setting::color("appearance", col));
+      Setting appearance = q.second->metadata().get_attribute("appearance");
+      if (appearance.metadata().has_flag("color"))
+      {
+        appearance.set_text(generateColor().name(QColor::HexArgb).toStdString());
+        q.second->set_attribute(appearance);
+      }
     }
   updateUI();
   update();

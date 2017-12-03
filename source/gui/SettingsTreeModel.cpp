@@ -1,8 +1,11 @@
 #include "SettingsTreeModel.h"
 #include "PatternWidget.h"
-#include "qt_util.h"
 #include <QDateTime>
 #include "bin_hex_print.h"
+
+//#include "qt_util.h"
+#include "QTimeExtensions.h"
+#include "QColorExtensions.h"
 
 Q_DECLARE_METATYPE(Setting)
 Q_DECLARE_METATYPE(boost::posix_time::time_duration)
@@ -280,21 +283,21 @@ bool SettingsTreeItem::setData(int column, const QVariant &value)
   else if (itemData.is(SettingType::text)
       && (value.type() == QVariant::String))
     itemData.set_text(value.toString().toStdString());
-  else if (itemData.is(SettingType::color)
-      && (value.type() == QVariant::String))
-    itemData.set_text(value.toString().toStdString());
-  else if (itemData.is(SettingType::file)
-      && (value.type() == QVariant::String))
-    itemData.set_text(value.toString().toStdString());
+//  else if (itemData.is(SettingType::color)
+//      && (value.type() == QVariant::String))
+//    itemData.set_text(value.toString().toStdString());
+//  else if (itemData.is(SettingType::file)
+//      && (value.type() == QVariant::String))
+//    itemData.set_text(value.toString().toStdString());
   else if (itemData.is(SettingType::pattern)
       && (value.canConvert<Pattern>()))
     itemData.set_pattern(qvariant_cast<Pattern>(value));
-  else if (itemData.is(SettingType::dir)
-      && (value.type() == QVariant::String))
-    itemData.set_text(value.toString().toStdString());
-  else if (itemData.is(SettingType::detector)
-      && (value.type() == QVariant::String))
-    itemData.set_text(value.toString().toStdString());
+//  else if (itemData.is(SettingType::dir)
+//      && (value.type() == QVariant::String))
+//    itemData.set_text(value.toString().toStdString());
+//  else if (itemData.is(SettingType::detector)
+//      && (value.type() == QVariant::String))
+//    itemData.set_text(value.toString().toStdString());
   else if (itemData.is(SettingType::time)
       && (value.type() == QVariant::DateTime))
     itemData.set_time(fromQDateTime(value.toDateTime()));
@@ -536,9 +539,9 @@ bool SettingsTreeModel::setData(const QModelIndex &index, const QVariant &value,
       data_ = rootItem->rebuild();
 
       emit dataChanged(index, index);
-      if (set.is(SettingType::detector))
-        emit detector_chosen(index.row() - 1, set.get_text());
-      else
+//      if (set.is(SettingType::detector))
+//        emit detector_chosen(index.row() - 1, set.get_text());
+//      else
         emit tree_changed();
     }
     else if (index.column() == 1)

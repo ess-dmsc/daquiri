@@ -5,7 +5,7 @@
 #include "custom_logger.h"
 #include "custom_timer.h"
 //#include "form_daq_settings.h"
-#include "qt_util.h"
+//#include "qt_util.h"
 #include <QSettings>
 #include <boost/filesystem.hpp>
 #include <QMessageBox>
@@ -14,6 +14,7 @@
 #include <QCloseEvent>
 
 #include "Profiles.h"
+#include "QFileExtensions.h"
 
 using namespace DAQuiri;
 

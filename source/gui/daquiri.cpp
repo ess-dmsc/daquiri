@@ -1,26 +1,21 @@
-#include <QSettings>
-#include <QScrollBar>
-#include <QCloseEvent>
-#include <QMessageBox>
-#include <QLabel>
-#include <QToolButton>
-
-#include <utility>
-#include <numeric>
-#include <cstdint>
-#include <boost/format.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "daquiri.h"
 #include "ui_daquiri.h"
-#include "custom_timer.h"
+
+#include <QSettings>
+#include <QScrollBar>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QLabel>
+#include <QTimer>
+#include "Profiles.h"
+#include "TabCloseButton.h"
 
 #include "ListModeForm.h"
 #include "ProjectForm.h"
 
-#include <QTimer>
-#include "Profiles.h"
+#include <QDir>
+#include <QCoreApplication>
+#include "QFileExtensions.h"
 
 daquiri::daquiri(QWidget *parent,
                  bool open_new_project,
@@ -82,8 +77,7 @@ daquiri::daquiri(QWidget *parent,
   //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
   //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
 
-  if (!Profiles::has_settings_dir())
-    initialize_settings_dir();
+  QTimer::singleShot(10, this, SLOT(initialize_settings_dir()));
 
   if (open_new_project && !start_daq)
     open_project(nullptr, false);
@@ -323,5 +317,41 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
 
 void daquiri::initialize_settings_dir()
 {
+  if (Profiles::has_settings_dir())
+    return;
 
+  bool ok {false};
+
+  QString text = QInputDialog::getText(this, tr("First run?"),
+                                       tr("Is this your first run of Daquiri?\n"
+                                          "Let's create a settings directory.\n"
+                                          "How about this?"),
+                                       QLineEdit::Normal,
+                                       Profiles::default_settings_dir(), &ok);
+
+  if (!ok || text.isEmpty())
+    return;
+
+  QDir dir(text);
+
+  bool exists = dir.exists();
+
+  if (!exists)
+    exists = dir.mkpath(".");
+
+  if (exists)
+  {
+    Profiles::select_settings_dir(text);
+    int reply = QMessageBox::warning(this, tr("Install defaults?"),
+                                     tr("Shall we also copy default configuration profiles\n"
+                                        "to your specified directory?"),
+                                        QMessageBox::Yes|QMessageBox::Cancel);
+    if (reply == QMessageBox::Yes)
+    {
+      QFileInfo fi(QCoreApplication::applicationFilePath());
+      QDir from_path = fi.absoluteDir();
+      from_path.cd("../../data/settings");
+      copy_dir_recursive(from_path.path(), Profiles::settings_dir(), true);
+    }
+  }
 }

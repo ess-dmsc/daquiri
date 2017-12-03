@@ -12,7 +12,8 @@ TimeDomain::TimeDomain()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time-domain log of activity");
 
-  SettingMeta app("appearance", SettingType::color, "Appearance");
+  SettingMeta app("appearance", SettingType::text, "Appearance");
+  app.set_flag("color");
   base_options.branches.add(Setting(app));
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");

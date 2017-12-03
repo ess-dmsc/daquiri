@@ -21,18 +21,10 @@ SettingType from_string(const std::string &type)
     return SettingType::precise;
   else if (type == "text")
     return SettingType::text;
-  else if (type == "color")
-    return SettingType::color;
   else if (type == "time")
     return SettingType::time;
   else if (type == "duration")
     return SettingType::duration;
-  else if (type == "detector")
-    return SettingType::detector;
-  else if (type == "file")
-    return SettingType::file;
-  else if (type == "dir")
-    return SettingType::dir;
   else if (type == "menu")
     return SettingType::menu;
   else if (type == "command")
@@ -61,18 +53,10 @@ std::string to_string(const SettingType &t)
     return "precise";
   else if (t == SettingType::text)
     return "text";
-  else if (t == SettingType::color)
-    return "color";
-  else if (t == SettingType::detector)
-    return "detector";
   else if (t == SettingType::time)
     return "time";
   else if (t == SettingType::duration)
     return "duration";
-  else if (t == SettingType::file)
-    return "file";
-  else if (t == SettingType::dir)
-    return "dir";
   else if (t == SettingType::command)
     return "command";
   else if (t == SettingType::menu)
