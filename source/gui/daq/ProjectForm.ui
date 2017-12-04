@@ -88,7 +88,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/document_open_folder.png</normaloff>:/icons/oxy/32/document_open_folder.png</iconset>
          </property>
          <property name="iconSize">
@@ -141,7 +141,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/document_save.png</normaloff>:/icons/oxy/32/document_save.png</iconset>
          </property>
          <property name="iconSize">
@@ -194,7 +194,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/help_about.png</normaloff>:/icons/oxy/32/help_about.png</iconset>
          </property>
          <property name="iconSize">
@@ -268,7 +268,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/package_utilities.png</normaloff>:/icons/oxy/32/package_utilities.png</iconset>
          </property>
          <property name="iconSize">
@@ -306,7 +306,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/1rightarrow.png</normaloff>:/icons/oxy/32/1rightarrow.png</iconset>
          </property>
          <property name="iconSize">
@@ -344,7 +344,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/stop.png</normaloff>:/icons/oxy/32/stop.png</iconset>
          </property>
          <property name="iconSize">
@@ -472,7 +472,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/16/view_refresh.png</normaloff>:/icons/oxy/16/view_refresh.png</iconset>
          </property>
          <property name="iconSize">
@@ -514,7 +514,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/icons.qrc"/>
+  <include location="../resources/daquiri.qrc"/>
  </resources>
  <connections/>
 </ui>

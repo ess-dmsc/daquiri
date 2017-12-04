@@ -212,7 +212,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../resources/icons.qrc">
+           <iconset resource="../resources/daquiri.qrc">
             <normaloff>:/icons/oxy/16/edit.png</normaloff>:/icons/oxy/16/edit.png</iconset>
           </property>
           <property name="iconSize">
@@ -373,7 +373,7 @@
         <string>Edit more</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/document_encrypt.png</normaloff>
          <normalon>:/new/icons/oxy/document_encrypt.png</normalon>:/icons/oxy/16/document_encrypt.png</iconset>
        </property>
@@ -436,7 +436,7 @@
   <zorder>labelWarning</zorder>
  </widget>
  <resources>
-  <include location="../resources/icons.qrc"/>
+  <include location="../resources/daquiri.qrc"/>
  </resources>
  <connections/>
 </ui>

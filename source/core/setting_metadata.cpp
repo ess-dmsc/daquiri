@@ -253,12 +253,8 @@ void to_json(json& j, const SettingMeta &s)
   if (!s.contents_.empty())
     j["contents"] = s.contents_;
 
-  if (s.is(SettingType::binary) ||
-      s.is(SettingType::indicator) ||
-      s.is(SettingType::menu) ||
-      s.is(SettingType::stem))
-    for (auto &q : s.enum_map_)
-     j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
+  for (auto &q : s.enum_map_)
+    j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
 
   if (!s.flags_.empty())
     j["flags"] = s.flags_;

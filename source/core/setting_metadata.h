@@ -18,7 +18,12 @@ using floating_t = double;
 using precise_t = PreciseFloat;
 
 enum class SettingType {none,
+
                         stem,       // as branches
+                        menu,       // as int + enum_map
+                        binary,     // as int + enum_map (+ branches)
+                        indicator,  // as int + branches
+
                         time,       // as ptime
                         duration,   // as time_duration
                         pattern,    // as Pattern
@@ -29,9 +34,6 @@ enum class SettingType {none,
                         boolean,    // as int
                         integer,    // as int
                         command,    // as int
-                        menu,       // as int + enum_map
-                        binary,     // as int + enem_map (+ branches)
-                        indicator,  // as int + branches
 
                         text        // as text
                        };

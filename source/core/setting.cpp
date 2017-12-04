@@ -300,25 +300,18 @@ void Setting::erase(Setting address, Match m)
   erase_matches(addy, *this, m);
 }
 
-bool Setting::may_have_branches() const
-{
-  return (is(SettingType::indicator) ||
-          is(SettingType::binary) ||
-          is(SettingType::stem));
-}
-
-
 void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitions,
                      bool impose_limits)
 {
   if (setting_definitions.count(id()) > 0)
   {
     metadata_ = setting_definitions.at(id());
-    if (may_have_branches())
+    auto idm = metadata_.enum_map();
+
+    if (idm.size())
     {
       Container<Setting> new_branches;
       auto idss = metadata_.enum_names();
-      auto idm = metadata_.enum_map();
       std::set<std::string> ids(idss.begin(), idss.end());
       for (auto old : branches)
       {
@@ -330,6 +323,7 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
         if (ids.count(old.id()))
           ids.erase(old.id());
       }
+
       for (auto id : idm)
       {
         if (!ids.count(id.second))

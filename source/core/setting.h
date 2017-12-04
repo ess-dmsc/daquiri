@@ -143,7 +143,6 @@ public:
   friend void from_json(const json& j, Setting &s);
 
 private:
-  bool may_have_branches() const;
   bool compare_indices(const Setting &other) const;
 
   bool find_dfs(Setting& result, const Setting& root, Match m) const;

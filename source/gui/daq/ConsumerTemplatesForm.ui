@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1042</width>
+    <width>1060</width>
     <height>531</height>
    </rect>
   </property>
@@ -52,7 +52,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/edit_add.png</normaloff>:/icons/oxy/16/edit_add.png</iconset>
        </property>
        <property name="iconSize">
@@ -93,7 +93,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/revert.png</normaloff>:/icons/oxy/16/revert.png</iconset>
        </property>
        <property name="iconSize">
@@ -134,7 +134,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/edit.png</normaloff>:/icons/oxy/16/edit.png</iconset>
        </property>
        <property name="iconSize">
@@ -175,7 +175,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/editdelete.png</normaloff>:/icons/oxy/16/editdelete.png</iconset>
        </property>
        <property name="iconSize">
@@ -216,7 +216,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/up.png</normaloff>:/icons/oxy/16/up.png</iconset>
        </property>
        <property name="iconSize">
@@ -257,7 +257,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/down.png</normaloff>:/icons/oxy/16/down.png</iconset>
        </property>
        <property name="iconSize">
@@ -302,7 +302,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/editclear.png</normaloff>:/icons/oxy/16/editclear.png</iconset>
        </property>
        <property name="iconSize">
@@ -340,7 +340,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/document_open_folder.png</normaloff>:/icons/oxy/16/document_open_folder.png</iconset>
        </property>
        <property name="iconSize">
@@ -378,7 +378,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/document_save.png</normaloff>:/icons/oxy/16/document_save.png</iconset>
        </property>
        <property name="iconSize">
@@ -416,7 +416,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/bookmark.png</normaloff>:/icons/oxy/16/bookmark.png</iconset>
        </property>
        <property name="iconSize">
@@ -454,7 +454,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../resources/icons.qrc">
+        <iconset resource="../resources/daquiri.qrc">
          <normaloff>:/icons/oxy/16/revert.png</normaloff>:/icons/oxy/16/revert.png</iconset>
        </property>
        <property name="iconSize">
@@ -551,7 +551,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../resources/icons.qrc"/>
+  <include location="../resources/daquiri.qrc"/>
  </resources>
  <connections>
   <connection>

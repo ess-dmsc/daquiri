@@ -60,7 +60,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/1rightarrow.png</normaloff>:/icons/oxy/32/1rightarrow.png</iconset>
          </property>
          <property name="iconSize">
@@ -95,7 +95,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../resources/icons.qrc">
+          <iconset resource="../resources/daquiri.qrc">
            <normaloff>:/icons/oxy/32/stop.png</normaloff>:/icons/oxy/32/stop.png</iconset>
          </property>
          <property name="iconSize">
@@ -323,7 +323,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/icons.qrc"/>
+  <include location="../resources/daquiri.qrc"/>
  </resources>
  <connections/>
 </ui>

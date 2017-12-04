@@ -14,7 +14,7 @@
    <string>daquiri</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources/icons.qrc">
+   <iconset resource="resources/daquiri.qrc">
     <normaloff>:/icons/noun_583391_cc_b.png</normaloff>:/icons/noun_583391_cc_b.png</iconset>
   </property>
   <property name="iconSize">
@@ -126,7 +126,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resources/icons.qrc"/>
+  <include location="resources/daquiri.qrc"/>
  </resources>
  <connections/>
 </ui>
