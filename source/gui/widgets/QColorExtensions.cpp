@@ -54,6 +54,8 @@ void paintGradient(QPainter* painter,
 
   colors.setStart( 0.0, 0.0 );
   colors.setFinalStop( 1.0, 0.0 );
+  colors.setSpread(QGradient::PadSpread);
+  colors.setCoordinateMode(QGradient::ObjectBoundingMode);
 
   painter->setBrush(colors);
   painter->drawRect(rect);

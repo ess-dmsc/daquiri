@@ -150,10 +150,12 @@ void SettingDelegate::paint_gradient(QPainter* painter,
   auto gradient = gs.get(gname);
 
   QLinearGradient g;
-  g.setSpread(QGradient::PadSpread);
-  g.setCoordinateMode(QGradient::ObjectBoundingMode);
+//  DBG << "CONSTRUCTING " << gname.toStdString();
   for (auto s : gradient.colorStops().toStdMap())
+  {
     g.setColorAt(s.first, s.second);
+//    DBG << "Col " << s.first << " -> " << s.second.name().toStdString();
+  }
   paintGradient(painter, option.rect, g, gname);
 }
 
@@ -221,7 +223,7 @@ void SettingDelegate::paint(QPainter *painter,
   {
     if (item.metadata().has_flag("color"))
       paint_color(painter, option, item);
-    if (item.metadata().has_flag("gradient-name"))
+    else if (item.metadata().has_flag("gradient-name"))
       paint_gradient(painter, option, item);
     else if (item.metadata().has_flag("detector"))
       paint_detector(painter, option, item);
