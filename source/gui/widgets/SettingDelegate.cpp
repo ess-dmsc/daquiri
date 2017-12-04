@@ -42,120 +42,167 @@ uint16_t SettingDelegate::text_len_limit() const
   return text_len_limit_;
 }
 
-void SettingDelegate::paintDetector(QPainter* painter,
-                                    const QRect& rect,
-                                    uint16_t idx,
-                                    QString text) const
+void SettingDelegate::truncate_w_ellipses(QString &t, uint16_t max) const
+{
+  if (t.length() > max)
+    t.truncate(max);
+  t = " " + t + " ";
+}
+
+void SettingDelegate::text_flags(QPainter* painter,
+                                 const QStyleOptionViewItem &option,
+                                 bool read_only) const
+{
+  if (option.state & QStyle::State_Selected)
+  {
+    painter->fillRect(option.rect, option.palette.highlight());
+    painter->setPen(option.palette.highlightedText().color());
+  }
+  else
+  {
+    if (read_only)
+      painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
+    else
+      painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
+  }
+}
+
+void SettingDelegate::paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
+                                     const Setting &val) const
 {
   painter->save();
 
-  painter->setPen(QPen(detectors_palette_[idx % detectors_palette_.size()], 2));
+  uint16_t idx = 0;
+  if (val.indices().size())
+    idx = *val.indices().begin();
+  QString text = QString::fromStdString(val.get_text());
+  QColor col = detectors_palette_[idx % detectors_palette_.size()];
+
+  if (option.state & QStyle::State_Selected)
+  {
+    painter->fillRect(option.rect, option.palette.highlight());
+    col = inverseColor(col);
+  }
+
+  painter->setPen(QPen(col, 2));
   QFont f = painter->font();
   f.setBold(true);
   painter->setFont(f);
 
-  painter->drawText(rect, Qt::AlignVCenter, text);
+  painter->drawText(option.rect, Qt::AlignVCenter, text);
   painter->restore();
 }
 
-void SettingDelegate::paint_indicator(QPainter* painter, const QRect& rect,
-                                      DAQuiri::Setting& val) const
+void SettingDelegate::paint_color(QPainter* painter,
+                                  const QStyleOptionViewItem &option,
+                                  const Setting &val) const
 {
-  painter->save();
+  QColor c(QString::fromStdString(val.get_text()));
+  paintColor(painter, option.rect,
+             (option.state & QStyle::State_Selected) ? inverseColor(c) : c,
+             c.name());
+}
 
+void SettingDelegate::paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
+                                      const Setting &val) const
+{
   auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
-  QColor bkgCol = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
-  painter->fillRect(rect, bkgCol);
-  painter->setPen(QPen(Qt::white, 3));
-  QFont f = painter->font();
-  f.setBold(true);
-  painter->setFont(f);
-
+  QColor color = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
   QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
 
-  painter->drawText(rect, Qt::AlignCenter, text);
+  paintColor(painter, option.rect,
+             (option.state & QStyle::State_Selected) ? inverseColor(color) : color,
+             text);
+}
+
+void SettingDelegate::paint_pattern(QPainter* painter, const QStyleOptionViewItem &option,
+                                    const Setting &val) const
+{
+  PatternWidget pat(val.pattern(), 20, 8);
+  pat.setEnabled(!val.metadata().has_flag("readonly"));
+  if (option.state & QStyle::State_Selected)
+    painter->fillRect(option.rect, option.palette.highlight());
+  pat.paint(painter, option.rect, option.palette);
+}
+
+void SettingDelegate::paint_command(QPainter* painter, const QStyleOptionViewItem &option,
+                                    const Setting &val) const
+{
+  QStyleOptionButton button;
+  button.rect = option.rect;
+  button.text = QString::fromStdString(val.metadata().get_string("name", ""));
+  if (!val.metadata().has_flag("readonly"))
+    button.state = QStyle::State_Enabled;
+  QApplication::style()->drawControl( QStyle::CE_PushButton, &button, painter);
+}
+
+void SettingDelegate::paint_generic(QPainter* painter, const QStyleOptionViewItem &option,
+                                    const QString& txt, bool read_only) const
+{
+  painter->save();
+  text_flags(painter, option, read_only);
+  painter->drawText(option.rect, Qt::AlignVCenter, txt);
   painter->restore();
 }
 
 
+void SettingDelegate::paint_duration(QPainter* painter, const QStyleOptionViewItem &option,
+                                     const Setting &val) const
+{
+  QString txt = QString::fromStdString(boost::posix_time::to_simple_string(val.duration()));
+  paint_generic(painter, option, txt, val.metadata().has_flag("readonly"));
+}
+
+void SettingDelegate::paint_menu(QPainter* painter, const QStyleOptionViewItem &option,
+                                 const Setting &val) const
+{
+  QString txt = QString::fromStdString(val.metadata().enum_name(val.get_number()));
+  paint_generic(painter, option, txt, val.metadata().has_flag("readonly"));
+}
+
+void SettingDelegate::paint_text(QPainter* painter, const QStyleOptionViewItem &option,
+                                 const Setting &val) const
+{
+  QString text = QString::fromStdString(val.val_to_string());
+  truncate_w_ellipses(text, text_len_limit_);
+  paint_generic(painter, option, text, val.metadata().has_flag("readonly"));
+}
 
 void SettingDelegate::paint(QPainter *painter,
                             const QStyleOptionViewItem &option,
                             const QModelIndex &index) const
 {
-  if ((option.state & QStyle::State_Selected) &&
-      !(option.state & QStyle::State_HasFocus))
-  {
-    QStyledItemDelegate::paint(painter, option, index);
-    return;
-  }
-
   if (!index.data().canConvert<Setting>())
   {
     QStyledItemDelegate::paint(painter, option, index);
     return;
   }
-  Setting itemData = qvariant_cast<Setting>(index.data());
 
-  if (itemData.is(SettingType::command))
+  Setting item = qvariant_cast<Setting>(index.data());
+
+  if (item.is(SettingType::command))
+    paint_command(painter, option, item);
+  else if (item.is(SettingType::pattern))
+    paint_pattern(painter, option, item);
+  else if (item.is(SettingType::indicator))
+    paint_indicator(painter, option, item);
+  else if (item.is(SettingType::duration))
+    paint_duration(painter, option, item);
+  else if (item.is(SettingType::menu))
+    paint_menu(painter, option, item);
+  else if (item.is(SettingType::text))
   {
-    QStyleOptionButton button;
-    button.rect = option.rect;
-    button.text = QString::fromStdString(itemData.metadata().get_string("name", ""));
-    if (!itemData.metadata().has_flag("readonly"))
-      button.state = QStyle::State_Enabled;
-    QApplication::style()->drawControl( QStyle::CE_PushButton, &button, painter);
-  }
-  else if (itemData.is(SettingType::pattern))
-  {
-    PatternWidget pat(itemData.pattern(), 20, 8);
-    pat.setEnabled(!itemData.metadata().has_flag("readonly"));
-    if (option.state & QStyle::State_Selected)
-      painter->fillRect(option.rect, option.palette.highlight());
-    pat.paint(painter, option.rect, option.palette);
-  }
-  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("color"))
-  {
-    QColor c(QString::fromStdString(itemData.get_text()));
-    paintColor(painter, option.rect, c, true);
-  }
-  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("detector"))
-  {
-    uint16_t index = 0;
-    if (itemData.indices().size())
-      index = *itemData.indices().begin();
-    QString text = QString::fromStdString(itemData.get_text());
-    paintDetector(painter, option.rect, index, text);
-  }
-  else if (itemData.is(SettingType::indicator))
-  {
-    paint_indicator(painter, option.rect, itemData);
+    if (item.metadata().has_flag("color"))
+      paint_color(painter, option, item);
+    else if (item.metadata().has_flag("detector"))
+      paint_detector(painter, option, item);
+    else
+      paint_text(painter, option, item);
   }
   else
   {
-    int flags = Qt::TextWordWrap | Qt::AlignVCenter;
-
-    std::string raw_txt = itemData.val_to_string();
-    if (raw_txt.size() > text_len_limit_)
-      raw_txt = raw_txt.substr(0, text_len_limit_) + "...";
-    raw_txt = " " + raw_txt + " ";
-    QString text = QString::fromStdString(raw_txt);
-
-    painter->save();
-
-    if (option.state & QStyle::State_Selected)
-    {
-      painter->fillRect(option.rect, option.palette.highlight());
-      painter->setPen(option.palette.highlightedText().color());
-    } else {
-      if (itemData.metadata().has_flag("readonly"))
-        painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
-      else
-        painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
-    }
-
-    painter->drawText(option.rect, flags, text);
-    painter->restore();
+    QString text = QString::fromStdString(item.val_to_string());
+    paint_generic(painter, option, text, item.metadata().has_flag("readonly"));
   }
 }
 
@@ -165,15 +212,15 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
   if (!index.data().canConvert<Setting>())
     return QStyledItemDelegate::sizeHint(option, index);
 
-  Setting itemData = qvariant_cast<Setting>(index.data());
+  Setting item = qvariant_cast<Setting>(index.data());
 
-  if (itemData.is(SettingType::command))
+  if (item.is(SettingType::command))
   {
     QPushButton button;
-    button.setText(QString::fromStdString(itemData.metadata().get_string("name","")));
+    button.setText(QString::fromStdString(item.metadata().get_string("name","")));
     return button.sizeHint();
   }
-  else if (itemData.is(SettingType::time))
+  else if (item.is(SettingType::time))
   {
     QDateTimeEdit editor;
     editor.setCalendarPopup(true);
@@ -183,27 +230,25 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
     sz.setWidth(sz.width() + 20);
     return sz;
   }
-  else if (itemData.is(SettingType::pattern))
+  else if (item.is(SettingType::pattern))
   {
-    PatternWidget pattern(itemData.pattern(), 20, 8);
+    PatternWidget pattern(item.pattern(), 20, 16);
     return pattern.sizeHint();
   }
-  else if (itemData.is(SettingType::duration))
+  else if (item.is(SettingType::duration))
   {
     TimeDurationWidget editor;
     return editor.sizeHint();
   }
   else
   {
-    std::string raw_txt = itemData.val_to_string();
-    if (raw_txt.size() > 32)
-      raw_txt = raw_txt.substr(0,32) + "...";
-    raw_txt = " " + raw_txt + " ";
-    QString text = QString::fromStdString(raw_txt);
+    QString text = QString::fromStdString(item.val_to_string());
+    if (item.is(SettingType::text))
+      truncate_w_ellipses(text, text_len_limit_);
 
     QRect r = option.rect;
     QFontMetrics fm(QApplication::font());
-    QRect qr = fm.boundingRect(r, Qt::AlignLeft | Qt::AlignVCenter, text);
+    QRect qr = fm.boundingRect(r, Qt::AlignVCenter, text);
     QSize size(qr.size());
     return size;
   }

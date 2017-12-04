@@ -397,7 +397,7 @@ void Setting::condense()
 
 void Setting::enable_if_flag(bool enable, const std::string &flag)
 {
-  if (metadata_.has_flag(flag))
+  if (flag.empty() || metadata_.has_flag(flag))
   {
     if (!enable)
       metadata_.set_flag("readonly");

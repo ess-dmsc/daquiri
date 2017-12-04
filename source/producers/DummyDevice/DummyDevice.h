@@ -25,5 +25,7 @@ private:
 protected:
   int dummy_selection_{0};
 
+  bool read_only_ {false};
+
   void add_dummy_settings();
 };

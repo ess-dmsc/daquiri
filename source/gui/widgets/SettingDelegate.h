@@ -52,11 +52,38 @@ signals:
 private:
   Container<DAQuiri::Detector> detectors_;
 
-  void paintDetector(QPainter* painter, const QRect& rect,
-                     uint16_t idx, QString text) const;
+  void text_flags(QPainter* painter,
+                  const QStyleOptionViewItem &option,
+                  bool read_only) const;
 
-  void paint_indicator(QPainter* painter, const QRect& rect,
-                       DAQuiri::Setting& val) const;
+  void paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
+                      const DAQuiri::Setting& val) const;
+
+  void paint_color(QPainter* painter, const QStyleOptionViewItem &option,
+                   const DAQuiri::Setting& val) const;
+
+  void paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
+                       const DAQuiri::Setting& val) const;
+
+  void paint_pattern(QPainter* painter, const QStyleOptionViewItem &option,
+                     const DAQuiri::Setting& val) const;
+
+  void paint_command(QPainter* painter, const QStyleOptionViewItem &option,
+                     const DAQuiri::Setting& val) const;
+
+  void paint_duration(QPainter* painter, const QStyleOptionViewItem &option,
+                      const DAQuiri::Setting& val) const;
+
+  void paint_menu(QPainter* painter, const QStyleOptionViewItem &option,
+                  const DAQuiri::Setting& val) const;
+
+  void paint_text(QPainter* painter, const QStyleOptionViewItem &option,
+                  const DAQuiri::Setting& val) const;
+
+  void paint_generic(QPainter* painter, const QStyleOptionViewItem &option,
+                     const QString& txt, bool read_only) const;
+
+  void truncate_w_ellipses(QString& t, uint16_t max) const;
 
   uint16_t text_len_limit_ {80};
 
