@@ -6,6 +6,7 @@ gui="off"
 DummyDevice="off"
 MockProducer="off"
 ESSStream="off"
+DetectorIndex="off"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../source" && pwd )/config"
 FILE=$DIR"/CMakeLists.txt"
@@ -31,6 +32,9 @@ else
   if grep -q ESSStream ${FILE}; then
     ESSStream="on"
   fi
+  if grep -q DetectorIndex ${FILE}; then
+    DetectorIndex="on"
+  fi
 fi
 
 cmd1=(--title Options --checklist "Base program options:" 10 60 16)
@@ -44,6 +48,7 @@ options2=(
          3 "Dummy device" "$DummyDevice"
          4 "Mock producer" "$MockProducer"
          5 "ESS Stream" "$ESSStream"
+         6 "Detector Index" "$DetectorIndex"
         )
 
 cmd=(dialog --backtitle "DAQuiri BUILD OPTIONS" --separate-output)
@@ -75,6 +80,9 @@ do
             ;;
         5)
             text+=$'list(APPEND DAQuiri_enabled_producers ESSStream)\n'
+            ;;
+        6)
+            text+=$'list(APPEND DAQuiri_enabled_producers DetectorIndex)\n'
             ;;
     esac
 done
