@@ -41,6 +41,9 @@ public:
 
   void set_detectors(const Container<DAQuiri::Detector>& dets);
 
+  void text_len_limit(uint16_t tll);
+  uint16_t text_len_limit() const;
+
 signals:
   void begin_editing() const;
   void ask_execute(DAQuiri::Setting command, QModelIndex index) const;
@@ -49,6 +52,16 @@ signals:
 private:
   Container<DAQuiri::Detector> detectors_;
 
-  static void paintDetector(QPainter* painter, const QRect& rect,
-                            uint16_t idx, QString text);
+  void paintDetector(QPainter* painter, const QRect& rect,
+                     uint16_t idx, QString text) const;
+
+  void paint_indicator(QPainter* painter, const QRect& rect,
+                       DAQuiri::Setting& val) const;
+
+  uint16_t text_len_limit_ {80};
+
+  QVector<QColor> detectors_palette_ {Qt::darkCyan,
+        Qt::darkBlue, Qt::darkGreen,
+        Qt::darkRed, Qt::darkYellow,
+        Qt::darkMagenta, Qt::red, Qt::blue};
 };

@@ -32,15 +32,24 @@ void SettingDelegate::set_detectors(const Container<Detector> &detectors)
   detectors_ = detectors;
 }
 
+void SettingDelegate::text_len_limit(uint16_t tll)
+{
+  text_len_limit_ = tll;
+}
+
+uint16_t SettingDelegate::text_len_limit() const
+{
+  return text_len_limit_;
+}
+
 void SettingDelegate::paintDetector(QPainter* painter,
                                     const QRect& rect,
                                     uint16_t idx,
-                                    QString text)
+                                    QString text) const
 {
   painter->save();
 
-  QVector<QColor> palette {Qt::darkCyan, Qt::darkBlue, Qt::darkGreen, Qt::darkRed, Qt::darkYellow, Qt::darkMagenta, Qt::red, Qt::blue};
-  painter->setPen(QPen(palette[idx % palette.size()], 2));
+  painter->setPen(QPen(detectors_palette_[idx % detectors_palette_.size()], 2));
   QFont f = painter->font();
   f.setBold(true);
   painter->setFont(f);
@@ -48,6 +57,26 @@ void SettingDelegate::paintDetector(QPainter* painter,
   painter->drawText(rect, Qt::AlignVCenter, text);
   painter->restore();
 }
+
+void SettingDelegate::paint_indicator(QPainter* painter, const QRect& rect,
+                                      DAQuiri::Setting& val) const
+{
+  painter->save();
+
+  auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
+  QColor bkgCol = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
+  painter->fillRect(rect, bkgCol);
+  painter->setPen(QPen(Qt::white, 3));
+  QFont f = painter->font();
+  f.setBold(true);
+  painter->setFont(f);
+
+  QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
+
+  painter->drawText(rect, Qt::AlignCenter, text);
+  painter->restore();
+}
+
 
 
 void SettingDelegate::paint(QPainter *painter,
@@ -98,41 +127,31 @@ void SettingDelegate::paint(QPainter *painter,
     QString text = QString::fromStdString(itemData.get_text());
     paintDetector(painter, option.rect, index, text);
   }
+  else if (itemData.is(SettingType::indicator))
+  {
+    paint_indicator(painter, option.rect, itemData);
+  }
   else
   {
     int flags = Qt::TextWordWrap | Qt::AlignVCenter;
 
-    std::string raw_txt = itemData.val_to_pretty_string();
-    if (raw_txt.size() > 32)
-      raw_txt = raw_txt.substr(0,32) + "...";
+    std::string raw_txt = itemData.val_to_string();
+    if (raw_txt.size() > text_len_limit_)
+      raw_txt = raw_txt.substr(0, text_len_limit_) + "...";
     raw_txt = " " + raw_txt + " ";
     QString text = QString::fromStdString(raw_txt);
 
     painter->save();
 
-    if (itemData.is(SettingType::indicator))
+    if (option.state & QStyle::State_Selected)
     {
-      auto ii = itemData.find(Setting(itemData.metadata().enum_name(itemData.get_number())));
-      QColor bkgCol = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
-      painter->fillRect(option.rect, bkgCol);
-      painter->setPen(QPen(Qt::white, 3));
-      QFont f = painter->font();
-      f.setBold(true);
-      painter->setFont(f);
-      flags |= Qt::AlignCenter;
-    }
-    else
-    {
-      if (option.state & QStyle::State_Selected)
-      {
-        painter->fillRect(option.rect, option.palette.highlight());
-        painter->setPen(option.palette.highlightedText().color());
-      } else {
-        if (itemData.metadata().has_flag("readonly"))
-          painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
-        else
-          painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
-      }
+      painter->fillRect(option.rect, option.palette.highlight());
+      painter->setPen(option.palette.highlightedText().color());
+    } else {
+      if (itemData.metadata().has_flag("readonly"))
+        painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
+      else
+        painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
     }
 
     painter->drawText(option.rect, flags, text);
@@ -176,7 +195,7 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
   }
   else
   {
-    std::string raw_txt = itemData.val_to_pretty_string();
+    std::string raw_txt = itemData.val_to_string();
     if (raw_txt.size() > 32)
       raw_txt = raw_txt.substr(0,32) + "...";
     raw_txt = " " + raw_txt + " ";

@@ -63,6 +63,7 @@ public:
   void set_flags(std::initializer_list<std::string> fs);
 
   void set_enum(int32_t idx, std::string val);
+  bool has_enum(int32_t idx) const;
   std::string enum_name(int32_t idx) const;
   std::list<std::string> enum_names() const;
   std::map<int32_t, std::string> enum_map() const
