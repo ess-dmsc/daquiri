@@ -51,7 +51,11 @@ private:
 
   std::map<std::string, ProducerPtr> producers_;
 
-  Setting settings_;// {SettingMeta("Engine", SettingType::stem)};
+  Setting settings_;
+  // {SettingMeta("Engine", SettingType::stem)};
+  int drop_packets_ {0};
+
+  std::map<std::string, SettingMeta> setting_definitions_;
 
   void _die();
   void _push_settings(const Setting&);

@@ -28,6 +28,11 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
+  SettingMeta r1 {"DropPackets", SettingType::menu, "Drop buffers"};
+  r1.set_enum(0, "Never");
+  r1.set_enum(1, "Always");
+  setting_definitions_[r1.id()] = r1;
+
 //  settings_ = default_settings();
 }
 
@@ -35,6 +40,9 @@ Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
   ret.branches.add(Setting::text("Profile description", "(no description)"));
+
+  ret.branches.add(SettingMeta("DropPackets", SettingType::menu));
+
   return ret;
 }
 
@@ -145,6 +153,11 @@ void Engine::_read_settings_bulk()
   {
     if (set.id() == "Profile description")
       continue;
+    else if (set.id() == "DropPackets")
+    {
+      set.enrich(setting_definitions_);
+      set.set_number(drop_packets_);
+    }
     else
     {
       std::string name = set.get_text();
@@ -166,6 +179,10 @@ void Engine::_write_settings_bulk()
   {
     if (set.id() == "Profile description")
       continue;
+    else if (set.id() == "DropPackets")
+    {
+      drop_packets_ = set.get_number();
+    }
     else
     {
       std::string name = set.get_text();
