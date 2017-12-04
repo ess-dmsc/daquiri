@@ -1,6 +1,5 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
-//#include "widget_detectors.h"
 #include "ProfilesForm.h"
 #include "BinaryWidget.h"
 #include <QMessageBox>
@@ -15,11 +14,9 @@
 #include "Profiles.h"
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
-                           Container<Detector>& detectors,
                            QWidget *parent)
   : QWidget(parent)
   , ui(new Ui::SettingsForm)
-  , detectors_(detectors)
   , runner_thread_(thread)
   , tree_settings_model_(this)
 {
@@ -27,8 +24,8 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   this->setWindowTitle("DAQ Settings");
 
-  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
-          this, SLOT(update(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
+  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus)),
+          this, SLOT(update(DAQuiri::Setting, DAQuiri::ProducerStatus)));
 
   current_status_ = DAQuiri::ProducerStatus::dead;
   tree_settings_model_.update(settings_tree_);
@@ -36,7 +33,6 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
   ui->treeViewSettings->setModel(&tree_settings_model_);
   ui->treeViewSettings->setItemDelegate(&tree_delegate_);
   ui->treeViewSettings->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  tree_delegate_.set_detectors(detectors_);
   connect(&tree_delegate_, SIGNAL(begin_editing()), this, SLOT(begin_editing()));
   connect(&tree_delegate_, SIGNAL(ask_execute(DAQuiri::Setting, QModelIndex)), this,
           SLOT(ask_execute_tree(DAQuiri::Setting, QModelIndex)));
@@ -47,8 +43,6 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   connect(&tree_settings_model_, SIGNAL(tree_changed()),
           this, SLOT(push_settings()));
-//  connect(&tree_settings_model_, SIGNAL(detector_chosen(int, std::string)),
-//          this, SLOT(chose_detector(int,std::string)));
 
   loadSettings();
 
@@ -61,10 +55,8 @@ void SettingsForm::exit()
 }
 
 void SettingsForm::update(const DAQuiri::Setting &tree,
-                          const std::vector<DAQuiri::Detector> &channels,
                           DAQuiri::ProducerStatus status)
 {
-  Q_UNUSED(channels)
   Q_UNUSED(status)
 //  bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
 //  bool can_gain_match = false;
@@ -130,16 +122,6 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
   if (editor->standardButton(editor->clickedButton()) == QMessageBox::Yes)
     tree_settings_model_.setData(index, QVariant::fromValue(1), Qt::EditRole);
   editing_ = false;
-}
-
-void SettingsForm::chose_detector(int chan, std::string name)
-{
-  editing_ = false;
-  Detector det = detectors_.get(Detector(name));
-  //  DBG << "det " <<  det.name() << " with sets " << det.optimizations().size();
-
-  emit toggleIO(false);
-  runner_thread_.do_set_detector(chan, det);
 }
 
 void SettingsForm::refresh()
@@ -220,7 +202,6 @@ void SettingsForm::saveSettings()
 
 void SettingsForm::updateDetDB()
 {
-  tree_delegate_.set_detectors(detectors_);
   tree_settings_model_.update(settings_tree_);
 }
 

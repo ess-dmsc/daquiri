@@ -35,17 +35,6 @@ Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
   ret.branches.add(Setting::text("Profile description", "(no description)"));
-
-  SettingMeta total_det_num;
-  total_det_num = SettingMeta("Total detectors", SettingType::integer);
-  total_det_num.set_val("min", 1);
-  Setting totaldets(total_det_num);
-  totaldets.set_number(1);
-
-  auto dets = Setting::stem("Detectors");
-  dets.branches.add(totaldets);
-  ret.branches.add(dets);
-
   return ret;
 }
 
@@ -62,8 +51,7 @@ void Engine::initialize(const json &profile)
   producers_.clear();
   for (auto &q : tree.branches)
   {
-    if ((q.id() == "Detectors") ||
-        (q.id() == "Profile description"))
+    if (q.id() == "Profile description")
       continue;
     std::string name = q.get_text();
     ProducerPtr device = pf.create_type(q.id());
@@ -126,12 +114,6 @@ ProducerStatus Engine::status() const
   return aggregate_status_;
 }
 
-std::vector<Detector> Engine::get_detectors() const
-{
-  SHARED_LOCK_ST
-  return detectors_;
-}
-
 Setting Engine::pull_settings() const
 {
   SHARED_LOCK_ST
@@ -163,29 +145,6 @@ void Engine::_read_settings_bulk()
   {
     if (set.id() == "Profile description")
       continue;
-    else if (set.id() == "Detectors")
-    {
-      SettingMeta total_det_num;
-      total_det_num = SettingMeta("Total detectors", SettingType::integer);
-      total_det_num.set_val("min", 1);
-
-      Setting totaldets(total_det_num);
-      totaldets.set_number(detectors_.size());
-
-      set.branches.clear();
-      set.branches.add_a(totaldets);
-
-      for (size_t i=0; i < detectors_.size(); ++i)
-      {
-        SettingMeta m("Detector", SettingType::text, "Detector " + std::to_string(i));
-        m.set_flag("detector");
-        Setting det(m);
-        det.set_text(detectors_[i].id());
-        det.set_indices({int32_t(i)});
-        set.branches.add_a(det);
-      }
-
-    }
     else
     {
       std::string name = set.get_text();
@@ -193,7 +152,6 @@ void Engine::_read_settings_bulk()
         producers_[name]->read_settings_bulk(set);
     }
   }
-  save_optimization();
 }
 
 void Engine::write_settings_bulk()
@@ -204,15 +162,10 @@ void Engine::write_settings_bulk()
 
 void Engine::_write_settings_bulk()
 {
-  auto det = settings_.find(Setting::stem("Detectors"));
-  if (!det)
-    settings_.branches.add(Setting::stem("Detectors"));
   for (auto &set : settings_.branches)
   {
     if (set.id() == "Profile description")
       continue;
-    else if (set.id() == "Detectors")
-      rebuild_structure(set);
     else
     {
       std::string name = set.get_text();
@@ -220,18 +173,6 @@ void Engine::_write_settings_bulk()
         producers_[name]->write_settings_bulk(set);
     }
   }
-}
-
-void Engine::rebuild_structure(Setting &set)
-{
-  Setting totaldets = set.find(Setting::integer("Total detectors", 0));
-  int oldtotal = detectors_.size();
-  int newtotal = totaldets.get_number();
-  if (newtotal < 0)
-    newtotal = 0;
-
-  if (oldtotal != newtotal)
-    detectors_.resize(newtotal);
 }
 
 OscilData Engine::oscilloscope()
@@ -286,63 +227,6 @@ bool Engine::daq_running() const
       //DBG << "daq_check > " << q.second->device_name();
     }
   return running;
-}
-
-void Engine::set_detector(size_t ch, Detector det)
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-
-  if (ch >= detectors_.size())
-    return;
-  detectors_[ch] = det;
-  //DBG << "set det #" << ch << " to  " << det.name_;
-
-  for (auto &set : settings_.branches)
-  {
-    if (set.id() == "Detectors")
-    {
-      for (auto &q : set.branches)
-      {
-        if (q.has_index(ch))
-        {
-          q.set_text(detectors_[ch].id());
-          load_optimization(ch);
-        }
-      }
-    }
-  }
-}
-
-void Engine::save_optimization()
-{
-  for (size_t i = 0; i < detectors_.size(); i++)
-  {
-    //    DBG << "Saving optimization channel " << i << " settings for " << detectors_[i].name_;
-    //    detectors_[i].settings_ = Setting();
-    Setting t;
-    t.set_indices({int32_t(i)});
-    detectors_[i].add_optimizations(settings_.find_all(t, Match::indices));
-  }
-}
-
-void Engine::load_optimizations()
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  for (size_t i = 0; i < detectors_.size(); i++)
-    load_optimization(i);
-}
-
-void Engine::load_optimization(size_t i)
-{
-  if (i >= detectors_.size())
-    return;
-  for (auto s : detectors_[i].optimizations())
-  {
-    if (s.metadata().has_flag("readonly"))
-      continue;
-    s.set_indices({int32_t(i)});
-    settings_.set(s, Match::id | Match::indices, true);
-  }
 }
 
 void Engine::set_setting(Setting address, Match flags, bool greedy)

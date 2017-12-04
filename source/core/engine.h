@@ -40,10 +40,6 @@ public:
   void read_settings_bulk();
   void get_all_settings();
 
-  //detectors
-  std::vector<Detector> get_detectors() const;
-  void set_detector(size_t, Detector);
-  void load_optimizations();
 
 //  static int print_version();
 //  static std::string version();
@@ -56,7 +52,6 @@ private:
   std::map<std::string, ProducerPtr> producers_;
 
   Setting settings_;// {SettingMeta("Engine", SettingType::stem)};
-  std::vector<Detector> detectors_;
 
   void _die();
   void _push_settings(const Setting&);
@@ -66,10 +61,6 @@ private:
 
   void save_det_settings(Setting&, const Setting&, Match flags) const;
   void load_det_settings(Setting, Setting&, Match flags);
-  void rebuild_structure(Setting &set);
-
-  void save_optimization();
-  void load_optimization(size_t);
 
   bool daq_start(SpillQueue out_queue);
   bool daq_stop();

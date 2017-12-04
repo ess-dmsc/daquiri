@@ -51,7 +51,6 @@ class daquiri : public QMainWindow
 
   private slots:
     void update_settings(DAQuiri::Setting,
-                         std::vector<DAQuiri::Detector>,
                          DAQuiri::ProducerStatus);
     void toggleIO(bool);
 
