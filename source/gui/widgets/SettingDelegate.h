@@ -29,7 +29,6 @@ public:
 
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const Q_DECL_OVERRIDE;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const Q_DECL_OVERRIDE;
 
   void setModelData(QWidget *editor, QAbstractItemModel *model,
                     const QModelIndex &index) const Q_DECL_OVERRIDE;
@@ -56,11 +55,16 @@ private:
                   const QStyleOptionViewItem &option,
                   bool read_only) const;
 
+  QString get_string(const DAQuiri::Setting& val) const;
+
   void paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
                       const DAQuiri::Setting& val) const;
 
   void paint_color(QPainter* painter, const QStyleOptionViewItem &option,
                    const DAQuiri::Setting& val) const;
+
+  void paint_gradient(QPainter* painter, const QStyleOptionViewItem &option,
+                      const DAQuiri::Setting& val) const;
 
   void paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
                        const DAQuiri::Setting& val) const;
@@ -71,21 +75,14 @@ private:
   void paint_command(QPainter* painter, const QStyleOptionViewItem &option,
                      const DAQuiri::Setting& val) const;
 
-  void paint_duration(QPainter* painter, const QStyleOptionViewItem &option,
-                      const DAQuiri::Setting& val) const;
-
-  void paint_menu(QPainter* painter, const QStyleOptionViewItem &option,
-                  const DAQuiri::Setting& val) const;
-
   void paint_text(QPainter* painter, const QStyleOptionViewItem &option,
                   const DAQuiri::Setting& val) const;
-
-  void paint_generic(QPainter* painter, const QStyleOptionViewItem &option,
-                     const QString& txt, bool read_only) const;
 
   void truncate_w_ellipses(QString& t, uint16_t max) const;
 
   uint16_t text_len_limit_ {80};
+  uint16_t pattern_vis_size_ {20};
+  uint16_t pattern_chans_per_row_ {10};
 
   QVector<QColor> detectors_palette_ {Qt::darkCyan,
         Qt::darkBlue, Qt::darkGreen,

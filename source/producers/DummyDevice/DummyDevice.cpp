@@ -183,11 +183,11 @@ void DummyDevice::add_dummy_settings()
   a24b4.set_enum(1, "c1");
   a24b4.set_enum(2, "c2");
   a24b4.set_enum(3, "c3");
-  a24b4.set_val("name", "name of a24b4");
+  a24b4.set_val("name", "Bravo");
   add_definition(a24b4);
   SettingMeta a24b8(r + "/Binary/bit8", SettingType::integer);
   a24b8.set_val("bits", 8);
-  a24b8.set_val("name", "name of a24b8");
+  a24b8.set_val("name", "Charlie");
   add_definition(a24b8);
 
   SettingMeta a25(r + "/Indicator", SettingType::indicator);
@@ -207,6 +207,10 @@ void DummyDevice::add_dummy_settings()
   a28.set_val("name", "C");
   a28.set_val("color", "#0000F0");
   add_definition(a28);
+
+  SettingMeta a29(r + "/Gradient", SettingType::text);
+  a29.set_flag("gradient-name");
+  add_definition(a29);
 
   SettingMeta root(r, SettingType::stem);
   root.set_enum(0, a0.id());
@@ -235,6 +239,7 @@ void DummyDevice::add_dummy_settings()
   root.set_enum(23, a23.id());
   root.set_enum(24, a24.id());
   root.set_enum(25, a25.id());
+  root.set_enum(29, a29.id());
 
   add_definition(root);
 }
