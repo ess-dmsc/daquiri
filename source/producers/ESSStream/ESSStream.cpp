@@ -4,8 +4,6 @@
 
 #include "custom_logger.h"
 
-#define THREAD_CLOSE_WAIT_TIME_MS 100
-
 ESSStream::ESSStream()
 {
   std::string mp {"ESSStream/"};
@@ -179,6 +177,9 @@ void ESSStream::boot()
     return;
   }
 
+  conf->set("event_cb", this, error_str);
+  conf->set("statistics.interval.ms", "1000", error_str);
+
   INFO << "<ESSStream> Created consumer " << stream_->name();
 
   // Start consumer for topic+partition at start offset
@@ -192,6 +193,44 @@ void ESSStream::boot()
 
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
+}
+
+void ESSStream::event_cb(RdKafka::Event &event)
+{
+  switch (event.type())
+  {
+  case RdKafka::Event::EVENT_ERROR:
+//    if (event.err() == RdKafka::ERR__ALL_BROKERS_DOWN) {
+//      SetConStat(KafkaProducer::ConStat::DISCONNECTED,
+//                 "Brokers down. Attempting to reconnect.");
+//    } else {
+//      SetConStat(KafkaProducer::ConStat::DISCONNECTED,
+//                 "Event error received: " + std::to_string(event.err()));
+//    }
+    break;
+  case RdKafka::Event::EVENT_LOG:
+    /// @todo Add message/log or something
+    break;
+  case RdKafka::Event::EVENT_THROTTLE:
+    /// @todo Add message/log or something
+    break;
+  case RdKafka::Event::EVENT_STATS:
+    ParseStatusString(event.str());
+    break;
+  default:
+    if ((event.type() == RdKafka::Event::EVENT_LOG) and
+        (event.severity() == RdKafka::Event::EVENT_SEVERITY_ERROR)) {
+      /// @todo Add message/log or something
+
+    } else {
+      /// @todo Add message/log or something
+    }
+  }
+}
+
+void ESSStream::ParseStatusString(std::string s)
+{
+  DBG << "Kafka stats " << s;
 }
 
 void ESSStream::die()
@@ -232,6 +271,8 @@ void ESSStream::worker_run(SpillQueue spill_queue)
 
 uint64_t ESSStream::get_message(SpillQueue spill_queue)
 {
+  stream_->poll(0);
+
   std::shared_ptr<RdKafka::Message> message
   {stream_->consume(kafka_timeout_)};
 

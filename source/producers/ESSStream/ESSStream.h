@@ -12,7 +12,9 @@ class EventMessage;
 class GEMHist;
 class GEMTrack;
 
-class ESSStream : public Producer
+class ESSStream
+    : public Producer
+    , public RdKafka::EventCb
 {
 public:
   ESSStream();
@@ -28,6 +30,10 @@ public:
   bool daq_start(SpillQueue out_queue) override;
   bool daq_stop() override;
   bool daq_running() override;
+
+protected:
+
+  void event_cb(RdKafka::Event &event) override;
 
 private:
   //no copying
@@ -60,4 +66,6 @@ private:
 //  SpillPtr get_message();
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
   void select_parser(std::string);
+
+  void ParseStatusString(std::string s);
 };
