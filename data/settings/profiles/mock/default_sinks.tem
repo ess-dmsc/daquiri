@@ -64,6 +64,84 @@
      "value": 0
     },
     {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
      "id": "clear_periodically",
      "metadata": {
       "contents": {
@@ -134,7 +212,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#806833e2"
+     "value": "#80ec0c08"
     },
     {
      "id": "time_resolution",
@@ -334,7 +412,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#8026ce63"
+     "value": "#8026ce2c"
     },
     {
      "id": "downsample",
@@ -533,7 +611,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#808a10d6"
+     "value": "#801069d6"
     },
     {
      "id": "downsample",
@@ -932,7 +1010,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "Candy"
+     "value": "Cold"
     },
     {
      "id": "time_resolution",
