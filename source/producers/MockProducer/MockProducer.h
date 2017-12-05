@@ -52,11 +52,12 @@ private:
   MockProducer(const MockProducer&);
 
   //Acquisition threads, use as static functors
-  static void worker_run(MockProducer* callback, SpillQueue spill_queue);
+  void worker_run(SpillQueue spill_queue);
 
 protected:
-  std::atomic<int> run_status_ {0};
-  std::thread *runner_ {nullptr};
+  std::atomic<bool> terminate_ {false};
+  std::atomic<bool> running_ {false};
+  std::thread runner_;
 
   // cached params
   uint16_t bits_ {6};

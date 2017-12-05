@@ -38,8 +38,9 @@ private:
   void worker_run(SpillQueue spill_queue);
 
 private:
-  std::atomic<int> run_status_ {0};
-  std::thread* runner_ {nullptr};
+  std::atomic<bool> terminate_ {false};
+  std::atomic<bool> running_ {false};
+  std::thread runner_;
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;

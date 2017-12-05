@@ -49,54 +49,35 @@ ESSStream::ESSStream()
 ESSStream::~ESSStream()
 {
   daq_stop();
-  if (runner_ != nullptr)
-  {
-    runner_->detach();
-    delete runner_;
-  }
   die();
 }
 
 bool ESSStream::daq_start(SpillQueue out_queue)
 {
-  if (run_status_.load() > 0)
-    return false;
+  if (running_.load())
+    daq_stop();
 
-  run_status_.store(1);
-
-  if (runner_ != nullptr)
-    delete runner_;
-
-  runner_ = new std::thread(&ESSStream::worker_run, this, out_queue);
+  terminate_.store(false);
+  running_.store(true);
+  runner_ = std::thread(&ESSStream::worker_run, this, out_queue);
 
   return true;
 }
 
 bool ESSStream::daq_stop()
 {
-  if (run_status_.load() == 0)
-    return false;
+  terminate_.store(true);
 
-  run_status_.store(2);
+  if (runner_.joinable())
+    runner_.join();
+  running_.store(false);
 
-  if ((runner_ != nullptr) && runner_->joinable())
-  {
-    runner_->join();
-    delete runner_;
-    runner_ = nullptr;
-  }
-
-  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
-
-  run_status_.store(0);
   return true;
 }
 
 bool ESSStream::daq_running()
 {
-  if (run_status_.load() == 3)
-    daq_stop();
-  return (run_status_.load() > 0);
+  return (running_.load());
 }
 
 void ESSStream::read_settings_bulk(Setting &set) const
@@ -236,13 +217,12 @@ void ESSStream::worker_run(SpillQueue spill_queue)
 
   time_spent_ = 0;
 
-  while (run_status_.load() != 2)
+  while (!terminate_.load())
     spills += get_message(spill_queue);
 
   if (parser_)
     spills += parser_->stop(spill_queue);
 
-  run_status_.store(3);
   DBG << "<ESSStream> Finished run"
       << " spills=" << spills
       << " time=" << time_spent_

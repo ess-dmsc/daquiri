@@ -162,54 +162,35 @@ MockProducer::MockProducer()
 MockProducer::~MockProducer()
 {
   daq_stop();
-  if (runner_ != nullptr)
-  {
-    runner_->detach();
-    delete runner_;
-  }
   die();
 }
 
 bool MockProducer::daq_start(SpillQueue out_queue)
 {
-  if (run_status_.load() > 0)
-    return false;
+  if (running_.load())
+    daq_stop();
 
-  run_status_.store(1);
-
-  if (runner_ != nullptr)
-    delete runner_;
-
-  runner_ = new std::thread(&worker_run, this, out_queue);
+  terminate_.store(false);
+  running_.store(true);
+  runner_ = std::thread(&MockProducer::worker_run, this, out_queue);
 
   return true;
 }
 
 bool MockProducer::daq_stop()
 {
-  if (run_status_.load() == 0)
-    return false;
+  terminate_.store(true);
 
-  run_status_.store(2);
+  if (runner_.joinable())
+    runner_.join();
+  running_.store(false);
 
-  if ((runner_ != nullptr) && runner_->joinable())
-  {
-    runner_->join();
-    delete runner_;
-    runner_ = nullptr;
-  }
-
-  wait_ms(500);
-
-  run_status_.store(0);
   return true;
 }
 
 bool MockProducer::daq_running()
 {
-  if (run_status_.load() == 3)
-    daq_stop();
-  return (run_status_.load() > 0);
+  return (running_.load());
 }
 
 void MockProducer::read_settings_bulk(Setting &set) const
@@ -314,25 +295,22 @@ void MockProducer::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void MockProducer::worker_run(MockProducer* callback,
-                              SpillQueue spill_queue)
+void MockProducer::worker_run(SpillQueue spill_queue)
 {
   DBG << "<MockProducer> Starting run   "
-      << "  timebase " << callback->event_definition_.timebase.debug() << "ns"
-      << "  init_rate=" << callback->count_rate_ << "cps"
-      << "  lambda=" << callback->lambda_;
+      << "  timebase " << event_definition_.timebase.debug() << "ns"
+      << "  init_rate=" << count_rate_ << "cps"
+      << "  lambda=" << lambda_;
 
   CustomTimer timer(true);
 
-  spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
-  while (callback->run_status_.load() != 2)
+  spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
+  while (!terminate_.load())
   {
-    wait_us(callback->spill_interval_ * 1000000.0);
-    spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
+    wait_us(spill_interval_ * 1000000.0);
+    spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
   }
-  spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));
-
-  callback->run_status_.store(3);
+  spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
 }
 
 void MockProducer::add_hit(Spill& spill)
