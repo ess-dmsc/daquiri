@@ -332,7 +332,7 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
 std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
 {
   std::vector<RdKafka::TopicPartition*> partitions;
-  auto metadata = queryMetadata();
+  auto metadata = get_kafka_metadata();
   auto topics = metadata->topics();
   // Search through all topics for the ones we are interested in
   auto topicname = kafka_topic_name_;
@@ -353,7 +353,7 @@ std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
   return partitions;
 }
 
-std::unique_ptr<RdKafka::Metadata> ESSStream::queryMetadata() const
+std::unique_ptr<RdKafka::Metadata> ESSStream::get_kafka_metadata() const
 {
   RdKafka::Metadata* metadataRawPtr(nullptr);
   // API requires address of a pointer to the struct but compiler won't allow

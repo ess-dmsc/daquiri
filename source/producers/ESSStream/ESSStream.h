@@ -64,5 +64,5 @@ private:
   void select_parser(std::string);
 
   std::vector<RdKafka::TopicPartition*> get_partitions();
-  std::unique_ptr<RdKafka::Metadata> queryMetadata() const;
+  std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
 };
