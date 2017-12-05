@@ -141,6 +141,9 @@ public:
         earliest = &s.second;
     }
 
+    if (!earliest->size())
+      return nullptr;
+
     SpillPtr result = earliest->pop();
     size_--;
 

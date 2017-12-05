@@ -26,6 +26,10 @@ ESSStream::ESSStream()
   ti.set_val("units", "ms");
   add_definition(ti);
 
+  SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
+  mb.set_val("min", 1);
+  add_definition(mb);
+
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
   pars.set_enum(1, "ev42_events");
@@ -38,6 +42,7 @@ ESSStream::ESSStream()
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
   root.set_enum(3, mp + "KafkaDecomission");
+  root.set_enum(4, mp + "KafkaMaxBacklog");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -86,6 +91,7 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
   set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
+  set.set(Setting::integer("ESSStream/KafkaMaxBacklog", kafka_max_backlog_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
@@ -110,6 +116,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
   kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
+  kafka_max_backlog_ = set.find({"ESSStream/KafkaMaxBacklog"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
@@ -161,7 +168,7 @@ void ESSStream::boot()
   conf->set("metadata.broker.list", kafka_broker_name_, error_str);
   conf->set("message.max.bytes", "10000000", error_str);
   conf->set("fetch.message.max.bytes", "10000000", error_str);
-  conf->set("replica.fetch.max.bytes", "10000000", error_str);
+//  conf->set("replica.fetch.max.bytes", "10000000", error_str);
   conf->set("group.id", "group0", error_str);
   //  conf->set("enable.auto.commit", "false", error_str);
   //  conf->set("enable.auto.offset.store", "false", error_str);
@@ -177,9 +184,6 @@ void ESSStream::boot()
     return;
   }
 
-  conf->set("event_cb", this, error_str);
-  conf->set("statistics.interval.ms", "1000", error_str);
-
   INFO << "<ESSStream> Created consumer " << stream_->name();
 
   // Start consumer for topic+partition at start offset
@@ -191,51 +195,19 @@ void ESSStream::boot()
     return;
   }
 
+  partitions_ = get_partitions();
+
+  DBG << "Obtained " << partitions_.size() << " partitions.";
+
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
-}
-
-void ESSStream::event_cb(RdKafka::Event &event)
-{
-  switch (event.type())
-  {
-  case RdKafka::Event::EVENT_ERROR:
-//    if (event.err() == RdKafka::ERR__ALL_BROKERS_DOWN) {
-//      SetConStat(KafkaProducer::ConStat::DISCONNECTED,
-//                 "Brokers down. Attempting to reconnect.");
-//    } else {
-//      SetConStat(KafkaProducer::ConStat::DISCONNECTED,
-//                 "Event error received: " + std::to_string(event.err()));
-//    }
-    break;
-  case RdKafka::Event::EVENT_LOG:
-    /// @todo Add message/log or something
-    break;
-  case RdKafka::Event::EVENT_THROTTLE:
-    /// @todo Add message/log or something
-    break;
-  case RdKafka::Event::EVENT_STATS:
-    ParseStatusString(event.str());
-    break;
-  default:
-    if ((event.type() == RdKafka::Event::EVENT_LOG) and
-        (event.severity() == RdKafka::Event::EVENT_SEVERITY_ERROR)) {
-      /// @todo Add message/log or something
-
-    } else {
-      /// @todo Add message/log or something
-    }
-  }
-}
-
-void ESSStream::ParseStatusString(std::string s)
-{
-  DBG << "Kafka stats " << s;
 }
 
 void ESSStream::die()
 {
 //  INFO << "<ESSStream> Shutting down";
+  if (partitions_.size())
+    RdKafka::TopicPartition::destroy(partitions_);
   if (stream_)
   {
     stream_->close();
@@ -271,19 +243,17 @@ void ESSStream::worker_run(SpillQueue spill_queue)
 
 uint64_t ESSStream::get_message(SpillQueue spill_queue)
 {
-  stream_->poll(0);
-
   std::shared_ptr<RdKafka::Message> message
   {stream_->consume(kafka_timeout_)};
 
   switch (message->err())
   {
   case RdKafka::ERR__UNKNOWN_TOPIC:
-    WARN << "Unknown topic: " << message->errstr();
+    WARN << "<ESSStream> Unknown topic: " << message->errstr();
     return 0;
 
   case RdKafka::ERR__UNKNOWN_PARTITION:
-    WARN << "Unknown partition: " << message->errstr();
+    WARN << "<ESSStream> Unknown partition: " << message->errstr();
     return 0;
 
   case RdKafka::ERR__TIMED_OUT:
@@ -314,7 +284,7 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
     }
 
     if (message->key())
-      DBG << "Key: " << *message->key();
+      DBG << "<ESSStream> Key: " << *message->key();
 
     //    DBG << "Received Kafka message " << debug(message);
 
@@ -323,6 +293,23 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
       if (!message->len())
         return 0;
 
+      int64_t hi_o {0}, lo_o {0};
+      stream_->get_watermark_offsets(kafka_topic_name_,
+                                     message->partition(),
+                                     &lo_o, &hi_o);
+
+      if ((hi_o - message->offset()) > kafka_max_backlog_)
+      {
+        DBG << "<ESSStream> Backlog exceeded on partition " << message->partition()
+            << " offset=" << message->offset() << "  hi=" << hi_o;
+
+        auto topicPartition = partitions_[message->partition()];
+        topicPartition->set_offset(hi_o);
+//        stream_->offsetsForTimes(partitions_, 10000);
+//        stream_->seek(*topicPartition, 0);
+        stream_->assign(partitions_);
+      }
+
       uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
 
       time_spent_ += parser_->stats.time_spent;
@@ -330,10 +317,9 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
     }
     else
     {
-      WARN << "Consume failed. No parser to inerpret buffer.";
+      WARN << "<ESSStream> Consume failed. No parser to inerpret buffer.";
       return 0;
     }
-
 
   default:
     WARN << "Consume failed: " << message->errstr();
@@ -341,6 +327,45 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
   }
 
   return 0;
+}
+
+std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
+{
+  std::vector<RdKafka::TopicPartition*> partitions;
+  auto metadata = queryMetadata();
+  auto topics = metadata->topics();
+  // Search through all topics for the ones we are interested in
+  auto topicname = kafka_topic_name_;
+  auto iter = std::find_if(topics->cbegin(), topics->cend(),
+                           [topicname](const RdKafka::TopicMetadata *tpc) {
+    return tpc->topic() == topicname;
+  });
+  auto matchedTopic = *iter;
+  auto partitionMetadata = matchedTopic->partitions();
+  auto numberOfPartitions = partitionMetadata->size();
+  // Create a TopicPartition for each partition in the topic
+  for (size_t partitionNumber = 0; partitionNumber < numberOfPartitions;
+       ++partitionNumber) {
+    auto topicPartition =
+        RdKafka::TopicPartition::create(kafka_topic_name_, static_cast<int>(partitionNumber));
+    partitions.push_back(topicPartition);
+  }
+  return partitions;
+}
+
+std::unique_ptr<RdKafka::Metadata> ESSStream::queryMetadata() const
+{
+  RdKafka::Metadata* metadataRawPtr(nullptr);
+  // API requires address of a pointer to the struct but compiler won't allow
+  // &metadata.get() as it is an rvalue
+  stream_->metadata(true, nullptr, &metadataRawPtr, kafka_timeout_);
+  // Capture the pointer in an owning struct to take care of deletion
+  std::unique_ptr<RdKafka::Metadata> metadata(std::move(metadataRawPtr));
+  if (!metadata)
+  {
+    throw std::runtime_error("Failed to query metadata from broker");
+  }
+  return metadata;
 }
 
 std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)

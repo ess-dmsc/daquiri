@@ -12,9 +12,7 @@ class EventMessage;
 class GEMHist;
 class GEMTrack;
 
-class ESSStream
-    : public Producer
-    , public RdKafka::EventCb
+class ESSStream : public Producer
 {
 public:
   ESSStream();
@@ -31,10 +29,6 @@ public:
   bool daq_stop() override;
   bool daq_running() override;
 
-protected:
-
-  void event_cb(RdKafka::Event &event) override;
-
 private:
   //no copying
   void operator=(ESSStream const&);
@@ -50,12 +44,14 @@ private:
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;
+  std::vector<RdKafka::TopicPartition*> partitions_;
 
   // cached params
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
   uint16_t kafka_timeout_ {1000};
   uint16_t kafka_decomission_wait_ {5000};
+  int32_t kafka_max_backlog_ {3};
 
   std::shared_ptr<fb_parser> parser_;
 
@@ -67,5 +63,6 @@ private:
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
   void select_parser(std::string);
 
-  void ParseStatusString(std::string s);
+  std::vector<RdKafka::TopicPartition*> get_partitions();
+  std::unique_ptr<RdKafka::Metadata> queryMetadata() const;
 };
