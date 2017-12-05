@@ -54,6 +54,7 @@ private:
   Setting settings_;
   // {SettingMeta("Engine", SettingType::stem)};
   int drop_packets_ {0};
+  size_t max_packets_ {100};
 
   std::map<std::string, SettingMeta> setting_definitions_;
 

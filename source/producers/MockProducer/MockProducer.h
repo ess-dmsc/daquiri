@@ -60,11 +60,11 @@ protected:
 
   // cached params
   uint16_t bits_ {6};
-  uint32_t spill_interval_ {5};
-  double   count_rate_ {10};
-  double   lambda_ {0};
-  double   spill_lambda_ {100};
-  double   dead_ {0};
+  double spill_interval_ {1};
+  double count_rate_ {10};
+  double lambda_ {0};
+  double spill_lambda_ {100};
+  double dead_ {0};
   std::string stream_id;
 
   std::vector<ValueDefinition> val_defs_ {1, ValueDefinition()};

@@ -64,9 +64,10 @@ MockProducer::MockProducer()
   streamid.set_flag("preset");
   add_definition(streamid);
 
-  SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
-  si.set_val("min", 1);
+  SettingMeta si(mp + "SpillInterval", SettingType::floating, "Interval between spills");
+  si.set_val("min", 0.000001);
   si.set_val("max", 1000000);
+  si.set_val("step", 0.001);
   si.set_val("units", "s");
   add_definition(si);
 
@@ -216,7 +217,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set = enrich_and_toggle_presets(set);
 
   set.set(Setting::text("MockProducer/StreamID", stream_id));
-  set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
+  set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
   set.set(Setting::floating("MockProducer/DeadTime", dead_*100));
@@ -326,7 +327,7 @@ void MockProducer::worker_run(MockProducer* callback,
   spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
   while (callback->run_status_.load() != 2)
   {
-    wait_ms(callback->spill_interval_ * 1000);
+    wait_us(callback->spill_interval_ * 1000000.0);
     spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
   }
   spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));
@@ -358,9 +359,9 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
     {
       double frac = exp(0.0 - lambda_ * seconds);
       rate *= frac;
-      DBG << "<MockProducer> s=" << seconds
-          << "  frac=" << frac
-          << "  rate=" << rate;
+//      DBG << "<MockProducer> s=" << seconds
+//          << "  frac=" << frac
+//          << "  rate=" << rate;
     }
 
     uint64_t event_interval

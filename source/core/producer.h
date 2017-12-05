@@ -1,7 +1,8 @@
 #pragma once
 
 #include "setting.h"
-#include "sync_queue.h"
+//#include "sync_queue.h"
+#include "spill_dequeue.h"
 #include "spill.h"
 #include "custom_logger.h"
 
@@ -9,7 +10,9 @@ namespace DAQuiri {
 
 class Producer;
 using ProducerPtr = std::shared_ptr<Producer>;
-using SpillQueue = SynchronizedQueue<SpillPtr>*;
+//using SpillQueue = SynchronizedQueue<SpillPtr>*;
+//using SpillQueue = SpillDeque*;
+using SpillQueue = SpillMultiqueue*;
 using OscilData = std::map<std::string, Event>;
 
 enum ProducerStatus

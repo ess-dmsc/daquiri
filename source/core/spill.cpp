@@ -24,9 +24,13 @@ bool Spill::empty()
 
 std::string Spill::to_string() const
 {
-  std::string info = boost::posix_time::to_iso_extended_string(time);
+  std::string info = type_to_str(type) + " "
+      + stream_id + " " + boost::posix_time::to_iso_extended_string(time);
   if (events.size())
-    info += " [" + std::to_string(events.size()) + "]";
+  {
+    info += " " + event_model.debug();
+    info += " event_count=" + std::to_string(events.size());
+  }
   if (raw.size())
     info += " RAW=" + std::to_string(raw.size() * sizeof(char));
   return info;

@@ -33,6 +33,10 @@ Engine::Engine()
   r1.set_enum(1, "Always");
   setting_definitions_[r1.id()] = r1;
 
+  SettingMeta r2 {"MaxPackets", SettingType::integer, "Maximum buffers per stream"};
+  r2.set_val("min", 1);
+  setting_definitions_[r2.id()] = r2;
+
 //  settings_ = default_settings();
 }
 
@@ -40,9 +44,8 @@ Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
   ret.branches.add(Setting::text("Profile description", "(no description)"));
-
   ret.branches.add(SettingMeta("DropPackets", SettingType::menu));
-
+  ret.branches.add(SettingMeta("MaxPackets", SettingType::integer));
   return ret;
 }
 
@@ -158,6 +161,11 @@ void Engine::_read_settings_bulk()
       set.enrich(setting_definitions_);
       set.set_number(drop_packets_);
     }
+    else if (set.id() == "MaxPackets")
+    {
+      set.enrich(setting_definitions_);
+      set.set_number(max_packets_);
+    }
     else
     {
       std::string name = set.get_text();
@@ -182,6 +190,10 @@ void Engine::_write_settings_bulk()
     else if (set.id() == "DropPackets")
     {
       drop_packets_ = set.get_number();
+    }
+    else if (set.id() == "MaxPackets")
+    {
+      max_packets_ = set.get_number();
     }
     else
     {
@@ -295,7 +307,8 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  SynchronizedQueue<SpillPtr> parsed_queue;
+//  SynchronizedQueue<SpillPtr> parsed_queue;
+  SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
   std::thread builder(std::bind(&Engine::builder_naive,
                                 this, &parsed_queue, project));
@@ -348,7 +361,8 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
-  INFO << "<Engine> Acquisition finished";
+  INFO << "<Engine> Acquisition finished"
+       << "\n dropped spills: " << parsed_queue.dropped();
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
@@ -378,7 +392,8 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //  spill->detectors = detectors_;
   result.push_back(spill);
 
-  SynchronizedQueue<SpillPtr> parsed_queue;
+//  SynchronizedQueue<SpillPtr> parsed_queue;
+  SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
   if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
@@ -434,6 +449,7 @@ void Engine::builder_naive(SpillQueue data_queue,
     spill = data_queue->dequeue();
     if (spill != nullptr)
     {
+//      DBG << "builder received " << spill->to_string();
       CustomTimer presort_timer(true);
       presort_cycles++;
       presort_events += spill->events.size();
@@ -451,7 +467,7 @@ void Engine::builder_naive(SpillQueue data_queue,
   time += presort_timer.s();
 
   DBG << "<Engine::builder_naive> Finished "
-      << "\n   spills=" << presort_cycles
+      << "\n   total spills=" << presort_cycles
       << "\n   events=" << presort_events
       << "\n   time=" << time
       << "\n   secs/spill="
