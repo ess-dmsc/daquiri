@@ -33,13 +33,18 @@
      "value": 1000
     },
     {
-     "id": "ESSStream/Parser",
-     "type": "menu",
-     "value": 1
-    },
-    {
      "id": "ESSStream/KafkaDecomission",
      "type": "integer",
+     "value": 2000
+    },
+    {
+     "id": "ESSStream/KafkaMaxBacklog",
+     "type": "integer",
+     "value": 3
+    },
+    {
+     "id": "ESSStream/Parser",
+     "type": "menu",
      "value": 1
     },
     {

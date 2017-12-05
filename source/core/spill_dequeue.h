@@ -60,6 +60,7 @@ private:
 
 struct SmartSpillDeque
 {
+    // returns true if spill is dropped
     bool push(const SpillPtr& s, bool drop, size_t max_buffers)
     {
       if (drop &&
@@ -69,28 +70,40 @@ struct SmartSpillDeque
 
       if (s->type == StatusType::running)
         recent_running_spills++;
+
       if (earliest.is_not_a_date_time())
         earliest = s->time;
+
       queue.push_back(s);
+
       return false;
     }
 
+    // Must be non-empty
     SpillPtr pop()
     {
       SpillPtr f = queue.front();
+      queue.pop_front();
+
       if (f->type == StatusType::running)
         recent_running_spills--;
-      queue.pop_front();
+
       if (queue.size())
         earliest = queue.front()->time;
       else
         earliest = boost::posix_time::not_a_date_time;
+
       return f;
     }
 
     size_t size() const
     {
       return queue.size();
+    }
+
+    bool empty() const
+    {
+      return queue.empty();
     }
 
     boost::posix_time::ptime earliest;
@@ -107,6 +120,7 @@ public:
     , max_buffers_(max_buffers)
   {}
 
+  // will enqueue to appropriate stream
   inline void enqueue(const SpillPtr& data)
   {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -114,11 +128,12 @@ public:
 
     if (stream.push(data, drop_, max_buffers_))
     {
-      DBG << "<SpillMultiqueue> Dropped " << data->to_string();
-      dropped_++;
+      dropped_spills_ ++;
+      dropped_events_ += data->events.size();
+      return;
     }
-    size_++;
 
+    size_++;
     cond_.notify_one();
   }
 
@@ -126,10 +141,11 @@ public:
   {
     std::unique_lock<std::mutex> lock(mutex_);
 
+    // should not release if empty
     while (!size_ && !stop_)
       cond_.wait(lock);
 
-    if (stop_ || !size_)
+    if (stop_)
       return nullptr;
 
     SmartSpillDeque* earliest = &streams_[""];
@@ -141,13 +157,12 @@ public:
         earliest = &s.second;
     }
 
-    if (!earliest->size())
-      return nullptr;
+//    if (!earliest->size())
+//      return nullptr;
+//    SpillPtr result = earliest->pop();
 
-    SpillPtr result = earliest->pop();
     size_--;
-
-    return result;
+    return earliest->pop();
   }
 
   inline void stop()
@@ -162,10 +177,16 @@ public:
     return size_;
   }
 
-  inline size_t dropped()
+  inline size_t dropped_spills()
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    return dropped_;
+    return dropped_spills_;
+  }
+
+  inline size_t dropped_events()
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    return dropped_events_;
   }
 
 private:
@@ -174,10 +195,10 @@ private:
   bool stop_ {false};
 
   std::map<std::string, SmartSpillDeque> streams_;
-//  SmartSpillDeque& earliest_ {streams_[""]};
 
   size_t size_ {0};
-  size_t dropped_ {0};
+  size_t dropped_spills_ {0};
+  size_t dropped_events_ {0};
 
   bool drop_ {false};
   size_t max_buffers_ {10};

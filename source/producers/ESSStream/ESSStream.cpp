@@ -28,6 +28,7 @@ ESSStream::ESSStream()
 
   SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
   mb.set_val("min", 1);
+  mb.set_val("units", "buffers");
   add_definition(mb);
 
   SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");

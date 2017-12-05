@@ -28,12 +28,12 @@ namespace DAQuiri {
 
 Engine::Engine()
 {
-  SettingMeta r1 {"DropPackets", SettingType::menu, "Drop buffers"};
+  SettingMeta r1 {"DropPackets", SettingType::menu, "Drop spills"};
   r1.set_enum(0, "Never");
-  r1.set_enum(1, "Always");
+  r1.set_enum(1, "Stream size limit");
   setting_definitions_[r1.id()] = r1;
 
-  SettingMeta r2 {"MaxPackets", SettingType::integer, "Maximum buffers per stream"};
+  SettingMeta r2 {"MaxPackets", SettingType::integer, "Maximum spills per stream"};
   r2.set_val("min", 1);
   setting_definitions_[r2.id()] = r2;
 
@@ -165,6 +165,7 @@ void Engine::_read_settings_bulk()
     {
       set.enrich(setting_definitions_);
       set.set_number(max_packets_);
+      set.enable_if_flag(drop_packets_, "");
     }
     else
     {
@@ -362,7 +363,8 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   builder.join();
   INFO << "<Engine> Acquisition finished"
-       << "\n dropped spills: " << parsed_queue.dropped();
+       << "\n         dropped spills: " << parsed_queue.dropped_spills()
+       << "\n         dropped events: " << parsed_queue.dropped_events();
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
