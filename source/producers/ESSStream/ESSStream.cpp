@@ -67,7 +67,7 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   if (runner_ != nullptr)
     delete runner_;
 
-  runner_ = new std::thread(&worker_run, this, out_queue);
+  runner_ = new std::thread(&ESSStream::worker_run, this, out_queue);
 
   return true;
 }
@@ -228,25 +228,25 @@ void ESSStream::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::worker_run(ESSStream* callback, SpillQueue spill_queue)
+void ESSStream::worker_run(SpillQueue spill_queue)
 {
   DBG << "<ESSStream> Starting run"; //more info!!!
 
   uint64_t spills {0};
 
-  callback->time_spent_ = 0;
+  time_spent_ = 0;
 
-  while (callback->run_status_.load() != 2)
-    spills += callback->get_message(spill_queue);
+  while (run_status_.load() != 2)
+    spills += get_message(spill_queue);
 
-  if (callback->parser_)
-    spills += callback->parser_->stop(spill_queue);
+  if (parser_)
+    spills += parser_->stop(spill_queue);
 
-  callback->run_status_.store(3);
+  run_status_.store(3);
   DBG << "<ESSStream> Finished run"
       << " spills=" << spills
-      << " time=" << callback->time_spent_
-      << " secs/spill=" << callback->time_spent_ / double(spills);
+      << " time=" << time_spent_
+      << " secs/spill=" << time_spent_ / double(spills);
 }
 
 

@@ -35,7 +35,7 @@ private:
   ESSStream(const ESSStream&);
 
   //Acquisition threads, use as static functors
-  static void worker_run(ESSStream* callback, SpillQueue spill_queue);
+  void worker_run(SpillQueue spill_queue);
 
 private:
   std::atomic<int> run_status_ {0};
