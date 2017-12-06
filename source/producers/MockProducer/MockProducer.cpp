@@ -65,8 +65,8 @@ MockProducer::MockProducer()
   add_definition(streamid);
 
   SettingMeta si(mp + "SpillInterval", SettingType::floating, "Interval between spills");
-  si.set_val("min", 0.000001);
-  si.set_val("max", 1000000);
+  si.set_val("min", 0.001);
+  si.set_val("max", 1000);
   si.set_val("step", 0.001);
   si.set_val("units", "s");
   add_definition(si);
@@ -79,6 +79,7 @@ MockProducer::MockProducer()
 
   SettingMeta cr(mp + "CountRate", SettingType::floating, "Event rate");
   cr.set_val("min", 1);
+  si.set_val("step", 1);
   cr.set_val("units", "cps");
   add_definition(cr);
 
@@ -201,7 +202,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
-  set.set(Setting::floating("MockProducer/DeadTime", dead_*100));
+  set.set(Setting::floating("MockProducer/DeadTime", dead_*100.0));
   set.set(Setting::integer("MockProducer/TimebaseMult", event_definition_.timebase.multiplier()));
   set.set(Setting::integer("MockProducer/TimebaseDiv", event_definition_.timebase.divider()));
   set.set(Setting::floating("MockProducer/Lambda", lambda_));
