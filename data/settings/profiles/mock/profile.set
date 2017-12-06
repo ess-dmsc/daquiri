@@ -1,28 +1,19 @@
 {
  "branches": [
   {
-   "id": "Profile description",
+   "id": "ProfileDescr",
    "type": "text",
    "value": "Mock producer"
   },
   {
-   "branches": [
-    {
-     "id": "Total detectors",
-     "type": "integer",
-     "value": 1
-    },
-    {
-     "id": "Detector",
-     "indices": [
-      0
-     ],
-     "type": "text",
-     "value": "unknown"
-    }
-   ],
-   "id": "Detectors",
-   "type": "stem"
+   "id": "DropPackets",
+   "type": "menu",
+   "value": 1
+  },
+  {
+   "id": "MaxPackets",
+   "type": "integer",
+   "value": 3
   },
   {
    "branches": [
@@ -33,8 +24,8 @@
     },
     {
      "id": "MockProducer/SpillInterval",
-     "type": "integer",
-     "value": 1
+     "type": "floating",
+     "value": 0.01
     },
     {
      "id": "MockProducer/Resolution",
@@ -44,7 +35,7 @@
     {
      "id": "MockProducer/CountRate",
      "type": "floating",
-     "value": 10000.0
+     "value": 100000.0
     },
     {
      "id": "MockProducer/DeadTime",

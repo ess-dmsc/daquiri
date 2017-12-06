@@ -29,7 +29,6 @@ public:
 
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const Q_DECL_OVERRIDE;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const Q_DECL_OVERRIDE;
 
   void setModelData(QWidget *editor, QAbstractItemModel *model,
                     const QModelIndex &index) const Q_DECL_OVERRIDE;
@@ -41,6 +40,9 @@ public:
 
   void set_detectors(const Container<DAQuiri::Detector>& dets);
 
+  void text_len_limit(uint16_t tll);
+  uint16_t text_len_limit() const;
+
 signals:
   void begin_editing() const;
   void ask_execute(DAQuiri::Setting command, QModelIndex index) const;
@@ -49,6 +51,41 @@ signals:
 private:
   Container<DAQuiri::Detector> detectors_;
 
-  static void paintDetector(QPainter* painter, const QRect& rect,
-                            uint16_t idx, QString text);
+  void text_flags(QPainter* painter,
+                  const QStyleOptionViewItem &option,
+                  bool read_only) const;
+
+  QString get_string(const DAQuiri::Setting& val) const;
+
+  void paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
+                      const DAQuiri::Setting& val) const;
+
+  void paint_color(QPainter* painter, const QStyleOptionViewItem &option,
+                   const DAQuiri::Setting& val) const;
+
+  void paint_gradient(QPainter* painter, const QStyleOptionViewItem &option,
+                      const DAQuiri::Setting& val) const;
+
+  void paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
+                       const DAQuiri::Setting& val) const;
+
+  void paint_pattern(QPainter* painter, const QStyleOptionViewItem &option,
+                     const DAQuiri::Setting& val) const;
+
+  void paint_command(QPainter* painter, const QStyleOptionViewItem &option,
+                     const DAQuiri::Setting& val) const;
+
+  void paint_text(QPainter* painter, const QStyleOptionViewItem &option,
+                  const DAQuiri::Setting& val) const;
+
+  void truncate_w_ellipses(QString& t, uint16_t max) const;
+
+  uint16_t text_len_limit_ {80};
+  uint16_t pattern_vis_size_ {20};
+  uint16_t pattern_chans_per_row_ {10};
+
+  QVector<QColor> detectors_palette_ {Qt::darkCyan,
+        Qt::darkBlue, Qt::darkGreen,
+        Qt::darkRed, Qt::darkYellow,
+        Qt::darkMagenta, Qt::red, Qt::blue};
 };

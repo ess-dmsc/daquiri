@@ -397,7 +397,7 @@ void Setting::condense()
 
 void Setting::enable_if_flag(bool enable, const std::string &flag)
 {
-  if (metadata_.has_flag(flag))
+  if (flag.empty() || metadata_.has_flag(flag))
   {
     if (!enable)
       metadata_.set_flag("readonly");
@@ -633,18 +633,7 @@ Setting Setting::operator--(int)
 std::string Setting::val_to_string() const
 {
   std::stringstream ss;
-  if (is(SettingType::boolean))
-  {
-    if (value_int != 0)
-      ss << "True";
-    else
-      ss << "False";
-  }
-  else if (is(SettingType::integer) ||
-           is(SettingType::menu) ||
-           is(SettingType::indicator) )
-    ss << std::to_string(value_int);
-  else if (is(SettingType::binary))
+  if (is(SettingType::integer))
     ss << std::to_string(value_int);
   else if (is(SettingType::floating))
     ss << std::setprecision(std::numeric_limits<floating_t>::max_digits10)
@@ -654,9 +643,13 @@ std::string Setting::val_to_string() const
        << value_precise;
   else if (is(SettingType::pattern))
     ss << value_pattern.debug();
-  else if (is(SettingType::text) ||
-           is(SettingType::stem))
-    ss << value_text;
+  else if (is(SettingType::duration))
+  {
+    if (value_duration.is_not_a_date_time())
+      ss << "INVALID";
+    else
+      ss << very_simple(value_duration);
+  }
   else if (is(SettingType::time))
   {
     if (value_time.is_not_a_date_time())
@@ -664,37 +657,34 @@ std::string Setting::val_to_string() const
     else
       ss << boost::posix_time::to_iso_extended_string(value_time);
   }
-  else if (is(SettingType::duration))
-    ss << boost::posix_time::to_simple_string(value_duration);
-  return ss.str();
-}
-
-std::string Setting::val_to_pretty_string() const
-{
-  if (is(SettingType::duration) && !value_duration.is_not_a_date_time())
-    return very_simple(value_duration);
-  else if (is(SettingType::menu))
-    return metadata_.enum_name(value_int);
-  else if (is(SettingType::indicator))
+  else if (is(SettingType::boolean))
   {
-    return find({metadata_.enum_name(value_int)}, Match::id)
-        .metadata().get_string("name", "");
+    if (value_int != 0)
+      ss << "True";
+    else
+      ss << "False";
   }
+  else if (is(SettingType::text) ||
+           is(SettingType::stem))
+    ss << value_text;
   else if (is(SettingType::binary))
   {
     auto size = metadata_.get_num<size_t>("bits", 16);
     if (size > 32)
-      return "0x" + itohex64(value_int);
+      ss << "0x" << itohex64(value_int);
     else if (size > 16)
-      return "0x" + itohex32(value_int);
+      ss << "0x" << itohex32(value_int);
     else
-      return "0x" + itohex16(value_int);
+      ss << "0x" << itohex16(value_int);
   }
-  else if (is(SettingType::stem))
-    return value_text;
-  return val_to_string();
-}
+  else if (is(SettingType::menu) || is(SettingType::indicator))
+  {
+    ss << "[" << std::to_string(value_int) << "] "
+       << metadata_.enum_name(value_int);
+  }
 
+  return ss.str();
+}
 
 std::string Setting::debug(std::string prepend, bool verbose) const
 {
@@ -705,7 +695,7 @@ std::string Setting::debug(std::string prepend, bool verbose) const
     ret += col(RED) + indices_to_string(true) + col();
   if (!ret.empty())
     ret += "=";
-  ret += col(GREEN, NONE, BRIGHT) + val_to_pretty_string() + col();
+  ret += col(GREEN, NONE, BRIGHT) + val_to_string() + col();
   ret += " " + metadata_.debug(prepend, verbose);
   ret += "\n";
   if (!branches.empty())
@@ -738,6 +728,8 @@ json Setting::val_to_json() const
     return json(value_dbl);
   else if (is(SettingType::precise))
     return json(value_precise);
+  else if (is(SettingType::duration))
+    return boost::posix_time::to_simple_string(value_duration);
   else
     return json(val_to_string());
 }

@@ -28,6 +28,10 @@ daquiri::daquiri(QWidget *parent,
   , open_new_project_(open_new_project)
   , start_daq_(start_daq)
 {
+//  detectors_.add(Detector("a"));
+//  detectors_.add(Detector("b"));
+//  detectors_.add(Detector("c"));
+
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<DAQuiri::Detector>>("std::vector<DAQuiri::Detector>");
   qRegisterMetaType<DAQuiri::ListData>("DAQuiri::ListData");
@@ -41,9 +45,9 @@ daquiri::daquiri(QWidget *parent,
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 
   connect(&runner_thread_,
-          SIGNAL(settingsUpdated(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)),
+          SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus)),
           this,
-          SLOT(update_settings(DAQuiri::Setting, std::vector<DAQuiri::Detector>, DAQuiri::ProducerStatus)));
+          SLOT(update_settings(DAQuiri::Setting, DAQuiri::ProducerStatus)));
 
   loadSettings();
 
@@ -66,7 +70,7 @@ daquiri::daquiri(QWidget *parent,
   connect(ui->tabs->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(tabs_moved(int,int)));
   connect(ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed(int)));
 
-  main_tab_ = new SettingsForm(runner_thread_, detectors_, this);
+  main_tab_ = new SettingsForm(runner_thread_, this);
   ui->tabs->addTab(main_tab_, "DAQ");
 //  ui->tabs->addTab(main_tab_, main_tab_->windowTitle());
   ui->tabs->setTabIcon(ui->tabs->count() - 1, QIcon(":/icons/oxy/16/applications_systemg.png"));
@@ -174,11 +178,10 @@ void daquiri::add_log_text(QString line)
 }
 
 void daquiri::update_settings(DAQuiri::Setting sets,
-                              std::vector<DAQuiri::Detector> /*channels*/,
                               DAQuiri::ProducerStatus status)
 {
   engine_status_ = status;
-  auto description = sets.find({"Profile description"}, Match::id);
+  auto description = sets.find({"ProfileDescr"}, Match::id);
   profile_description_ = QString::fromStdString(description.get_text());
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::current_profile_name();

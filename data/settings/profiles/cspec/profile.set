@@ -1,28 +1,19 @@
 {
  "branches": [
   {
-   "id": "Profile description",
+   "id": "ProfileDescr",
    "type": "text",
    "value": "C-SPEC"
   },
   {
-   "branches": [
-    {
-     "id": "Total detectors",
-     "type": "integer",
-     "value": 1
-    },
-    {
-     "id": "Detector",
-     "indices": [
-      0
-     ],
-     "type": "text",
-     "value": "unknown"
-    }
-   ],
-   "id": "Detectors",
-   "type": "stem"
+   "id": "DropPackets",
+   "type": "menu",
+   "value": 1
+  },
+  {
+   "id": "MaxPackets",
+   "type": "integer",
+   "value": 1
   },
   {
    "branches": [
@@ -42,13 +33,18 @@
      "value": 1000
     },
     {
-     "id": "ESSStream/Parser",
-     "type": "menu",
+     "id": "ESSStream/KafkaDecomission",
+     "type": "integer",
+     "value": 2000
+    },
+    {
+     "id": "ESSStream/KafkaMaxBacklog",
+     "type": "integer",
      "value": 1
     },
     {
-     "id": "ESSStream/KafkaDecomission",
-     "type": "integer",
+     "id": "ESSStream/Parser",
+     "type": "menu",
      "value": 1
     },
     {

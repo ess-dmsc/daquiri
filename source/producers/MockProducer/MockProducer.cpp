@@ -64,9 +64,10 @@ MockProducer::MockProducer()
   streamid.set_flag("preset");
   add_definition(streamid);
 
-  SettingMeta si(mp + "SpillInterval", SettingType::integer, "Interval between spills");
-  si.set_val("min", 1);
-  si.set_val("max", 1000000);
+  SettingMeta si(mp + "SpillInterval", SettingType::floating, "Interval between spills");
+  si.set_val("min", 0.001);
+  si.set_val("max", 1000);
+  si.set_val("step", 0.001);
   si.set_val("units", "s");
   add_definition(si);
 
@@ -78,6 +79,7 @@ MockProducer::MockProducer()
 
   SettingMeta cr(mp + "CountRate", SettingType::floating, "Event rate");
   cr.set_val("min", 1);
+  si.set_val("step", 1);
   cr.set_val("units", "cps");
   add_definition(cr);
 
@@ -161,54 +163,35 @@ MockProducer::MockProducer()
 MockProducer::~MockProducer()
 {
   daq_stop();
-  if (runner_ != nullptr)
-  {
-    runner_->detach();
-    delete runner_;
-  }
   die();
 }
 
 bool MockProducer::daq_start(SpillQueue out_queue)
 {
-  if (run_status_.load() > 0)
-    return false;
+  if (running_.load())
+    daq_stop();
 
-  run_status_.store(1);
-
-  if (runner_ != nullptr)
-    delete runner_;
-
-  runner_ = new std::thread(&worker_run, this, out_queue);
+  terminate_.store(false);
+  running_.store(true);
+  runner_ = std::thread(&MockProducer::worker_run, this, out_queue);
 
   return true;
 }
 
 bool MockProducer::daq_stop()
 {
-  if (run_status_.load() == 0)
-    return false;
+  terminate_.store(true);
 
-  run_status_.store(2);
+  if (runner_.joinable())
+    runner_.join();
+  running_.store(false);
 
-  if ((runner_ != nullptr) && runner_->joinable())
-  {
-    runner_->join();
-    delete runner_;
-    runner_ = nullptr;
-  }
-
-  wait_ms(500);
-
-  run_status_.store(0);
   return true;
 }
 
 bool MockProducer::daq_running()
 {
-  if (run_status_.load() == 3)
-    daq_stop();
-  return (run_status_.load() > 0);
+  return (running_.load());
 }
 
 void MockProducer::read_settings_bulk(Setting &set) const
@@ -216,10 +199,10 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set = enrich_and_toggle_presets(set);
 
   set.set(Setting::text("MockProducer/StreamID", stream_id));
-  set.set(Setting::integer("MockProducer/SpillInterval", spill_interval_));
+  set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
-  set.set(Setting::floating("MockProducer/DeadTime", dead_*100));
+  set.set(Setting::floating("MockProducer/DeadTime", dead_*100.0));
   set.set(Setting::integer("MockProducer/TimebaseMult", event_definition_.timebase.multiplier()));
   set.set(Setting::integer("MockProducer/TimebaseDiv", event_definition_.timebase.divider()));
   set.set(Setting::floating("MockProducer/Lambda", lambda_));
@@ -313,25 +296,22 @@ void MockProducer::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void MockProducer::worker_run(MockProducer* callback,
-                              SpillQueue spill_queue)
+void MockProducer::worker_run(SpillQueue spill_queue)
 {
   DBG << "<MockProducer> Starting run   "
-      << "  timebase " << callback->event_definition_.timebase.debug() << "ns"
-      << "  init_rate=" << callback->count_rate_ << "cps"
-      << "  lambda=" << callback->lambda_;
+      << "  timebase " << event_definition_.timebase.debug() << "ns"
+      << "  init_rate=" << count_rate_ << "cps"
+      << "  lambda=" << lambda_;
 
   CustomTimer timer(true);
 
-  spill_queue->enqueue(callback->get_spill(StatusType::start, timer.s()));
-  while (callback->run_status_.load() != 2)
+  spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
+  while (!terminate_.load())
   {
-    wait_ms(callback->spill_interval_ * 1000);
-    spill_queue->enqueue(callback->get_spill(StatusType::running, timer.s()));
+    wait_us(spill_interval_ * 1000000.0);
+    spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
   }
-  spill_queue->enqueue(callback->get_spill(StatusType::stop, timer.s()));
-
-  callback->run_status_.store(3);
+  spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
 }
 
 void MockProducer::add_hit(Spill& spill)
@@ -358,9 +338,9 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
     {
       double frac = exp(0.0 - lambda_ * seconds);
       rate *= frac;
-      DBG << "<MockProducer> s=" << seconds
-          << "  frac=" << frac
-          << "  rate=" << rate;
+//      DBG << "<MockProducer> s=" << seconds
+//          << "  frac=" << frac
+//          << "  rate=" << rate;
     }
 
     uint64_t event_interval

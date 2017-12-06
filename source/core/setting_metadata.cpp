@@ -101,9 +101,14 @@ void SettingMeta::set_enum(int32_t idx, std::string val)
   enum_map_[idx] = val;
 }
 
+bool SettingMeta::has_enum(int32_t idx) const
+{
+  return (enum_map_.count(idx) != 0);
+}
+
 std::string SettingMeta::enum_name(int32_t idx) const
 {
-  if (enum_map_.count(idx))
+  if (has_enum(idx))
     return enum_map_.at(idx);
   return "";
 }

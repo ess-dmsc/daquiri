@@ -17,9 +17,9 @@ enum RunnerAction {
   kNone, kTerminate,
   kChooseProfile, kAddProducer, kRemoveProducer,
   kBoot, kShutdown,
-  kPushSettings, kSetSetting, kSetDetector, kSetDetectors,
+  kPushSettings, kSetSetting,
   kList, kAcquire, kOscil,
-  kSettingsRefresh, kOptimize
+  kSettingsRefresh
 };
 
 class ThreadRunner : public QThread
@@ -40,13 +40,10 @@ class ThreadRunner : public QThread
     void do_shutdown();
     void do_push_settings(const Setting &tree);
     void do_set_setting(const Setting &item, Match match);
-    void do_set_detector(int, Detector);
-    void do_set_detectors(std::map<int, Detector>);
 
     void do_list(Interruptor &, uint64_t timeout);
     void do_run(ProjectPtr, Interruptor &, uint64_t timeout);
 
-    void do_optimize();
     void do_oscil();
     void do_refresh_settings();
 
@@ -58,9 +55,7 @@ class ThreadRunner : public QThread
     void bootComplete();
     void runComplete();
     void listComplete(DAQuiri::ListData);
-    void settingsUpdated(DAQuiri::Setting,
-                         std::vector<DAQuiri::Detector>,
-                         DAQuiri::ProducerStatus);
+    void settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus);
     void oscilReadOut(DAQuiri::OscilData);
 
   protected:
@@ -81,8 +76,6 @@ class ThreadRunner : public QThread
 
     uint64_t timeout_;
 
-    std::map<int, Detector> detectors_;
-    Detector det_;
     int chan_;
     Setting tree_, one_setting_;
     Match match_conditions_ {Match::id};

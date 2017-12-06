@@ -27,12 +27,15 @@ void DummyDevice::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);
   set.set(Setting::indicator("DummyDevice/DummySettings/Indicator", dummy_selection_));
+  set.enable_if_flag(!read_only_, "");
+  set.enable_if_flag(true, "master");
 }
 
 void DummyDevice::write_settings_bulk(const Setting& settings)
 {
   auto set = enrich_and_toggle_presets(settings);
   dummy_selection_ = set.find({"DummyDevice/DummySettings/Menu"}).selection();
+  read_only_ = !set.find({"DummyDevice/DummySettings/Enabled"}).triggered();
 }
 
 void DummyDevice::boot()
@@ -56,6 +59,10 @@ void DummyDevice::die()
 void DummyDevice::add_dummy_settings()
 {
   std::string r {"DummyDevice/DummySettings"};
+
+  SettingMeta a0(r + "/Enabled", SettingType::boolean);
+  a0.set_flag("master");
+  add_definition(a0);
 
   SettingMeta a1(r + "/IntUnbounded", SettingType::integer);
   add_definition(a1);
@@ -176,13 +183,12 @@ void DummyDevice::add_dummy_settings()
   a24b4.set_enum(1, "c1");
   a24b4.set_enum(2, "c2");
   a24b4.set_enum(3, "c3");
-  a24b4.set_val("name", "name of a24b4");
+  a24b4.set_val("name", "Bravo");
   add_definition(a24b4);
   SettingMeta a24b8(r + "/Binary/bit8", SettingType::integer);
   a24b8.set_val("bits", 8);
-  a24b8.set_val("name", "name of a24b8");
+  a24b8.set_val("name", "Charlie");
   add_definition(a24b8);
-
 
   SettingMeta a25(r + "/Indicator", SettingType::indicator);
   a25.set_enum(0, r + "/Indicator/a");
@@ -191,18 +197,23 @@ void DummyDevice::add_dummy_settings()
   add_definition(a25);
   SettingMeta a26(r + "/Indicator/a", SettingType::text);
   a26.set_val("name", "A");
-  a26.set_val("color", "#FF0000");
+  a26.set_val("color", "#F00000");
   add_definition(a26);
   SettingMeta a27(r + "/Indicator/b", SettingType::text);
   a27.set_val("name", "B");
-  a27.set_val("color", "#00FF00");
+  a27.set_val("color", "#00F000");
   add_definition(a27);
   SettingMeta a28(r + "/Indicator/c", SettingType::text);
   a28.set_val("name", "C");
-  a28.set_val("color", "#0000FF");
+  a28.set_val("color", "#0000F0");
   add_definition(a28);
 
+  SettingMeta a29(r + "/Gradient", SettingType::text);
+  a29.set_flag("gradient-name");
+  add_definition(a29);
+
   SettingMeta root(r, SettingType::stem);
+  root.set_enum(0, a0.id());
   root.set_enum(1, a1.id());
   root.set_enum(2, a2.id());
   root.set_enum(3, a3.id());
@@ -228,5 +239,7 @@ void DummyDevice::add_dummy_settings()
   root.set_enum(23, a23.id());
   root.set_enum(24, a24.id());
   root.set_enum(25, a25.id());
+  root.set_enum(29, a29.id());
+
   add_definition(root);
 }

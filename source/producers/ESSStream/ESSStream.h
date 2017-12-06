@@ -35,23 +35,27 @@ private:
   ESSStream(const ESSStream&);
 
   //Acquisition threads, use as static functors
-  static void worker_run(ESSStream* callback, SpillQueue spill_queue);
+  void worker_run(SpillQueue spill_queue);
 
 private:
-  std::atomic<int> run_status_ {0};
-  std::thread* runner_ {nullptr};
+  std::atomic<bool> terminate_ {false};
+  std::atomic<bool> running_ {false};
+  std::thread runner_;
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;
+  std::vector<RdKafka::TopicPartition*> partitions_;
 
   // cached params
   std::string kafka_broker_name_;
   std::string kafka_topic_name_;
   uint16_t kafka_timeout_ {1000};
   uint16_t kafka_decomission_wait_ {5000};
+  int32_t kafka_max_backlog_ {3};
 
   std::shared_ptr<fb_parser> parser_;
 
+  uint64_t dropped_buffers_ {0};
   uint64_t clock_ {0};
   double time_spent_ {0};
 
@@ -59,4 +63,7 @@ private:
 //  SpillPtr get_message();
   std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
   void select_parser(std::string);
+
+  std::vector<RdKafka::TopicPartition*> get_partitions();
+  std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
 };

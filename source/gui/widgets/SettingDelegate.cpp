@@ -32,112 +32,206 @@ void SettingDelegate::set_detectors(const Container<Detector> &detectors)
   detectors_ = detectors;
 }
 
-void SettingDelegate::paintDetector(QPainter* painter,
-                                    const QRect& rect,
-                                    uint16_t idx,
-                                    QString text)
+void SettingDelegate::text_len_limit(uint16_t tll)
+{
+  text_len_limit_ = tll;
+}
+
+uint16_t SettingDelegate::text_len_limit() const
+{
+  return text_len_limit_;
+}
+
+void SettingDelegate::truncate_w_ellipses(QString &t, uint16_t max) const
+{
+  if (t.length() > max)
+    t.truncate(max);
+  t = " " + t + " ";
+}
+
+void SettingDelegate::text_flags(QPainter* painter,
+                                 const QStyleOptionViewItem &option,
+                                 bool read_only) const
+{
+  if (option.state & QStyle::State_Selected)
+  {
+    painter->fillRect(option.rect, option.palette.highlight());
+    painter->setPen(option.palette.highlightedText().color());
+  }
+  else
+  {
+    if (read_only)
+      painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
+    else
+      painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
+  }
+}
+
+QString SettingDelegate::get_string(const DAQuiri::Setting& val) const
+{
+  if (val.is(SettingType::indicator))
+  {
+    auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
+    QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
+    if (text.isEmpty())
+      text = QString::fromStdString(ii.id());
+    return text;
+  }
+  else if (val.is(SettingType::command))
+  {
+    QString txt = QString::fromStdString(val.metadata().get_string("name", ""));
+    if (txt.isEmpty())
+      txt = QString::fromStdString(val.id());
+  }
+  else if (val.is(SettingType::duration))
+  {
+    return QString::fromStdString(boost::posix_time::to_simple_string(val.duration()));
+  }
+  else if (val.is(SettingType::menu))
+  {
+    QString txt = QString::fromStdString(val.metadata().enum_name(val.get_number()));
+    if (txt.isEmpty())
+      txt = "["+ QString::number(val.get_number()) + "]";
+    return txt;
+  }
+
+  // plain text
+
+  QString text = QString::fromStdString(val.val_to_string());
+  truncate_w_ellipses(text, text_len_limit_);
+  return text;
+}
+
+void SettingDelegate::paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
+                                     const Setting &val) const
 {
   painter->save();
 
-  QVector<QColor> palette {Qt::darkCyan, Qt::darkBlue, Qt::darkGreen, Qt::darkRed, Qt::darkYellow, Qt::darkMagenta, Qt::red, Qt::blue};
-  painter->setPen(QPen(palette[idx % palette.size()], 2));
+  uint16_t idx = 0;
+  if (val.indices().size())
+    idx = *val.indices().begin();
+  QString text = QString::fromStdString(val.get_text());
+  QColor col = detectors_palette_[idx % detectors_palette_.size()];
+
+  if (option.state & QStyle::State_Selected)
+  {
+    painter->fillRect(option.rect, option.palette.highlight());
+    col = inverseColor(col);
+  }
+
+  painter->setPen(QPen(col, 2));
   QFont f = painter->font();
   f.setBold(true);
   painter->setFont(f);
 
-  painter->drawText(rect, Qt::AlignVCenter, text);
+  painter->drawText(option.rect, Qt::AlignVCenter, text);
   painter->restore();
 }
 
+void SettingDelegate::paint_color(QPainter* painter,
+                                  const QStyleOptionViewItem &option,
+                                  const Setting &val) const
+{
+  QColor c(QString::fromStdString(val.get_text()));
+  paintColor(painter, option.rect,
+             (option.state & QStyle::State_Selected) ? inverseColor(c) : c,
+             c.name());
+}
+
+void SettingDelegate::paint_gradient(QPainter* painter,
+                                     const QStyleOptionViewItem &option,
+                                     const Setting &val) const
+{
+  auto gname = QString::fromStdString(val.get_text());
+  auto gs = QPlot::Gradients::defaultGradients();
+  if (!gs.contains(gname))
+    paint_text(painter, option, val);
+
+  auto gradient = gs.get(gname);
+
+  QLinearGradient g;
+//  DBG << "CONSTRUCTING " << gname.toStdString();
+  for (auto s : gradient.colorStops().toStdMap())
+  {
+    g.setColorAt(s.first, s.second);
+//    DBG << "Col " << s.first << " -> " << s.second.name().toStdString();
+  }
+  paintGradient(painter, option.rect, g, gname);
+}
+
+void SettingDelegate::paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
+                                      const Setting &val) const
+{
+  auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
+  QColor color = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
+  //  QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
+
+  paintColor(painter, option.rect,
+             (option.state & QStyle::State_Selected) ? inverseColor(color) : color,
+             get_string(val));
+}
+
+void SettingDelegate::paint_pattern(QPainter* painter, const QStyleOptionViewItem &option,
+                                    const Setting &val) const
+{
+  PatternWidget pat(val.pattern(), pattern_vis_size_, pattern_chans_per_row_);
+  pat.setEnabled(!val.metadata().has_flag("readonly"));
+  if (option.state & QStyle::State_Selected)
+    painter->fillRect(option.rect, option.palette.highlight());
+  pat.paint(painter, option.rect, option.palette);
+}
+
+void SettingDelegate::paint_command(QPainter* painter, const QStyleOptionViewItem &option,
+                                    const Setting &val) const
+{
+  QStyleOptionButton button;
+  button.rect = option.rect;
+  button.text = get_string(val);
+  if (!val.metadata().has_flag("readonly"))
+    button.state = QStyle::State_Enabled;
+  QApplication::style()->drawControl( QStyle::CE_PushButton, &button, painter);
+}
+
+void SettingDelegate::paint_text(QPainter* painter, const QStyleOptionViewItem &option,
+                                 const Setting &val) const
+{
+  painter->save();
+  text_flags(painter, option, val.metadata().has_flag("readonly"));
+  painter->drawText(option.rect, Qt::AlignVCenter, get_string(val));
+  painter->restore();
+}
 
 void SettingDelegate::paint(QPainter *painter,
                             const QStyleOptionViewItem &option,
                             const QModelIndex &index) const
 {
-  if ((option.state & QStyle::State_Selected) &&
-      !(option.state & QStyle::State_HasFocus))
-  {
-    QStyledItemDelegate::paint(painter, option, index);
-    return;
-  }
-
   if (!index.data().canConvert<Setting>())
   {
     QStyledItemDelegate::paint(painter, option, index);
     return;
   }
-  Setting itemData = qvariant_cast<Setting>(index.data());
 
-  if (itemData.is(SettingType::command))
+  Setting item = qvariant_cast<Setting>(index.data());
+
+  if (item.is(SettingType::command))
+    paint_command(painter, option, item);
+  else if (item.is(SettingType::pattern))
+    paint_pattern(painter, option, item);
+  else if (item.is(SettingType::indicator))
+    paint_indicator(painter, option, item);
+  else if (item.is(SettingType::text))
   {
-    QStyleOptionButton button;
-    button.rect = option.rect;
-    button.text = QString::fromStdString(itemData.metadata().get_string("name", ""));
-    if (!itemData.metadata().has_flag("readonly"))
-      button.state = QStyle::State_Enabled;
-    QApplication::style()->drawControl( QStyle::CE_PushButton, &button, painter);
-  }
-  else if (itemData.is(SettingType::pattern))
-  {
-    PatternWidget pat(itemData.pattern(), 20, 8);
-    pat.setEnabled(!itemData.metadata().has_flag("readonly"));
-    if (option.state & QStyle::State_Selected)
-      painter->fillRect(option.rect, option.palette.highlight());
-    pat.paint(painter, option.rect, option.palette);
-  }
-  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("color"))
-  {
-    QColor c(QString::fromStdString(itemData.get_text()));
-    paintColor(painter, option.rect, c, true);
-  }
-  else if (itemData.is(SettingType::text) && itemData.metadata().has_flag("detector"))
-  {
-    uint16_t index = 0;
-    if (itemData.indices().size())
-      index = *itemData.indices().begin();
-    QString text = QString::fromStdString(itemData.get_text());
-    paintDetector(painter, option.rect, index, text);
+    if (item.metadata().has_flag("color"))
+      paint_color(painter, option, item);
+    else if (item.metadata().has_flag("gradient-name"))
+      paint_gradient(painter, option, item);
+    else if (item.metadata().has_flag("detector"))
+      paint_detector(painter, option, item);
+    else
+      paint_text(painter, option, item);
   }
   else
-  {
-    int flags = Qt::TextWordWrap | Qt::AlignVCenter;
-
-    std::string raw_txt = itemData.val_to_pretty_string();
-    if (raw_txt.size() > 32)
-      raw_txt = raw_txt.substr(0,32) + "...";
-    raw_txt = " " + raw_txt + " ";
-    QString text = QString::fromStdString(raw_txt);
-
-    painter->save();
-
-    if (itemData.is(SettingType::indicator))
-    {
-      auto ii = itemData.find(Setting(itemData.metadata().enum_name(itemData.get_number())));
-      QColor bkgCol = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
-      painter->fillRect(option.rect, bkgCol);
-      painter->setPen(QPen(Qt::white, 3));
-      QFont f = painter->font();
-      f.setBold(true);
-      painter->setFont(f);
-      flags |= Qt::AlignCenter;
-    }
-    else
-    {
-      if (option.state & QStyle::State_Selected)
-      {
-        painter->fillRect(option.rect, option.palette.highlight());
-        painter->setPen(option.palette.highlightedText().color());
-      } else {
-        if (itemData.metadata().has_flag("readonly"))
-          painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
-        else
-          painter->setPen(option.palette.color(QPalette::Active, QPalette::Text));
-      }
-    }
-
-    painter->drawText(option.rect, flags, text);
-    painter->restore();
-  }
+    paint_text(painter, option, item);
 }
 
 QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -146,15 +240,20 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
   if (!index.data().canConvert<Setting>())
     return QStyledItemDelegate::sizeHint(option, index);
 
-  Setting itemData = qvariant_cast<Setting>(index.data());
+  Setting item = qvariant_cast<Setting>(index.data());
 
-  if (itemData.is(SettingType::command))
+  if (item.is(SettingType::command))
   {
     QPushButton button;
-    button.setText(QString::fromStdString(itemData.metadata().get_string("name","")));
+    button.setText(QString::fromStdString(item.metadata().get_string("name","")));
     return button.sizeHint();
   }
-  else if (itemData.is(SettingType::time))
+  else if (item.is(SettingType::pattern))
+  {
+    PatternWidget pattern(item.pattern(), pattern_vis_size_, pattern_chans_per_row_);
+    return pattern.sizeHint();
+  }
+  else if (item.is(SettingType::time))
   {
     QDateTimeEdit editor;
     editor.setCalendarPopup(true);
@@ -164,27 +263,18 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
     sz.setWidth(sz.width() + 20);
     return sz;
   }
-  else if (itemData.is(SettingType::pattern))
-  {
-    PatternWidget pattern(itemData.pattern(), 20, 8);
-    return pattern.sizeHint();
-  }
-  else if (itemData.is(SettingType::duration))
+  else if (item.is(SettingType::duration))
   {
     TimeDurationWidget editor;
     return editor.sizeHint();
   }
   else
   {
-    std::string raw_txt = itemData.val_to_pretty_string();
-    if (raw_txt.size() > 32)
-      raw_txt = raw_txt.substr(0,32) + "...";
-    raw_txt = " " + raw_txt + " ";
-    QString text = QString::fromStdString(raw_txt);
+    QString text = get_string(item);
 
     QRect r = option.rect;
     QFontMetrics fm(QApplication::font());
-    QRect qr = fm.boundingRect(r, Qt::AlignLeft | Qt::AlignVCenter, text);
+    QRect qr = fm.boundingRect(r, Qt::AlignVCenter, text);
     QSize size(qr.size());
     return size;
   }
@@ -192,7 +282,7 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
   return QStyledItemDelegate::sizeHint(option, index);
 }
 
-QWidget *SettingDelegate::createEditor(QWidget *parent,
+QWidget* SettingDelegate::createEditor(QWidget *parent,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 
@@ -204,11 +294,23 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
 
   Setting set = qvariant_cast<Setting>(index.data(Qt::EditRole));
   if (set.is(SettingType::floating) || set.is(SettingType::precise))
-    return new QDoubleSpinBox(parent);
+  {
+    auto dsb = new QDoubleSpinBox(parent);
+    dsb->setRange(set.metadata().min<double>(), set.metadata().max<double>());
+    dsb->setSingleStep(set.metadata().step<double>());
+    dsb->setDecimals(6); //generalize
+    dsb->setValue(set.get_number());
+    return dsb;
+  }
   else if (set.is(SettingType::integer))
-    return new QSpinBox(parent);
-  else if (set.is(SettingType::duration))
-    return new TimeDurationWidget(parent);
+  {
+    auto sb = new QSpinBox(parent);
+    sb->setRange(set.metadata().min<int32_t>(),
+                 set.metadata().max<int32_t>());
+    sb->setSingleStep(set.metadata().step<int32_t>());
+    sb->setValue(static_cast<int32_t>(set.get_number()));
+    return sb;
+  }
   else if (set.is(SettingType::binary))
   {
     emit ask_binary(set, index);
@@ -220,14 +322,6 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
     emit ask_execute(set, index);
     return nullptr;
   }
-  else if (set.is(SettingType::time))
-  {
-    QDateTimeEdit *editor = new QDateTimeEdit(parent);
-    editor->setCalendarPopup(true);
-    editor->setTimeSpec(Qt::UTC);
-    editor->setDisplayFormat("yyyy-MM-dd HH:mm:ss.zzz");
-    return editor;
-  }
   else if (set.is(SettingType::pattern))
   {
     PatternWidget *editor = new PatternWidget(parent);
@@ -236,124 +330,101 @@ QWidget *SettingDelegate::createEditor(QWidget *parent,
   }
   else if (set.is(SettingType::boolean))
   {
-    QComboBox *editor = new QComboBox(parent);
-    editor->addItem("True", QVariant::fromValue(true));
-    editor->addItem("False", QVariant::fromValue(false));
-    return editor;
+    auto cb = new QComboBox(parent);
+    cb->addItem("True", QVariant::fromValue(true));
+    cb->addItem("False", QVariant::fromValue(false));
+    int cbIndex = cb->findData(QVariant::fromValue(set.get_number() != 0));
+    if(cbIndex >= 0)
+      cb->setCurrentIndex(cbIndex);
+    return cb;
   }
-  else if (set.is(SettingType::text))
+  else if (set.is(SettingType::time))
   {
-    if (set.metadata().has_flag("color"))
-    {
-      ColorSelector *editor = new ColorSelector(parent);
-      editor->setDisplayMode(ColorPreview::AllAlpha);
-      editor->setUpdateMode(ColorSelector::Confirm);
-      return editor;
-    }
-    else if (set.metadata().has_flag("gradient-name"))
-    {
-      QComboBox *editor = new QComboBox(parent);
-      for (auto &q : QPlot::Gradients::defaultGradients().names())
-        editor->addItem(q, q);
-      return editor;
-    }
-    else if (set.metadata().has_flag("file"))
-    {
-      QFileDialog *editor = new QFileDialog(parent, QString("Chose File"),
-                                            QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath(),
-                                            QString::fromStdString(set.metadata().get_string("wildcards","")));
-      editor->setFileMode(QFileDialog::ExistingFile);
-      return editor;
-    }
-    else if (set.metadata().has_flag("directory"))
-    {
-      QFileDialog *editor = new QFileDialog(parent, QString("Chose Directory"),
-                                            QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath());
-      editor->setFileMode(QFileDialog::Directory);
-      return editor;
-    }
-    else if (set.metadata().has_flag("detector"))
-    {
-      QComboBox *editor = new QComboBox(parent);
-      editor->addItem("none", "none");
-      for (size_t i=0; i < detectors_.size(); i++)
-      {
-        QString name = QString::fromStdString(detectors_.get(i).id());
-        editor->addItem(name, name);
-      }
-      return editor;
-    }
-    else
-      return new QLineEdit(parent);
+    auto te = new QDateTimeEdit(parent);
+    te->setCalendarPopup(true);
+    te->setTimeSpec(Qt::UTC);
+    te->setDisplayFormat("yyyy-MM-dd HH:mm:ss.zzz");
+    te->setDateTime(fromBoostPtime(set.time()));
+    return te;
+  }
+  else if (set.is(SettingType::duration))
+  {
+    auto td = new TimeDurationWidget(parent);
+    td->set_duration(set.duration());
+    return td;
   }
   else if (set.is(SettingType::menu))
   {
-    QComboBox *editor = new QComboBox(parent);
+    auto cb = new QComboBox(parent);
     for (auto &q : set.metadata().enum_map())
-      editor->addItem(QString::fromStdString(q.second),
-                      QVariant::fromValue(q.first));
-    return editor;
-  }
-  return QStyledItemDelegate::createEditor(parent, option, index);
-}
-
-void SettingDelegate::setEditorData(QWidget *editor,
-                                    const QModelIndex &index) const
-{
-  if (!index.data(Qt::EditRole).canConvert<Setting>())
-  {
-    QStyledItemDelegate::setEditorData(editor, index);
-    return;
-  }
-  Setting set = qvariant_cast<Setting>(index.data(Qt::EditRole));
-
-  if (QComboBox *cb = qobject_cast<QComboBox*>(editor))
-  {
-    if (set.is(SettingType::boolean))
-    {
-      int cbIndex = cb->findData(QVariant::fromValue(set.get_number() != 0));
-      if(cbIndex >= 0)
-        cb->setCurrentIndex(cbIndex);
-    }
-    else if (set.is(SettingType::menu) &&
-             set.metadata().enum_map().count(set.get_number()))
+      cb->addItem(QString::fromStdString(q.second),
+                  QVariant::fromValue(q.first));
+    //there is a better way to do this, indeces might be bad
+    if (set.metadata().enum_map().count(set.get_number()))
     {
       int cbIndex = cb->findText(QString::fromStdString(set.metadata().enum_name(set.get_number())));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
     }
-    else
+    return cb;
+  }
+  else if (set.is(SettingType::text))
+  {
+    if (set.metadata().has_flag("color"))
     {
+      auto cs = new ColorSelector(parent);
+      cs->setDisplayMode(ColorPreview::AllAlpha);
+      cs->setUpdateMode(ColorSelector::Confirm);
+      cs->setColor(QString::fromStdString(set.get_text()));
+      return cs;
+    }
+    else if (set.metadata().has_flag("gradient-name"))
+    {
+      auto cb = new QComboBox(parent);
+      for (auto &q : QPlot::Gradients::defaultGradients().names())
+        cb->addItem(q, q);
       int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
+      return cb;
     }
-
+    else if (set.metadata().has_flag("file"))
+    {
+      auto fd = new QFileDialog(parent, QString("Chose File"),
+                                QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath(),
+                                QString::fromStdString(set.metadata().get_string("wildcards","")));
+      fd->setFileMode(QFileDialog::ExistingFile);
+      return fd;
+    }
+    else if (set.metadata().has_flag("directory"))
+    {
+      auto fd = new QFileDialog(parent, QString("Chose Directory"),
+                                QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath());
+      fd->setFileMode(QFileDialog::Directory);
+      return fd;
+    }
+    else if (set.metadata().has_flag("detector"))
+    {
+      auto cb = new QComboBox(parent);
+      cb->addItem("none", "none");
+      for (size_t i=0; i < detectors_.size(); i++)
+      {
+        QString name = QString::fromStdString(detectors_.get(i).id());
+        cb->addItem(name, name);
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else
+    {
+      auto le = new QLineEdit(parent);
+      le->setText(QString::fromStdString(set.get_text()));
+      return le;
+    }
   }
-  else if (QDoubleSpinBox *sb = qobject_cast<QDoubleSpinBox*>(editor))
-  {
-    sb->setRange(set.metadata().min<double>(), set.metadata().max<double>());
-    sb->setSingleStep(set.metadata().step<double>());
-    sb->setDecimals(6); //generalize
-    sb->setValue(set.get_number());
-  }
-  else if (QSpinBox *sb = qobject_cast<QSpinBox*>(editor))
-  {
-    sb->setRange(set.metadata().min<int32_t>(),
-                 set.metadata().max<int32_t>());
-    sb->setSingleStep(set.metadata().step<int32_t>());
-    sb->setValue(static_cast<int32_t>(set.get_number()));
-  }
-  else if (QDateTimeEdit *dte = qobject_cast<QDateTimeEdit*>(editor))
-    dte->setDateTime(fromBoostPtime(set.time()));
-  else if (TimeDurationWidget *dte = qobject_cast<TimeDurationWidget*>(editor))
-    dte->set_duration(set.duration());
-  else if (ColorSelector *cp = qobject_cast<ColorSelector*>(editor))
-    cp->setColor(QString::fromStdString(set.get_text()));
-  else if (QLineEdit *le = qobject_cast<QLineEdit*>(editor))
-    le->setText(QString::fromStdString(set.get_text()));
-  else
-    QStyledItemDelegate::setEditorData(editor, index);
+  return QStyledItemDelegate::createEditor(parent, option, index);
 }
 
 void SettingDelegate::setModelData(QWidget *editor,

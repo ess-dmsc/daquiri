@@ -189,52 +189,6 @@ void ThreadRunner::do_set_setting(const Setting &item, Match match)
     start(HighPriority);
 }
 
-void ThreadRunner::do_set_detector(int chan, Detector det)
-{
-  if (running_.load())
-  {
-    WARN << "Runner busy";
-    return;
-  }
-  QMutexLocker locker(&mutex_);
-  terminating_.store(false);
-  chan_ = chan;
-  det_ = det;
-  action_ = kSetDetector;
-  if (!isRunning())
-    start(HighPriority);
-}
-
-void ThreadRunner::do_set_detectors(std::map<int, Detector> dets)
-{
-  if (running_.load())
-  {
-    WARN << "Runner busy";
-    return;
-  }
-  QMutexLocker locker(&mutex_);
-  terminating_.store(false);
-  detectors_ = dets;
-  action_ = kSetDetectors;
-  if (!isRunning())
-    start(HighPriority);
-}
-
-
-void ThreadRunner::do_optimize()
-{
-  if (running_.load())
-  {
-    WARN << "Runner busy";
-    return;
-  }
-  QMutexLocker locker(&mutex_);
-  terminating_.store(false);
-  action_ = kOptimize;
-  if (!isRunning())
-    start(HighPriority);
-}
-
 void ThreadRunner::do_oscil()
 {
   if (running_.load())
@@ -274,7 +228,6 @@ void ThreadRunner::run()
     {
       engine_.get_all_settings();
       emit settingsUpdated(engine_.pull_settings(),
-                           engine_.get_detectors(),
                            (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
                            | DAQuiri::ProducerStatus::running);
       interruptor_->store(false);
@@ -286,7 +239,6 @@ void ThreadRunner::run()
     {
       interruptor_->store(false);
       emit settingsUpdated(engine_.pull_settings(),
-                           engine_.get_detectors(),
                            (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
                            | DAQuiri::ProducerStatus::running);
       ListData newListRun
@@ -331,17 +283,11 @@ void ThreadRunner::run()
       engine_.die();
       action_ = kSettingsRefresh;
     }
-    else if (action_ == kOptimize)
-    {
-      engine_.load_optimizations();
-      action_ = kOscil;
-    }
     else if (action_ == kSettingsRefresh)
     {
       engine_.get_all_settings();
       action_ = kNone;
       emit settingsUpdated(engine_.pull_settings(),
-                           engine_.get_detectors(),
                            engine_.status());
     }
     else if (action_ == kPushSettings)
@@ -353,20 +299,6 @@ void ThreadRunner::run()
     {
       engine_.set_setting(tree_, match_conditions_);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kSetDetector)
-    {
-      engine_.set_detector(chan_, det_);
-      engine_.write_settings_bulk();
-      action_ = kSettingsRefresh;
-    }
-    else if (action_ == kSetDetectors)
-    {
-      for (auto &q : detectors_)
-        engine_.set_detector(q.first, q.second);
-      engine_.load_optimizations();
-      engine_.write_settings_bulk();
-      action_ = kOscil;
     }
     else if (action_ == kOscil)
     {

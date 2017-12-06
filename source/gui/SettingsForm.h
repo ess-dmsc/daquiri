@@ -21,7 +21,6 @@ class SettingsForm : public QWidget
 
   public:
     explicit SettingsForm(ThreadRunner&,
-                          Container<Detector>&,
                           QWidget *parent = 0);
     Setting get_tree() {return settings_tree_;}
     ~SettingsForm();
@@ -31,7 +30,6 @@ class SettingsForm : public QWidget
   public slots:
     void refresh();
     void update(const DAQuiri::Setting &tree,
-                const std::vector<DAQuiri::Detector> &channelsupdate,
                 DAQuiri::ProducerStatus);
 
   signals:
@@ -52,7 +50,6 @@ class SettingsForm : public QWidget
     void toggle_push(bool enable, DAQuiri::ProducerStatus status);
 
     void push_settings();
-    void chose_detector(int chan, std::string name);
 
     void ask_binary_tree(DAQuiri::Setting, QModelIndex index);
     void ask_execute_tree(DAQuiri::Setting, QModelIndex index);
@@ -78,7 +75,6 @@ class SettingsForm : public QWidget
     Ui::SettingsForm *ui;
 
     DAQuiri::ProducerStatus current_status_;
-    Container<Detector>     &detectors_;
     ThreadRunner            &runner_thread_;
     bool editing_ {false};
     bool exiting_ {false};

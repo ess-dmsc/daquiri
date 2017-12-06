@@ -34,12 +34,13 @@ int main(int argc, char **argv)
 
   auto& engine = Engine::singleton();
   engine.initialize(get_profile());
-  engine.boot();
 
   engine.set_setting(Setting::integer("MockProducer/ValueCount", 3), Match::id);
   define_value(engine, 0, "energy", 50, 2500);
   define_value(engine, 1, "x", 30, 2500);
   define_value(engine, 2, "y", 70, 2500);
+
+  engine.boot();
 
   DBG << "\n" << engine.pull_settings().debug("   ", false);
 
@@ -72,9 +73,10 @@ Setting get_profile()
 
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
   settings.set_text("producer1");
-  settings.set(Setting::integer("MockProducer/SpillInterval", 1));
+  settings.set(Setting::text("MockProducer/StreamID", "exy"));
+  settings.set(Setting::floating("MockProducer/SpillInterval", 0.1));
   settings.set(Setting::integer("MockProducer/Resolution", 16));
-  settings.set(Setting::floating("MockProducer/CountRate", 500000));
+  settings.set(Setting::floating("MockProducer/CountRate", 50000));
   settings.set(Setting::floating("MockProducer/DeadTime", 5));
   profile.branches.add(settings);
 
@@ -102,15 +104,15 @@ Container<ConsumerMetadata> get_prototypes()
 
   ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
   ptype.set_attribute(Setting::integer("downsample", 9));
+  ptype.set_attribute(Setting::text("stream_id", "exy"));
   ptype.set_attribute(Setting::text("value_name", "energy"));
-  ptype.set_attribute(Setting("add_channels", Pattern(1, {true})));
   prototypes.add(ptype);
 
   ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
   itype.set_attribute(Setting::integer("downsample", 10));
+  itype.set_attribute(Setting::text("stream_id", "exy"));
   itype.set_attribute(Setting::text("x_name", "x"));
   itype.set_attribute(Setting::text("y_name", "y"));
-  itype.set_attribute(Setting("add_channels", Pattern(1, {true})));
   prototypes.add(itype);
 
   return prototypes;

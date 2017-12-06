@@ -130,13 +130,10 @@ public:
   void cull_readonly();
   void enforce_limits();
 
-
-
   // to string
   std::string debug(std::string prepend = "", bool verbose = true) const;
-  std::string val_to_pretty_string() const;
+  std::string val_to_string() const;
   std::string indices_to_string(bool showblanks = false) const;
-
 
   // serialization
   friend void to_json(json& j, const Setting &s);
@@ -150,7 +147,6 @@ private:
   bool set_first(const Setting &setting, Match m);
   void set_all(const Setting &setting, Match m);
 
-  std::string val_to_string() const;
   json val_to_json() const;
   void val_from_json(const json &j);
 

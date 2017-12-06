@@ -7,45 +7,31 @@
 
 #define THREAD_CLOSE_WAIT_TIME_MS 100
 
-//#include "core_compiletime.h"
-
 namespace DAQuiri {
-
-//int Engine::print_version()
-//{
-//  INFO << "<DAQuiri> " << Engine::version();
-//}
-
-//std::string Engine::version()
-//{
-//  return "git.SHA1=" + std::string(GIT_VERSION)
-//      + " compiled at " + std::string(_TIMEZ_)
-//      + " on " + std::string(CMAKE_SYSTEM)
-//      + " with " + std::string(CMAKE_SYSTEM_PROCESSOR);
-//}
-
-//const static int initializer = Engine::print_version();
 
 Engine::Engine()
 {
+  SettingMeta e0 {"ProfileDescr", SettingType::text, "Profile description"};
+  setting_definitions_[e0.id()] = e0;
+
+  SettingMeta e1 {"DropPackets", SettingType::menu, "Drop spills"};
+  e1.set_enum(0, "Never");
+  e1.set_enum(1, "Stream size limit");
+  setting_definitions_[e1.id()] = e1;
+
+  SettingMeta e2 {"MaxPackets", SettingType::integer, "Maximum spills per stream"};
+  e2.set_val("min", 1);
+  setting_definitions_[e2.id()] = e2;
+
 //  settings_ = default_settings();
 }
 
 Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
-  ret.branches.add(Setting::text("Profile description", "(no description)"));
-
-  SettingMeta total_det_num;
-  total_det_num = SettingMeta("Total detectors", SettingType::integer);
-  total_det_num.set_val("min", 1);
-  Setting totaldets(total_det_num);
-  totaldets.set_number(1);
-
-  auto dets = Setting::stem("Detectors");
-  dets.branches.add(totaldets);
-  ret.branches.add(dets);
-
+  ret.branches.add(Setting::text("ProfileDescr", "(no description)"));
+  ret.branches.add(SettingMeta("DropPackets", SettingType::menu));
+  ret.branches.add(SettingMeta("MaxPackets", SettingType::integer));
   return ret;
 }
 
@@ -62,36 +48,30 @@ void Engine::initialize(const json &profile)
   producers_.clear();
   for (auto &q : tree.branches)
   {
-    if ((q.id() == "Detectors") ||
-        (q.id() == "Profile description"))
+    if (setting_definitions_.count(q.id()))
       continue;
     std::string name = q.get_text();
     ProducerPtr device = pf.create_type(q.id());
     if (!device || name.empty())
     {
-      // Say something
+      WARN << "<Engine> Failed to load producer"
+           << "  type=" << q.id()
+           << "  name=\"" << name << "\"";
       continue;
     }
-    DBG << "<Engine> Success loading " << device->plugin_name()
-        << " (" << name << ")";
     producers_[name] = device;
   }
 
   _push_settings(tree);
   _get_all_settings();
 
-  std::string descr = tree.find(Setting("Profile description")).get_text();
-  if (descr.size())
-    INFO << "<Engine> Welcome to " << descr;
+  std::string descr = tree.find(Setting("ProfileDescr")).get_text();
+  INFO << "<Engine> Initialized profile \"" << descr << "\"";
 }
 
 Engine::~Engine()
 {
-  die();
-
-  //    Setting dev_settings = settings_;
-  //    dev_settings.condense();
-  //    dev_settings.strip_metadata();
+  _die();
 }
 
 void Engine::boot()
@@ -126,12 +106,6 @@ ProducerStatus Engine::status() const
   return aggregate_status_;
 }
 
-std::vector<Detector> Engine::get_detectors() const
-{
-  SHARED_LOCK_ST
-  return detectors_;
-}
-
 Setting Engine::pull_settings() const
 {
   SHARED_LOCK_ST
@@ -148,7 +122,6 @@ void Engine::_push_settings(const Setting& newsettings)
 {
   settings_ = newsettings;
   _write_settings_bulk();
-  //  INFO << "settings pushed branches = " << settings_.branches.size();
 }
 
 void Engine::read_settings_bulk()
@@ -161,39 +134,24 @@ void Engine::_read_settings_bulk()
 {
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Profile description")
-      continue;
-    else if (set.id() == "Detectors")
+    if (set.id() == "DropPackets")
     {
-      SettingMeta total_det_num;
-      total_det_num = SettingMeta("Total detectors", SettingType::integer);
-      total_det_num.set_val("min", 1);
-
-      Setting totaldets(total_det_num);
-      totaldets.set_number(detectors_.size());
-
-      set.branches.clear();
-      set.branches.add_a(totaldets);
-
-      for (size_t i=0; i < detectors_.size(); ++i)
-      {
-        Setting det(SettingMeta("Detector",
-                                SettingType::text,
-                                "Detector " + std::to_string(i)));
-        det.set_text(detectors_[i].id());
-        det.set_indices({int32_t(i)});
-        set.branches.add_a(det);
-      }
-
+      set.enrich(setting_definitions_);
+      set.set_number(drop_packets_);
     }
-    else
+    else if (set.id() == "MaxPackets")
+    {
+      set.enrich(setting_definitions_);
+      set.set_number(max_packets_);
+      set.enable_if_flag(drop_packets_, "");
+    }
+    else if (!setting_definitions_.count(set.id()))
     {
       std::string name = set.get_text();
       if (producers_.count(name))
         producers_[name]->read_settings_bulk(set);
     }
   }
-  save_optimization();
 }
 
 void Engine::write_settings_bulk()
@@ -204,34 +162,23 @@ void Engine::write_settings_bulk()
 
 void Engine::_write_settings_bulk()
 {
-  auto det = settings_.find(Setting::stem("Detectors"));
-  if (!det)
-    settings_.branches.add(Setting::stem("Detectors"));
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Profile description")
-      continue;
-    else if (set.id() == "Detectors")
-      rebuild_structure(set);
-    else
+    if (set.id() == "DropPackets")
+    {
+      drop_packets_ = set.get_number();
+    }
+    else if (set.id() == "MaxPackets")
+    {
+      max_packets_ = set.get_number();
+    }
+    else if (!setting_definitions_.count(set.id()))
     {
       std::string name = set.get_text();
       if (producers_.count(name))
         producers_[name]->write_settings_bulk(set);
     }
   }
-}
-
-void Engine::rebuild_structure(Setting &set)
-{
-  Setting totaldets = set.find(Setting::integer("Total detectors", 0));
-  int oldtotal = detectors_.size();
-  int newtotal = totaldets.get_number();
-  if (newtotal < 0)
-    newtotal = 0;
-
-  if (oldtotal != newtotal)
-    detectors_.resize(newtotal);
 }
 
 OscilData Engine::oscilloscope()
@@ -244,7 +191,6 @@ OscilData Engine::oscilloscope()
   for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
     {
-      //DBG << "oscil > " << q.second->device_name();
       OscilData trc = q.second->oscilloscope();
       for (auto &p : trc)
         traces[p.first] = p.second;
@@ -259,7 +205,6 @@ bool Engine::daq_start(SpillQueue out_queue)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_start(out_queue);
-      //DBG << "daq_start > " << q.second->device_name();
     }
   return success;
 }
@@ -271,7 +216,6 @@ bool Engine::daq_stop()
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_stop();
-      //DBG << "daq_stop > " << q.second->device_name();
     }
   return success;
 }
@@ -283,66 +227,8 @@ bool Engine::daq_running() const
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       running |= q.second->daq_running();
-      //DBG << "daq_check > " << q.second->device_name();
     }
   return running;
-}
-
-void Engine::set_detector(size_t ch, Detector det)
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-
-  if (ch >= detectors_.size())
-    return;
-  detectors_[ch] = det;
-  //DBG << "set det #" << ch << " to  " << det.name_;
-
-  for (auto &set : settings_.branches)
-  {
-    if (set.id() == "Detectors")
-    {
-      for (auto &q : set.branches)
-      {
-        if (q.has_index(ch))
-        {
-          q.set_text(detectors_[ch].id());
-          load_optimization(ch);
-        }
-      }
-    }
-  }
-}
-
-void Engine::save_optimization()
-{
-  for (size_t i = 0; i < detectors_.size(); i++)
-  {
-    //    DBG << "Saving optimization channel " << i << " settings for " << detectors_[i].name_;
-    //    detectors_[i].settings_ = Setting();
-    Setting t;
-    t.set_indices({int32_t(i)});
-    detectors_[i].add_optimizations(settings_.find_all(t, Match::indices));
-  }
-}
-
-void Engine::load_optimizations()
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  for (size_t i = 0; i < detectors_.size(); i++)
-    load_optimization(i);
-}
-
-void Engine::load_optimization(size_t i)
-{
-  if (i >= detectors_.size())
-    return;
-  for (auto s : detectors_[i].optimizations())
-  {
-    if (s.metadata().has_flag("readonly"))
-      continue;
-    s.set_indices({int32_t(i)});
-    settings_.set(s, Match::id | Match::indices, true);
-  }
 }
 
 void Engine::set_setting(Setting address, Match flags, bool greedy)
@@ -394,10 +280,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-  SynchronizedQueue<SpillPtr> parsed_queue;
+  SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
-  std::thread builder(std::bind(&Engine::builder_naive,
-                                this, &parsed_queue, project));
+  auto builder = std::thread(&Engine::builder_naive, this, &parsed_queue, project);
 
   SpillPtr spill;
   spill = std::make_shared<Spill>();
@@ -419,9 +304,13 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     {
       if (timeout > 0)
         INFO << "  RUNNING Elapsed: " << total_timer.done()
-             << "  ETA: " << total_timer.ETA();
+             << "  ETA: " << total_timer.ETA()
+             << "  Dropped spills: " << parsed_queue.dropped_spills()
+             << "  Dropped events: " << parsed_queue.dropped_events();
       else
-        INFO << "  RUNNING Elapsed: " << total_timer.done();
+        INFO << "  RUNNING Elapsed: " << total_timer.done()
+             << "  Dropped spills: " << parsed_queue.dropped_spills()
+             << "  Dropped events: " << parsed_queue.dropped_events();
 
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
@@ -447,7 +336,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
-  INFO << "<Engine> Acquisition finished";
+  INFO << "<Engine::acquire> Acquisition finished"
+       << "\n   dropped spills: " << parsed_queue.dropped_spills()
+       << "\n   dropped events: " << parsed_queue.dropped_events();
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
@@ -477,7 +368,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //  spill->detectors = detectors_;
   result.push_back(spill);
 
-  SynchronizedQueue<SpillPtr> parsed_queue;
+  SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
   if (!daq_start(&parsed_queue))
     ERR << "<Engine> Failed to start device daq threads";
@@ -491,7 +382,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       INFO << "  RUNNING Elapsed: " << total_timer.done()
-           << "  ETA: " << total_timer.ETA();
+           << "  ETA: " << total_timer.ETA()
+           << "  Dropped spills: " << parsed_queue.dropped_spills()
+           << "  Dropped events: " << parsed_queue.dropped_events();
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
@@ -515,6 +408,11 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     result.push_back(SpillPtr(parsed_queue.dequeue()));
 
   parsed_queue.stop();
+
+  INFO << "<Engine::acquire_list> Acquisition finished"
+       << "\n   dropped spills: " << parsed_queue.dropped_spills()
+       << "\n   dropped events: " << parsed_queue.dropped_events();
+
   return result;
 }
 
@@ -543,14 +441,12 @@ void Engine::builder_naive(SpillQueue data_queue,
       break;
   }
 
-  DBG << "<Engine::builder_naive> Finished loop";
-
   CustomTimer presort_timer(true);
   project->flush();
   time += presort_timer.s();
 
   DBG << "<Engine::builder_naive> Finished "
-      << "\n   spills=" << presort_cycles
+      << "\n   total spills=" << presort_cycles
       << "\n   events=" << presort_events
       << "\n   time=" << time
       << "\n   secs/spill="
