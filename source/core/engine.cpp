@@ -7,35 +7,21 @@
 
 #define THREAD_CLOSE_WAIT_TIME_MS 100
 
-//#include "core_compiletime.h"
-
 namespace DAQuiri {
-
-//int Engine::print_version()
-//{
-//  INFO << "<DAQuiri> " << Engine::version();
-//}
-
-//std::string Engine::version()
-//{
-//  return "git.SHA1=" + std::string(GIT_VERSION)
-//      + " compiled at " + std::string(_TIMEZ_)
-//      + " on " + std::string(CMAKE_SYSTEM)
-//      + " with " + std::string(CMAKE_SYSTEM_PROCESSOR);
-//}
-
-//const static int initializer = Engine::print_version();
 
 Engine::Engine()
 {
-  SettingMeta r1 {"DropPackets", SettingType::menu, "Drop spills"};
-  r1.set_enum(0, "Never");
-  r1.set_enum(1, "Stream size limit");
-  setting_definitions_[r1.id()] = r1;
+  SettingMeta e0 {"ProfileDescr", SettingType::text, "Profile description"};
+  setting_definitions_[e0.id()] = e0;
 
-  SettingMeta r2 {"MaxPackets", SettingType::integer, "Maximum spills per stream"};
-  r2.set_val("min", 1);
-  setting_definitions_[r2.id()] = r2;
+  SettingMeta e1 {"DropPackets", SettingType::menu, "Drop spills"};
+  e1.set_enum(0, "Never");
+  e1.set_enum(1, "Stream size limit");
+  setting_definitions_[e1.id()] = e1;
+
+  SettingMeta e2 {"MaxPackets", SettingType::integer, "Maximum spills per stream"};
+  e2.set_val("min", 1);
+  setting_definitions_[e2.id()] = e2;
 
 //  settings_ = default_settings();
 }
@@ -43,7 +29,7 @@ Engine::Engine()
 Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
-  ret.branches.add(Setting::text("Profile description", "(no description)"));
+  ret.branches.add(Setting::text("ProfileDescr", "(no description)"));
   ret.branches.add(SettingMeta("DropPackets", SettingType::menu));
   ret.branches.add(SettingMeta("MaxPackets", SettingType::integer));
   return ret;
@@ -62,35 +48,30 @@ void Engine::initialize(const json &profile)
   producers_.clear();
   for (auto &q : tree.branches)
   {
-    if (q.id() == "Profile description")
+    if (setting_definitions_.count(q.id()))
       continue;
     std::string name = q.get_text();
     ProducerPtr device = pf.create_type(q.id());
     if (!device || name.empty())
     {
-      // Say something
+      WARN << "<Engine> Failed to load producer"
+           << "  type=" << q.id()
+           << "  name=\"" << name << "\"";
       continue;
     }
-    DBG << "<Engine> Success loading " << device->plugin_name()
-        << " (" << name << ")";
     producers_[name] = device;
   }
 
   _push_settings(tree);
   _get_all_settings();
 
-  std::string descr = tree.find(Setting("Profile description")).get_text();
-  if (descr.size())
-    INFO << "<Engine> Welcome to " << descr;
+  std::string descr = tree.find(Setting("ProfileDescr")).get_text();
+  INFO << "<Engine> Initialized profile \"" << descr << "\"";
 }
 
 Engine::~Engine()
 {
-  die();
-
-  //    Setting dev_settings = settings_;
-  //    dev_settings.condense();
-  //    dev_settings.strip_metadata();
+  _die();
 }
 
 void Engine::boot()
@@ -141,7 +122,6 @@ void Engine::_push_settings(const Setting& newsettings)
 {
   settings_ = newsettings;
   _write_settings_bulk();
-  //  INFO << "settings pushed branches = " << settings_.branches.size();
 }
 
 void Engine::read_settings_bulk()
@@ -154,9 +134,7 @@ void Engine::_read_settings_bulk()
 {
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Profile description")
-      continue;
-    else if (set.id() == "DropPackets")
+    if (set.id() == "DropPackets")
     {
       set.enrich(setting_definitions_);
       set.set_number(drop_packets_);
@@ -167,7 +145,7 @@ void Engine::_read_settings_bulk()
       set.set_number(max_packets_);
       set.enable_if_flag(drop_packets_, "");
     }
-    else
+    else if (!setting_definitions_.count(set.id()))
     {
       std::string name = set.get_text();
       if (producers_.count(name))
@@ -186,9 +164,7 @@ void Engine::_write_settings_bulk()
 {
   for (auto &set : settings_.branches)
   {
-    if (set.id() == "Profile description")
-      continue;
-    else if (set.id() == "DropPackets")
+    if (set.id() == "DropPackets")
     {
       drop_packets_ = set.get_number();
     }
@@ -196,7 +172,7 @@ void Engine::_write_settings_bulk()
     {
       max_packets_ = set.get_number();
     }
-    else
+    else if (!setting_definitions_.count(set.id()))
     {
       std::string name = set.get_text();
       if (producers_.count(name))
@@ -215,7 +191,6 @@ OscilData Engine::oscilloscope()
   for (auto &q : producers_)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_oscil))
     {
-      //DBG << "oscil > " << q.second->device_name();
       OscilData trc = q.second->oscilloscope();
       for (auto &p : trc)
         traces[p.first] = p.second;
@@ -230,7 +205,6 @@ bool Engine::daq_start(SpillQueue out_queue)
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_start(out_queue);
-      //DBG << "daq_start > " << q.second->device_name();
     }
   return success;
 }
@@ -242,7 +216,6 @@ bool Engine::daq_stop()
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       success |= q.second->daq_stop();
-      //DBG << "daq_stop > " << q.second->device_name();
     }
   return success;
 }
@@ -254,7 +227,6 @@ bool Engine::daq_running() const
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
       running |= q.second->daq_running();
-      //DBG << "daq_check > " << q.second->device_name();
     }
   return running;
 }
@@ -308,11 +280,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
-//  SynchronizedQueue<SpillPtr> parsed_queue;
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
-  std::thread builder(std::bind(&Engine::builder_naive,
-                                this, &parsed_queue, project));
+  auto builder = std::thread(&Engine::builder_naive, this, &parsed_queue, project);
 
   SpillPtr spill;
   spill = std::make_shared<Spill>();
@@ -334,9 +304,13 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     {
       if (timeout > 0)
         INFO << "  RUNNING Elapsed: " << total_timer.done()
-             << "  ETA: " << total_timer.ETA();
+             << "  ETA: " << total_timer.ETA()
+             << "  Dropped spills: " << parsed_queue.dropped_spills()
+             << "  Dropped events: " << parsed_queue.dropped_events();
       else
-        INFO << "  RUNNING Elapsed: " << total_timer.done();
+        INFO << "  RUNNING Elapsed: " << total_timer.done()
+             << "  Dropped spills: " << parsed_queue.dropped_spills()
+             << "  Dropped events: " << parsed_queue.dropped_events();
 
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
@@ -362,9 +336,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
-  INFO << "<Engine> Acquisition finished"
-       << "\n         dropped spills: " << parsed_queue.dropped_spills()
-       << "\n         dropped events: " << parsed_queue.dropped_events();
+  INFO << "<Engine::acquire> Acquisition finished"
+       << "\n   dropped spills: " << parsed_queue.dropped_spills()
+       << "\n   dropped events: " << parsed_queue.dropped_events();
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
@@ -394,7 +368,6 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //  spill->detectors = detectors_;
   result.push_back(spill);
 
-//  SynchronizedQueue<SpillPtr> parsed_queue;
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
   if (!daq_start(&parsed_queue))
@@ -409,7 +382,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       INFO << "  RUNNING Elapsed: " << total_timer.done()
-           << "  ETA: " << total_timer.ETA();
+           << "  ETA: " << total_timer.ETA()
+           << "  Dropped spills: " << parsed_queue.dropped_spills()
+           << "  Dropped events: " << parsed_queue.dropped_events();
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
@@ -433,6 +408,11 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     result.push_back(SpillPtr(parsed_queue.dequeue()));
 
   parsed_queue.stop();
+
+  INFO << "<Engine::acquire_list> Acquisition finished"
+       << "\n   dropped spills: " << parsed_queue.dropped_spills()
+       << "\n   dropped events: " << parsed_queue.dropped_events();
+
   return result;
 }
 
@@ -451,7 +431,6 @@ void Engine::builder_naive(SpillQueue data_queue,
     spill = data_queue->dequeue();
     if (spill != nullptr)
     {
-//      DBG << "builder received " << spill->to_string();
       CustomTimer presort_timer(true);
       presort_cycles++;
       presort_events += spill->events.size();
@@ -461,8 +440,6 @@ void Engine::builder_naive(SpillQueue data_queue,
     else
       break;
   }
-
-  DBG << "<Engine::builder_naive> Finished loop";
 
   CustomTimer presort_timer(true);
   project->flush();

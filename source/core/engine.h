@@ -40,10 +40,6 @@ public:
   void read_settings_bulk();
   void get_all_settings();
 
-
-//  static int print_version();
-//  static std::string version();
-
 private:
   mutable mutex_st mutex_;
 
@@ -72,7 +68,6 @@ private:
   bool daq_running() const;
 
   //threads
-
   void builder_naive(SpillQueue data_queue,
                      ProjectPtr project);
 

@@ -55,6 +55,7 @@ private:
 
   std::shared_ptr<fb_parser> parser_;
 
+  uint64_t dropped_buffers_ {0};
   uint64_t clock_ {0};
   double time_spent_ {0};
 

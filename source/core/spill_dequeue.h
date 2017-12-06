@@ -5,9 +5,9 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
+#include <atomic>
 
 #include "custom_logger.h"
-#include <boost/range/adaptor/map.hpp>
 
 namespace DAQuiri {
 
@@ -124,42 +124,41 @@ public:
   inline void enqueue(const SpillPtr& data)
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    SmartSpillDeque& stream = streams_[data->stream_id];
 
-    if (stream.push(data, drop_, max_buffers_))
+    if (streams_[data->stream_id].push(data, drop_, max_buffers_))
     {
       dropped_spills_ ++;
       dropped_events_ += data->events.size();
       return;
     }
 
+    // only do this if enqeued properly
     size_++;
     cond_.notify_one();
   }
 
+  // return nullptr if terminating
   inline SpillPtr dequeue()
   {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    // should not release if empty
+    // will not release if empty
     while (!size_ && !stop_)
       cond_.wait(lock);
 
+    // this is the end...
     if (stop_)
       return nullptr;
 
+    // selecting earliest ensures chronological queue
     SmartSpillDeque* earliest = &streams_[""];
     for (auto& s : streams_)
     {
-      if (s.second.size() &&
+      if (!s.second.empty() &&
           (earliest->earliest.is_not_a_date_time() ||
            (earliest->earliest > s.second.earliest)))
         earliest = &s.second;
     }
-
-//    if (!earliest->size())
-//      return nullptr;
-//    SpillPtr result = earliest->pop();
 
     size_--;
     return earliest->pop();
@@ -173,20 +172,17 @@ public:
 
   inline size_t size()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
-    return size_;
+    return size_.load();
   }
 
   inline size_t dropped_spills()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
-    return dropped_spills_;
+    return dropped_spills_.load();
   }
 
   inline size_t dropped_events()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
-    return dropped_events_;
+    return dropped_events_.load();
   }
 
 private:
@@ -196,9 +192,9 @@ private:
 
   std::map<std::string, SmartSpillDeque> streams_;
 
-  size_t size_ {0};
-  size_t dropped_spills_ {0};
-  size_t dropped_events_ {0};
+  std::atomic<size_t> size_ {0};
+  std::atomic<size_t> dropped_spills_ {0};
+  std::atomic<size_t> dropped_events_ {0};
 
   bool drop_ {false};
   size_t max_buffers_ {10};

@@ -146,25 +146,25 @@ void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<ESSStream> Cannot boot ESSStream. Failed flag check (can_boot == 0)";
+    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+         << "Cannot boot ESSStream. Failed flag check (can_boot == 0)";
     return;
   }
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
-
-  INFO << "<ESSStream> Booting";
-
-  std::string error_str;
 
   auto conf = std::unique_ptr<RdKafka::Conf>(
         RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL));
 
   if (!conf.get())
   {
-    ERR << "<ESSStream> Unable to created global Conf object";
+    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Unable to created global Conf object";
     die();
     return;
   }
+
+  std::string error_str;
 
   conf->set("metadata.broker.list", kafka_broker_name_, error_str);
   conf->set("message.max.bytes", "10000000", error_str);
@@ -180,25 +180,44 @@ void ESSStream::boot()
         RdKafka::KafkaConsumer::create(conf.get(), error_str));
   if (!stream_.get())
   {
-    ERR << "<ESSStream> Failed to create consumer: " << error_str;
+    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Failed to create consumer: " << error_str;
     die();
     return;
   }
-
-  INFO << "<ESSStream> Created consumer " << stream_->name();
 
   // Start consumer for topic+partition at start offset
   RdKafka::ErrorCode resp = stream_->subscribe({kafka_topic_name_});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
-    ERR << "<ESSStream> Failed to start consumer: " << RdKafka::err2str(resp);
+    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Failed to start consumer: " << RdKafka::err2str(resp);
     die();
     return;
   }
 
-  partitions_ = get_partitions();
+  try
+  {
+    partitions_ = get_partitions();
+  }
+  catch (...)
+  {
+    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Failed to retrieve topic partitions";
+    die();
+    return;
+  }
 
-  DBG << "Obtained " << partitions_.size() << " partitions.";
+  if (partitions_.empty())
+  {
+    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "No partitions found for given topic";
+    die();
+    return;
+  }
+
+  INFO << "<ESSStream:" << kafka_topic_name_ << "> "
+       << " booted with consumer " << stream_->name();
 
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
@@ -223,11 +242,13 @@ void ESSStream::die()
 
 void ESSStream::worker_run(SpillQueue spill_queue)
 {
-  DBG << "<ESSStream> Starting run"; //more info!!!
+  DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+      << "Starting run"; //more info!!!
 
   uint64_t spills {0};
 
   time_spent_ = 0;
+  dropped_buffers_ = 0;
 
   while (!terminate_.load())
     spills += get_message(spill_queue);
@@ -235,10 +256,13 @@ void ESSStream::worker_run(SpillQueue spill_queue)
   if (parser_)
     spills += parser_->stop(spill_queue);
 
-  DBG << "<ESSStream> Finished run"
-      << " spills=" << spills
-      << " time=" << time_spent_
-      << " secs/spill=" << time_spent_ / double(spills);
+  DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+      << "Finished run"
+      << "  spills=" << spills
+      << "  time=" << time_spent_
+      << "  secs/spill=" << time_spent_ / double(spills)
+      << "  skipped buffers=" << dropped_buffers_
+         ;
 }
 
 
@@ -250,11 +274,13 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
   switch (message->err())
   {
   case RdKafka::ERR__UNKNOWN_TOPIC:
-    WARN << "<ESSStream> Unknown topic: " << message->errstr();
+    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+         << "Unknown topic: " << message->errstr();
     return 0;
 
   case RdKafka::ERR__UNKNOWN_PARTITION:
-    WARN << "<ESSStream> Unknown partition: " << message->errstr();
+    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+         << "Unknown partition: " << message->errstr();
     return 0;
 
   case RdKafka::ERR__TIMED_OUT:
@@ -284,8 +310,6 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
 //      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
     }
 
-    if (message->key())
-      DBG << "<ESSStream> Key: " << *message->key();
 
     //    DBG << "Received Kafka message " << debug(message);
 
@@ -301,8 +325,11 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
 
       if ((hi_o - message->offset()) > kafka_max_backlog_)
       {
-        DBG << "<ESSStream> Backlog exceeded on partition " << message->partition()
+        DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+            << "Backlog exceeded on partition " << message->partition()
             << " offset=" << message->offset() << "  hi=" << hi_o;
+
+        dropped_buffers_ += (hi_o - message->offset());
 
         auto topicPartition = partitions_[message->partition()];
         topicPartition->set_offset(hi_o);
@@ -318,12 +345,14 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
     }
     else
     {
-      WARN << "<ESSStream> Consume failed. No parser to inerpret buffer.";
+      WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+           << "Consume failed. No parser to inerpret buffer.";
       return 0;
     }
 
   default:
-    WARN << "Consume failed: " << message->errstr();
+    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+         << "Consume failed: " << message->errstr();
     return 0;
   }
 
@@ -335,18 +364,25 @@ std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
   std::vector<RdKafka::TopicPartition*> partitions;
   auto metadata = get_kafka_metadata();
   auto topics = metadata->topics();
-  // Search through all topics for the ones we are interested in
-  auto topicname = kafka_topic_name_;
-  auto iter = std::find_if(topics->cbegin(), topics->cend(),
-                           [topicname](const RdKafka::TopicMetadata *tpc) {
-    return tpc->topic() == topicname;
-  });
-  auto matchedTopic = *iter;
-  auto partitionMetadata = matchedTopic->partitions();
-  auto numberOfPartitions = partitionMetadata->size();
+  if (topics->empty())
+    return partitions;
+
+  const RdKafka::TopicMetadata* tmet {nullptr};
+  for (auto t : *topics)
+  {
+    if (t->topic() == kafka_topic_name_)
+      tmet = t;
+  }
+
+  if (!tmet)
+    return partitions;
+
+  auto partitionMetadata = tmet->partitions();
   // Create a TopicPartition for each partition in the topic
-  for (size_t partitionNumber = 0; partitionNumber < numberOfPartitions;
-       ++partitionNumber) {
+  for (size_t partitionNumber = 0;
+       partitionNumber < partitionMetadata->size();
+       ++partitionNumber)
+  {
     auto topicPartition =
         RdKafka::TopicPartition::create(kafka_topic_name_, static_cast<int>(partitionNumber));
     partitions.push_back(topicPartition);

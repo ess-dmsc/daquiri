@@ -181,7 +181,7 @@ void daquiri::update_settings(DAQuiri::Setting sets,
                               DAQuiri::ProducerStatus status)
 {
   engine_status_ = status;
-  auto description = sets.find({"Profile description"}, Match::id);
+  auto description = sets.find({"ProfileDescr"}, Match::id);
   profile_description_ = QString::fromStdString(description.get_text());
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::current_profile_name();
