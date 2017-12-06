@@ -1,7 +1,7 @@
 {
  "branches": [
   {
-   "id": "Profile description",
+   "id": "ProfileDescr",
    "type": "text",
    "value": "C-SPEC"
   },
@@ -13,7 +13,7 @@
   {
    "id": "MaxPackets",
    "type": "integer",
-   "value": 3
+   "value": 1
   },
   {
    "branches": [
@@ -40,7 +40,7 @@
     {
      "id": "ESSStream/KafkaMaxBacklog",
      "type": "integer",
-     "value": 3
+     "value": 1
     },
     {
      "id": "ESSStream/Parser",

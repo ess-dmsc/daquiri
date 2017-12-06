@@ -1,9 +1,9 @@
 {
  "branches": [
   {
-   "id": "Profile description",
+   "id": "ProfileDescr",
    "type": "text",
-   "value": "NMX"
+   "value": "Mock producer"
   },
   {
    "id": "DropPackets",
@@ -18,157 +18,190 @@
   {
    "branches": [
     {
-     "id": "ESSStream/KafkaBroker",
+     "id": "MockProducer/StreamID",
      "type": "text",
-     "value": "localhost:9092"
+     "value": "xyze"
     },
     {
-     "id": "ESSStream/KafkaTopic",
-     "type": "text",
-     "value": "NMX_detector"
+     "id": "MockProducer/SpillInterval",
+     "type": "floating",
+     "value": 0.01
     },
     {
-     "id": "ESSStream/KafkaTimeout",
+     "id": "MockProducer/Resolution",
      "type": "integer",
-     "value": 1000
+     "value": 16
     },
     {
-     "id": "ESSStream/KafkaDecomission",
+     "id": "MockProducer/CountRate",
+     "type": "floating",
+     "value": 100000.0
+    },
+    {
+     "id": "MockProducer/DeadTime",
+     "type": "floating",
+     "value": 5.0
+    },
+    {
+     "id": "MockProducer/TimebaseMult",
      "type": "integer",
-     "value": 2000
-    },
-    {
-     "id": "ESSStream/KafkaMaxBacklog",
-     "type": "integer",
-     "value": 3
-    },
-    {
-     "id": "ESSStream/Parser",
-     "type": "menu",
      "value": 1
     },
     {
-     "branches": [
-      {
-       "id": "ev42_events/StreamID",
-       "type": "text",
-       "value": "detector"
-      },
-      {
-       "id": "ev42_events/extent_x",
-       "type": "integer",
-       "value": 256
-      },
-      {
-       "id": "ev42_events/extent_y",
-       "type": "integer",
-       "value": 256
-      },
-      {
-       "id": "ev42_events/extent_z",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "ev42_events/panels",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "ev42_events/TimebaseMult",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "ev42_events/TimebaseDiv",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "ev42_events/SpoofClock",
-       "type": "menu",
-       "value": 2
-      },
-      {
-       "id": "ev42_events/Heartbeat",
-       "type": "boolean",
-       "value": false
-      }
-     ],
-     "id": "ev42_events",
-     "type": "stem"
-    }
-   ],
-   "id": "ESSStream",
-   "reference": "detector",
-   "type": "stem"
-  },
-  {
-   "branches": [
-    {
-     "id": "ESSStream/KafkaBroker",
-     "type": "text",
-     "value": "localhost:9092"
-    },
-    {
-     "id": "ESSStream/KafkaTopic",
-     "type": "text",
-     "value": "NMX_monitor"
-    },
-    {
-     "id": "ESSStream/KafkaTimeout",
+     "id": "MockProducer/TimebaseDiv",
      "type": "integer",
-     "value": 1000
+     "value": 1
     },
     {
-     "id": "ESSStream/KafkaDecomission",
+     "id": "MockProducer/Lambda",
+     "type": "floating",
+     "value": 0.01
+    },
+    {
+     "id": "MockProducer/SpillLambda",
+     "type": "floating",
+     "value": 0.1
+    },
+    {
+     "id": "MockProducer/ValueCount",
      "type": "integer",
-     "value": 2000
-    },
-    {
-     "id": "ESSStream/KafkaMaxBacklog",
-     "type": "integer",
-     "value": 3
-    },
-    {
-     "id": "ESSStream/Parser",
-     "type": "menu",
-     "value": 2
+     "value": 4
     },
     {
      "branches": [
       {
-       "id": "mo01_nmx/HistsStream",
+       "id": "MockProducer/Value/Name",
+       "indices": [
+        0
+       ],
        "type": "text",
-       "value": "hists"
+       "value": "x"
       },
       {
-       "id": "mo01_nmx/XStream",
-       "type": "text",
-       "value": "xtrack"
+       "id": "MockProducer/Value/PeakCenter",
+       "indices": [
+        0
+       ],
+       "type": "floating",
+       "value": 10.0
       },
       {
-       "id": "mo01_nmx/YStream",
-       "type": "text",
-       "value": "ytrack"
-      },
-      {
-       "id": "mo01_nmx/TimebaseMult",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "mo01_nmx/TimebaseDiv",
-       "type": "integer",
-       "value": 1
+       "id": "MockProducer/Value/PeakSpread",
+       "indices": [
+        0
+       ],
+       "type": "floating",
+       "value": 1000.0
       }
      ],
-     "id": "mo01_nmx",
+     "id": "MockProducer/Value",
+     "indices": [
+      0
+     ],
+     "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "id": "MockProducer/Value/Name",
+       "indices": [
+        1
+       ],
+       "type": "text",
+       "value": "y"
+      },
+      {
+       "id": "MockProducer/Value/PeakCenter",
+       "indices": [
+        1
+       ],
+       "type": "floating",
+       "value": 40.0
+      },
+      {
+       "id": "MockProducer/Value/PeakSpread",
+       "indices": [
+        1
+       ],
+       "type": "floating",
+       "value": 3000.0
+      }
+     ],
+     "id": "MockProducer/Value",
+     "indices": [
+      1
+     ],
+     "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "id": "MockProducer/Value/Name",
+       "indices": [
+        2
+       ],
+       "type": "text",
+       "value": "energy"
+      },
+      {
+       "id": "MockProducer/Value/PeakCenter",
+       "indices": [
+        2
+       ],
+       "type": "floating",
+       "value": 60.0
+      },
+      {
+       "id": "MockProducer/Value/PeakSpread",
+       "indices": [
+        2
+       ],
+       "type": "floating",
+       "value": 3000.0
+      }
+     ],
+     "id": "MockProducer/Value",
+     "indices": [
+      2
+     ],
+     "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "id": "MockProducer/Value/Name",
+       "indices": [
+        3
+       ],
+       "type": "text",
+       "value": "z"
+      },
+      {
+       "id": "MockProducer/Value/PeakCenter",
+       "indices": [
+        3
+       ],
+       "type": "floating",
+       "value": 10.0
+      },
+      {
+       "id": "MockProducer/Value/PeakSpread",
+       "indices": [
+        3
+       ],
+       "type": "floating",
+       "value": 3000.0
+      }
+     ],
+     "id": "MockProducer/Value",
+     "indices": [
+      3
+     ],
      "type": "stem"
     }
    ],
-   "id": "ESSStream",
-   "reference": "monitor",
+   "id": "MockProducer",
+   "reference": "producer1",
    "type": "stem"
   }
  ],
