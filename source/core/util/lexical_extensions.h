@@ -24,7 +24,7 @@ inline std::string to_str_precision(double number, int precision = -1)
 
 inline std::string to_str_decimals(double number, int decimals = 0)
 {
-  std::ostringstream ss;
+  std::stringstream ss;
   ss << std::fixed << std::setprecision(decimals) << number;
   return ss.str();
 }

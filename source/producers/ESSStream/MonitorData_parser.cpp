@@ -6,7 +6,6 @@
 Monitor::Monitor()
   : fb_parser()
 {
-
   SettingMeta monitorEventStreamid(SettingsPrefix_ + "/EventsStream", SettingType::text, "DAQuiri stream ID for monitor events");
   monitorEventStreamid.set_flag("preset");
   add_definition(monitorEventStreamid);
@@ -23,9 +22,9 @@ Monitor::Monitor()
 
   SettingMeta root(SettingsPrefix_, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, SettingsPrefix_ + "EventsStream");
-  root.set_enum(1, SettingsPrefix_ + "TimebaseMult");
-  root.set_enum(2, SettingsPrefix_ + "TimebaseDiv");
+  root.set_enum(0, SettingsPrefix_ + "/EventsStream");
+  root.set_enum(1, SettingsPrefix_ + "/TimebaseMult");
+  root.set_enum(2, SettingsPrefix_ + "/TimebaseDiv");
   add_definition(root);
 
   event_model_.add_value("amplitude", 0);
@@ -76,14 +75,10 @@ uint64_t Monitor::stop(SpillQueue spill_queue)
 uint64_t Monitor::process_payload(SpillQueue spill_queue, void* msg) {
   CustomTimer timer(true);
   uint64_t pushed_spills = 1;
+  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
 
   auto MonitorEvent = GetMonitorPeakData(msg);
 
-  if (!started_)
-  {
-    started_ = true;
-  }
-  
   stats.time_start = stats.time_end = MonitorEvent->TimeStamp();
   
   auto ret = std::make_shared<Spill>(stream_id_, StatusType::running);
@@ -98,6 +93,16 @@ uint64_t Monitor::process_payload(SpillQueue spill_queue, void* msg) {
   
   ++ ret->events;
   ret->events.finalize();
+
+  if (!started_)
+  {
+    auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    start_spill->time = start_time;
+    start_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
+    spill_queue->enqueue(start_spill);
+    started_ = true;
+    pushed_spills++;
+  }
   
   spill_queue->enqueue(ret);
   

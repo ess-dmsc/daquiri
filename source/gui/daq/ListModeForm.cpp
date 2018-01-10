@@ -298,9 +298,12 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
   {
     const Event& event = events_.at(i);
 
-    add_to_table(ui->tableEvents, i, 0, QString::number(event.timestamp()) );
-    add_to_table(ui->tableEvents, i, 1,
-                 QS(to_str_decimals(event_model_.timebase.to_nanosec(event.timestamp()), 0)) );
+    add_to_table(ui->tableEvents, i, 0,
+                 QString::number(event.timestamp()) );
+    add_to_table(ui->tableEvents, i, 1, QS(event_model_.timebase.debug())
+                 + " = " +
+                 QS(std::to_string(event_model_.timebase.to_nanosec(event.timestamp()))));
+//                 QS(to_str_decimals(event_model_.timebase.to_nanosec(event.timestamp()), 3));
   }
 
   event_selection_changed(QItemSelection(), QItemSelection());

@@ -24,7 +24,7 @@ class Monitor : public fb_parser
     // cached params
 
     std::string stream_id_ {"AdcMonitorData"};
-    std::string SettingsPrefix_ {"monitor"};
+    std::string SettingsPrefix_ {"Monitor"};
 
     EventModel event_model_;
 

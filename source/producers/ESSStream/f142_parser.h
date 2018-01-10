@@ -24,8 +24,8 @@ public:
 private:
   // cached params
   
-  std::string stream_id_ {"ChopperTDCTimeStamp"};
-  std::string SettingsPrefix_ {"chopper"};
+  std::string stream_id_ {"ChopperTDC"};
+  std::string SettingsPrefix_ {"ChopperTDC"};
   
   std::map<std::string, int> PVNameMap;
   
