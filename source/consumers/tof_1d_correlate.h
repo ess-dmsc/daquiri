@@ -28,6 +28,7 @@ protected:
   double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
+  uint32_t channel_num_ {0};
 
   std::string pulse_stream_id_;
 
@@ -35,11 +36,14 @@ protected:
   TimeBase timebase_;
   TimeBase pulse_timebase_;
 
-  // recent pulse time
-  double pulse_time_ {-1};
+  std::deque<uint64_t> events_buffer_;
+  std::deque<uint64_t> pulse_buffer_;
 
   std::vector<double> domain_;
 
   //reserve memory
   Coords coords_ {0};
+
+  void bin_events();
+  bool can_bin() const;
 };

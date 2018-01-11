@@ -31,6 +31,11 @@ TOF1DCorrelate::TOF1DCorrelate()
   units.set_enum(9, "s");
   base_options.branches.add(units);
 
+  SettingMeta cn("channel_num", SettingType::integer, "Accept events only from channel");
+  cn.set_flag("preset");
+  cn.set_val("min", 0);
+  base_options.branches.add(cn);
+
   SettingMeta stream("pulse_stream_id", SettingType::text, "Pulse stream ID");
   stream.set_flag("preset");
   base_options.branches.add(stream);
@@ -42,13 +47,15 @@ bool TOF1DCorrelate::_initialize()
 {
   Spectrum::_initialize();
 
+  channel_num_ = metadata_.get_attribute("channel_num").get_number();
+
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
 
-  pulse_stream_id_ = metadata_.get_attribute("stream_id").get_text();
+  pulse_stream_id_ = metadata_.get_attribute("pulse_stream_id").get_text();
 
   this->_recalc_axes();
   return true;
@@ -96,7 +103,8 @@ bool TOF1DCorrelate::_accept_spill(const Spill& spill)
 
 bool TOF1DCorrelate::_accept_events()
 {
-  return ((pulse_time_ >= 0) && (0 != time_resolution_));
+//  return ((pulse_time_ >= 0) && (0 != time_resolution_));
+  return (0 != time_resolution_);
 }
 
 void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
@@ -107,10 +115,17 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
   if (spill.stream_id == pulse_stream_id_)
   {
     pulse_timebase_ = spill.event_model.timebase;
-    for (auto &e : spill.events)
+
+    if (spill.type == StatusType::running)
     {
-      //if channel matches?
-      pulse_time_ = pulse_timebase_.to_nanosec(e.timestamp());
+      for (auto &e : spill.events)
+      {
+        //if channel matches?
+        pulse_buffer_.push_back(e.timestamp());
+      }
+
+      while (can_bin())
+        bin_events();
     }
   }
   else
@@ -122,25 +137,63 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
   Spectrum::_push_stats_pre(spill);
 }
 
+bool TOF1DCorrelate::can_bin() const
+{
+
+  if ((pulse_buffer_.size() < 2) || events_buffer_.empty())
+    return false;
+
+  uint64_t second_pulse = pulse_buffer_.at(1);
+
+  return (events_buffer_.back() > second_pulse);
+}
+
+void TOF1DCorrelate::bin_events()
+{
+  uint64_t offset = pulse_buffer_.front();
+  pulse_buffer_.pop_front();
+
+  uint64_t limit = pulse_buffer_.front();
+
+  while (!events_buffer_.empty())
+  {
+    uint64_t t = events_buffer_.front();
+    if (t >= limit)
+      break;
+
+    events_buffer_.pop_front();
+    if (t < offset)
+      continue;
+
+    double nsecs = timebase_.to_nanosec(t) - pulse_timebase_.to_nanosec(offset);
+
+    if (nsecs < 0)
+      return;
+
+    coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
+
+    if (coords_[0] >= domain_.size())
+    {
+      size_t oldbound = domain_.size();
+      domain_.resize(coords_[0]+1);
+
+      for (size_t i=oldbound; i <= coords_[0]; ++i)
+        domain_[i] = i / time_resolution_ / units_multiplier_;
+    }
+
+    data_->add_one(coords_);
+    total_count_++;
+    recent_count_++;
+  }
+}
+
 void TOF1DCorrelate::_push_event(const Event& event)
 {
-  double nsecs = timebase_.to_nanosec(event.timestamp()) - pulse_time_;
-
-  if (nsecs < 0)
+  if ((event.value_count() < 2) || (event.value(1) != channel_num_))
     return;
+//  if (Spectrum::_accept_spill(spill) && (event.value(1) != channel_num_))
+//    return;
 
-  coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
+  events_buffer_.push_back(event.timestamp());
 
-  if (coords_[0] >= domain_.size())
-  {
-    size_t oldbound = domain_.size();
-    domain_.resize(coords_[0]+1);
-
-    for (size_t i=oldbound; i <= coords_[0]; ++i)
-      domain_[i] = i / time_resolution_ / units_multiplier_;
-  }
-
-  data_->add_one(coords_);
-  total_count_++;
-  recent_count_++;
 }
