@@ -1,6 +1,6 @@
 set(this_target ${PROJECT_NAME}_consumers)
 
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3)
 
 file(GLOB_RECURSE ${this_target}_SOURCES *.cpp)
 file(GLOB_RECURSE ${this_target}_HEADERS *.h)
@@ -21,4 +21,5 @@ target_include_directories(
 target_link_libraries(
   ${this_target}
   PUBLIC ${PROJECT_NAME}_core
+  PRIVATE ${CONAN_LIBS}
 )
