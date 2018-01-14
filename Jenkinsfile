@@ -5,14 +5,6 @@
 project = "daquiri"
 
 images = [
-    'centos-gcc6': [
-        'name': 'essdmscdm/centos-gcc6-build-node:0.3.4',
-        'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
-    ],
-    'fedora': [
-        'name': 'essdmscdm/fedora-build-node:0.4.2',
-        'sh': 'sh'
-    ],
     'ubuntu1604': [
         'name': 'essdmscdm/ubuntu16.04-build-node:0.0.2',
         'sh': 'sh'
@@ -76,6 +68,7 @@ def docker_tests(image_key) {
             sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd build
                 make run_tests
+                ./bin/daquiri_cmd
             \""""
         } catch(e) {
             sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
