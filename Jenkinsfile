@@ -140,6 +140,7 @@ node('docker') {
         dir("${project}/code") {
             try {
                 scm_vars = checkout scm
+                sh "git submodule update --init"
             } catch (e) {
                 failure_function(e, 'Checkout failed')
             }
