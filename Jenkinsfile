@@ -132,7 +132,7 @@ def get_pipeline(image_key)
                     failure_function(e, "Build for ${image_key} failed")
                 }
 
-                //docker_tests(image_key)
+                docker_tests(image_key)
             } catch(e) {
                 failure_function(e, "Unknown build failure for ${image_key}")
             } finally {
