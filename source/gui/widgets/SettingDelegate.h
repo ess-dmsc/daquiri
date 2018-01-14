@@ -47,6 +47,7 @@ signals:
   void begin_editing() const;
   void ask_execute(DAQuiri::Setting command, QModelIndex index) const;
   void ask_binary(DAQuiri::Setting command, QModelIndex index) const;
+  void ask_gradient(QString gname, QModelIndex index) const;
 
 private:
   Container<DAQuiri::Detector> detectors_;

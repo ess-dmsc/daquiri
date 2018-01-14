@@ -23,6 +23,7 @@
 
 #include "QColorExtensions.h"
 #include "QTimeExtensions.h"
+#include "GradientSelector.h"
 
 using namespace color_widgets;
 using namespace DAQuiri;
@@ -144,19 +145,10 @@ void SettingDelegate::paint_gradient(QPainter* painter,
 {
   auto gname = QString::fromStdString(val.get_text());
   auto gs = QPlot::Gradients::defaultGradients();
-  if (!gs.contains(gname))
+  if (gs.contains(gname))
+    QPlot::paintGradient(painter, option.rect, gs.get(gname));
+  else
     paint_text(painter, option, val);
-
-  auto gradient = gs.get(gname);
-
-  QLinearGradient g;
-//  DBG << "CONSTRUCTING " << gname.toStdString();
-  for (auto s : gradient.colorStops().toStdMap())
-  {
-    g.setColorAt(s.first, s.second);
-//    DBG << "Col " << s.first << " -> " << s.second.name().toStdString();
-  }
-  paintGradient(painter, option.rect, g, gname);
 }
 
 void SettingDelegate::paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
@@ -380,13 +372,8 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     }
     else if (set.metadata().has_flag("gradient-name"))
     {
-      auto cb = new QComboBox(parent);
-      for (auto &q : QPlot::Gradients::defaultGradients().names())
-        cb->addItem(q, q);
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
-      if(cbIndex >= 0)
-        cb->setCurrentIndex(cbIndex);
-      return cb;
+      emit ask_gradient(QString::fromStdString(set.get_text()), index);
+      return nullptr;
     }
     else if (set.metadata().has_flag("file"))
     {

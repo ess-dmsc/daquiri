@@ -53,6 +53,7 @@ class SettingsForm : public QWidget
 
     void ask_binary_tree(DAQuiri::Setting, QModelIndex index);
     void ask_execute_tree(DAQuiri::Setting, QModelIndex index);
+    void ask_gradient_tree(QString gname, QModelIndex index);
 
     void on_checkShowRO_clicked();
     void on_bootButton_clicked();
