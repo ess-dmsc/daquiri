@@ -76,6 +76,7 @@ def docker_tests(image_key) {
             sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd build
                 make run_tests
+                ./bin/daquiri_cmd
             \""""
         } catch(e) {
             sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
@@ -143,6 +144,49 @@ def get_pipeline(image_key)
     }
 }
 
+def get_osx_pipeline()
+{
+    return {
+        stage("MacOSX") {
+            node ("macos") {
+            // Delete workspace when build is done
+                cleanWs()
+
+                dir("${project}/code") {
+                    try {
+                        checkout scm
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / Checkout failed')
+                    }
+                }
+
+                dir("${project}/build") {
+                    try {
+                        sh "conan install --file=../code/conanfile.txt --build=missing"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / getting dependencies failed')
+                    }
+
+                    try {
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex ../code"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / CMake failed')
+                    }
+
+                    try {
+                        sh "make run_tests"
+                    } catch (e) {
+		        junit 'test/unit_tests_run.xml'
+                        failure_function(e, 'MacOSX / build+test failed')
+                    }
+                }
+
+            }
+        }
+    }
+}
+
 node('docker') {
     stage('Checkout') {
         dir("${project}/code") {
@@ -160,7 +204,7 @@ node('docker') {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
-    //builders['MocOSX'] = get_osx_pipeline()
+    builders['MocOSX'] = get_osx_pipeline()
     
     parallel builders
 
