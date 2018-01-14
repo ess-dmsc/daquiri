@@ -176,7 +176,7 @@ node ("qt && boost && fedora") {
                 sh "HDF5_ROOT=$HDF5_ROOT \
                     CMAKE_PREFIX_PATH=$HDF5_ROOT \
                     cmake -DCOV=on -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                    -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;ESSStream \
+                    -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer \
                     ../code"
             }
         } catch (e) {
