@@ -5,6 +5,10 @@
 project = "daquiri"
 
 images = [
+    'fedora': [
+        'name': 'essdmscdm/fedora-build-node:0.4.2',
+        'sh': 'sh'
+    ],
     'ubuntu1604': [
         'name': 'essdmscdm/ubuntu16.04-build-node:0.0.2',
         'sh': 'sh'
@@ -46,7 +50,7 @@ def docker_cmake(image_key) {
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         cd build
         ${cmake_exec} --version
-        ${cmake_exec} -DCOV=on -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                     -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex \
                     ../${project}
     \""""

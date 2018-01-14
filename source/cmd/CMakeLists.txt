@@ -13,5 +13,5 @@ target_link_libraries(
   PRIVATE ${PROJECT_NAME}_producers
   PRIVATE ${PROJECT_NAME}_consumers
   PRIVATE ${Boost_LIBRARIES}
-#  Boost::
+  PRIVATE ${CONAN_LIBS}
 )
