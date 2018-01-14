@@ -1,4 +1,5 @@
 [requires]
+eigen/3.3.4@conan/stable
 Boost/1.62.0@ess-dmsc/stable
 h5cpp/packaging-test@ess-dmsc/testing
 gtest/3121b20-dm1@ess-dmsc/testing
