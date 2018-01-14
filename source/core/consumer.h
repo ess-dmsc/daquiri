@@ -31,8 +31,10 @@ class Consumer
     //named constructors, used by factory
     bool from_prototype(const ConsumerMetadata&);
 
+#ifdef DAQUIRI_USE_H5
     bool load(hdf5::node::Group&, bool withdata);
     void save(hdf5::node::Group&) const;
+#endif
 
     //data acquisition
     void push_spill(const Spill&);

@@ -84,6 +84,7 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   return result;
 }
 
+#ifdef DAQUIRI_USE_H5
 void Dense1D::save(hdf5::node::Group& g) const
 {
   std::vector<double> d(maxchan_);
@@ -132,6 +133,7 @@ void Dense1D::load(hdf5::node::Group& g)
       maxchan_ = i;
   }
 }
+#endif
 
 std::string Dense1D::data_debug(const std::string &prepend) const
 {

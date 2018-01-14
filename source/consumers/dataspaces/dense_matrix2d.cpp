@@ -97,6 +97,7 @@ void DenseMatrix2D::fill_list(EntryList& result,
   }
 }
 
+#ifdef DAQUIRI_USE_H5
 void DenseMatrix2D::save(hdf5::node::Group& g) const
 {
   auto dgroup = hdf5::require_group(g, "data");
@@ -176,6 +177,7 @@ void DenseMatrix2D::load(hdf5::node::Group& g)
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
 }
+#endif
 
 std::string DenseMatrix2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {

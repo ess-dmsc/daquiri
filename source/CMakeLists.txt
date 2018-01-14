@@ -1,6 +1,8 @@
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
   add_subdirectory(config)
-else ()
+endif ()
+
+if (NOT DAQuiri_config)
   set(DAQuiri_gui TRUE)
   list(APPEND DAQuiri_enabled_producers ESSStream)
 endif ()
@@ -22,7 +24,11 @@ include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
-find_package(h5cpp REQUIRED)
+find_package(h5cpp)
+
+if (h5cpp_FOUND)
+  add_definitions(-DDAQUIRI_USE_H5=1)
+endif()
 
 add_subdirectory(core)
 add_subdirectory(consumers)

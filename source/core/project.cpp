@@ -2,7 +2,10 @@
 #include "consumer_factory.h"
 #include "custom_logger.h"
 
+#ifdef DAQUIRI_USE_H5
 #include "h5json.h"
+#endif
+
 #include "print_exception.h"
 
 namespace DAQuiri {
@@ -265,10 +268,13 @@ void Project::save_as(std::string file_name)
 
 void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 {
+#ifdef DAQUIRI_USE_H5
   if (hdf5::file::is_hdf5_file(file_name))
     read_h5(file_name, with_sinks, with_full_sinks);
+#endif
 }
 
+#ifdef DAQUIRI_USE_H5
 void Project::to_h5(hdf5::node::Group &group) const
 {
   group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
@@ -364,9 +370,11 @@ void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_
   ready_ = true;
   newdata_ = true;
 }
+#endif
 
 void Project::write_h5(std::string file_name)
 {
+#ifdef DAQUIRI_USE_H5
   try
   {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
@@ -386,12 +394,14 @@ void Project::write_h5(std::string file_name)
         << file_name << "'\n"
         << hdf5::error::print_nested(e);
   }
+#endif
 }
 
 void Project::read_h5(std::string file_name,
                       bool with_sinks,
                       bool with_full_sinks)
 {
+#ifdef DAQUIRI_USE_H5
   try
   {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
@@ -409,6 +419,7 @@ void Project::read_h5(std::string file_name,
         << hdf5::error::print_nested(e);
     ERR << "<Project> Failed to read h5 " << file_name;
   }
+#endif
 }
 
 }

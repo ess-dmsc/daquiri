@@ -26,6 +26,7 @@ ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) 
   return ConsumerPtr();
 }
 
+#ifdef DAQUIRI_USE_H5
 ConsumerPtr ConsumerFactory::create_from_h5(hdf5::node::Group &group, bool withdata) const
 {
   if (!group.attributes.exists("type"))
@@ -42,6 +43,7 @@ ConsumerPtr ConsumerFactory::create_from_h5(hdf5::node::Group &group, bool withd
 
   return ConsumerPtr();
 }
+#endif
 
 ConsumerMetadata ConsumerFactory::create_prototype(std::string type) const
 {

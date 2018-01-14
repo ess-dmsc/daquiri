@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef DAQUIRI_USE_H5
 #include "json.hpp"
 #include <h5cpp/hdf5.hpp>
 
@@ -25,3 +26,4 @@ bool has_group(const node::Group& g, std::string name);
 bool has_dataset(const node::Group& g, std::string name);
 
 }
+#endif

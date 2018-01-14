@@ -70,8 +70,10 @@ public:
   std::map<int64_t, ConsumerPtr> get_sinks(int32_t dimensions = -1);
   std::map<int64_t, ConsumerPtr> get_sinks(std::string type);
 
+#ifdef DAQUIRI_USE_H5
   void to_h5(hdf5::node::Group &group) const;
   void from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks);
+#endif
 
 private:
   void clear_helper();
