@@ -5,10 +5,6 @@
 project = "daquiri"
 
 images = [
-    'fedora': [
-        'name': 'essdmscdm/fedora-build-node:0.4.2',
-        'sh': 'sh'
-    ],
     'ubuntu1604': [
         'name': 'essdmscdm/ubuntu16.04-build-node:0.0.2',
         'sh': 'sh'
