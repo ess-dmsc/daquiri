@@ -3,9 +3,6 @@ set(this_target ESSStream)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules)
 
 find_package(LibRDKafka)
-if (NOT LIBRDKAFKA_FOUND)
-  message(FATAL_ERROR "Unable to proceed as librdkafka could not be found.")
-endif ()
 
 file(GLOB ${this_target}_SOURCES *.cpp)
 file(GLOB ${this_target}_HEADERS *.h ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src/*.h)
@@ -27,8 +24,16 @@ target_include_directories(
 target_link_libraries(
   ${this_target}
   PRIVATE ${PROJECT_NAME}_core
-  PRIVATE ${LibRDKafka_LIBRARIES}
+  PRIVATE ${CONAN_LIBS}
 )
+
+if (LIBRDKAFKA_FOUND)
+  target_link_libraries(
+    ${this_target}
+    PRIVATE ${LibRDKafka_LIBRARIES}
+  )
+endif ()
+
 
 add_subdirectory(streaming-data-types)
 add_dependencies(${this_target} flatbuffers_generate)

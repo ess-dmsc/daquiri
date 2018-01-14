@@ -2,7 +2,6 @@
 #include "time_stamp_test.h"
 #include "event_model_test.h"
 #include "event_test.h"
-#include "status_test.h"
 #include "pattern_test.h"
 #include "container_test.h"
 #include "setting_meta_test.h"

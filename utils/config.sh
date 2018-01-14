@@ -62,7 +62,7 @@ fi
 
 clear
 
-text=''
+text=$'set(DAQuiri_config TRUE PARENT_SCOPE)\n'
 for choice in $choices
 do
     case $choice in

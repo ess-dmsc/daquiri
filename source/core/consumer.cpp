@@ -1,9 +1,12 @@
 #include "consumer.h"
-#include "h5json.h"
 #include "ascii_tree.h"
 
 #include "custom_logger.h"
 #include "custom_timer.h"
+
+#ifdef DAQUIRI_USE_H5
+#include "h5json.h"
+#endif
 
 namespace DAQuiri {
 
@@ -179,7 +182,7 @@ void Consumer::set_attributes(const Setting &settings)
 /////////////////////
 /// Save and load ///
 /////////////////////
-
+#ifdef DAQUIRI_USE_H5
 bool Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
@@ -216,5 +219,6 @@ void Consumer::save(hdf5::node::Group& g) const
   if (data_)
     data_->save(g);
 }
+#endif
 
 }

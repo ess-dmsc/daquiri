@@ -19,8 +19,10 @@ class SparseMap2D : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
+#ifdef DAQUIRI_USE_H5
     void save(hdf5::node::Group&) const override;
     void load(hdf5::node::Group&) override;
+#endif
     std::string data_debug(const std::string& prepend) const override;
 
   protected:

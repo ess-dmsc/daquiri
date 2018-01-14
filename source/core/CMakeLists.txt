@@ -23,10 +23,17 @@ target_include_directories(
 
 target_link_libraries(
   ${this_target}
-  PUBLIC h5cpp_shared
   PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
+  PUBLIC ${CONAN_LIBS}
 )
+
+if (h5cpp_FOUND)
+  target_link_libraries(
+    ${this_target}
+    PUBLIC h5cpp_shared
+    )
+endif ()
 
 enable_coverage(${this_target})
 

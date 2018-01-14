@@ -1,11 +1,13 @@
 #pragma once
 
 #include <initializer_list>
-#include <h5cpp/hdf5.hpp>
 #include "precise_float.h"
 #include "calibration.h"
-
 #include "thread_wrappers.h"
+
+#ifdef DAQUIRI_USE_H5
+#include <h5cpp/hdf5.hpp>
+#endif
 
 namespace DAQuiri {
 
@@ -62,8 +64,10 @@ public:
   virtual void add_one(const Coords&) = 0;
   virtual void recalc_axes() = 0;
 
+#ifdef DAQUIRI_USE_H5
   virtual void load(hdf5::node::Group&) = 0;
   virtual void save(hdf5::node::Group&) const = 0;
+#endif
 
   //retrieve axis-values for given dimension (can be precalculated energies)
   uint16_t dimensions() const;

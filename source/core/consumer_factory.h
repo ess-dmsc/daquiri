@@ -19,7 +19,9 @@ class ConsumerFactory {
 
     ConsumerPtr create_type(std::string type) const;
     ConsumerPtr create_from_prototype(const ConsumerMetadata& tem) const;
+#ifdef DAQUIRI_USE_H5
     ConsumerPtr create_from_h5(hdf5::node::Group &group, bool withdata = true) const;
+#endif
     ConsumerPtr create_copy(ConsumerPtr other) const;
 
     ConsumerMetadata create_prototype(std::string type) const;

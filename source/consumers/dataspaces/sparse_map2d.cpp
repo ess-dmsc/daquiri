@@ -94,6 +94,7 @@ void SparseMap2D::fill_list(EntryList& result,
   }
 }
 
+#ifdef DAQUIRI_USE_H5
 void SparseMap2D::save(hdf5::node::Group& g) const
 {
   auto dgroup = hdf5::require_group(g, "data");
@@ -174,6 +175,7 @@ void SparseMap2D::load(hdf5::node::Group& g)
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
 }
+#endif
 
 std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {

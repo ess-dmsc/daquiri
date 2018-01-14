@@ -38,10 +38,6 @@ TEST(SettingMeta, Type)
   ASSERT_EQ(t, DAQuiri::SettingType::text);
   ASSERT_EQ(DAQuiri::to_string(t), "text");
 
-  t = DAQuiri::from_string("color");
-  ASSERT_EQ(t, DAQuiri::SettingType::color);
-  ASSERT_EQ(DAQuiri::to_string(t), "color");
-
   t = DAQuiri::from_string("time");
   ASSERT_EQ(t, DAQuiri::SettingType::time);
   ASSERT_EQ(DAQuiri::to_string(t), "time");
@@ -49,18 +45,6 @@ TEST(SettingMeta, Type)
   t = DAQuiri::from_string("duration");
   ASSERT_EQ(t, DAQuiri::SettingType::duration);
   ASSERT_EQ(DAQuiri::to_string(t), "duration");
-
-  t = DAQuiri::from_string("detector");
-  ASSERT_EQ(t, DAQuiri::SettingType::detector);
-  ASSERT_EQ(DAQuiri::to_string(t), "detector");
-
-  t = DAQuiri::from_string("file");
-  ASSERT_EQ(t, DAQuiri::SettingType::file);
-  ASSERT_EQ(DAQuiri::to_string(t), "file");
-
-  t = DAQuiri::from_string("dir");
-  ASSERT_EQ(t, DAQuiri::SettingType::dir);
-  ASSERT_EQ(DAQuiri::to_string(t), "dir");
 
   t = DAQuiri::from_string("command");
   ASSERT_EQ(t, DAQuiri::SettingType::command);
@@ -184,17 +168,10 @@ TEST(SettingMeta, Numeric)
   ASSERT_FALSE(m.numeric());
   m = DAQuiri::SettingMeta("", DAQuiri::SettingType::text);
   ASSERT_FALSE(m.numeric());
-  m = DAQuiri::SettingMeta("", DAQuiri::SettingType::color);
-  ASSERT_FALSE(m.numeric());
-  m = DAQuiri::SettingMeta("", DAQuiri::SettingType::detector);
-  ASSERT_FALSE(m.numeric());
+
   m = DAQuiri::SettingMeta("", DAQuiri::SettingType::time);
   ASSERT_FALSE(m.numeric());
   m = DAQuiri::SettingMeta("", DAQuiri::SettingType::duration);
-  ASSERT_FALSE(m.numeric());
-  m = DAQuiri::SettingMeta("", DAQuiri::SettingType::file);
-  ASSERT_FALSE(m.numeric());
-  m = DAQuiri::SettingMeta("", DAQuiri::SettingType::dir);
   ASSERT_FALSE(m.numeric());
   m = DAQuiri::SettingMeta("", DAQuiri::SettingType::command);
   ASSERT_FALSE(m.numeric());

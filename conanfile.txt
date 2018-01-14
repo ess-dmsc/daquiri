@@ -1,0 +1,22 @@
+[requires]
+eigen/3.3.4@conan/stable
+Boost/1.62.0@ess-dmsc/stable
+h5cpp/packaging-test@ess-dmsc/testing
+gtest/3121b20-dm1@ess-dmsc/testing
+cmake_installer/1.0@conan/stable
+
+[generators]
+cmake
+virtualbuildenv
+
+[options]
+Boost:shared=True
+gtest:shared=True
+
+[imports]
+bin, cmake -> ./bin
+bin, *.dll -> ./bin
+lib, *.dll -> ./bin
+lib, *.so.* -> ./lib
+lib, *.so -> ./lib
+share, * -> ./share

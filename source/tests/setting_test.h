@@ -77,18 +77,6 @@ TEST(Setting, Text)
   ASSERT_EQ(s.get_text(), "a");
   s.set_text("b");
   ASSERT_EQ(s.get_text(), "b");
-
-  s = DAQuiri::Setting::color("a", "c");
-  ASSERT_EQ(s.get_text(), "c");
-
-  s = DAQuiri::Setting::file("a", "d");
-  ASSERT_EQ(s.get_text(), "d");
-
-  s = DAQuiri::Setting::dir("a", "e");
-  ASSERT_EQ(s.get_text(), "e");
-
-  s = DAQuiri::Setting::detector("a", "f");
-  ASSERT_EQ(s.get_text(), "f");
 }
 
 TEST(Setting, Numeric)
