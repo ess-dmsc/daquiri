@@ -45,29 +45,3 @@ void paintColor(QPainter* painter,
   painter->restore();
 }
 
-void paintGradient(QPainter* painter,
-                   const QRect& rect,
-                   QLinearGradient colors,
-                   QString text)
-{
-  painter->save();
-
-  colors.setStart( 0.0, 0.0 );
-  colors.setFinalStop( 1.0, 0.0 );
-  colors.setSpread(QGradient::PadSpread);
-  colors.setCoordinateMode(QGradient::ObjectBoundingMode);
-
-  painter->setBrush(colors);
-  painter->drawRect(rect);
-
-  if (!text.isEmpty())
-  {
-//    painter->setPen(QPen(inverseColor(color), 4));
-    QFont f = painter->font();
-    f.setBold(true);
-    painter->setFont(f);
-    painter->drawText(rect, Qt::AlignCenter | Qt::AlignVCenter, text);
-  }
-
-  painter->restore();
-}

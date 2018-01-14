@@ -9,6 +9,8 @@
 //#include "qt_util.h"
 #include "QColorExtensions.h"
 
+#include "GradientSelector.h"
+
 using namespace DAQuiri;
 
 ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
@@ -46,6 +48,9 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
   ui->treeAttribs->setModel(&attr_model_);
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
   ui->treeAttribs->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+  connect(&attr_delegate_, SIGNAL(ask_gradient(QString,QModelIndex)),
+          this, SLOT(ask_gradient(QString,QModelIndex)));
 
 //  det_table_model_.setDB(spectrum_detectors_);
 
@@ -190,6 +195,17 @@ void ConsumerDialog::on_buttonBox_accepted()
     else
       accept();
   }
+}
+
+void ConsumerDialog::ask_gradient(QString gname, QModelIndex index)
+{
+  auto gs = new QPlot::GradientSelector(QPlot::Gradients::defaultGradients(),
+                                        gname,
+                                        qobject_cast<QWidget*> (parent()));
+  gs->setModal(true);
+  gs->exec();
+
+  attr_model_.setData(index, gs->selected_gradient(), Qt::EditRole);
 }
 
 void ConsumerDialog::on_buttonBox_rejected()

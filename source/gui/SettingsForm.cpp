@@ -13,6 +13,8 @@
 #include <QInputDialog>
 #include "Profiles.h"
 
+#include "GradientSelector.h"
+
 SettingsForm::SettingsForm(ThreadRunner& thread,
                            QWidget *parent)
   : QWidget(parent)
@@ -38,6 +40,8 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
           SLOT(ask_execute_tree(DAQuiri::Setting, QModelIndex)));
   connect(&tree_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
           this, SLOT(ask_binary_tree(DAQuiri::Setting, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(ask_gradient(QString,QModelIndex)),
+          this, SLOT(ask_gradient_tree(QString,QModelIndex)));
   connect(&tree_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
           this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
 
@@ -110,7 +114,8 @@ void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
   editing_ = false;
 }
 
-void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
+void SettingsForm::ask_execute_tree(Setting command, QModelIndex index)
+{
   editing_ = true;
 
   QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
@@ -121,6 +126,21 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index) {
 
   if (editor->standardButton(editor->clickedButton()) == QMessageBox::Yes)
     tree_settings_model_.setData(index, QVariant::fromValue(1), Qt::EditRole);
+  editing_ = false;
+}
+
+void SettingsForm::ask_gradient_tree(QString gname, QModelIndex index)
+{
+  editing_ = true;
+
+  auto gs = new QPlot::GradientSelector(QPlot::Gradients::defaultGradients(),
+                                        gname,
+                                        qobject_cast<QWidget*> (parent()));
+  gs->setModal(true);
+  gs->exec();
+
+  tree_settings_model_.setData(index, gs->selected_gradient(), Qt::EditRole);
+
   editing_ = false;
 }
 
