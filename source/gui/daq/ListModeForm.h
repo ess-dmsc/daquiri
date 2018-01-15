@@ -54,6 +54,8 @@ class ListModeForm : public QWidget
     SettingsTreeModel   attr_model_;
     SettingDelegate     attr_delegate_;
 
+    ConsumerPtr trace_;
+
     void displayHit(int idx);
 
     void loadSettings();

@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include "lexical_extensions.h"
+#include "consumer_factory.h"
 
 using namespace DAQuiri;
 
@@ -317,40 +318,40 @@ void ListModeForm::event_selection_changed(QItemSelection, QItemSelection)
   if (!ui->tableEvents->selectionModel()->selectedIndexes().empty())
     idx = ui->tableEvents->selectionModel()->selectedIndexes().first().row();
   displayHit(idx);
+  trace_selection_changed(QItemSelection(), QItemSelection());
 }
 
 void ListModeForm::trace_selection_changed(QItemSelection, QItemSelection)
 {
-  ui->tracePlot->clearGraphs();
+  ConsumerMetadata md = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
 
-  if (ui->tableEvents->selectionModel()->selectedIndexes().empty() ||
-      ui->tableTraces->selectionModel()->selectedIndexes().empty())
+  if (!ui->tableEvents->selectionModel()->selectedIndexes().empty() &&
+      !ui->tableTraces->selectionModel()->selectedIndexes().empty())
   {
-    ui->tracePlot->replot();
-    return;
+    int spill_i = ui->tableSpills->selectionModel()->selectedIndexes().first().row();
+    int event_i = ui->tableEvents->selectionModel()->selectedIndexes().first().row();
+    int trace_i = ui->tableTraces->selectionModel()->selectedIndexes().first().row();
+
+    SpillPtr sp = list_data_.at(spill_i);
+    md.set_attribute(Setting::text("stream_id", sp->stream_id));
+    md.set_attribute(Setting::text("value_name", event_model_.trace_names.at(trace_i)));
+    md.set_attribute(Setting::text("appearance", QColor(Qt::darkGreen).name().toStdString()));
+    trace_ = ConsumerFactory::singleton().create_from_prototype(md);
+
+    SpillPtr sp3 = std::make_shared<Spill>(sp->stream_id, StatusType::running);
+    sp3->event_model = sp->event_model;
+    sp3->events.reserve(1, sp->event_model);
+    sp3->events.last() = events_[event_i];
+    ++sp3->events;
+    sp3->events.finalize();
+    trace_->push_spill(*sp3);
+  }
+  else
+  {
+    trace_ = ConsumerFactory::singleton().create_from_prototype(md);
   }
 
-  int event_i = ui->tableEvents->selectionModel()->selectedIndexes().first().row();
-  int trace_i = ui->tableTraces->selectionModel()->selectedIndexes().first().row();
-
-  auto trace = events_[event_i].trace(trace_i);
-
-  uint32_t trace_length = trace.size();
-  QVector<double> x(trace_length), y(trace_length);
-
-  for (size_t i=0; i<trace_length; i++)
-  {
-    x[i] = i;
-    //      y[j] = this_calibration.transform(event.trace(0).at(j), 16);
-    y[i] = trace.at(i);
-  }
-
-  ui->tracePlot->addGraph();
-  ui->tracePlot->graph(0)->addData(x, y);
-  ui->tracePlot->graph(0)->setPen(QPen(Qt::darkGreen));
-
-//  ui->tracePlot->xAxis->setLabel("time (ticks)"); //can do better....
-//  ui->tracePlot->yAxis->setLabel("keV");
-  ui->tracePlot->rescaleAxes();
-  ui->tracePlot->replot();
+  ui->tracePlot->setConsumer(trace_);
+  ui->tracePlot->update();
+  ui->tracePlot->refresh();
 }
