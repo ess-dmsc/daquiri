@@ -297,7 +297,7 @@
     </layout>
    </item>
    <item row="0" column="1">
-    <widget class="QCustomPlot" name="tracePlot" native="true">
+    <widget class="Consumer1D" name="tracePlot" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -316,9 +316,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>Consumer1D</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>Consumer1D.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
