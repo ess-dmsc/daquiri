@@ -143,7 +143,7 @@ void Engine::_read_settings_bulk()
     {
       set.enrich(setting_definitions_);
       set.set_number(max_packets_);
-      set.enable_if_flag(drop_packets_, "");
+      //set.enable_if_flag(drop_packets_, "");
     }
     else if (!setting_definitions_.count(set.id()))
     {
