@@ -8,6 +8,7 @@ using namespace DAQuiri;
 
 class GEMHist;
 class GEMTrack;
+class MONHit;
 class MonitorMessage;
 
 class mo01_nmx : public fb_parser
@@ -30,15 +31,18 @@ class mo01_nmx : public fb_parser
     std::string hists_stream_id_ {"nmx_hists"};
     std::string x_stream_id_ {"nmx_xtrack"};
     std::string y_stream_id_ {"nmx_ytrack"};
+    std::string hit_stream_id_ {"mon_hits"};
 
     EventModel hists_model_;
     EventModel track_model_;
+    EventModel hits_model_;
 
     uint64_t spoofed_time_ {0};
     bool started_ {false};
 
     uint64_t produce_hists(const GEMHist&, SpillQueue queue);
     uint64_t produce_tracks(const GEMTrack&, SpillQueue queue);
+    uint64_t produce_hits(const MONHit&, SpillQueue queue);
 
     static void grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data);
     SpillPtr grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,

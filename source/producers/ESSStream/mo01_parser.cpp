@@ -20,6 +20,10 @@ mo01_nmx::mo01_nmx()
   ystreamid.set_flag("preset");
   add_definition(ystreamid);
 
+  SettingMeta hitstreamid(mp + "HitsStream", SettingType::text, "DAQuiri stream ID for hits");
+  hitstreamid.set_flag("preset");
+  add_definition(hitstreamid);
+
   SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
   tm.set_val("min", 1);
   tm.set_val("units", "ns");
@@ -35,8 +39,9 @@ mo01_nmx::mo01_nmx()
   root.set_enum(0, mp + "HistsStream");
   root.set_enum(1, mp + "XStream");
   root.set_enum(2, mp + "YStream");
-  root.set_enum(3, mp + "TimebaseMult");
-  root.set_enum(4, mp + "TimebaseDiv");
+  root.set_enum(3, mp + "HitsStream");
+  root.set_enum(4, mp + "TimebaseMult");
+  root.set_enum(5, mp + "TimebaseDiv");
   add_definition(root);
 
   hists_model_.add_trace("strips_x", {UINT16_MAX+1});
@@ -49,6 +54,10 @@ mo01_nmx::mo01_nmx()
   track_model_.add_value("time", 0);
   track_model_.add_value("adc", 0);
 
+  hits_model_.add_value("plane", 0);
+  hits_model_.add_value("channel", 0);
+  hits_model_.add_value("adc", 0);
+
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
@@ -60,6 +69,7 @@ void mo01_nmx::read_settings_bulk(Setting &set) const
   set.set(Setting::text(mp + "HistsStream", hists_stream_id_));
   set.set(Setting::text(mp + "XStream", x_stream_id_));
   set.set(Setting::text(mp + "YStream", y_stream_id_));
+  set.set(Setting::text(mp + "HitsStream", hit_stream_id_));
 
   set.set(Setting::integer(mp + "TimebaseMult",
                            hists_model_.timebase.multiplier()));
@@ -75,6 +85,7 @@ void mo01_nmx::write_settings_bulk(const Setting& settings)
   hists_stream_id_ = set.find({mp + "HistsStream"}).get_text();
   x_stream_id_ = set.find({mp + "XStream"}).get_text();
   y_stream_id_ = set.find({mp + "YStream"}).get_text();
+  hit_stream_id_ = set.find({mp + "HitsStream"}).get_text();
 
   uint32_t mult = set.find({mp + "TimebaseMult"}).get_number();
   uint32_t div = set.find({mp + "TimebaseDiv"}).get_number();
@@ -98,6 +109,10 @@ uint64_t mo01_nmx::stop(SpillQueue spill_queue)
     auto ret3 = std::make_shared<Spill>(y_stream_id_, StatusType::stop);
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
     spill_queue->enqueue(ret3);
+
+    auto ret4 = std::make_shared<Spill>(hit_stream_id_, StatusType::stop);
+    ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    spill_queue->enqueue(ret4);
 
     started_ = false;
     return 3;
@@ -129,6 +144,10 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
     spill_queue->enqueue(ret3);
 
+    auto ret4 = std::make_shared<Spill>(hit_stream_id_, StatusType::start);
+    ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    spill_queue->enqueue(ret4);
+
     started_ = true;
     pushed_spills += 3;
   }
@@ -138,6 +157,8 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
     pushed_spills += produce_hists(*reinterpret_cast<const GEMHist*>(em->data()), spill_queue);
   else if (type == DataField::GEMTrack)
     pushed_spills += produce_tracks(*reinterpret_cast<const GEMTrack*>(em->data()), spill_queue);
+  else if (type == DataField::MONHit)
+    pushed_spills += produce_hits(*reinterpret_cast<const MONHit*>(em->data()), spill_queue);
 
   stats.time_spent = timer.s();
   return pushed_spills;
@@ -194,6 +215,34 @@ uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillQueue queue)
   }
 
   return pushed_spills;
+}
+
+uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillQueue queue)
+{
+  auto spill = std::make_shared<Spill>(hit_stream_id_, StatusType::running);
+  spill->state.branches.add(Setting::precise("native_time", spoofed_time_));
+  spill->event_model = hits_model_;
+  spill->events.reserve(hits.plane()->Length(), hits_model_);
+
+  for (size_t i=0; i < hits.plane()->Length(); ++i)
+  {
+    auto& e = spill->events.last();
+    e.set_time(spoofed_time_ + hits.time()->Get(i));
+    e.set_value(0, hits.plane()->Get(i));
+    e.set_value(1, hits.channel()->Get(i));
+    e.set_value(2, hits.adc()->Get(i));
+    ++ spill->events;
+  }
+
+  spill->events.finalize();
+
+  if (hits.plane()->Length())
+  {
+    queue->enqueue(spill);
+    return 1;
+  }
+
+  return 0;
 }
 
 void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
