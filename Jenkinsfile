@@ -5,14 +5,18 @@
 project = "daquiri"
 
 images = [
-    'ubuntu1604': [
-        'name': 'essdmscdm/ubuntu16.04-build-node:0.0.2',
-        'sh': 'sh'
-    ],
-    'ubuntu1710': [
-        'name': 'essdmscdm/ubuntu17.10-build-node:0.0.3',
-        'sh': 'sh'
-    ]
+  'fedora25': [
+    'name': 'essdmscdm/fedora25-build-node:1.0.0',
+    'sh': 'sh'
+  ],
+  'ubuntu1604': [
+    'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
+    'sh': 'sh'
+  ],
+  'ubuntu1710': [
+    'name': 'essdmscdm/ubuntu17.10-build-node:1.0.0',
+    'sh': 'sh'
+  ]
 ]
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
