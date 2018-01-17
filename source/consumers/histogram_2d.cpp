@@ -104,13 +104,12 @@ void Histogram2D::_recalc_axes()
 
 void Histogram2D::_push_stats_pre(const Spill &spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
-
-  x_idx_ = spill.event_model.name_to_val.at(x_name_);
-  y_idx_ = spill.event_model.name_to_val.at(y_name_);
-
-  Spectrum::_push_stats_pre(spill);
+  if (this->_accept_spill(spill))
+  {
+    x_idx_ = spill.event_model.name_to_val.at(x_name_);
+    y_idx_ = spill.event_model.name_to_val.at(y_name_);
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void Histogram2D::_flush()
@@ -144,7 +143,7 @@ bool Histogram2D::_accept_spill(const Spill& spill)
           );
 }
 
-bool Histogram2D::_accept_events()
+bool Histogram2D::_accept_events(const Spill &spill)
 {
   return (x_idx_ >= 0) && (y_idx_ >= 0);
 }

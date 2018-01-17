@@ -116,21 +116,20 @@ bool Image2D::_accept_spill(const Spill& spill)
           );
 }
 
-bool Image2D::_accept_events()
+bool Image2D::_accept_events(const Spill &spill)
 {
   return (x_idx_ >= 0) && (y_idx_ >= 0) && (val_idx_ >= 0);
 }
 
 void Image2D::_push_stats_pre(const Spill &spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
-
-  x_idx_ = spill.event_model.name_to_val.at(x_name_);
-  y_idx_ = spill.event_model.name_to_val.at(y_name_);
-  val_idx_ = spill.event_model.name_to_val.at(val_name_);
-
-  Spectrum::_push_stats_pre(spill);
+  if (this->_accept_spill(spill))
+  {
+    x_idx_ = spill.event_model.name_to_val.at(x_name_);
+    y_idx_ = spill.event_model.name_to_val.at(y_name_);
+    val_idx_ = spill.event_model.name_to_val.at(val_name_);
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void Image2D::_flush()

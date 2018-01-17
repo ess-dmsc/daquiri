@@ -20,9 +20,10 @@ protected:
   //event processing
   void _push_stats_pre(const Spill& spill) override;
   void _push_event(const Event& event) override;
+  void _push_stats_post(const Spill& spill) override;
 
   bool _accept_spill(const Spill& spill) override;
-  bool _accept_events() override;
+  bool _accept_events(const Spill& spill) override;
 
   // cached parameters:
   double time_resolution_ {1};
@@ -30,20 +31,20 @@ protected:
   double units_multiplier_{1};
   uint32_t channel_num_ {0};
 
-  std::string pulse_stream_id_;
+  std::string chopper_stream_id_;
 
   // from status manifest
   TimeBase timebase_;
-  TimeBase pulse_timebase_;
+  TimeBase chopper_timebase_;
 
   std::deque<uint64_t> events_buffer_;
-  std::deque<uint64_t> pulse_buffer_;
+  std::deque<uint64_t> chopper_buffer_;
 
   std::vector<double> domain_;
 
   //reserve memory
   Coords coords_ {0};
 
-  void bin_events();
+  bool bin_events();
   bool can_bin() const;
 };

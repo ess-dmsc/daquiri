@@ -36,7 +36,7 @@ TOF1DCorrelate::TOF1DCorrelate()
   cn.set_val("min", 0);
   base_options.branches.add(cn);
 
-  SettingMeta stream("pulse_stream_id", SettingType::text, "Pulse stream ID");
+  SettingMeta stream("chopper_stream_id", SettingType::text, "Chopper stream ID");
   stream.set_flag("preset");
   base_options.branches.add(stream);
 
@@ -55,7 +55,7 @@ bool TOF1DCorrelate::_initialize()
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
 
-  pulse_stream_id_ = metadata_.get_attribute("pulse_stream_id").get_text();
+  chopper_stream_id_ = metadata_.get_attribute("chopper_stream_id").get_text();
 
   this->_recalc_axes();
   return true;
@@ -98,13 +98,13 @@ void TOF1DCorrelate::_recalc_axes()
 
 bool TOF1DCorrelate::_accept_spill(const Spill& spill)
 {
-  return (spill.stream_id == pulse_stream_id_) || Spectrum::_accept_spill(spill);
+  return (spill.stream_id == chopper_stream_id_) || Spectrum::_accept_spill(spill);
 }
 
-bool TOF1DCorrelate::_accept_events()
+bool TOF1DCorrelate::_accept_events(const Spill &spill)
 {
 //  return ((pulse_time_ >= 0) && (0 != time_resolution_));
-  return (0 != time_resolution_);
+  return (Spectrum::_accept_spill(spill) && (0 != time_resolution_));
 }
 
 void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
@@ -112,20 +112,13 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
-  if (spill.stream_id == pulse_stream_id_)
+  if (spill.stream_id == chopper_stream_id_)
   {
-    pulse_timebase_ = spill.event_model.timebase;
-
-    if (spill.type == StatusType::running)
+    chopper_timebase_ = spill.event_model.timebase;
+    for (auto &e : spill.events)
     {
-      for (auto &e : spill.events)
-      {
-        //if channel matches?
-        pulse_buffer_.push_back(e.timestamp());
-      }
-
-      while (can_bin())
-        bin_events();
+      //if channel matches?
+      chopper_buffer_.push_back(e.timestamp());
     }
   }
   else
@@ -133,42 +126,52 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
     timebase_ = spill.event_model.timebase;
   }
 
-
   Spectrum::_push_stats_pre(spill);
+}
+
+void TOF1DCorrelate::_push_stats_post(const Spill& spill)
+{
+  if (!this->_accept_spill(spill))
+    return;
+
+  while (can_bin() && bin_events())
+  {
+//    DBG << "Binning " << events_buffer_.size() << " in " << chopper_buffer_.size();
+  }
+
+  Spectrum::_push_stats_post(spill);
 }
 
 bool TOF1DCorrelate::can_bin() const
 {
-
-  if ((pulse_buffer_.size() < 2) || events_buffer_.empty())
+  if ((chopper_buffer_.size() < 2) || events_buffer_.empty())
     return false;
 
-  uint64_t second_pulse = pulse_buffer_.at(1);
+  uint64_t second_pulse = chopper_buffer_.at(1);
 
   return (events_buffer_.back() > second_pulse);
 }
 
-void TOF1DCorrelate::bin_events()
+bool TOF1DCorrelate::bin_events()
 {
-  uint64_t offset = pulse_buffer_.front();
-  pulse_buffer_.pop_front();
-
-  uint64_t limit = pulse_buffer_.front();
+  PreciseFloat offset = chopper_timebase_.to_nanosec(chopper_buffer_.front());
+  chopper_buffer_.pop_front();
+  PreciseFloat limit = chopper_timebase_.to_nanosec(chopper_buffer_.front());
 
   while (!events_buffer_.empty())
   {
-    uint64_t t = events_buffer_.front();
+    PreciseFloat t = timebase_.to_nanosec(events_buffer_.front());
     if (t >= limit)
-      break;
+      return false;
 
     events_buffer_.pop_front();
     if (t < offset)
       continue;
 
-    double nsecs = timebase_.to_nanosec(t) - pulse_timebase_.to_nanosec(offset);
+    double nsecs = t - offset;
 
-    if (nsecs < 0)
-      return;
+    if (nsecs < 0.0)
+      continue;
 
     coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
@@ -185,15 +188,16 @@ void TOF1DCorrelate::bin_events()
     total_count_++;
     recent_count_++;
   }
+
+  return true;
 }
 
 void TOF1DCorrelate::_push_event(const Event& event)
 {
-  if ((event.value_count() < 2) || (event.value(1) != channel_num_))
-    return;
+//  if ((event.value_count() < 2) || (event.value(1) != channel_num_))
+//    return;
 //  if (Spectrum::_accept_spill(spill) && (event.value(1) != channel_num_))
 //    return;
 
   events_buffer_.push_back(event.timestamp());
-
 }
