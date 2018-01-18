@@ -5,6 +5,10 @@
 project = "daquiri"
 
 images = [
+  'centos7-gcc6': [
+    'name': 'essdmscdm/centos7-gcc6-build-node:1.0.0',
+    'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
+  ],
   'fedora25': [
     'name': 'essdmscdm/fedora25-build-node:1.0.0',
     'sh': 'sh'
@@ -141,10 +145,10 @@ def get_pipeline(image_key)
     }
 }
 
-def get_osx_pipeline()
+def get_macos_pipeline()
 {
     return {
-        stage("MacOSX") {
+        stage("macOS") {
             node ("macos") {
             // Delete workspace when build is done
                 cleanWs()
@@ -175,6 +179,7 @@ def get_osx_pipeline()
                     try {
                         sh "make"
                         sh "make run_tests"
+                        sh "./bin/daquiri_cmd"
                     } catch (e) {
 		        junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')
@@ -203,7 +208,7 @@ node('docker') {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
-    builders['MocOSX'] = get_osx_pipeline()
+    builders['macOS'] = get_macos_pipeline()
     
     parallel builders
 
