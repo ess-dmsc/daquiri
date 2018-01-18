@@ -23,7 +23,6 @@ target_include_directories(
 target_link_libraries(
   ${this_target}
   PRIVATE ${PROJECT_NAME}_core
-  PRIVATE ${CONAN_LIBS}
 )
 
 if (LIBRDKAFKA_FOUND)
@@ -32,4 +31,3 @@ if (LIBRDKAFKA_FOUND)
     PRIVATE ${LibRDKafka_LIBRARIES}
   )
 endif ()
-

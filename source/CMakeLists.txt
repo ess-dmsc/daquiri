@@ -25,6 +25,7 @@ include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 find_package(h5cpp)
+find_package(Threads)
 
 if (h5cpp_FOUND)
   add_definitions(-DDAQUIRI_USE_H5=1)

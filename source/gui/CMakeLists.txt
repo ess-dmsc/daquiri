@@ -67,7 +67,6 @@ target_link_libraries(
   ${PROJECT_NAME}_consumers
   ${OPENGL_LIBRARIES}
   ${Boost_LIBRARIES}
-  ${CONAN_LIBS}
 )
 
 qt5_use_modules(${this_target} Widgets PrintSupport)
