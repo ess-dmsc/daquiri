@@ -152,6 +152,7 @@ def get_osx_pipeline()
                 dir("${project}/code") {
                     try {
                         checkout scm
+                        sh "git submodule update --init"
                     } catch (e) {
                         failure_function(e, 'MacOSX / Checkout failed')
                     }
