@@ -5,6 +5,7 @@
 project = "daquiri"
 
 images = [
+/*
   'centos7-gcc6': [
     'name': 'essdmscdm/centos7-gcc6-build-node:1.0.0',
     'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
@@ -13,6 +14,7 @@ images = [
     'name': 'essdmscdm/fedora25-build-node:1.0.0',
     'sh': 'sh'
   ],
+*/
   'ubuntu1604': [
     'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
     'sh': 'sh'
@@ -179,7 +181,7 @@ def get_macos_pipeline()
                     try {
                         sh "make"
                         sh "make run_tests"
-                        sh "./bin/daquiri_cmd"
+                        //sh "./bin/daquiri_cmd"
                     } catch (e) {
 		        junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')

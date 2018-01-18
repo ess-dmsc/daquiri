@@ -7,21 +7,24 @@ Versatile DAQ engine for physics detectors, event mode and otherwise
 
 ### Requirements
 
-Platforms (tested)
+Supported platforms:
+- OSX (latest?)
 - Ubuntu16.04
 - Ubuntu17.10
-- OSX
+(comming soon) Fedora 25
+(comming soon) Centos7 w/ gcc6
+
 
 You definitely need these:
 - C++ compiler with c++11 support
 - Qt  (>=5.5)
-- conan (via pip)
+- conan 1.0 (via pip)
 
 You also need these, but if you have conan, don't worry about it
 - Cmake
 - boost
 - librdkafka
-- flatbuffers (headers and `flatc` executable)
+- flatbuffers
 - eigen3
 - [h5cpp](https://github.com/ess-dmsc/h5cpp)
 
@@ -36,6 +39,7 @@ If you want to contribute, you might want these:
 git submodule update --init
 mkdir build
 cd build
+conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
 conan install --build=missing ../conanfile.txt
 cmake ..
 make
