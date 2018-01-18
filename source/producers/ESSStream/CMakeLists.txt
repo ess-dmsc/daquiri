@@ -24,4 +24,5 @@ target_link_libraries(
   ${this_target}
   PRIVATE ${PROJECT_NAME}_core
   PRIVATE ${LibRDKafka_LIBRARIES}
+  PRIVATE ${LibRDKafka_C_LIBRARIES}
 )
