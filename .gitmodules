@@ -6,9 +6,6 @@
 	path = source/gui/qplot
 	url = https://github.com/ess-dmsc/qplot.git
         ignore = dirty
-[submodule "source/producers/ESSStream/streaming-data-types"]
-	path = source/producers/ESSStream/streaming-data-types
-	url = https://github.com/ess-dmsc/streaming-data-types.git
 [submodule "source/producers/ESSStream/logical-geometry"]
 	path = source/producers/ESSStream/logical-geometry
 	url = https://github.com/ess-dmsc/logical-geometry.git

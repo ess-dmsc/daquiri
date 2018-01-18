@@ -17,7 +17,6 @@ add_library(
 target_include_directories(
   ${this_target}
   PRIVATE ${${this_target}_INCLUDE_DIRS}
-  #PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/streaming-data-types/schemas
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src
 )
 
@@ -34,6 +33,3 @@ if (LIBRDKAFKA_FOUND)
   )
 endif ()
 
-
-#add_subdirectory(streaming-data-types)
-#add_dependencies(${this_target} flatbuffers_generate)
