@@ -5,7 +5,6 @@
 project = "daquiri"
 
 images = [
-/*
   'centos7-gcc6': [
     'name': 'essdmscdm/centos7-gcc6-build-node:1.0.0',
     'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
@@ -14,7 +13,6 @@ images = [
     'name': 'essdmscdm/fedora25-build-node:1.0.0',
     'sh': 'sh'
   ],
-*/
   'ubuntu1604': [
     'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
     'sh': 'sh'
@@ -67,7 +65,7 @@ def docker_build(image_key) {
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         cd build
         make --version
-        make
+        make VERBOSE=1
     \""""
 }
 
@@ -179,7 +177,7 @@ def get_macos_pipeline()
                     }
 
                     try {
-                        sh "make"
+                        sh "make VERBOSE=1"
                         sh "make run_tests"
                         //sh "./bin/daquiri_cmd"
                     } catch (e) {
@@ -211,7 +209,7 @@ node('docker') {
         builders[image_key] = get_pipeline(image_key)
     }
     builders['macOS'] = get_macos_pipeline()
-    
+
     parallel builders
 
     // Delete workspace when build is done
