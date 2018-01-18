@@ -4,7 +4,6 @@ Boost/1.62.0@ess-dmsc/stable
 gtest/3121b20-dm1@ess-dmsc/testing
 librdkafka/0.11.3@ess-dmsc/stable
 streaming-data-types/3e85b23@ess-dmsc/stable
-Qt/5.8.0@osechet/stable
 
 [generators]
 cmake
