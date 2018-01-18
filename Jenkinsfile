@@ -5,7 +5,6 @@
 project = "daquiri"
 
 images = [
-/*
   'fedora25': [
     'name': 'essdmscdm/fedora25-build-node:1.0.0',
     'sh': 'sh'
@@ -14,7 +13,6 @@ images = [
     'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
     'sh': 'sh'
   ],
-*/
   'ubuntu1710': [
     'name': 'essdmscdm/ubuntu17.10-build-node:1.0.0',
     'sh': 'sh'
@@ -73,7 +71,7 @@ def docker_tests(image_key) {
         try {
             sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd build
-                source ./activate_run.sh
+                . ./activate_run.sh
                 make run_tests
                 ./bin/daquiri_cmd
             \""""
