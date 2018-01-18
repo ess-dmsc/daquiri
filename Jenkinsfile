@@ -166,12 +166,13 @@ def get_osx_pipeline()
 
                     try {
                         sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex ../code"
+                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
 
                     try {
+                        sh "make"
                         sh "make run_tests"
                     } catch (e) {
 		        junit 'test/unit_tests_run.xml'
@@ -201,7 +202,7 @@ node('docker') {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
-    //builders['MocOSX'] = get_osx_pipeline()
+    builders['MocOSX'] = get_osx_pipeline()
     
     parallel builders
 
