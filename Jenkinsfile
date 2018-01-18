@@ -166,7 +166,7 @@ def get_osx_pipeline()
                     }
 
                     try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                             -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
