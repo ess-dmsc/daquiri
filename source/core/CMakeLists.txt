@@ -31,7 +31,7 @@ target_link_libraries(
 if (h5cpp_FOUND)
   target_link_libraries(
     ${this_target}
-    PUBLIC h5cpp_shared
+    PUBLIC h5cpp
     )
 endif ()
 
