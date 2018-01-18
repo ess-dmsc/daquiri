@@ -5,14 +5,24 @@
 project = "daquiri"
 
 images = [
-    'ubuntu1604': [
-        'name': 'essdmscdm/ubuntu16.04-build-node:0.0.2',
-        'sh': 'sh'
-    ],
-    'ubuntu1710': [
-        'name': 'essdmscdm/ubuntu17.10-build-node:0.0.3',
-        'sh': 'sh'
-    ]
+/*
+  'centos7-gcc6': [
+    'name': 'essdmscdm/centos7-gcc6-build-node:1.0.0',
+    'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
+  ],
+  'fedora25': [
+    'name': 'essdmscdm/fedora25-build-node:1.0.0',
+    'sh': 'sh'
+  ],
+*/
+  'ubuntu1604': [
+    'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
+    'sh': 'sh'
+  ],
+  'ubuntu1710': [
+    'name': 'essdmscdm/ubuntu17.10-build-node:1.0.0',
+    'sh': 'sh'
+  ]
 ]
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
@@ -36,7 +46,7 @@ def docker_dependencies(image_key) {
         conan remote add \
             --insert 0 \
             ${conan_remote} ${local_conan_server}
-        conan install --file=../${project}/conanfile.txt --build=missing
+        conan install --build=missing ../${project}/conanfile.txt
     \""""
 }
 
@@ -47,7 +57,7 @@ def docker_cmake(image_key) {
         cd build
         ${cmake_exec} --version
         ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                    -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex \
+                    -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
                     ../${project}
     \""""
 }
@@ -67,7 +77,9 @@ def docker_tests(image_key) {
         try {
             sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd build
+                . ./activate_run.sh
                 make run_tests
+                ./bin/daquiri_cmd
             \""""
         } catch(e) {
             sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
@@ -135,10 +147,10 @@ def get_pipeline(image_key)
     }
 }
 
-def get_osx_pipeline()
+def get_macos_pipeline()
 {
     return {
-        stage("MacOSX") {
+        stage("macOS") {
             node ("macos") {
             // Delete workspace when build is done
                 cleanWs()
@@ -146,6 +158,7 @@ def get_osx_pipeline()
                 dir("${project}/code") {
                     try {
                         checkout scm
+                        sh "git submodule update --init"
                     } catch (e) {
                         failure_function(e, 'MacOSX / Checkout failed')
                     }
@@ -153,20 +166,22 @@ def get_osx_pipeline()
 
                 dir("${project}/build") {
                     try {
-                        sh "conan install --file=../code/conanfile.txt --build=missing"
+                        sh "conan install --build=missing ../code/conanfile.txt"
                     } catch (e) {
                         failure_function(e, 'MacOSX / getting dependencies failed')
                     }
 
                     try {
                         sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex ../code"
+                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
 
                     try {
+                        sh "make"
                         sh "make run_tests"
+                        //sh "./bin/daquiri_cmd"
                     } catch (e) {
 		        junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')
@@ -195,7 +210,7 @@ node('docker') {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
-    //builders['MocOSX'] = get_osx_pipeline()
+    builders['macOS'] = get_macos_pipeline()
     
     parallel builders
 

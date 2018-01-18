@@ -17,7 +17,6 @@ add_library(
 target_include_directories(
   ${this_target}
   PUBLIC ${${this_target}_INCLUDE_DIRS}
-#  PUBLIC ${PROJECT_BINARY_DIR}
   PUBLIC ${Boost_INCLUDE_DIRS}
 )
 
@@ -25,15 +24,8 @@ target_link_libraries(
   ${this_target}
   PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
-  PUBLIC ${CONAN_LIBS}
+  PUBLIC h5cpp_shared
 )
-
-if (h5cpp_FOUND)
-  target_link_libraries(
-    ${this_target}
-    PUBLIC h5cpp_shared
-    )
-endif ()
 
 enable_coverage(${this_target})
 
