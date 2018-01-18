@@ -8,29 +8,29 @@ Versatile DAQ engine for physics detectors, event mode and otherwise
 ### Requirements
 
 Supported platforms:
+- Centos7 w/ gcc6
+- Fedora 25
 - OSX (latest?)
 - Ubuntu16.04
 - Ubuntu17.10
-(comming soon) Fedora 25
-(comming soon) Centos7 w/ gcc6
-
 
 You definitely need these:
 - C++ compiler with c++11 support
+- CMake
 - Qt  (>=5.5)
 - conan 1.0 (via pip)
-
-You also need these, but if you have conan, don't worry about it
-- Cmake
-- boost
-- librdkafka
-- flatbuffers
-- eigen3
-- [h5cpp](https://github.com/ess-dmsc/h5cpp)
 
 If you want to contribute, you might want these:
 - Google Test
 - dialog
+
+You also need these, but if you have conan, don't worry about it:
+- CMake
+- boost
+- LibRDKafka
+- FlatBuffers
+- Eigen3
+- [h5cpp](https://github.com/ess-dmsc/h5cpp)
 
 
 ### Build
