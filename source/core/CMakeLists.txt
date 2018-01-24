@@ -24,7 +24,7 @@ target_link_libraries(
   ${this_target}
   PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
-  PUBLIC h5cpp_shared
+  PUBLIC h5cpp
 )
 
 enable_coverage(${this_target})
