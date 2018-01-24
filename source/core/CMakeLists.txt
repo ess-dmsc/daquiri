@@ -25,6 +25,7 @@ target_link_libraries(
   PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
   PUBLIC h5cpp
+  PRIVATE Threads::Threads
 )
 
 enable_coverage(${this_target})
