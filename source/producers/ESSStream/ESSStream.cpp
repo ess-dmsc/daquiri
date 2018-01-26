@@ -2,7 +2,6 @@
 #include "ev42_parser.h"
 #include "mo01_parser.h"
 #include "f142_parser.h"
-#include "MonitorData_parser.h"
 
 #include "custom_logger.h"
 
@@ -38,7 +37,6 @@ ESSStream::ESSStream()
   pars.set_enum(1, "ev42_events");
   pars.set_enum(2, "mo01_nmx");
   pars.set_enum(3, "ChopperTDC");
-  pars.set_enum(4, "Monitor");
   add_definition(pars);
 
   SettingMeta root("ESSStream", SettingType::stem);
@@ -107,9 +105,6 @@ void ESSStream::read_settings_bulk(Setting &set) const
   while (set.branches.has_a(Setting({"ChopperTDC", SettingType::stem})))
     set.branches.remove_a(Setting({"ChopperTDC", SettingType::stem}));
 
-  while (set.branches.has_a(Setting({"Monitor", SettingType::stem})))
-    set.branches.remove_a(Setting({"Monitor", SettingType::stem}));
-
   if (parser_)
   {
     auto s = Setting({parser_->plugin_name(), SettingType::stem});
@@ -152,8 +147,6 @@ void ESSStream::select_parser(std::string t)
     parser_ = std::make_shared<mo01_nmx>();
   else if (t == "ChopperTDC")
     parser_ = std::make_shared<ChopperTDC>();
-  else if (t == "Monitor")
-    parser_ = std::make_shared<Monitor>();
 }
 
 void ESSStream::boot()

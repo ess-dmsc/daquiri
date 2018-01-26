@@ -68,13 +68,15 @@ class Consumer
     virtual void _recalc_axes() = 0;
 
     virtual void _set_detectors(const std::vector<Detector>& dets) = 0;
+
     virtual void _push_spill(const Spill&);
+
+    virtual bool _accept_spill(const Spill& spill) = 0;
+    virtual bool _accept_events(const Spill& spill) = 0;
+
     virtual void _push_stats_pre(const Spill&) {}
     virtual void _push_event(const Event&) = 0;
     virtual void _push_stats_post(const Spill&) {}
-
-    virtual bool _accept_spill(const Spill& spill) = 0;
-    virtual bool _accept_events() = 0;
 
     virtual void _flush() {}
 

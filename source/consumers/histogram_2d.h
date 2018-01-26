@@ -22,7 +22,7 @@ protected:
   void _flush() override;
 
   bool _accept_spill(const Spill& spill) override;
-  bool _accept_events() override;
+  bool _accept_events(const Spill& spill) override;
 
   //cached parameters
   std::string x_name_;

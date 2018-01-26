@@ -120,20 +120,19 @@ bool TimeSpectrum::_accept_spill(const Spill& spill)
           && spill.event_model.name_to_val.count(val_name_));
 }
 
-bool TimeSpectrum::_accept_events()
+bool TimeSpectrum::_accept_events(const Spill &spill)
 {
   return (value_idx_ >= 0) && (0 != time_resolution_);
 }
 
 void TimeSpectrum::_push_stats_pre(const Spill& spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
-
-  value_idx_ = spill.event_model.name_to_val.at(val_name_);
-  timebase_ = spill.event_model.timebase;
-
-  Spectrum::_push_stats_pre(spill);
+  if (this->_accept_spill(spill))
+  {
+    value_idx_ = spill.event_model.name_to_val.at(val_name_);
+    timebase_ = spill.event_model.timebase;
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void TimeSpectrum::_push_event(const Event& e)

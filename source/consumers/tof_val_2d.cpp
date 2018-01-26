@@ -102,7 +102,7 @@ bool TOFVal2D::_accept_spill(const Spill& spill)
           && spill.event_model.name_to_val.count(val_name_));
 }
 
-bool TOFVal2D::_accept_events()
+bool TOFVal2D::_accept_events(const Spill &spill)
 {
   return (value_idx_ >= 0) &&
       (0 != time_resolution_) &&
@@ -111,16 +111,15 @@ bool TOFVal2D::_accept_events()
 
 void TOFVal2D::_push_stats_pre(const Spill& spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
+  if (this->_accept_spill(spill))
+  {
+    timebase_ = spill.event_model.timebase;
+    value_idx_ = spill.event_model.name_to_val.at(val_name_);
+    pulse_time_ = timebase_.to_nanosec(
+          spill.state.find(Setting("pulse_time")).get_number());
 
-  timebase_ = spill.event_model.timebase;
-
-  value_idx_ = spill.event_model.name_to_val.at(val_name_);
-  pulse_time_ = timebase_.to_nanosec(
-        spill.state.find(Setting("pulse_time")).get_number());
-
-  Spectrum::_push_stats_pre(spill);
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void TOFVal2D::_push_event(const Event& e)

@@ -86,19 +86,18 @@ bool Prebinned1D::_accept_spill(const Spill& spill)
           spill.event_model.name_to_trace.count(trace_name_));
 }
 
-bool Prebinned1D::_accept_events()
+bool Prebinned1D::_accept_events(const Spill &spill)
 {
   return (trace_idx_ >= 0);
 }
 
 void Prebinned1D::_push_stats_pre(const Spill& spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
-
-  trace_idx_ = spill.event_model.name_to_trace.at(trace_name_);
-
-  Spectrum::_push_stats_pre(spill);
+  if (this->_accept_spill(spill))
+  {
+    trace_idx_ = spill.event_model.name_to_trace.at(trace_name_);
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void Prebinned1D::_push_event(const Event& event)

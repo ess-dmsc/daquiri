@@ -95,19 +95,18 @@ bool Histogram1D::_accept_spill(const Spill& spill)
           spill.event_model.name_to_val.count(val_name_));
 }
 
-bool Histogram1D::_accept_events()
+bool Histogram1D::_accept_events(const Spill &spill)
 {
   return (value_idx_ >= 0);
 }
 
 void Histogram1D::_push_stats_pre(const Spill& spill)
 {
-  if (!this->_accept_spill(spill))
-    return;
-
-  value_idx_ = spill.event_model.name_to_val.at(val_name_);
-
-  Spectrum::_push_stats_pre(spill);
+  if (this->_accept_spill(spill))
+  {
+    value_idx_ = spill.event_model.name_to_val.at(val_name_);
+    Spectrum::_push_stats_pre(spill);
+  }
 }
 
 void Histogram1D::_push_event(const Event& event)
