@@ -34,6 +34,7 @@ public:
 
   /////SETTINGS/////
   Setting pull_settings() const;
+  StreamManifest stream_manifest() const;
   void push_settings(const Setting&);
   void set_setting(Setting address, Match flags, bool greedy = false);
   void write_settings_bulk();

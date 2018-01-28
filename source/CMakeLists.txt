@@ -7,17 +7,9 @@ if (NOT DAQuiri_config)
   list(APPEND DAQuiri_enabled_producers ESSStream)
 endif ()
 
-if (EXISTS ${PROJECT_BINARY_DIR}/conanbuildinfo.cmake)
-  message(STATUS "Using existing conanbuildinfo.cmake file")
-  include(${PROJECT_BINARY_DIR}/conanbuildinfo.cmake)
-  conan_basic_setup(KEEP_RPATHS)
-endif ()
-
 include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
 include(${EXTRA_MODULES_DIR}/DirsOf.cmake)
 include(${EXTRA_MODULES_DIR}/InstallConfig.cmake)
-include(${EXTRA_MODULES_DIR}/OutputDirConfig.cmake)
-include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
