@@ -38,6 +38,11 @@ void DummyDevice::write_settings_bulk(const Setting& settings)
   read_only_ = !set.find({"DummyDevice/DummySettings/Enabled"}).triggered();
 }
 
+StreamManifest DummyDevice::stream_manifest() const
+{
+  return manifest_;
+}
+
 void DummyDevice::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))

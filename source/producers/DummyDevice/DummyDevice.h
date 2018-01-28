@@ -17,12 +17,16 @@ public:
   void boot() override;
   void die() override;
 
+  StreamManifest stream_manifest() const override;
+
 private:
   //no copying
   void operator=(DummyDevice const&);
   DummyDevice(const DummyDevice&);
 
 protected:
+  StreamManifest manifest_;
+
   int dummy_selection_{0};
 
   bool read_only_ {false};
