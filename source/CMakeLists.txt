@@ -7,9 +7,6 @@ if (NOT DAQuiri_config)
   list(APPEND DAQuiri_enabled_producers ESSStream)
 endif ()
 
-set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
-list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
-
 if (EXISTS ${PROJECT_BINARY_DIR}/conanbuildinfo.cmake)
   message(STATUS "Using existing conanbuildinfo.cmake file")
   include(${PROJECT_BINARY_DIR}/conanbuildinfo.cmake)

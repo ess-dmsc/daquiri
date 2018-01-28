@@ -4,4 +4,26 @@ project(daquiri
 #  VERSION 0.0.1
   )
 
+set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
+
+#=============================================================================
+# ensure build type first
+#=============================================================================
+
+include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
+include(${EXTRA_MODULES_DIR}/EnsureBuildType.cmake)
+
+#=============================================================================
+# setting up conan for use from within cmake
+#=============================================================================
+set(WITH_CONAN ON CACHE BOOL "Enable dependency build with conan")
+
+if (WITH_CONAN)
+  include(${EXTRA_MODULES_DIR}/ConanSetup.cmake)
+  conan_cmake_run(CONANFILE "conanfile.txt"
+    BASIC_SETUP UPDATE
+    BUILD outdated)
+endif ()
+
 add_subdirectory(source)
