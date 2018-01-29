@@ -6,7 +6,7 @@
 #include "consumer_factory.h"
 //#include "dialog_detector.h"
 
-//#include "qt_util.h"
+#include "qt_util.h"
 #include "QColorExtensions.h"
 
 #include "GradientSelector.h"
@@ -27,6 +27,7 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
   , attr_model_(this)
   , detectors_(detDB)
   , current_detectors_(current_detectors)
+  , stream_manifest_(stream_manifest)
   , changed_(false)
   , has_sink_parent_(has_sink_parent)
 {
@@ -77,18 +78,6 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
 //    initialize_gui_specific(sink_metadata_);
   }
 
-  for (auto stream : stream_manifest)
-  {
-    DBG << "Stream: " << stream.first;
-    for (size_t i=0; i < stream.second.values.size(); ++i)
-      DBG << "  val '" << stream.second.value_names[i]
-          << "' "  << stream.second.values[i]
-          << " <" <<  stream.second.maximum[i];
-    for (size_t i=0; i < stream.second.traces.size(); ++i)
-      DBG << "  val '" << stream.second.trace_names[i]
-          << "' rank="  << stream.second.traces[i].size();
-  }
-
   updateData();
 }
 
@@ -99,6 +88,28 @@ ConsumerDialog::~ConsumerDialog()
 
 void ConsumerDialog::det_selection_changed(QItemSelection, QItemSelection)
 {
+  toggle_push();
+}
+
+void ConsumerDialog::open_close_locks()
+{
+  bool lockit = !ui->pushLock->isChecked();
+  ui->labelWarning->setVisible(lockit);
+  ui->spinDets->setEnabled(lockit || !has_sink_parent_);
+
+  ui->treeAttribs->clearSelection();
+//  ui->tableDetectors->clearSelection();
+  if (!lockit)
+  {
+    attr_model_.set_edit_read_only(false);
+//    ui->tableDetectors->setSelectionMode(QAbstractItemView::NoSelection);
+  }
+  else
+  {
+    attr_model_.set_edit_read_only(true);
+//    ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
+    changed_ = true;
+  }
   toggle_push();
 }
 
@@ -126,39 +137,94 @@ void ConsumerDialog::updateData()
 
   ui->labelDescription->setText(descr);
 
-  attr_model_.update(sink_metadata_.attributes());
+  enforce_everything();
   open_close_locks();
 }
 
-void ConsumerDialog::open_close_locks()
-{
-  bool lockit = !ui->pushLock->isChecked();
-  ui->labelWarning->setVisible(lockit);
-  ui->spinDets->setEnabled(lockit || !has_sink_parent_);
 
-  ui->treeAttribs->clearSelection();
-//  ui->tableDetectors->clearSelection();
-  if (!lockit)
-  {
-    attr_model_.set_edit_read_only(false);
-//    ui->tableDetectors->setSelectionMode(QAbstractItemView::NoSelection);
-  }
-  else
-  {
-    attr_model_.set_edit_read_only(true);
-//    ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
-    changed_ = true;
-  }
-  toggle_push();
+void ConsumerDialog::enforce_everything()
+{
+  auto tempmeta = sink_metadata_;
+  auto tree = attr_model_.get_tree();
+
+  enforce_streams(tree, stream_manifest_);
+
+  tempmeta.overwrite_all_attributes(tree);
+  sink_metadata_.set_attributes(tempmeta.attributes_flat());
+  initialize_gui_specific(sink_metadata_);
+
+  attr_model_.update(sink_metadata_.attributes());
 }
 
 void ConsumerDialog::push_settings()
 {
-  auto tempmeta = sink_metadata_;
-  tempmeta.overwrite_all_attributes(attr_model_.get_tree());
-  sink_metadata_.set_attributes(tempmeta.attributes_flat());
+  enforce_everything();
   changed_ = true;
 }
+
+void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
+                                     DAQuiri::StreamManifest stream_manifest)
+{
+  //hack to find seetings with "stream" flag
+  auto tree2 = tree;
+  tree2.enable_if_flag(false, "");
+  tree2.enable_if_flag(true, "stream");
+  tree2.cull_readonly();
+  std::set<std::string> selected_streams;
+  std::set<std::string> values;
+  std::set<std::string> traces;
+  for (auto s : tree2.branches)
+  {
+    if (!stream_manifest.count(s.get_text()))
+    {
+      if (stream_manifest.size())
+        s.set_text(stream_manifest.begin()->first);
+      else
+        s.set_text("");
+      tree.set(s);
+    }
+    selected_streams.insert(s.get_text());
+    for (auto v : stream_manifest[s.get_text()].value_names)
+      values.insert(v);
+    for (auto v : stream_manifest[s.get_text()].trace_names)
+      traces.insert(v);
+  }
+
+  tree2 = tree;
+  tree2.enable_if_flag(false, "");
+  tree2.enable_if_flag(true, "event_value");
+  tree2.cull_readonly();
+  for (auto s : tree2.branches)
+  {
+    auto name = s.get_text();
+    if (values.count(name))
+      continue;
+    if (values.size())
+      s.set_text(*values.begin());
+    else
+      s.set_text("");
+    tree.set(s);
+  }
+
+  tree2 = tree;
+  tree2.enable_if_flag(false, "");
+  tree2.enable_if_flag(true, "event_trace");
+  tree2.cull_readonly();
+  for (auto& s : tree2.branches)
+  {
+    auto name = s.get_text();
+    if (traces.count(name))
+      continue;
+    if (traces.size())
+      s.set_text(*traces.begin());
+    else
+      s.set_text("");
+    tree.set(s);
+  }
+
+  attr_delegate_.set_valid_streams(selected_streams);
+}
+
 
 void ConsumerDialog::toggle_push()
 {
@@ -392,17 +458,30 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
   sink_metadata_ = md;
   on_spinDets_valueChanged(ui->spinDets->value());
   sink_metadata_.set_attributes(old);
-  initialize_gui_specific(sink_metadata_);
   updateData();
 }
+
 
 void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
 {
   Setting col = md.get_attribute("appearance");
-  if (!col.metadata().has_flag("gradient-name") && col.get_text().empty())
+  if (col.metadata().has_flag("color"))
   {
-    col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+    if (col.get_text().empty())
+      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+    else
+      col.set_text(QColor(QS(col.get_text())).name().toStdString());
     md.set_attribute(col);
+  }
+  else if (col.metadata().has_flag("gradient-name"))
+  {
+    auto name = QS(col.get_text());
+    auto dg = QPlot::Gradients::defaultGradients();
+    if (col.get_text().empty() || !dg.contains(name))
+    {
+      col.set_text(dg.names()[0].toStdString());
+      md.set_attribute(col);
+    }
   }
 }
 

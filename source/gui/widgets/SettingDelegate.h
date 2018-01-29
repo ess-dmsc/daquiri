@@ -23,6 +23,7 @@ public:
 
   void set_detectors(const Container<DAQuiri::Detector>& dets);
   void set_manifest(DAQuiri::StreamManifest);
+  void set_valid_streams(std::set<std::string>);
   void text_len_limit(uint16_t tll);
   uint16_t text_len_limit() const;
 
@@ -42,6 +43,7 @@ signals:
 private:
   Container<DAQuiri::Detector> detectors_;
   DAQuiri::StreamManifest stream_manifest_;
+  std::set<std::string> valid_streams_;
 
   void text_flags(QPainter* painter,
                   const QStyleOptionViewItem &option,

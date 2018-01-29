@@ -57,6 +57,7 @@ private:
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_detectors_;
+    StreamManifest stream_manifest_;
 
     Container<DAQuiri::Detector> spectrum_detectors_;
 //    TableDetectors det_table_model_;
@@ -70,4 +71,8 @@ private:
     void toggle_push();
 
     static void initialize_gui_specific(DAQuiri::ConsumerMetadata& md);
+
+    void enforce_streams(DAQuiri::Setting& tree, DAQuiri::StreamManifest stream_manifest);
+
+    void enforce_everything();
 };

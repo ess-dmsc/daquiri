@@ -38,6 +38,11 @@ void SettingDelegate::set_manifest(DAQuiri::StreamManifest manifest)
   stream_manifest_ = manifest;
 }
 
+void SettingDelegate::set_valid_streams(std::set<std::string> valid_streams)
+{
+  valid_streams_ = valid_streams;
+}
+
 void SettingDelegate::text_len_limit(uint16_t tll)
 {
   text_len_limit_ = tll;
@@ -412,6 +417,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     else if (set.metadata().has_flag("stream"))
     {
       auto cb = new QComboBox(parent);
+      cb->addItem("", "");
       for (auto stream : stream_manifest_)
       {
         QString name = QString::fromStdString(stream.first);
@@ -425,8 +431,11 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     else if (set.metadata().has_flag("event_value"))
     {
       auto cb = new QComboBox(parent);
+      cb->addItem("", "");
       for (auto stream : stream_manifest_)
       {
+        if (!valid_streams_.count(stream.first))
+          continue;
         for (auto val : stream.second.value_names)
         {
           QString name = QString::fromStdString(val);
@@ -441,8 +450,11 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     else if (set.metadata().has_flag("event_trace"))
     {
       auto cb = new QComboBox(parent);
+      cb->addItem("", "");
       for (auto stream : stream_manifest_)
       {
+        if (!valid_streams_.count(stream.first))
+          continue;
         for (auto val : stream.second.trace_names)
         {
           QString name = QString::fromStdString(val);
