@@ -1,7 +1,6 @@
 #pragma once
 
 #include "setting.h"
-//#include "sync_queue.h"
 #include "spill_dequeue.h"
 #include "spill.h"
 #include "custom_logger.h"
@@ -10,8 +9,6 @@ namespace DAQuiri {
 
 class Producer;
 using ProducerPtr = std::shared_ptr<Producer>;
-//using SpillQueue = SynchronizedQueue<SpillPtr>*;
-//using SpillQueue = SpillDeque*;
 using SpillQueue = SpillMultiqueue*;
 using OscilData = std::map<std::string, Event>;
 
@@ -48,6 +45,8 @@ public:
   virtual void write_settings_bulk(const Setting &/*set*/) {}
   virtual void read_settings_bulk(Setting &/*set*/) const {}
   virtual void get_all_settings() {}
+
+  virtual StreamManifest stream_manifest() const { return StreamManifest(); }
 
   virtual OscilData oscilloscope() { return OscilData(); }
 

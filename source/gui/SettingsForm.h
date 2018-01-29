@@ -30,7 +30,7 @@ class SettingsForm : public QWidget
   public slots:
     void refresh();
     void update(const DAQuiri::Setting &tree,
-                DAQuiri::ProducerStatus);
+                DAQuiri::ProducerStatus, DAQuiri::StreamManifest);
 
   signals:
     void toggleIO(bool);
@@ -47,7 +47,8 @@ class SettingsForm : public QWidget
     void stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint);
     void on_pushSettingsRefresh_clicked();
 
-    void toggle_push(bool enable, DAQuiri::ProducerStatus status);
+    void toggle_push(bool enable, DAQuiri::ProducerStatus status,
+                     DAQuiri::StreamManifest manifest);
 
     void push_settings();
 

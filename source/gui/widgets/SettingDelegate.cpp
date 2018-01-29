@@ -33,6 +33,16 @@ void SettingDelegate::set_detectors(const Container<Detector> &detectors)
   detectors_ = detectors;
 }
 
+void SettingDelegate::set_manifest(DAQuiri::StreamManifest manifest)
+{
+  stream_manifest_ = manifest;
+}
+
+void SettingDelegate::set_valid_streams(std::set<std::string> valid_streams)
+{
+  valid_streams_ = valid_streams;
+}
+
 void SettingDelegate::text_len_limit(uint16_t tll)
 {
   text_len_limit_ = tll;
@@ -400,6 +410,61 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
         cb->addItem(name, name);
       }
       int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("stream"))
+    {
+      auto cb = new QComboBox(parent);
+      cb->addItem("<none>", "");
+      for (auto stream : stream_manifest_)
+      {
+        QString name = QString::fromStdString(stream.first);
+        cb->addItem(name, name);
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("event_value"))
+    {
+      auto cb = new QComboBox(parent);
+      cb->addItem("<none>", "");
+      for (auto stream : stream_manifest_)
+      {
+        if (!valid_streams_.count(stream.first))
+          continue;
+        for (auto val : stream.second.value_names)
+        {
+          QString name = QString::fromStdString(val);
+          cb->addItem(name, name);
+        }
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("event_trace"))
+    {
+      auto cb = new QComboBox(parent);
+      cb->addItem("<none>", "");
+      for (auto stream : stream_manifest_)
+      {
+        if (!valid_streams_.count(stream.first))
+          continue;
+        for (size_t i=0; i < stream.second.traces.size(); ++i)
+        {
+          QString name = QString::fromStdString(stream.second.trace_names[i]);
+          QStringList ss;
+          for (auto d : stream.second.traces[i])
+            ss.push_back(QString::number(d));
+          cb->addItem(name + " [" + ss.join(", ") + "]", name);
+        }
+      }
+      int cbIndex = cb->findData(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;

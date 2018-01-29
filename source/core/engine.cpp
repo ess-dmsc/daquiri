@@ -112,6 +112,21 @@ Setting Engine::pull_settings() const
   return settings_;
 }
 
+StreamManifest Engine::stream_manifest() const
+{
+  UNIQUE_LOCK_EVENTUALLY_ST
+
+  StreamManifest ret;
+  for (auto &q : producers_)
+  {
+    if (!q.second)
+      continue;
+    for (auto m : q.second->stream_manifest())
+      ret[m.first] = m.second;
+  }
+  return ret;
+}
+
 void Engine::push_settings(const Setting& newsettings)
 {
   UNIQUE_LOCK_EVENTUALLY_ST

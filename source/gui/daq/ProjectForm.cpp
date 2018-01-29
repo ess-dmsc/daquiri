@@ -40,9 +40,9 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
 
   //1d
-  ui->Plot1d->setSpectra(project_);
+  ui->projectView->setSpectra(project_);
   connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
-//  ui->Plot1d->setDetDB(detectors_);
+//  ui->projectView->setDetDB(detectors_);
 
   menuLoad.addAction(QIcon(":/icons/oxy/16/document_open.png"), "Open daquiri project", this, SLOT(projectOpen()));
   ui->toolOpen->setMenu(&menuLoad);
@@ -155,8 +155,9 @@ void ProjectForm::saveSettings()
   }
 }
 
-void ProjectForm::toggle_push(bool enable, ProducerStatus status)
+void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
+  stream_manifest_ = manifest;
   bool online = (status & ProducerStatus::can_run);
   bool nonempty = !project_->empty();
 
@@ -168,6 +169,7 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status)
   ui->toolOpen->setEnabled(enable && !my_run_);
   ui->toolSave->setEnabled(enable && nonempty && !my_run_);
   ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
+  ui->projectView->set_manifest(manifest);
 
   if (close_me_)
     emit requestClose(this);
@@ -177,7 +179,7 @@ void ProjectForm::clearGraphs() //rename this
 {
   project_->clear();
   newProject();
-  ui->Plot1d->setSpectra(project_); //wrong!!!!
+  ui->projectView->setSpectra(project_); //wrong!!!!
   project_->activate();
 }
 
@@ -208,10 +210,10 @@ void ProjectForm::update_plots()
 
   ui->pushEditSpectra->setVisible(project_->empty());
 
-  if (ui->Plot1d->isVisible())
+  if (ui->projectView->isVisible())
   {
     this->setCursor(Qt::WaitCursor);
-    ui->Plot1d->update_plots();
+    ui->projectView->update_plots();
   }
 
   //ui->statusBar->showMessage("Spectra acquisition in progress...");
@@ -256,6 +258,7 @@ void ProjectForm::on_pushEditSpectra_clicked()
   ConsumerTemplatesForm* newDialog =
       new ConsumerTemplatesForm(spectra_templates_,
                                 current_dets_,
+                                stream_manifest_,
                                 Profiles::current_profile_dir(),
                                 this);
   newDialog->exec();
@@ -282,6 +285,7 @@ void ProjectForm::on_pushStart_clicked()
       ConsumerTemplatesForm* newDialog =
           new ConsumerTemplatesForm(spectra_templates_,
                                     current_dets_,
+                                    stream_manifest_,
                                     Profiles::current_profile_dir(),
                                     this);
       connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
@@ -309,7 +313,7 @@ void ProjectForm::start_DAQ()
 //  project_->activate();
 
   my_run_ = true;
-  ui->Plot1d->setSpectra(project_);
+  ui->projectView->setSpectra(project_);
   uint64_t duration = ui->timeDuration->total_seconds();
   if (ui->toggleIndefiniteRun->isChecked())
     duration = 0;
@@ -356,7 +360,7 @@ void ProjectForm::projectOpen()
 
 void ProjectForm::newProject()
 {
-  ui->Plot1d->setSpectra(project_);
+  ui->projectView->setSpectra(project_);
 }
 
 void ProjectForm::on_pushStop_clicked()
@@ -386,7 +390,7 @@ void ProjectForm::run_completed()
 
 void ProjectForm::on_pushForceRefresh_clicked()
 {
-  ui->Plot1d->setSpectra(project_);
+  ui->projectView->setSpectra(project_);
   update_plots();
 }
 

@@ -6,6 +6,7 @@
 #include "SettingsTreeModel.h"
 //#include "widget_detectors.h"
 #include "consumer_metadata.h"
+#include "spill.h"
 
 namespace Ui {
 class ConsumerDialog;
@@ -19,6 +20,7 @@ public:
     explicit ConsumerDialog(DAQuiri::ConsumerMetadata sink_metadata,
                             std::vector<DAQuiri::Detector> current_detectors,
                             Container<DAQuiri::Detector>& detDB,
+                            DAQuiri::StreamManifest stream_manifest,
                             bool has_sink_parent,
                             bool allow_edit_type,
                             QWidget *parent = 0);
@@ -55,6 +57,7 @@ private:
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_detectors_;
+    StreamManifest stream_manifest_;
 
     Container<DAQuiri::Detector> spectrum_detectors_;
 //    TableDetectors det_table_model_;
@@ -68,4 +71,8 @@ private:
     void toggle_push();
 
     static void initialize_gui_specific(DAQuiri::ConsumerMetadata& md);
+
+    void enforce_streams(DAQuiri::Setting& tree, DAQuiri::StreamManifest stream_manifest);
+
+    void enforce_everything();
 };

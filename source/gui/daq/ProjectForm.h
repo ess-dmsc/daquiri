@@ -33,7 +33,8 @@ class ProjectForm : public QWidget
     void closeEvent(QCloseEvent*);
 
   public slots:
-    void toggle_push(bool, DAQuiri::ProducerStatus);
+    void toggle_push(bool, DAQuiri::ProducerStatus,
+                     DAQuiri::StreamManifest);
     void start_DAQ();
 
   private slots:
@@ -68,6 +69,7 @@ class ProjectForm : public QWidget
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> &current_dets_;
+    DAQuiri::StreamManifest stream_manifest_;
 
     QString data_directory_;    //data directory
 

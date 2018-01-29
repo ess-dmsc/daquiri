@@ -31,6 +31,7 @@ Histogram1D::Histogram1D()
 
   SettingMeta val_name("value_name", SettingType::text, "Name of event value to bin");
   val_name.set_flag("preset");
+  val_name.set_flag("event_value");
   base_options.branches.add(val_name);
 
   metadata_.overwrite_all_attributes(base_options);

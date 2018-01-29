@@ -54,8 +54,8 @@ class ThreadRunner : public QThread
   signals:
     void bootComplete();
     void runComplete();
+    void settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest);
     void listComplete(DAQuiri::ListData);
-    void settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus);
     void oscilReadOut(DAQuiri::OscilData);
 
   protected:
@@ -85,7 +85,9 @@ class ThreadRunner : public QThread
 
     DAQuiri::ProducerStatus recent_status_;
 
+    DAQuiri::ProducerStatus status_before_run();
 
     void save_profile();
+
 };
 

@@ -14,6 +14,15 @@ DummyDevice::DummyDevice()
   root.set_enum(1000, mp + "DummySettings");
   add_definition(root);
 
+  manifest_["Stream1"].add_value("val1", 1000);
+  manifest_["Stream1"].add_value("val2", 2000);
+
+  manifest_["Stream2"].add_value("val_a", 500);
+  manifest_["Stream2"].add_trace("trc_a", {2,3,4});
+
+  manifest_["Stream3"].add_trace("trc1", {5000});
+  manifest_["Stream3"].add_trace("trc2", {200,300});
+
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
@@ -36,6 +45,11 @@ void DummyDevice::write_settings_bulk(const Setting& settings)
   auto set = enrich_and_toggle_presets(settings);
   dummy_selection_ = set.find({"DummyDevice/DummySettings/Menu"}).selection();
   read_only_ = !set.find({"DummyDevice/DummySettings/Enabled"}).triggered();
+}
+
+StreamManifest DummyDevice::stream_manifest() const
+{
+  return manifest_;
 }
 
 void DummyDevice::boot()

@@ -21,6 +21,7 @@ public:
   uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
   uint64_t stop(SpillQueue spill_queue) override;
 
+  StreamManifest stream_manifest() const override;
 
 private:
   // cached params

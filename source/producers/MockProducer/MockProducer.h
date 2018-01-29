@@ -42,6 +42,8 @@ public:
   void boot() override;
   void die() override;
 
+  StreamManifest stream_manifest() const override;
+
   bool daq_start(SpillQueue out_queue) override;
   bool daq_stop() override;
   bool daq_running() override;
@@ -66,7 +68,7 @@ protected:
   double lambda_ {0};
   double spill_lambda_ {100};
   double dead_ {0};
-  std::string stream_id;
+  std::string stream_id_;
 
   std::vector<ValueDefinition> val_defs_ {1, ValueDefinition()};
 
