@@ -27,7 +27,8 @@ class ListModeForm : public QWidget
     void toggleIO(bool);
 
   private slots:
-    void toggle_push(bool online, DAQuiri::ProducerStatus);
+    void toggle_push(bool online, DAQuiri::ProducerStatus,
+                     DAQuiri::StreamManifest);
     void spill_selection_changed(QItemSelection, QItemSelection);
     void event_selection_changed(QItemSelection, QItemSelection);
     void trace_selection_changed(QItemSelection, QItemSelection);

@@ -21,6 +21,8 @@ class ProjectView : public QWidget
 
     void setSpectra(DAQuiri::ProjectPtr new_set);
 
+    void set_manifest(DAQuiri::StreamManifest);
+
     void updateUI();
 
     void update_plots();
@@ -58,6 +60,7 @@ class ProjectView : public QWidget
     Ui::ProjectView *ui;
 
     Container<DAQuiri::Detector> detectors_;
+    DAQuiri::StreamManifest stream_manifest_;
 
     DAQuiri::ProjectPtr project_;
 

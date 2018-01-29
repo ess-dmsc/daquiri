@@ -19,6 +19,7 @@ Prebinned1D::Prebinned1D()
 
   SettingMeta val_name("value_name", SettingType::text);
   val_name.set_flag("preset");
+  val_name.set_flag("event_trace");
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 

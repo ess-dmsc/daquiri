@@ -33,6 +33,11 @@ void SettingDelegate::set_detectors(const Container<Detector> &detectors)
   detectors_ = detectors;
 }
 
+void SettingDelegate::set_manifest(DAQuiri::StreamManifest manifest)
+{
+  stream_manifest_ = manifest;
+}
+
 void SettingDelegate::text_len_limit(uint16_t tll)
 {
   text_len_limit_ = tll;
@@ -398,6 +403,51 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       {
         QString name = QString::fromStdString(detectors_.get(i).id());
         cb->addItem(name, name);
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("stream"))
+    {
+      auto cb = new QComboBox(parent);
+      for (auto stream : stream_manifest_)
+      {
+        QString name = QString::fromStdString(stream.first);
+        cb->addItem(name, name);
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("event_value"))
+    {
+      auto cb = new QComboBox(parent);
+      for (auto stream : stream_manifest_)
+      {
+        for (auto val : stream.second.value_names)
+        {
+          QString name = QString::fromStdString(val);
+          cb->addItem(name, name);
+        }
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("event_trace"))
+    {
+      auto cb = new QComboBox(parent);
+      for (auto stream : stream_manifest_)
+      {
+        for (auto val : stream.second.trace_names)
+        {
+          QString name = QString::fromStdString(val);
+          cb->addItem(name, name);
+        }
       }
       int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)

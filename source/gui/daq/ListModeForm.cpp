@@ -91,7 +91,7 @@ void ListModeForm::saveSettings()
   settings_.endGroup();
 }
 
-void ListModeForm::toggle_push(bool enable, ProducerStatus status)
+void ListModeForm::toggle_push(bool enable, ProducerStatus status, StreamManifest)
 {
   bool online = (status & ProducerStatus::can_run);
   ui->pushListStart->setEnabled(enable && online);

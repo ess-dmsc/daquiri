@@ -22,7 +22,6 @@ ThreadRunner::~ThreadRunner()
 
 void ThreadRunner::terminate()
 {
-  //  INFO << "runner thread termination requested";
   if (interruptor_)
     interruptor_->store(true);
   terminating_.store(true);
@@ -228,8 +227,8 @@ void ThreadRunner::run()
     {
       engine_.get_all_settings();
       emit settingsUpdated(engine_.pull_settings(),
-                           (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
-                           | DAQuiri::ProducerStatus::running);
+                           status_before_run(),
+                           engine_.stream_manifest());
       interruptor_->store(false);
       engine_.acquire(project_, *interruptor_, timeout_);
       action_ = kSettingsRefresh;
@@ -239,8 +238,8 @@ void ThreadRunner::run()
     {
       interruptor_->store(false);
       emit settingsUpdated(engine_.pull_settings(),
-                           (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
-                           | DAQuiri::ProducerStatus::running);
+                           status_before_run(),
+                           engine_.stream_manifest());
       ListData newListRun
           = engine_.acquire_list(*interruptor_, timeout_);
       action_ = kSettingsRefresh;
@@ -283,13 +282,6 @@ void ThreadRunner::run()
       engine_.die();
       action_ = kSettingsRefresh;
     }
-    else if (action_ == kSettingsRefresh)
-    {
-      engine_.get_all_settings();
-      action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(),
-                           engine_.status());
-    }
     else if (action_ == kPushSettings)
     {
       engine_.push_settings(tree_);
@@ -307,6 +299,14 @@ void ThreadRunner::run()
         emit oscilReadOut(traces);
       action_ = kSettingsRefresh;
     }
+    else if (action_ == kSettingsRefresh)
+    {
+      engine_.get_all_settings();
+      action_ = kNone;
+      emit settingsUpdated(engine_.pull_settings(),
+                           engine_.status(),
+                           engine_.stream_manifest());
+    }
     else
     {
       bool booted = ((engine_.status()
@@ -322,6 +322,12 @@ void ThreadRunner::run()
   }
 
   save_profile();
+}
+
+DAQuiri::ProducerStatus ThreadRunner::status_before_run()
+{
+  return (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
+      | DAQuiri::ProducerStatus::running;
 }
 
 void ThreadRunner::save_profile()

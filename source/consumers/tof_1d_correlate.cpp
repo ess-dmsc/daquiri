@@ -38,6 +38,7 @@ TOF1DCorrelate::TOF1DCorrelate()
 
   SettingMeta stream("chopper_stream_id", SettingType::text, "Chopper stream ID");
   stream.set_flag("preset");
+  stream.set_flag("stream");
   base_options.branches.add(stream);
 
   metadata_.overwrite_all_attributes(base_options);

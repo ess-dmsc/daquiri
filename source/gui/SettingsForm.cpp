@@ -15,6 +15,8 @@
 
 #include "GradientSelector.h"
 
+using namespace DAQuiri;
+
 SettingsForm::SettingsForm(ThreadRunner& thread,
                            QWidget *parent)
   : QWidget(parent)
@@ -26,10 +28,11 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
 
   this->setWindowTitle("DAQ Settings");
 
-  connect(&runner_thread_, SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus)),
-          this, SLOT(update(DAQuiri::Setting, DAQuiri::ProducerStatus)));
+  connect(&runner_thread_,
+          SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
+          this, SLOT(update(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)));
 
-  current_status_ = DAQuiri::ProducerStatus::dead;
+  current_status_ = ProducerStatus::dead;
   tree_settings_model_.update(settings_tree_);
 
   ui->treeViewSettings->setModel(&tree_settings_model_);
@@ -58,11 +61,12 @@ void SettingsForm::exit()
   exiting_ = true;
 }
 
-void SettingsForm::update(const DAQuiri::Setting &tree,
-                          DAQuiri::ProducerStatus status)
+void SettingsForm::update(const Setting &tree,
+                          ProducerStatus status,
+                          StreamManifest manifest)
 {
   Q_UNUSED(status)
-//  bool can_run = ((status & DAQuiri::ProducerStatus::can_run) != 0);
+//  bool can_run = ((status & ProducerStatus::can_run) != 0);
 //  bool can_gain_match = false;
 //  bool can_optimize = false;
 
@@ -162,12 +166,12 @@ void SettingsForm::closeEvent(QCloseEvent *event)
   return;
 }
 
-void SettingsForm::toggle_push(bool enable, DAQuiri::ProducerStatus status)
+void SettingsForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
-  //  bool online = (status & DAQuiri::ProducerStatus::can_run);
+  //  bool online = (status & ProducerStatus::can_run);
 
   //busy status?!?!
-  bool online = (status & DAQuiri::ProducerStatus::booted);
+  bool online = (status & ProducerStatus::booted);
 
   ui->pushSettingsRefresh->setEnabled(enable && online);
   ui->pushRequestList->setEnabled(enable && online);
@@ -217,7 +221,7 @@ void SettingsForm::saveSettings()
   QSettings settings;
   settings.beginGroup("Program");
   settings.setValue("settings_show_readonly", ui->checkShowRO->isChecked());
-  settings.setValue("boot_on_startup", bool(current_status_ & DAQuiri::ProducerStatus::booted));
+  settings.setValue("boot_on_startup", bool(current_status_ & ProducerStatus::booted));
 }
 
 void SettingsForm::updateDetDB()

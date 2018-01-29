@@ -16,6 +16,7 @@ using namespace DAQuiri;
 ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
+                               StreamManifest stream_manifest,
                                bool has_sink_parent,
                                bool allow_edit_type,
                                QWidget *parent)
@@ -45,6 +46,7 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
 
   connect(&attr_model_, SIGNAL(tree_changed()), this, SLOT(push_settings()));
 
+  attr_delegate_.set_manifest(stream_manifest);
   ui->treeAttribs->setModel(&attr_model_);
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
   ui->treeAttribs->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -73,6 +75,18 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
     ui->spinDets->setValue(current_detectors_.size());
     on_comboType_activated(ui->comboType->currentText());
 //    initialize_gui_specific(sink_metadata_);
+  }
+
+  for (auto stream : stream_manifest)
+  {
+    DBG << "Stream: " << stream.first;
+    for (size_t i=0; i < stream.second.values.size(); ++i)
+      DBG << "  val '" << stream.second.value_names[i]
+          << "' "  << stream.second.values[i]
+          << " <" <<  stream.second.maximum[i];
+    for (size_t i=0; i < stream.second.traces.size(); ++i)
+      DBG << "  val '" << stream.second.trace_names[i]
+          << "' rank="  << stream.second.traces[i].size();
   }
 
   updateData();

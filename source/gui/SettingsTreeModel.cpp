@@ -283,21 +283,9 @@ bool SettingsTreeItem::setData(int column, const QVariant &value)
   else if (itemData.is(SettingType::text)
       && (value.type() == QVariant::String))
     itemData.set_text(value.toString().toStdString());
-//  else if (itemData.is(SettingType::color)
-//      && (value.type() == QVariant::String))
-//    itemData.set_text(value.toString().toStdString());
-//  else if (itemData.is(SettingType::file)
-//      && (value.type() == QVariant::String))
-//    itemData.set_text(value.toString().toStdString());
   else if (itemData.is(SettingType::pattern)
       && (value.canConvert<Pattern>()))
     itemData.set_pattern(qvariant_cast<Pattern>(value));
-//  else if (itemData.is(SettingType::dir)
-//      && (value.type() == QVariant::String))
-//    itemData.set_text(value.toString().toStdString());
-//  else if (itemData.is(SettingType::detector)
-//      && (value.type() == QVariant::String))
-//    itemData.set_text(value.toString().toStdString());
   else if (itemData.is(SettingType::time)
       && (value.type() == QVariant::DateTime))
     itemData.set_time(fromQDateTime(value.toDateTime()));

@@ -27,8 +27,6 @@ ProducerStatus operator|(ProducerStatus a, ProducerStatus b);
 ProducerStatus operator&(ProducerStatus a, ProducerStatus b);
 ProducerStatus operator^(ProducerStatus a, ProducerStatus b);
 
-using StreamManifest = std::map<std::string, EventModel>;
-
 class Producer
 {
 public:

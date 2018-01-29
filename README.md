@@ -40,7 +40,6 @@ git submodule update --init
 mkdir build
 cd build
 conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
-conan install --build=missing ../conanfile.txt
 cmake ..
 make
 ```

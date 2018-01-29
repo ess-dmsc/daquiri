@@ -7,6 +7,7 @@
 #include <QComboBox>
 #include "PatternWidget.h"
 #include "detector.h"
+#include "spill.h"
 
 Q_DECLARE_METATYPE(DAQuiri::Detector)
 Q_DECLARE_METATYPE(DAQuiri::Setting)
@@ -20,28 +21,17 @@ public:
   SettingDelegate(QObject *parent = 0)
     : QStyledItemDelegate(parent) {}
 
-  void paint(QPainter *painter,
-             const QStyleOptionViewItem &option,
-             const QModelIndex &index) const Q_DECL_OVERRIDE;
-
-  QSize sizeHint(const QStyleOptionViewItem &option,
-                 const QModelIndex &index) const Q_DECL_OVERRIDE;
-
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const Q_DECL_OVERRIDE;
-
-  void setModelData(QWidget *editor, QAbstractItemModel *model,
-                    const QModelIndex &index) const Q_DECL_OVERRIDE;
-
-  void updateEditorGeometry(QWidget *editor,
-                            const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const Q_DECL_OVERRIDE;
-
-
   void set_detectors(const Container<DAQuiri::Detector>& dets);
-
+  void set_manifest(DAQuiri::StreamManifest);
   void text_len_limit(uint16_t tll);
   uint16_t text_len_limit() const;
+
+  QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
+  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
+
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
+  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const Q_DECL_OVERRIDE;
+  void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
 
 signals:
   void begin_editing() const;
@@ -51,6 +41,7 @@ signals:
 
 private:
   Container<DAQuiri::Detector> detectors_;
+  DAQuiri::StreamManifest stream_manifest_;
 
   void text_flags(QPainter* painter,
                   const QStyleOptionViewItem &option,
@@ -58,27 +49,13 @@ private:
 
   QString get_string(const DAQuiri::Setting& val) const;
 
-  void paint_detector(QPainter* painter, const QStyleOptionViewItem &option,
-                      const DAQuiri::Setting& val) const;
-
-  void paint_color(QPainter* painter, const QStyleOptionViewItem &option,
-                   const DAQuiri::Setting& val) const;
-
-  void paint_gradient(QPainter* painter, const QStyleOptionViewItem &option,
-                      const DAQuiri::Setting& val) const;
-
-  void paint_indicator(QPainter* painter, const QStyleOptionViewItem &option,
-                       const DAQuiri::Setting& val) const;
-
-  void paint_pattern(QPainter* painter, const QStyleOptionViewItem &option,
-                     const DAQuiri::Setting& val) const;
-
-  void paint_command(QPainter* painter, const QStyleOptionViewItem &option,
-                     const DAQuiri::Setting& val) const;
-
-  void paint_text(QPainter* painter, const QStyleOptionViewItem &option,
-                  const DAQuiri::Setting& val) const;
-
+  void paint_detector(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_color(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_gradient(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_indicator(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_pattern(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_command(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
+  void paint_text(QPainter* painter, const QStyleOptionViewItem &option, const DAQuiri::Setting& val) const;
   void truncate_w_ellipses(QString& t, uint16_t max) const;
 
   uint16_t text_len_limit_ {80};

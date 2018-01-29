@@ -65,6 +65,11 @@ ProjectView::~ProjectView()
   delete ui;
 }
 
+void ProjectView::set_manifest(DAQuiri::StreamManifest m)
+{
+  stream_manifest_ = m;
+}
+
 //void ProjectView::closeEvent(QCloseEvent *event)
 //{
 //  saveSettings();
@@ -247,7 +252,7 @@ void ProjectView::on_pushFullInfo_clicked()
 
   ConsumerDialog* newSpecDia =
       new ConsumerDialog(consumer->metadata(), std::vector<Detector>(),
-                         detectors_, true, false, this);
+                         detectors_, stream_manifest_, true, false, this);
 
   DBG << "Consumer:\n" << consumer->debug() << "\n";
 

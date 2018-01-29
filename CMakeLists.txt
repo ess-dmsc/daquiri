@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(daquiri
   LANGUAGES CXX C
-#  VERSION 0.0.1
+  VERSION 0.0.1
   )
 
 set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)

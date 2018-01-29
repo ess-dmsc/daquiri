@@ -32,7 +32,9 @@ class daquiri : public QMainWindow
     Container<DAQuiri::Detector>   detectors_;
     std::vector<DAQuiri::Detector> current_dets_;
     ThreadRunner                   runner_thread_;
+
     DAQuiri::ProducerStatus engine_status_;
+    DAQuiri::StreamManifest stream_manifest_;
     QString profile_description_;
 
     SettingsForm* main_tab_ {nullptr};
@@ -44,14 +46,17 @@ class daquiri : public QMainWindow
 
 
   signals:
-    void toggle_push(bool, DAQuiri::ProducerStatus);
+    void toggle_push(bool,
+                     DAQuiri::ProducerStatus,
+                     DAQuiri::StreamManifest);
 
   protected:
     void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 
   private slots:
     void update_settings(DAQuiri::Setting,
-                         DAQuiri::ProducerStatus);
+                         DAQuiri::ProducerStatus,
+                         DAQuiri::StreamManifest);
     void toggleIO(bool);
 
     void close_tab_at(int index);

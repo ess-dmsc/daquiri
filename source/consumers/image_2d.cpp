@@ -22,16 +22,19 @@ Image2D::Image2D()
 
   SettingMeta x_name("x_name", SettingType::text);
   x_name.set_flag("preset");
+  x_name.set_flag("event_value");
   x_name.set_val("description", "Name of event value for x coordinate");
   base_options.branches.add(x_name);
 
   SettingMeta y_name("y_name", SettingType::text);
   y_name.set_flag("preset");
+  y_name.set_flag("event_value");
   y_name.set_val("description", "Name of event value for y coordinate");
   base_options.branches.add(y_name);
 
   SettingMeta v_name("val_name", SettingType::text);
   v_name.set_flag("preset");
+  v_name.set_flag("event_value");
   v_name.set_val("description", "Name of event value for intensity");
   base_options.branches.add(v_name);
 

@@ -36,6 +36,7 @@ class Spill;
 
 using SpillPtr = std::shared_ptr<Spill>;
 using ListData = std::vector<SpillPtr>;
+using StreamManifest = std::map<std::string, EventModel>;
 
 class EventBuffer
 {

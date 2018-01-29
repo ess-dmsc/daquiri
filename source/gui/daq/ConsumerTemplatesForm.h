@@ -7,6 +7,7 @@
 #include "qt_util.h"
 #include "SettingsTreeModel.h"
 #include "consumer_metadata.h"
+#include "spill.h"
 
 namespace Ui {
 class ConsumerTemplatesForm;
@@ -38,8 +39,9 @@ class ConsumerTemplatesForm : public QDialog
 
 public:
   explicit ConsumerTemplatesForm(Container<DAQuiri::ConsumerMetadata> &newdb,
-                                  std::vector<DAQuiri::Detector> current_dets,
-                                  QString savedir, QWidget *parent = 0);
+                                 std::vector<DAQuiri::Detector> current_dets,
+                                 DAQuiri::StreamManifest stream_manifest,
+                                 QString savedir, QWidget *parent = 0);
   ~ConsumerTemplatesForm();
 
 private:
@@ -53,6 +55,7 @@ private:
 
   QString root_dir_;
   std::vector<DAQuiri::Detector> current_dets_;
+  DAQuiri::StreamManifest stream_manifest_;
 
 private slots:
   void on_pushImport_clicked();

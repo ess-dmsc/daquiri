@@ -17,6 +17,8 @@
 #include <QCoreApplication>
 #include "QFileExtensions.h"
 
+using namespace DAQuiri;
+
 daquiri::daquiri(QWidget *parent,
                  bool open_new_project,
                  bool start_daq)
@@ -33,10 +35,11 @@ daquiri::daquiri(QWidget *parent,
 //  detectors_.add(Detector("c"));
 
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
-  qRegisterMetaType<std::vector<DAQuiri::Detector>>("std::vector<DAQuiri::Detector>");
+  qRegisterMetaType<std::vector<Detector>>("std::vector<Detector>");
   qRegisterMetaType<DAQuiri::ListData>("DAQuiri::ListData");
   qRegisterMetaType<DAQuiri::Setting>("DAQuiri::Setting");
   qRegisterMetaType<DAQuiri::ProducerStatus>("DAQuiri::ProducerStatus");
+  qRegisterMetaType<DAQuiri::StreamManifest>("DAQuiri::StreamManifest");
   qRegisterMetaType<DAQuiri::ProjectPtr>("DAQuiri::ProjectPtr");
   qRegisterMetaType<boost::posix_time::time_duration>("boost::posix_time::time_duration");
 
@@ -45,9 +48,8 @@ daquiri::daquiri(QWidget *parent,
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 
   connect(&runner_thread_,
-          SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus)),
-          this,
-          SLOT(update_settings(DAQuiri::Setting, DAQuiri::ProducerStatus)));
+          SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
+          this, SLOT(update_settings(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)));
 
   loadSettings();
 
@@ -75,8 +77,8 @@ daquiri::daquiri(QWidget *parent,
 //  ui->tabs->addTab(main_tab_, main_tab_->windowTitle());
   ui->tabs->setTabIcon(ui->tabs->count() - 1, QIcon(":/icons/oxy/16/applications_systemg.png"));
   connect(main_tab_, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
-  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
-          main_tab_, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+  connect(this, SIGNAL(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
+          main_tab_, SLOT(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)));
   connect(main_tab_, SIGNAL(requestList()), this, SLOT(open_list()));
   //  connect(this, SIGNAL(settings_changed()), main_tab_, SLOT(refresh()));
   //  connect(this, SIGNAL(update_dets()), main_tab_, SLOT(updateDetDB()));
@@ -177,10 +179,12 @@ void daquiri::add_log_text(QString line)
   ui->logBox->append(line);
 }
 
-void daquiri::update_settings(DAQuiri::Setting sets,
-                              DAQuiri::ProducerStatus status)
+void daquiri::update_settings(Setting sets,
+                              ProducerStatus status,
+                              StreamManifest manifest)
 {
   engine_status_ = status;
+  stream_manifest_ = manifest;
   auto description = sets.find({"ProfileDescr"}, Match::id);
   profile_description_ = QString::fromStdString(description.get_text());
   if (profile_description_.isEmpty())
@@ -189,7 +193,7 @@ void daquiri::update_settings(DAQuiri::Setting sets,
 //  current_dets_ = channels;
   toggleIO(true);
 
-  if ((status & DAQuiri::ProducerStatus::can_run) &&
+  if ((status & ProducerStatus::can_run) &&
       open_new_project_ && start_daq_)
   {
     open_new_project_ = false;
@@ -205,9 +209,9 @@ void daquiri::toggleIO(bool enable)
   if (!profile_description_.isEmpty())
     name = profile_description_;
 
-  if (enable && (engine_status_ & DAQuiri::ProducerStatus::running))
+  if (enable && (engine_status_ & ProducerStatus::running))
     name += " (Running)";
-  else if (enable && (engine_status_ & DAQuiri::ProducerStatus::booted))
+  else if (enable && (engine_status_ & ProducerStatus::booted))
     name += " (Online)";
   else if (enable)
     name += " (Offline)";
@@ -220,7 +224,7 @@ void daquiri::toggleIO(bool enable)
     if (ui->tabs->widget(i) != main_tab_)
       ui->tabs->setTabText(i, ui->tabs->widget(i)->windowTitle());
 
-  emit toggle_push(enable, engine_status_);
+  emit toggle_push(enable, engine_status_, stream_manifest_);
 }
 
 void daquiri::loadSettings()
@@ -281,14 +285,14 @@ void daquiri::open_list()
   add_closable_tab(newListForm);
 
   connect(newListForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
-  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
-          newListForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+  connect(this, SIGNAL(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
+          newListForm, SLOT(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)));
 
   ui->tabs->setCurrentWidget(newListForm);
 
   reorder_tabs();
 
-  emit toggle_push(gui_enabled_, engine_status_);
+  emit toggle_push(gui_enabled_, engine_status_, stream_manifest_);
 }
 
 void daquiri::open_new_proj()
@@ -297,7 +301,7 @@ void daquiri::open_new_proj()
   start_daq_ = false;
 }
 
-void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
+void daquiri::open_project(ProjectPtr proj, bool start)
 {
   ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
                                               current_dets_,
@@ -306,14 +310,14 @@ void daquiri::open_project(DAQuiri::ProjectPtr proj, bool start)
           this, SLOT(close_tab_widget(QWidget*)));
 
   connect(newSpectraForm, SIGNAL(toggleIO(bool)), this, SLOT(toggleIO(bool)));
-  connect(this, SIGNAL(toggle_push(bool,DAQuiri::ProducerStatus)),
-          newSpectraForm, SLOT(toggle_push(bool,DAQuiri::ProducerStatus)));
+  connect(this, SIGNAL(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
+          newSpectraForm, SLOT(toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)));
 
   add_closable_tab(newSpectraForm);
   ui->tabs->setCurrentWidget(newSpectraForm);
   reorder_tabs();
 
-  newSpectraForm->toggle_push(true, engine_status_);
+  newSpectraForm->toggle_push(true, engine_status_, stream_manifest_);
   if (start)
     QTimer::singleShot(500, newSpectraForm, SLOT(start_DAQ()));
 }

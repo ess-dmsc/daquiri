@@ -33,6 +33,7 @@ TOFVal2D::TOFVal2D()
 
   SettingMeta val_name("value_name", SettingType::text);
   val_name.set_flag("preset");
+  val_name.set_flag("event_value");
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
