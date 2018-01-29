@@ -138,6 +138,7 @@ void ConsumerDialog::updateData()
   ui->labelDescription->setText(descr);
 
   enforce_everything();
+
   open_close_locks();
 }
 
@@ -146,13 +147,10 @@ void ConsumerDialog::enforce_everything()
 {
   auto tempmeta = sink_metadata_;
   auto tree = attr_model_.get_tree();
-
   enforce_streams(tree, stream_manifest_);
-
   tempmeta.overwrite_all_attributes(tree);
   sink_metadata_.set_attributes(tempmeta.attributes_flat());
   initialize_gui_specific(sink_metadata_);
-
   attr_model_.update(sink_metadata_.attributes());
 }
 
@@ -166,7 +164,7 @@ void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
                                      DAQuiri::StreamManifest stream_manifest)
 {
   //hack to find seetings with "stream" flag
-  auto tree2 = tree;
+  DAQuiri::Setting tree2 = tree;
   tree2.enable_if_flag(false, "");
   tree2.enable_if_flag(true, "stream");
   tree2.cull_readonly();
@@ -458,6 +456,8 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
   sink_metadata_ = md;
   on_spinDets_valueChanged(ui->spinDets->value());
   sink_metadata_.set_attributes(old);
+  attr_model_.update(sink_metadata_.attributes());
+
   updateData();
 }
 
@@ -470,7 +470,7 @@ void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
     if (col.get_text().empty())
       col.set_text(generateColor().name(QColor::HexArgb).toStdString());
     else
-      col.set_text(QColor(QS(col.get_text())).name().toStdString());
+      col.set_text(QColor(QS(col.get_text())).name(QColor::HexArgb).toStdString());
     md.set_attribute(col);
   }
   else if (col.metadata().has_flag("gradient-name"))

@@ -166,6 +166,13 @@ MockProducer::~MockProducer()
   die();
 }
 
+StreamManifest MockProducer::stream_manifest() const
+{
+  StreamManifest ret;
+  ret[stream_id_] = event_definition_;
+  return ret;
+}
+
 bool MockProducer::daq_start(SpillQueue out_queue)
 {
   if (running_.load())
@@ -198,7 +205,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);
 
-  set.set(Setting::text("MockProducer/StreamID", stream_id));
+  set.set(Setting::text("MockProducer/StreamID", stream_id_));
   set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
@@ -231,7 +238,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
-  stream_id = set.find({"MockProducer/StreamID"}).get_text();
+  stream_id_ = set.find({"MockProducer/StreamID"}).get_text();
   spill_interval_ = set.find({"MockProducer/SpillInterval"}).get_number();
   bits_ = set.find({"MockProducer/Resolution"}).get_number();
   count_rate_ = set.find({"MockProducer/CountRate"}).get_number();
@@ -326,7 +333,7 @@ void MockProducer::add_hit(Spill& spill)
 
 SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 {
-  SpillPtr spill = std::make_shared<Spill>(stream_id, t);
+  SpillPtr spill = std::make_shared<Spill>(stream_id_, t);
 
   recent_pulse_time_ = clock_;
 
