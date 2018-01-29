@@ -86,6 +86,13 @@ bool ESSStream::daq_running()
   return (running_.load());
 }
 
+StreamManifest ESSStream::stream_manifest() const
+{
+  if (parser_)
+    return parser_->stream_manifest();
+  return StreamManifest();
+}
+
 void ESSStream::read_settings_bulk(Setting &set) const
 {
   set = enrich_and_toggle_presets(set);

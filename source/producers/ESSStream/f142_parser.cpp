@@ -32,6 +32,13 @@ ChopperTDC::ChopperTDC()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
+StreamManifest ChopperTDC::stream_manifest() const
+{
+  StreamManifest ret;
+  ret[stream_id_] = event_model_;
+  return ret;
+}
+
 void ChopperTDC::read_settings_bulk(Setting &set) const
 {
   

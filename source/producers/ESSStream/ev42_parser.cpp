@@ -141,6 +141,13 @@ void ev42_events::write_settings_bulk(const Setting& settings)
   event_definition_.add_value("panel", geometry_.np());
 }
 
+StreamManifest ev42_events::stream_manifest() const
+{
+  StreamManifest ret;
+  ret[stream_id_] = event_definition_;
+  return ret;
+}
+
 uint64_t ev42_events::stop(SpillQueue spill_queue)
 {
   if (started_)

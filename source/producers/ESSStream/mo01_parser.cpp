@@ -94,6 +94,16 @@ void mo01_nmx::write_settings_bulk(const Setting& settings)
       TimeBase(mult ? mult : 1, div ? div : 1);
 }
 
+StreamManifest mo01_nmx::stream_manifest() const
+{
+  StreamManifest ret;
+  ret[hists_stream_id_] = hists_model_;
+  ret[x_stream_id_] = track_model_;
+  ret[y_stream_id_] = track_model_;
+  ret[hit_stream_id_] = hits_model_;
+  return ret;
+}
+
 uint64_t mo01_nmx::stop(SpillQueue spill_queue)
 {
   if (started_)

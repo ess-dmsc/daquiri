@@ -25,6 +25,8 @@ public:
   void boot() override;
   void die() override;
 
+  StreamManifest stream_manifest() const override;
+
   bool daq_start(SpillQueue out_queue) override;
   bool daq_stop() override;
   bool daq_running() override;
