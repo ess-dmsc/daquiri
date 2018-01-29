@@ -464,7 +464,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
           cb->addItem(name + " [" + ss.join(", ") + "]", name);
         }
       }
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findData(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
