@@ -179,7 +179,7 @@ def get_macos_pipeline()
                     try {
                         sh "make VERBOSE=1"
                         sh "make run_tests"
-                        //sh "./bin/daquiri_cmd"
+                        sh "./bin/daquiri_cmd"
                     } catch (e) {
 		        junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')
