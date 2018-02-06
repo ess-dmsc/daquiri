@@ -1,9 +1,5 @@
 set(this_target ${PROJECT_NAME}_core)
 
-if(APPLE)
-  add_definitions(-DUSE_BOOST_MUTEX=1)
-endif()
-
 file(GLOB ${this_target}_SOURCES *.cpp util/*.cpp)
 file(GLOB ${this_target}_HEADERS *.h util/*.h)
 dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
