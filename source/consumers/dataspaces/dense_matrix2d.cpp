@@ -100,19 +100,20 @@ void DenseMatrix2D::fill_list(EntryList& result,
 #ifdef DAQUIRI_USE_H5
 void DenseMatrix2D::save(hdf5::node::Group& g) const
 {
-  auto dgroup = hdf5::require_group(g, "data");
+  using namespace hdf5;
+  auto dgroup = g.create_group("data");
 
-  hdf5::property::LinkCreationList lcpl;
-  hdf5::property::DatasetCreationList dcpl;
-  dcpl.layout(hdf5::property::DatasetLayout::CHUNKED);
+  property::LinkCreationList lcpl;
+  property::DatasetCreationList dcpl;
+  dcpl.layout(property::DatasetLayout::CHUNKED);
 
-  hdf5::dataspace::Simple i_space({static_cast<unsigned long long>(spectrum_.nonZeros()),2});
+  auto i_space = dataspace::Simple({static_cast<size_t>(spectrum_.nonZeros()),2});
   dcpl.chunk({128,2});
-  auto didx = dgroup.create_dataset("indices", hdf5::datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
-  hdf5::dataspace::Simple c_space({static_cast<unsigned long long>(spectrum_.nonZeros())});
+  dataspace::Simple c_space({static_cast<size_t>(spectrum_.nonZeros())});
   dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", hdf5::datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
@@ -126,8 +127,8 @@ void DenseMatrix2D::save(hdf5::node::Group& g) const
 //      i++;
 //    }
 //  }
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({static_cast<unsigned long long>(spectrum_.nonZeros()), 1});
+  dataspace::Hyperslab slab(2);
+  slab.block({static_cast<size_t>(spectrum_.nonZeros()), 1});
 
   slab.offset({0,0});
   didx.write(dx, slab);

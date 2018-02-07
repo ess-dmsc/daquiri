@@ -2,6 +2,8 @@
 #include "ascii_tree.h"
 #include "h5json.h"
 
+#include "custom_logger.h"
+
 namespace DAQuiri
 {
 
@@ -103,48 +105,49 @@ void SparseMatrix2D::fill_list(EntryList& result,
 #ifdef DAQUIRI_USE_H5
 void SparseMatrix2D::save(hdf5::node::Group& g) const
 {
-  auto dgroup = hdf5::require_group(g, "data");
+  hdf5::error::Singleton::instance().auto_print(false);
 
-//  auto didx = dgroup.require_dataset<uint16_t>("indices", {static_cast<unsigned long long>(spectrum_.nonZeros()), 2}, {128,2});
-//  auto dcts = dgroup.require_dataset<double>("counts", {static_cast<unsigned long long>(spectrum_.nonZeros())}, {128});
-
-  hdf5::property::LinkCreationList lcpl;
-  hdf5::property::DatasetCreationList dcpl;
-  dcpl.layout(hdf5::property::DatasetLayout::CHUNKED);
-
-  hdf5::dataspace::Simple i_space({static_cast<unsigned long long>(spectrum_.nonZeros()),2});
-  dcpl.chunk({128,2});
-  auto didx = dgroup.create_dataset("indices", hdf5::datatype::create<uint16_t>(), i_space, lcpl, dcpl);
-
-  hdf5::dataspace::Simple c_space({static_cast<unsigned long long>(spectrum_.nonZeros())});
-  dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", hdf5::datatype::create<double>(), c_space, lcpl, dcpl);
-
-  std::vector<uint16_t> dx(spectrum_.size());
-  std::vector<uint16_t> dy(spectrum_.size());
-  std::vector<double> dc(spectrum_.size());
-  size_t i = 0;
+  std::vector<uint16_t> dx;
+  std::vector<uint16_t> dy;
+  std::vector<double> dc;
   for (int k=0; k < spectrum_.outerSize(); ++k)
   {
     for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
     {
-      dx[i] = it.row();
-      dy[i] = it.col();
-      dc[i] = static_cast<double>(it.value());
-      i++;
+      dx.push_back(it.row());
+      dy.push_back(it.col());
+      dc.push_back(static_cast<double>(it.value()));
     }
   }
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({static_cast<unsigned long long>(spectrum_.nonZeros()), 1});
+  DBG << "DC size = " << dc.size();
 
-  slab.offset({0,0});
-  didx.write(dx, slab);
+  using namespace hdf5;
+  auto dgroup = g.create_group("data");
 
-  slab.offset({0,1});
-  didx.write(dy, slab);
+  property::LinkCreationList lcpl;
+  property::DatasetCreationList dcpl;
+  dcpl.layout(property::DatasetLayout::CHUNKED);
 
-  dcts.write(dc);
+  auto i_space = dataspace::Simple({dc.size(),2});
+  dcpl.chunk({128,1});
+  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+
+  auto c_space = dataspace::Simple({dc.size()});
+  dcpl.chunk({128});
+  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space);//, lcpl, dcpl);
+
+
+  dataspace::Hyperslab slab(2);
+  slab.block({static_cast<size_t>(dc.size()), 1});
+
+//  slab.offset({0,0});
+//  didx.write(dx, slab);
+//
+//  slab.offset({0,1});
+//  didx.write(dy, slab);
+
+//  dcts.write(dc);
 }
 
 void SparseMatrix2D::load(hdf5::node::Group& g)

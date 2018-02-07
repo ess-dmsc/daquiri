@@ -296,7 +296,7 @@ void Project::to_h5(hdf5::node::Group &group) const
 //  }
 
   if (!sinks_.empty()) {
-    auto sg = hdf5::require_group(group, "sinks");
+    auto sg = group.create_group("sinks");
 
     int i = 0;
     size_t len = std::to_string(sinks_.size() - 1).size();
@@ -305,12 +305,12 @@ void Project::to_h5(hdf5::node::Group &group) const
       if (name.size() < len)
         name = std::string(len - name.size(), '0').append(name);
 
-      auto ssg = hdf5::require_group(sg, name);
+      auto ssg = sg.create_group(name);
 
       ssg.attributes.create<int64_t>("index").write(q.first);
 
-      if (q.second->dimensions() == 1)
-        q.second->save(ssg);
+//      if (q.second->dimensions() == 1)
+//        q.second->save(ssg);
     }
   }
 
@@ -379,7 +379,7 @@ void Project::write_h5(std::string file_name)
   {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
-    auto group = hdf5::require_group(f, "project");
+    auto group = f.create_group("project");
     to_h5(group);
 
     for (auto &q : sinks_)

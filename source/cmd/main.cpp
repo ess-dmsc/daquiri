@@ -11,6 +11,8 @@
 
 #include "custom_timer.h"
 
+#include "h5json.h"
+
 using namespace DAQuiri;
 
 Setting get_profile();
@@ -20,6 +22,8 @@ void define_value(Engine& e, uint16_t num,
 
 int main(int argc, char **argv)
 {
+  hdf5::error::Singleton::instance().auto_print(false);
+
   producers_autoreg();
   consumers_autoreg();
 
@@ -61,6 +65,8 @@ int main(int argc, char **argv)
   for (auto s : project->get_sinks())
     DBG << "Result[" << s.first << "]\n"
         << s.second->debug("", false);
+
+  project->save_as("./results.h5");
 
   wait_ms(2000);
 

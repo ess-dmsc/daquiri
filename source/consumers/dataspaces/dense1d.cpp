@@ -87,24 +87,16 @@ EntryList Dense1D::range(std::vector<Pair> list) const
 #ifdef DAQUIRI_USE_H5
 void Dense1D::save(hdf5::node::Group& g) const
 {
+  hdf5::error::Singleton::instance().auto_print(false);
+
   std::vector<double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<double>(spectrum_[i]);
 
   auto dtype = hdf5::datatype::create<double>();
   auto dspace = hdf5::dataspace::Simple({maxchan_});
-
-//  auto dset = g.create_dataset("data", dtype, dspace);
-//  auto dset = g.create_dataset("data",
-//                               hdf5::datatype::create<double>(),
-//                               dspace);
-
-//  auto dset = g.create_dataset("data",
-//                               hdf5::datatype::create<double>(),
-//                               hdf5::dataspace::Simple({maxchan_}, {maxchan_}));
-
-//  auto dset = g.require_dataset<double>("data", {maxchan_});
-//  dset.write(d);
+  auto dset = g.create_dataset("data", dtype, dspace);
+  dset.write(d);
 }
 
 void Dense1D::load(hdf5::node::Group& g)
