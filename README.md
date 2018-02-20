@@ -39,7 +39,8 @@ You also need these, but if you have conan, don't worry about it:
 git submodule update --init
 mkdir build
 cd build
-conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
+conan install ..
+source ./activate_run.sh
 cmake ..
 make
 ```
