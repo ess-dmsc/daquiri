@@ -6,7 +6,7 @@ project = "daquiri"
 
 images = [
   'centos7-gcc6': [
-    'name': 'essdmscdm/centos7-gcc6-build-node:1.0.0',
+    'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
     'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
   ],
   'fedora25': [
@@ -14,11 +14,11 @@ images = [
     'sh': 'sh'
   ],
   'ubuntu1604': [
-    'name': 'essdmscdm/ubuntu16.04-build-node:2.0.0',
+    'name': 'essdmscdm/ubuntu16.04-build-node:2.1.0',
     'sh': 'sh'
   ],
   'ubuntu1710': [
-    'name': 'essdmscdm/ubuntu17.10-build-node:1.0.0',
+    'name': 'essdmscdm/ubuntu17.10-build-node:2.0.0',
     'sh': 'sh'
   ]
 ]
@@ -44,7 +44,7 @@ def docker_dependencies(image_key) {
         conan remote add \
             --insert 0 \
             ${conan_remote} ${local_conan_server}
-        conan install --build=missing ../${project}/conanfile.txt
+        conan install --build=outdated ../${project}/conanfile.txt
     \""""
 }
 
@@ -164,7 +164,7 @@ def get_macos_pipeline()
 
                 dir("${project}/build") {
                     try {
-                        sh "conan install --build=missing ../code/conanfile.txt"
+                        sh "conan install --build=outdated ../code/conanfile.txt"
                     } catch (e) {
                         failure_function(e, 'MacOSX / getting dependencies failed')
                     }
