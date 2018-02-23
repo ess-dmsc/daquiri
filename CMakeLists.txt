@@ -15,9 +15,9 @@ include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 include(${EXTRA_MODULES_DIR}/EnsureBuildType.cmake)
 
 #=============================================================================
-# setting up conan for use from within cmake
+# Conan
 #=============================================================================
-set(WITH_CONAN OFF CACHE BOOL "Enable dependency build with conan")
+option(WITH_CONAN "Enable dependency build with conan" OFF)
 
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
   set (WITH_CONAN ON)
@@ -26,7 +26,7 @@ endif()
 if (WITH_CONAN)
   include(${EXTRA_MODULES_DIR}/ConanSetup.cmake)
   conan_cmake_run(CONANFILE "conanfile.txt"
-    BASIC_SETUP UPDATE
+    BASIC_SETUP KEEP_RPATHS
     BUILD outdated)
 endif ()
 
