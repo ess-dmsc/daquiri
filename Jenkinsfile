@@ -46,10 +46,6 @@ def create_container(image_key) {
 
 def docker_copy_code(image_key) {
     def custom_sh = images[image_key]['sh']
-//    sh "docker cp ${project} ${container_name(image_key)}:/home/jenkins/${project}"
-//    sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
-//                        chown -R jenkins.jenkins /home/jenkins/${project}
-//                        \""""
 
     // Copy sources to container and change owner and group.
     dir("${project}") {
@@ -58,33 +54,44 @@ def docker_copy_code(image_key) {
                         chown -R jenkins.jenkins /home/jenkins/${project}
                         \""""
     }
-
 }
 
 def docker_dependencies(image_key) {
-    def conan_remote = "ess-dmsc-local"
     def custom_sh = images[image_key]['sh']
-    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+    def conan_remote = "ess-dmsc-local"
+    def dependencies_script = """
         mkdir build
         cd build
-        conan remote add \
-            --insert 0 \
+        conan remote add \\
+            --insert 0 \\
             ${conan_remote} ${local_conan_server}
         conan install --build=outdated ../${project}/conanfile.txt
-    \""""
+                    """
+    try {
+        sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
+    } catch (e) {
+        failure_function(e, "Get dependencies for (${container_name(image_key)}) failed")
+    }
 }
 
-def docker_cmake(image_key) {
-    cmake_exec = "/home/jenkins/build/bin/cmake"
+def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
-    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+    def configure_script = """
         cd build
         ${cmake_exec} --version
         ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                     -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
+                    ${xtra_flags} \
                     ../${project}
-    \""""
+                    """
+
+    try {
+        sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${configure_script}\""
+    } catch (e) {
+        failure_function(e, "CMake step for (${container_name(image_key)}) failed")
+    }
 }
+
 
 def docker_build(image_key) {
     def custom_sh = images[image_key]['sh']
@@ -121,17 +128,10 @@ def get_pipeline(image_key)
                 create_container(image_key)
                 docker_copy_code(image_key)
 
-                try {
-                    docker_dependencies(image_key)
-                } catch (e) {
-                    failure_function(e, "Get dependencies for ${image_key} failed")
-                }
+                docker_dependencies(image_key)
 
-                try {
-                    docker_cmake(image_key)
-                } catch (e) {
-                    failure_function(e, "CMake for ${image_key} failed")
-                }
+                def xtra_flags = ""
+                docker_cmake(image_key, xtra_flags)
 
                 try {
                     docker_build(image_key)
