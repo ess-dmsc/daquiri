@@ -1,7 +1,3 @@
-/*
- * daquiri Jenkinsfile
- */
-
 project = "daquiri"
 
 images = [
@@ -25,14 +21,44 @@ images = [
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
 
+def Object container_name(image_key) {
+    return "${base_container_name}-${image_key}"
+}
+
 def failure_function(exception_obj, failureMessage) {
     def toEmails = [[$class: 'DevelopersRecipientProvider']]
     emailext body: '${DEFAULT_CONTENT}\n\"' + failureMessage + '\"\n\nCheck console output at $BUILD_URL to view the results.', recipientProviders: toEmails, subject: '${DEFAULT_SUBJECT}'
+    slackSend color: 'danger', message: "${project}: " + failureMessage
     throw exception_obj
 }
 
-def Object container_name(image_key) {
-    return "${base_container_name}-${image_key}"
+def create_container(image_key) {
+    def image = docker.image(images[image_key]['name'])
+    def container = image.run("\
+            --name ${container_name(image_key)} \
+        --tty \
+        --network=host \
+        --env http_proxy=${env.http_proxy} \
+        --env https_proxy=${env.https_proxy} \
+        --env local_conan_server=${env.local_conan_server} \
+          ")
+}
+
+def docker_copy_code(image_key) {
+    def custom_sh = images[image_key]['sh']
+//    sh "docker cp ${project} ${container_name(image_key)}:/home/jenkins/${project}"
+//    sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
+//                        chown -R jenkins.jenkins /home/jenkins/${project}
+//                        \""""
+
+    // Copy sources to container and change owner and group.
+    dir("${project}") {
+        sh "docker cp code ${container_name(image_key)}:/home/jenkins/${project}"
+        sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
+                        chown -R jenkins.jenkins /home/jenkins/${project}
+                        \""""
+    }
+
 }
 
 def docker_dependencies(image_key) {
@@ -87,34 +113,13 @@ def docker_tests(image_key) {
     }
 }
 
-def Object get_container(image_key) {
-    def image = docker.image(images[image_key]['name'])
-    def container = image.run("\
-        --name ${container_name(image_key)} \
-        --tty \
-        --network=host \
-        --env http_proxy=${env.http_proxy} \
-        --env https_proxy=${env.https_proxy} \
-        --env local_conan_server=${env.local_conan_server} \
-        ")
-    return container
-}
-
 def get_pipeline(image_key)
 {
     return {
         stage("${image_key}") {
             try {
-                def container = get_container(image_key)
-                def custom_sh = images[image_key]['sh']
-
-                // Copy sources to container and change owner and group.
-                dir("${project}") {
-                    sh "docker cp code ${container_name(image_key)}:/home/jenkins/${project}"
-                    sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
-                        chown -R jenkins.jenkins /home/jenkins/${project}
-                        \""""
-                }
+                create_container(image_key)
+                docker_copy_code(image_key)
 
                 try {
                     docker_dependencies(image_key)
