@@ -1,22 +1,22 @@
 project = "daquiri"
 
 images = [
-  'centos7-gcc6': [
-    'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
-    'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
-  ],
-  'fedora25': [
-    'name': 'essdmscdm/fedora25-build-node:1.0.0',
-    'sh': 'sh'
-  ],
-  'ubuntu1604': [
-    'name': 'essdmscdm/ubuntu16.04-build-node:2.1.0',
-    'sh': 'sh'
-  ],
-  'ubuntu1710': [
-    'name': 'essdmscdm/ubuntu17.10-build-node:2.0.0',
-    'sh': 'sh'
-  ]
+        'centos7-gcc6': [
+                'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
+                'sh'  : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
+        ],
+        'fedora25'    : [
+                'name': 'essdmscdm/fedora25-build-node:1.0.0',
+                'sh'  : 'sh'
+        ],
+        'ubuntu1604'  : [
+                'name': 'essdmscdm/ubuntu16.04-build-node:2.1.0',
+                'sh'  : 'sh'
+        ],
+        'ubuntu1710'  : [
+                'name': 'essdmscdm/ubuntu17.10-build-node:2.0.0',
+                'sh'  : 'sh'
+        ]
 ]
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
@@ -115,17 +115,18 @@ def docker_tests(image_key) {
                 make run_tests
                 ./bin/daquiri_cmd
                     """
-    try {
-        sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${test_script}\""
-    } catch (e) {
-        sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
-        junit 'unit_tests_run.xml'
-        failure_function(e, "Test step for (${container_name(image_key)}) failed")
+    dir("${image_key}") {
+        try {
+            sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${test_script}\""
+        } catch (e) {
+            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+            junit 'unit_tests_run.xml'
+            failure_function(e, "Test step for (${container_name(image_key)}) failed")
+        }
     }
 }
 
-def get_pipeline(image_key)
-{
+def get_pipeline(image_key) {
     return {
         stage("${image_key}") {
             try {
@@ -140,7 +141,7 @@ def get_pipeline(image_key)
                 docker_build(image_key)
                 docker_tests(image_key)
 
-            } catch(e) {
+            } catch (e) {
                 failure_function(e, "Unknown build failure for ${image_key}")
             } finally {
                 sh "docker stop ${container_name(image_key)}"
@@ -150,12 +151,11 @@ def get_pipeline(image_key)
     }
 }
 
-def get_macos_pipeline()
-{
+def get_macos_pipeline() {
     return {
         stage("macOS") {
-            node ("macos") {
-            // Delete workspace when build is done
+            node("macos") {
+                // Delete workspace when build is done
                 cleanWs()
 
                 dir("${project}/code") {
@@ -186,7 +186,7 @@ def get_macos_pipeline()
                         sh "make run_tests"
                         sh "./bin/daquiri_cmd"
                     } catch (e) {
-		        junit 'test/unit_tests_run.xml'
+                        junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')
                     }
                 }
