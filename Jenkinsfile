@@ -78,12 +78,13 @@ def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd build
-        ${cmake_exec} --version
-        ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                    -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-                    ${xtra_flags} \
-                    ../${project}
-                    """
+        source ./activate_run.sh
+        cmake --version
+        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+              -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
+              ${xtra_flags} \
+              ../${project}
+        """
 
     try {
         sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${configure_script}\""
@@ -92,31 +93,35 @@ def docker_cmake(image_key, xtra_flags) {
     }
 }
 
-
 def docker_build(image_key) {
     def custom_sh = images[image_key]['sh']
-    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+    def build_script = """
         cd build
+        source ./activate_run.sh
         make --version
         make VERBOSE=1
-    \""""
+                  """
+    try {
+        sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
+    } catch (e) {
+        failure_function(e, "Build step for (${container_name(image_key)}) failed")
+    }
 }
 
 def docker_tests(image_key) {
     def custom_sh = images[image_key]['sh']
-    dir("${project}/tests") {
-        try {
-            sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+    def test_script = """
                 cd build
-                . ./activate_run.sh
+                source ./activate_run.sh
                 make run_tests
                 ./bin/daquiri_cmd
-            \""""
-        } catch(e) {
-            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
-            junit 'unit_tests_run.xml'
-            failure_function(e, 'Run tests (${container_name(image_key)}) failed')
-        }
+                    """
+    try {
+        sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${test_script}\""
+    } catch (e) {
+        sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+        junit 'unit_tests_run.xml'
+        failure_function(e, "Test step for (${container_name(image_key)}) failed")
     }
 }
 
@@ -133,13 +138,9 @@ def get_pipeline(image_key)
                 def xtra_flags = ""
                 docker_cmake(image_key, xtra_flags)
 
-                try {
-                    docker_build(image_key)
-                } catch (e) {
-                    failure_function(e, "Build for ${image_key} failed")
-                }
-
+                docker_build(image_key)
                 docker_tests(image_key)
+
             } catch(e) {
                 failure_function(e, "Unknown build failure for ${image_key}")
             } finally {
@@ -197,6 +198,8 @@ def get_macos_pipeline()
 }
 
 node('docker') {
+    cleanWs()
+
     stage('Checkout') {
         dir("${project}/code") {
             try {
@@ -217,6 +220,6 @@ node('docker') {
 
     parallel builders
 
-    // Delete workspace when build is done
+    // Delete workspace if build was successful
     cleanWs()
 }
