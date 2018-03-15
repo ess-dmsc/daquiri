@@ -29,11 +29,16 @@ protected:
   std::string units_name_;
   double units_multiplier_{1};
 
+  double window_{1.0};
+
+  double earliest_{0.0};
   std::vector<double> domain_;
+  std::vector<double> range_;
 
   //from status manifest
   TimeBase timebase_;
 
   //reserve memory
-  Coords coords_ {0};
+//  Coords coords_ {0};
+  Entry entry_ {{0}, 0};
 };
