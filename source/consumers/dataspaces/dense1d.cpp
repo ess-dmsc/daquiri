@@ -160,4 +160,13 @@ std::string Dense1D::data_debug(const std::string &prepend) const
   return ss.str();
 }
 
+void Dense1D::save(std::ostream& os)
+{
+  for (uint32_t i = 0; i <= maxchan_; i++)
+  {
+    double val = static_cast<double>(spectrum_[i]);
+    os << val << ", ";
+  }
+}
+
 }

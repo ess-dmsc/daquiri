@@ -216,6 +216,20 @@ std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string
   return ss.str();
 }
 
+void SparseMatrix2D::save(std::ostream& os)
+{
+  for (uint16_t i = 0; i <= limits_[0]; i++)
+  {
+    for (uint16_t j = 0; j <= limits_[1]; j++)
+    {
+      double v = 0;
+      v = spectrum_.coeff(i, j);
+      os << v << ", ";
+    }
+    os << "\n";
+  }
+}
+
 bool SparseMatrix2D::is_symmetric()
 {
   for (int k=0; k < spectrum_.outerSize(); ++k)

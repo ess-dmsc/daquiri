@@ -205,6 +205,21 @@ std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &p
   return ss.str();
 }
 
+void SparseMap2D::save(std::ostream& os)
+{
+  for (uint16_t i = 0; i <= max0_; i++)
+  {
+    for (uint16_t j = 0; j <= max1_; j++)
+    {
+      double v = 0;
+      if (spectrum_.count(std::pair<uint16_t, uint16_t>(i, j)))
+        v = spectrum_.at(std::pair<uint16_t, uint16_t>(i, j));
+      os << v << ", ";
+    }
+    os << "\n";
+  }
+}
+
 bool SparseMap2D::is_symmetric()
 {
   bool symmetric = true;

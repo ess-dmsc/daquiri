@@ -64,6 +64,8 @@ public:
   virtual void add_one(const Coords&) = 0;
   virtual void recalc_axes() = 0;
 
+  virtual void save(std::ostream& os) {}
+
 #ifdef DAQUIRI_USE_H5
   virtual void load(hdf5::node::Group&) = 0;
   virtual void save(hdf5::node::Group&) const = 0;

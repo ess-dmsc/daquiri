@@ -205,7 +205,6 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
 
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
-  std::stringstream ss2;
 
   ss << "Maximum=" << maximum << "\n";
   if (!maximum)
@@ -235,6 +234,32 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
   }
 
   return ss.str();
+}
+
+void SparseMap3D::save(std::ostream& os)
+{
+  for (uint16_t i = 0; i <= max0_; i++)
+  {
+    double total = 0;
+    std::stringstream ss2;
+    for (uint16_t j = 0; j <= max1_; j++)
+    {
+      for (uint16_t k = 0; k <= max2_; k++) {
+        double v = 0;
+        if (spectrum_.count(tripple(i, j, k)))
+          v = spectrum_.at(tripple(i, j, k));
+        total += v;
+        ss2 << v << ", ";
+      }
+      ss2 << "\n";
+    }
+    if (total != 0.0)
+    {
+      os << "x=" << i << "\n";
+      os << ss2.str();
+      os << "\n";
+    }
+  }
 }
 
 bool SparseMap3D::is_symmetric()
