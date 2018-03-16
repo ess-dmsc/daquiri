@@ -1,3 +1,8 @@
+#project(daquiri
+#    LANGUAGES CXX C
+#    VERSION 0.0.1
+#    )
+
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
   add_subdirectory(config)
 endif ()

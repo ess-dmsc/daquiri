@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(daquiri
-  LANGUAGES CXX C
-  VERSION 0.0.1
-  )
+    LANGUAGES CXX C
+#    VERSION 0.0.1
+    )
 
 set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
