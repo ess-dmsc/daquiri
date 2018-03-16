@@ -65,7 +65,6 @@ def docker_dependencies(image_key) {
         conan remote add \\
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
-        conan install --build=outdated ../${project}/conanfile.txt
                     """
     try {
         sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
@@ -168,11 +167,11 @@ def get_macos_pipeline() {
                 }
 
                 dir("${project}/build") {
-                    try {
-                        sh "conan install --build=outdated ../code/conanfile.txt"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / getting dependencies failed')
-                    }
+//                    try {
+//                        sh "conan install --build=outdated ../code/conanfile.txt"
+//                    } catch (e) {
+//                        failure_function(e, 'MacOSX / getting dependencies failed')
+//                    }
 
                     try {
                         sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
