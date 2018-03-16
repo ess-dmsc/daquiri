@@ -74,7 +74,7 @@ def docker_dependencies(image_key) {
 }
 
 def docker_cmake(image_key, xtra_flags) {
-    def cmake_exec = "/home/jenkins/build/bin/cmake"
+    def cmake_exec = "cmake"
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd build
