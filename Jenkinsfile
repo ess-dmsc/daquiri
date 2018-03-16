@@ -65,6 +65,7 @@ def docker_dependencies(image_key) {
         conan remote add \\
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
+        conan install --build=outdated ../${project}/conanfile.txt
                     """
     try {
         sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
@@ -74,12 +75,12 @@ def docker_dependencies(image_key) {
 }
 
 def docker_cmake(image_key, xtra_flags) {
-    def cmake_exec = "cmake"
+    def cmake_exec = "/home/jenkins/build/bin/cmake"
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd build
         ${cmake_exec} --version
-        ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        ${cmake_exec} -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
               ${xtra_flags} \
               ../${project}
