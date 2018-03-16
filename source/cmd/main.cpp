@@ -115,5 +115,13 @@ Container<ConsumerMetadata> get_prototypes()
   itype.set_attribute(Setting::text("y_name", "y"));
   prototypes.add(itype);
 
+  ConsumerMetadata vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
+  vtype.set_attribute(Setting::integer("downsample", 11));
+  vtype.set_attribute(Setting::text("stream_id", "exy"));
+  vtype.set_attribute(Setting::text("x_name", "x"));
+  vtype.set_attribute(Setting::text("y_name", "y"));
+  vtype.set_attribute(Setting::text("z_name", "energy"));
+  prototypes.add(vtype);
+
   return prototypes;
 }

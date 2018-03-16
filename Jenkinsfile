@@ -80,7 +80,7 @@ def docker_cmake(image_key, xtra_flags) {
     def configure_script = """
         cd build
         ${cmake_exec} --version
-        ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        ${cmake_exec} -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
               ${xtra_flags} \
               ../${project}
@@ -175,7 +175,7 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                        sh "cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                             -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
