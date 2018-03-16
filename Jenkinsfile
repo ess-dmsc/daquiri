@@ -78,8 +78,8 @@ def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd build
-        ${cmake_exec} --version
-        ${cmake_exec} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        cmake --version
+        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
               ${xtra_flags} \
               ../${project}
@@ -182,8 +182,7 @@ def get_macos_pipeline() {
 
                     try {
                         sh "make VERBOSE=1"
-                        sh ". ./activate_run.sh && make run_tests"
-                        sh ". ./activate_run.sh && ./bin/daquiri_cmd"
+                        sh ". ./activate_run.sh && make run_tests && ./bin/daquiri_cmd"
                     } catch (e) {
                         junit 'test/unit_tests_run.xml'
                         failure_function(e, 'MacOSX / build+test failed')
