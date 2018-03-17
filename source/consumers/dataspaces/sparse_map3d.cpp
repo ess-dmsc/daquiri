@@ -105,7 +105,6 @@ void SparseMap3D::fill_list(EntryList& result,
   }
 }
 
-#ifdef DAQUIRI_USE_H5
 void SparseMap3D::save(hdf5::node::Group& g) const
 {
   auto dgroup = hdf5::require_group(g, "data");
@@ -195,7 +194,6 @@ void SparseMap3D::load(hdf5::node::Group& g)
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dz[i], dc[i]);
 }
-#endif
 
 std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {
@@ -205,9 +203,8 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
 
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
-  std::stringstream ss2;
 
-  ss << "Maximum=" << maximum << "\n";
+  ss << prepend << "Maximum=" << maximum << "\n";
   if (!maximum)
     return ss.str();
 
@@ -217,6 +214,7 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
     std::stringstream ss2;
     for (uint16_t j = 0; j <= max1_; j++)
     {
+      ss2 << prepend << "|";
       for (uint16_t k = 0; k <= max2_; k++) {
         uint16_t v = 0;
         if (spectrum_.count(tripple(i, j, k)))
@@ -228,13 +226,39 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
     }
     if (total != 0.0)
     {
-      ss << "::: slice=" << i << "\n";
+      ss << prepend << "x=" << i << "\n";
       ss << ss2.str();
       ss << "\n";
     }
   }
 
   return ss.str();
+}
+
+void SparseMap3D::save(std::ostream& os)
+{
+  for (uint16_t i = 0; i <= max0_; i++)
+  {
+    double total = 0;
+    std::stringstream ss2;
+    for (uint16_t j = 0; j <= max1_; j++)
+    {
+      for (uint16_t k = 0; k <= max2_; k++) {
+        double v = 0;
+        if (spectrum_.count(tripple(i, j, k)))
+          v = spectrum_.at(tripple(i, j, k));
+        total += v;
+        ss2 << v << ", ";
+      }
+      ss2 << "\n";
+    }
+    if (total != 0.0)
+    {
+      os << "x=" << i << "\n";
+      os << ss2.str();
+      os << "\n";
+    }
+  }
 }
 
 bool SparseMap3D::is_symmetric()

@@ -1,6 +1,9 @@
 #include "dataspace.h"
 #include "ascii_tree.h"
 
+#include <codecvt>
+#include <locale>
+
 namespace DAQuiri {
 
 DataAxis::DataAxis(Calibration c, int16_t resample_shift)
@@ -110,6 +113,8 @@ uint16_t Dataspace::dimensions() const
 std::string Dataspace::debug(std::string prepend) const
 {
   std::stringstream ss;
+  ss << "DATASPACE\n";
+
   if (axes_.empty())
     ss << prepend << k_branch_mid_B << "Axes undefined\n";
   else

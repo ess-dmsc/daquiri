@@ -41,6 +41,8 @@ public:
   void save();
   void save_as(std::string file_name);
 
+  void save_split(std::string file_name);
+
   void open(std::string file_name,
             bool with_sinks = true,
             bool with_full_sinks = true);
@@ -70,15 +72,11 @@ public:
   std::map<int64_t, ConsumerPtr> get_sinks(int32_t dimensions = -1);
   std::map<int64_t, ConsumerPtr> get_sinks(std::string type);
 
-#ifdef DAQUIRI_USE_H5
-  void to_h5(hdf5::node::Group &group) const;
-  void from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks);
-#endif
+  friend std::ostream &operator<<(std::ostream &stream,
+                                  const Project &project);
 
 private:
   void clear_helper();
-  void write_h5(std::string file_name);
-  void read_h5(std::string file_name, bool with_sinks = true, bool with_full_sinks = true);
 };
 
 }

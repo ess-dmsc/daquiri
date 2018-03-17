@@ -4,9 +4,7 @@
 #include "custom_logger.h"
 #include "custom_timer.h"
 
-#ifdef DAQUIRI_USE_H5
 #include "h5json.h"
-#endif
 
 namespace DAQuiri {
 
@@ -150,12 +148,12 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
   std::stringstream ss;
   ss << prepend << my_type();
   if (changed_)
-    ss << "(changed)";
+    ss << " (changed)";
   ss << "\n";
   ss << prepend << k_branch_mid_B
      << metadata_.debug(prepend + k_branch_pre_B, verbose);
   if (data_)
-    ss << data_->debug(prepend + k_branch_end_B);
+    ss << prepend << k_branch_end_B << data_->debug(prepend + "  ");
   else
     ss << prepend << k_branch_end_B << "NODATA";
   return ss.str();
@@ -183,7 +181,6 @@ void Consumer::set_attributes(const Setting &settings)
 /////////////////////
 /// Save and load ///
 /////////////////////
-#ifdef DAQUIRI_USE_H5
 bool Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
@@ -220,6 +217,5 @@ void Consumer::save(hdf5::node::Group& g) const
   if (data_)
     data_->save(g);
 }
-#endif
 
 }

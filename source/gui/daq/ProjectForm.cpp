@@ -49,6 +49,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
 
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save.png"), "Save project", this, SLOT(projectSave()));
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save_as.png"), "Save project as...", this, SLOT(projectSaveAs()));
+  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"), "Save as json + csv", this, SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
 
   this->setWindowTitle(QString::fromStdString(project_->identity()));
@@ -247,6 +248,22 @@ void ProjectForm::projectSaveAs()
     INFO << "Writing project to " << fileName.toStdString();
     this->setCursor(Qt::WaitCursor);
     project_->save_as(fileName.toStdString());
+    update_plots();
+  }
+
+  data_directory_ = path_of_file(fileName);
+}
+
+void ProjectForm::projectSaveSplit()
+{
+  QString formats = "";
+
+  QString fileName = CustomSaveFileDialog(this, "Save split",
+                                          data_directory_, formats);
+  if (validateFile(this, fileName+ "_metadata.json", true)) {
+    INFO << "Writing project to " << fileName.toStdString();
+    this->setCursor(Qt::WaitCursor);
+    project_->save_split(fileName.toStdString());
     update_plots();
   }
 
