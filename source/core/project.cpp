@@ -396,28 +396,34 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 
 void Project::save_split(std::string file_name)
 {
-//  if (!sinks_.empty()) {
-//    auto sg = hdf5::require_group(group, "sinks");
-//
-//    int i = 0;
-//    size_t len = std::to_string(sinks_.size() - 1).size();
-//    for (auto &q : sinks_) {
-//      std::string name = std::to_string(i++);
-//      if (name.size() < len)
-//        name = std::string(len - name.size(), '0').append(name);
-//
-//      auto ssg = hdf5::require_group(sg, name);
-//
-//      ssg.attributes.create<int64_t>("index").write(q.first);
-//
-//      if (q.second->dimensions() == 1)
-//        q.second->save(ssg);
-//    }
-//  }
+  json proj_json;
+  proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
 
-  changed_ = false;
-  ready_ = true;
-  newdata_ = true;
+  for (auto &s :spills_)
+    proj_json["spills"].push_back(json(s));
+
+  if (!sinks_.empty())
+  {
+    int i = 0;
+    size_t len = std::to_string(sinks_.size() - 1).size();
+    for (auto &q : sinks_)
+    {
+      std::string name = std::to_string(i++);
+      if (name.size() < len)
+        name = std::string(len - name.size(), '0').append(name);
+
+      std::ofstream ofs (file_name + "_" + name + ".csv", std::ofstream::out | std::ofstream::trunc);
+      ofs << "Daquiri consumer at index=" << q.first << "\n\n";
+      q.second->data()->save(ofs);
+      ofs.close();
+
+      proj_json["consumers"].push_back(json(q.second->metadata()));
+    }
+  }
+
+  std::ofstream jfs (file_name + "_metadata.json", std::ofstream::out | std::ofstream::trunc);
+  jfs << proj_json.dump(2);
+  jfs.close();
 }
 
 std::ostream &operator<<(std::ostream &stream, const Project &project)

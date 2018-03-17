@@ -60,13 +60,7 @@ int main(int argc, char **argv)
 
   DBG << "\n" << *project;
 
-//  for (auto s : project->get_sinks())
-//  {
-//    DBG << "Result[" << s.first << "]\n";
-//    std::stringstream ss;
-//    s.second->data()->save(ss);
-//    DBG << "CSV:\n" << ss.str() << "\n";
-//  }
+  project->save_split("./test_split");
 
   wait_ms(2000);
 
