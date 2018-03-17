@@ -25,3 +25,5 @@ bool has_group(const node::Group& g, std::string name);
 bool has_dataset(const node::Group& g, std::string name);
 
 }
+
+std::string vector_idx_minlen(size_t idx, size_t max);

@@ -1,5 +1,15 @@
 #include "h5json.h"
 
+std::string vector_idx_minlen(size_t idx, size_t max)
+{
+  size_t minlen = std::to_string(max - 1).size();
+
+  std::string name = std::to_string(idx);
+  if (name.size() < minlen)
+    name = std::string(minlen - name.size(), '0').append(name);
+  return name;
+}
+
 namespace hdf5 {
 
 node::Group require_group(node::Group& g, std::string name)

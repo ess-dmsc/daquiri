@@ -289,13 +289,9 @@ void Project::save_as(std::string file_name)
       auto sg = hdf5::require_group(group, "sinks");
 
       int i = 0;
-      size_t len = std::to_string(sinks_.size() - 1).size();
       for (auto &q : sinks_) {
-        std::string name = std::to_string(i++);
-        if (name.size() < len)
-          name = std::string(len - name.size(), '0').append(name);
 
-        auto ssg = hdf5::require_group(sg, name);
+        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size()));
 
         ssg.attributes.create<int64_t>("index").write(q.first);
 
@@ -405,14 +401,10 @@ void Project::save_split(std::string file_name)
   if (!sinks_.empty())
   {
     int i = 0;
-    size_t len = std::to_string(sinks_.size() - 1).size();
     for (auto &q : sinks_)
     {
-      std::string name = std::to_string(i++);
-      if (name.size() < len)
-        name = std::string(len - name.size(), '0').append(name);
-
-      std::ofstream ofs (file_name + "_" + name + ".csv", std::ofstream::out | std::ofstream::trunc);
+      std::ofstream ofs(file_name + "_" + vector_idx_minlen(i++, sinks_.size()) + ".csv",
+                        std::ofstream::out | std::ofstream::trunc);
       ofs << "Daquiri consumer at index=" << q.first << "\n\n";
       q.second->data()->save(ofs);
       ofs.close();
