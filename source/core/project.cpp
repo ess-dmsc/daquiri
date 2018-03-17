@@ -425,10 +425,11 @@ std::ostream &operator<<(std::ostream &stream, const Project &project)
   stream << " " << (project.ready_ ? "READY" : " NOT-READY");
   stream << " " << (project.newdata_ ? "NEWDATA" : " NOT-NEWDATA") << "\n";
   stream << "        " << "next index = " << project.current_index_ << "\n";
-  for (auto s : project.spills_)
+  for (const auto& s : project.spills_)
     stream << s.to_string() << "\n";
-  for (auto s : project.sinks_)
-    stream << "Sink[" << s.first << "] " << s.second->debug("", false);
+  for (const auto& s : project.sinks_)
+    stream << "Consumer[" << s.first << "] "<< s.second->debug("", false) << "\n";
+  return stream;
 }
 
 }
