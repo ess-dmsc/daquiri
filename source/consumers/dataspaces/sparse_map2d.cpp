@@ -94,7 +94,6 @@ void SparseMap2D::fill_list(EntryList& result,
   }
 }
 
-#ifdef DAQUIRI_USE_H5
 void SparseMap2D::save(hdf5::node::Group& g) const
 {
   auto dgroup = hdf5::require_group(g, "data");
@@ -175,7 +174,6 @@ void SparseMap2D::load(hdf5::node::Group& g)
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
 }
-#endif
 
 std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {
@@ -186,12 +184,13 @@ std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &p
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
 
-  ss << "Maximum=" << maximum << "\n";
+  ss << prepend << "Maximum=" << maximum << "\n";
   if (!maximum)
     return ss.str();
 
   for (uint16_t i = 0; i <= max0_; i++)
   {
+    ss << prepend << "|";
     for (uint16_t j = 0; j <= max1_; j++)
     {
       uint16_t v = 0;

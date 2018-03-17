@@ -5,9 +5,7 @@
 #include "calibration.h"
 #include "thread_wrappers.h"
 
-#ifdef DAQUIRI_USE_H5
 #include <h5cpp/hdf5.hpp>
-#endif
 
 namespace DAQuiri {
 
@@ -66,10 +64,8 @@ public:
 
   virtual void save(std::ostream& os) {}
 
-#ifdef DAQUIRI_USE_H5
   virtual void load(hdf5::node::Group&) = 0;
   virtual void save(hdf5::node::Group&) const = 0;
-#endif
 
   //retrieve axis-values for given dimension (can be precalculated energies)
   uint16_t dimensions() const;

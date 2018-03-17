@@ -58,9 +58,15 @@ int main(int argc, char **argv)
   engine.acquire(project, interruptor, duration);
   engine.die();
 
-  for (auto s : project->get_sinks())
-    DBG << "Result[" << s.first << "]\n"
-        << s.second->debug("", false);
+  DBG << "\n" << *project;
+
+//  for (auto s : project->get_sinks())
+//  {
+//    DBG << "Result[" << s.first << "]\n";
+//    std::stringstream ss;
+//    s.second->data()->save(ss);
+//    DBG << "CSV:\n" << ss.str() << "\n";
+//  }
 
   wait_ms(2000);
 
@@ -102,20 +108,20 @@ Container<ConsumerMetadata> get_prototypes()
 {
   Container<ConsumerMetadata> prototypes;
 
-  ConsumerMetadata ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
+  auto ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
   ptype.set_attribute(Setting::integer("downsample", 9));
   ptype.set_attribute(Setting::text("stream_id", "exy"));
   ptype.set_attribute(Setting::text("value_name", "energy"));
   prototypes.add(ptype);
 
-  ConsumerMetadata itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
+  auto itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
   itype.set_attribute(Setting::integer("downsample", 10));
   itype.set_attribute(Setting::text("stream_id", "exy"));
   itype.set_attribute(Setting::text("x_name", "x"));
   itype.set_attribute(Setting::text("y_name", "y"));
   prototypes.add(itype);
 
-  ConsumerMetadata vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
+  auto vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
   vtype.set_attribute(Setting::integer("downsample", 11));
   vtype.set_attribute(Setting::text("stream_id", "exy"));
   vtype.set_attribute(Setting::text("x_name", "x"));

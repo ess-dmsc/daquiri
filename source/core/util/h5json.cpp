@@ -1,7 +1,5 @@
 #include "h5json.h"
 
-#ifdef DAQUIRI_USE_H5
-
 namespace hdf5 {
 
 node::Group require_group(node::Group& g, std::string name)
@@ -231,5 +229,3 @@ void dataset_from_json(const json &j,
 }
 
 }
-
-#endif

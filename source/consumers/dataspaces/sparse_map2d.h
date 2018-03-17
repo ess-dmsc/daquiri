@@ -21,10 +21,9 @@ class SparseMap2D : public Dataspace
 
     void save(std::ostream& os) override;
 
-#ifdef DAQUIRI_USE_H5
     void save(hdf5::node::Group&) const override;
     void load(hdf5::node::Group&) override;
-#endif
+
     std::string data_debug(const std::string& prepend) const override;
 
   protected:
