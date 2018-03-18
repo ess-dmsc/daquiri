@@ -51,10 +51,9 @@ private slots:
 private:
     Ui::ConsumerDialog *ui;
     DAQuiri::ConsumerPtr consumer_;
-//    DAQuiri::ConsumerMetadata sink_metadata_;
 
-    SettingsTreeModel               attr_model_;
-    SettingDelegate         attr_delegate_;
+    SettingsTreeModel    attr_model_;
+    SettingDelegate      attr_delegate_;
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_detectors_;

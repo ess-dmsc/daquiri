@@ -88,11 +88,15 @@ public:
   Setting operator++(int);
   Setting operator--(int);
 
-  // menu/indicator
+  // menu/indicator/integer
+  void set_int(integer_t v);
+  integer_t get_int() const;
   void select(integer_t v);
   integer_t selection() const;
 
   //command/boolean
+  bool get_bool() const;
+  void set_bool(bool);
   bool triggered() const;
   void trigger();
   void reset();

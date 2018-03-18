@@ -541,6 +541,16 @@ void Setting::set_number(double val)
   enforce_limits();
 }
 
+void Setting::set_int(integer_t v)
+{
+  value_int = v;
+}
+
+integer_t Setting::get_int() const
+{
+  return value_int;
+}
+
 void Setting::select(integer_t v)
 {
   value_int = v;
@@ -551,9 +561,19 @@ integer_t Setting::selection() const
   return value_int;
 }
 
+bool Setting::get_bool() const
+{
+  return (0 != value_int);
+}
+
+void Setting::set_bool(bool b)
+{
+  value_int = b;
+}
+
 bool Setting::triggered() const
 {
-  return value_int;
+  return (0 != value_int);
 }
 
 void Setting::trigger()
