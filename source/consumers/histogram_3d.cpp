@@ -18,10 +18,6 @@ Histogram3D::Histogram3D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event-based 3D spectrum");
 
-  SettingMeta app("appearance", SettingType::text, "Appearance");
-  app.set_flag("gradient-name");
-  base_options.branches.add(Setting(app));
-
   SettingMeta x_name("x_name", SettingType::text);
   x_name.set_flag("preset");
   x_name.set_flag("event_value");
@@ -40,7 +36,7 @@ Histogram3D::Histogram3D()
   z_name.set_val("description", "Name of event value for z coordinate");
   base_options.branches.add(z_name);
 
-  SettingMeta ds("downsample", SettingType::integer, "Downsample x&y by");
+  SettingMeta ds("downsample", SettingType::integer, "Downsample bins by");
   ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
@@ -50,16 +46,14 @@ Histogram3D::Histogram3D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Histogram3D::_initialize()
+void Histogram3D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
   z_name_ = metadata_.get_attribute("z_name").get_text();
   downsample_ = metadata_.get_attribute("downsample").get_number();
-
-  return true;
 }
 
 void Histogram3D::_init_from_file()

@@ -47,9 +47,9 @@ TOFVal2D::TOFVal2D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TOFVal2D::_initialize()
+void TOFVal2D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
   downsample_ = metadata_.get_attribute("value_downsample").get_number();
@@ -61,7 +61,6 @@ bool TOFVal2D::_initialize()
   time_resolution_ /= units_multiplier_;
 
   this->_recalc_axes();
-  return true;
 }
 
 void TOFVal2D::_init_from_file()

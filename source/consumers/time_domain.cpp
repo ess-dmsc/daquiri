@@ -34,9 +34,9 @@ TimeDomain::TimeDomain()
   //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
 }
 
-bool TimeDomain::_initialize()
+void TimeDomain::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
@@ -53,10 +53,7 @@ bool TimeDomain::_initialize()
   if (adds != 1)
   {
     WARN << "<TimeDomain> Cannot initialize. Add pattern must have 1 selected channel.";
-    return false;
   }
-
-  return true;
 }
 
 void TimeDomain::_init_from_file()

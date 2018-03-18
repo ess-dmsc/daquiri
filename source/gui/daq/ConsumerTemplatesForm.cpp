@@ -7,6 +7,7 @@
 #include "json_file.h"
 
 #include "QFileExtensions.h"
+#include "consumer_factory.h"
 
 using namespace DAQuiri;
 
@@ -235,7 +236,7 @@ void ConsumerTemplatesForm::on_pushNew_clicked()
 {
   Container<Detector> fakeDetDB;
   ConsumerDialog* newDialog =
-      new ConsumerDialog(ConsumerMetadata(), current_dets_, fakeDetDB,
+      new ConsumerDialog(nullptr, current_dets_, fakeDetDB,
                          stream_manifest_, false, true, this);
   if (newDialog->exec())
   {
@@ -254,7 +255,8 @@ void ConsumerTemplatesForm::on_pushEdit_clicked()
   int i = ixl.front().row();
   Container<Detector> fakeDetDB;
   ConsumerDialog* newDialog =
-      new ConsumerDialog(templates_.get(i), current_dets_, fakeDetDB,
+      new ConsumerDialog(ConsumerFactory::singleton().create_from_prototype(templates_.get(i)),
+                         current_dets_, fakeDetDB,
                          stream_manifest_, false, true, this);
   if (newDialog->exec())
   {

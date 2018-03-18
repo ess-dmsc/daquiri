@@ -46,9 +46,9 @@ TimeSpectrum::TimeSpectrum()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TimeSpectrum::_initialize()
+void TimeSpectrum::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   downsample_ = metadata_.get_attribute("downsample").get_number();
@@ -69,7 +69,6 @@ bool TimeSpectrum::_initialize()
 //  DBG << "One bin = " << 1.0 / time_resolution_ / units_multiplier_;
 
   this->_recalc_axes();
-  return true;
 }
 
 void TimeSpectrum::_init_from_file()

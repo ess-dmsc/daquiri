@@ -13,7 +13,7 @@
 
 using namespace DAQuiri;
 
-ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
+ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
                                StreamManifest stream_manifest,
@@ -22,7 +22,7 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
                                QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ConsumerDialog)
-  , sink_metadata_(sink_metadata)
+  , consumer_(consumer)
 //,  det_selection_model_(&det_table_model_)
   , attr_model_(this)
   , detectors_(detDB)
@@ -32,10 +32,19 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
   , has_sink_parent_(has_sink_parent)
 {
   ui->setupUi(this);
-  ui->labelWarning->setVisible(false);
-  for (auto &q : ConsumerFactory::singleton().types())
+
+  auto consumer_types = ConsumerFactory::singleton().types();
+  for (auto &q : consumer_types)
     ui->comboType->addItem(QString::fromStdString(q));
 
+  std::string default_type = "";
+  if (consumer_types.size())
+    default_type = consumer_types[0];
+
+  if (!consumer_)
+    consumer_ = ConsumerFactory::singleton().create_type(default_type);
+
+  ui->labelWarning->setVisible(false);
   ui->treeAttribs->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
   ui->pushLock->setVisible(has_sink_parent);
@@ -71,7 +80,7 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
   attr_model_.set_show_read_only(has_sink_parent_);
 //  attr_model_.set_show_read_only(true);
 
-  if (sink_metadata_ == ConsumerMetadata())
+  if (!consumer_)
   {
     ui->spinDets->setValue(current_detectors_.size());
     on_comboType_activated(ui->comboType->currentText());
@@ -84,6 +93,13 @@ ConsumerDialog::ConsumerDialog(ConsumerMetadata sink_metadata,
 ConsumerDialog::~ConsumerDialog()
 {
   delete ui;
+}
+
+DAQuiri::ConsumerMetadata ConsumerDialog::product()
+{
+  if (consumer_)
+    return consumer_->metadata();
+  return ConsumerMetadata();
 }
 
 void ConsumerDialog::det_selection_changed(QItemSelection, QItemSelection)
@@ -115,26 +131,21 @@ void ConsumerDialog::open_close_locks()
 
 void ConsumerDialog::updateData()
 {
-  ui->comboType->setCurrentText(QString::fromStdString(sink_metadata_.type()));
+  auto metadata = consumer_->metadata();
 
-  spectrum_detectors_.clear();
-  for (auto &q: sink_metadata_.detectors)
-    spectrum_detectors_.add_a(q);
-//  det_table_model_.update();
+  ui->comboType->setCurrentText(QString::fromStdString(metadata.type()));
 
-  Setting pat = sink_metadata_.get_attribute("pattern_add");
-  ui->spinDets->setValue(pat.pattern().gates().size());
+//  spectrum_detectors_.clear();
+//  for (auto &q: metadata.detectors)
+//    spectrum_detectors_.add_a(q);
+////  det_table_model_.update();
+//
+//  Setting pat = metadata.get_attribute("pattern_add");
+//  ui->spinDets->setValue(pat.pattern().gates().size());
 
-  QString descr;
-  auto sptr = ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
-  if (sptr)
-  {
-    auto md = sptr->metadata();
-    descr = QString::fromStdString(md.type_description())
+  QString descr = QString::fromStdString(metadata.type_description())
 //        + "   dimensions=" + QString::number(md.dimensions())
-        + "\n";
-  }
-
+      + "\n";
   ui->labelDescription->setText(descr);
 
   enforce_everything();
@@ -145,13 +156,14 @@ void ConsumerDialog::updateData()
 
 void ConsumerDialog::enforce_everything()
 {
-  auto tempmeta = sink_metadata_;
+  auto metadata = consumer_->metadata();
+  auto tempmeta = consumer_->metadata();
   auto tree = attr_model_.get_tree();
   enforce_streams(tree, stream_manifest_);
   tempmeta.overwrite_all_attributes(tree);
-  sink_metadata_.set_attributes(tempmeta.attributes_flat());
-  initialize_gui_specific(sink_metadata_);
-  attr_model_.update(sink_metadata_.attributes());
+  metadata.set_attributes(tempmeta.attributes_flat());
+  initialize_gui_specific(metadata);
+  attr_model_.update(metadata.attributes());
 }
 
 void ConsumerDialog::push_settings()
@@ -261,7 +273,7 @@ void ConsumerDialog::on_buttonBox_accepted()
   else
   {
     ConsumerPtr newsink =
-        ConsumerFactory::singleton().create_from_prototype(sink_metadata_);
+        ConsumerFactory::singleton().create_from_prototype(consumer_->metadata());
 
     if (!newsink)
     {
@@ -271,7 +283,10 @@ void ConsumerDialog::on_buttonBox_accepted()
       return;
     }
     else
+    {
+      consumer_ = newsink;
       accept();
+    }
   }
 }
 
@@ -290,6 +305,62 @@ void ConsumerDialog::on_buttonBox_rejected()
 {
   reject();
 }
+
+void ConsumerDialog::on_spinDets_valueChanged(int arg1)
+{
+  ConsumerMetadata metadata;
+  if (consumer_)
+    metadata = consumer_->metadata();
+  Setting pat = metadata.get_attribute("pattern_add");
+
+  metadata.set_det_limit(arg1);
+  if (arg1 != static_cast<int>(pat.pattern().gates().size()))
+    changed_ = true;
+
+  attr_model_.update(metadata.attributes());
+  open_close_locks();
+}
+
+
+void ConsumerDialog::on_comboType_activated(const QString &arg1)
+{
+  std::list<Setting> old;
+  if (consumer_)
+    old = consumer_->metadata().attributes_flat();
+  ConsumerMetadata metadata =
+      ConsumerFactory::singleton().create_prototype(arg1.toStdString());
+//  on_spinDets_valueChanged(ui->spinDets->value());
+  metadata.set_attributes(old);
+  attr_model_.update(metadata.attributes());
+  consumer_ = ConsumerFactory::singleton().create_from_prototype(metadata);
+
+  updateData();
+}
+
+
+void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
+{
+  Setting col = md.get_attribute("appearance");
+  if (col.metadata().has_flag("color"))
+  {
+    if (col.get_text().empty())
+      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
+    else
+      col.set_text(QColor(QS(col.get_text())).name(QColor::HexArgb).toStdString());
+    md.set_attribute(col);
+  }
+  else if (col.metadata().has_flag("gradient-name"))
+  {
+    auto name = QS(col.get_text());
+    auto dg = QPlot::Gradients::defaultGradients();
+    if (col.get_text().empty() || !dg.contains(name))
+    {
+      col.set_text(dg.names()[0].toStdString());
+      md.set_attribute(col);
+    }
+  }
+}
+
 
 void ConsumerDialog::on_pushDetEdit_clicked()
 {
@@ -427,61 +498,3 @@ void ConsumerDialog::on_pushDetToDB_clicked()
 //    }
 //  }
 }
-
-void ConsumerDialog::on_spinDets_valueChanged(int arg1)
-{
-  Setting pat = sink_metadata_.get_attribute("pattern_add");
-
-  sink_metadata_.set_det_limit(arg1);
-  if (arg1 != static_cast<int>(pat.pattern().gates().size()))
-    changed_ = true;
-
-  attr_model_.update(sink_metadata_.attributes());
-  open_close_locks();
-}
-
-
-void ConsumerDialog::on_comboType_activated(const QString &arg1)
-{
-  ConsumerMetadata md =
-      ConsumerFactory::singleton().create_prototype(arg1.toStdString());
-  if (md == ConsumerMetadata())
-  {
-    QMessageBox msgBox;
-    msgBox.setText("Beware! Factory could not produce prototype for this spectrum type.");
-    msgBox.exec();
-    return;
-  }
-  auto old = sink_metadata_.attributes_flat();
-  sink_metadata_ = md;
-  on_spinDets_valueChanged(ui->spinDets->value());
-  sink_metadata_.set_attributes(old);
-  attr_model_.update(sink_metadata_.attributes());
-
-  updateData();
-}
-
-
-void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
-{
-  Setting col = md.get_attribute("appearance");
-  if (col.metadata().has_flag("color"))
-  {
-    if (col.get_text().empty())
-      col.set_text(generateColor().name(QColor::HexArgb).toStdString());
-    else
-      col.set_text(QColor(QS(col.get_text())).name(QColor::HexArgb).toStdString());
-    md.set_attribute(col);
-  }
-  else if (col.metadata().has_flag("gradient-name"))
-  {
-    auto name = QS(col.get_text());
-    auto dg = QPlot::Gradients::defaultGradients();
-    if (col.get_text().empty() || !dg.contains(name))
-    {
-      col.set_text(dg.names()[0].toStdString());
-      md.set_attribute(col);
-    }
-  }
-}
-

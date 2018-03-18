@@ -20,27 +20,25 @@ Consumer::Consumer()
   metadata_.overwrite_all_attributes(attributes);
 }
 
-bool Consumer::_initialize()
+void Consumer::_apply_attributes()
 {
-  metadata_.disable_presets();
+//  metadata_.disable_presets();
   stream_id_ = metadata_.get_attribute("stream_id").get_text();
-
-  return false; //abstract sink indicates failure to init
 }
 
 void Consumer::_init_from_file()
 {
-  this->_initialize();
+  this->_apply_attributes();
   this->_recalc_axes();
   this->_flush();
 }
 
-bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
+void Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
 
   if (metadata_.type() != newtemplate.type())
-    return false;
+    return;
 
   for (const auto& a : newtemplate.attributes_flat())
   {
@@ -52,7 +50,7 @@ bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 
   metadata_.detectors.clear(); // really?
 
-  return (this->_initialize());
+  this->_apply_attributes();
 //  DBG << "<Consumer::from_prototype>" << metadata_.get_attribute("name").value_text << " made with dims=" << metadata_.dimensions();
 //  DBG << "from prototype " << metadata_.debug();
 //  mutex_.unlock();
@@ -181,26 +179,23 @@ void Consumer::set_attributes(const Setting &settings)
 /////////////////////
 /// Save and load ///
 /////////////////////
-bool Consumer::load(hdf5::node::Group& g, bool withdata)
+void Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   if (!hdf5::has_group(g, "metadata"))
-    return false;
+    return;
 
   json j;
   hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
   metadata_ = j;
 //  metadata_.from_json(g.open_group("metadata"));
 
-  bool ret = this->_initialize();
+  this->_apply_attributes();
 
-  if (ret && withdata && data_)
+  if (withdata && data_)
     data_->load(g);
 
-  if (ret)
-    this->_recalc_axes();
-
-  return ret;
+  this->_recalc_axes();
 }
 
 void Consumer::save(hdf5::node::Group& g) const

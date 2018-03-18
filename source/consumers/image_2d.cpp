@@ -48,16 +48,14 @@ Image2D::Image2D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Image2D::_initialize()
+void Image2D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
   val_name_ = metadata_.get_attribute("val_name").get_text();
   downsample_ = metadata_.get_attribute("downsample").get_number();
-
-  return true;
 }
 
 void Image2D::_init_from_file()

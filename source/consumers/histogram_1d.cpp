@@ -37,15 +37,14 @@ Histogram1D::Histogram1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Histogram1D::_initialize()
+void Histogram1D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
   downsample_ = metadata_.get_attribute("downsample").get_number();
   cutoff_bin_ = metadata_.get_attribute("cutoff").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
 
   this->_recalc_axes();
-  return true;
 }
 
 void Histogram1D::_init_from_file()
