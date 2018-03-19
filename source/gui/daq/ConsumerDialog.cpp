@@ -157,13 +157,21 @@ void ConsumerDialog::updateData()
 void ConsumerDialog::enforce_everything()
 {
   auto metadata = consumer_->metadata();
-  auto tempmeta = consumer_->metadata();
   auto tree = attr_model_.get_tree();
   enforce_streams(tree, stream_manifest_);
+
+  auto tempmeta = consumer_->metadata();
   tempmeta.overwrite_all_attributes(tree);
   metadata.set_attributes(tempmeta.attributes_flat());
+
   initialize_gui_specific(metadata);
-  attr_model_.update(metadata.attributes());
+
+//  consumer_->set_attributes(metadata.attributes());
+
+  for (auto s : metadata.attributes_flat())
+    consumer_->set_attribute(s);
+
+  attr_model_.update(consumer_->metadata().attributes());
 }
 
 void ConsumerDialog::push_settings()

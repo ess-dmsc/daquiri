@@ -45,15 +45,10 @@ void Consumer::from_prototype(const ConsumerMetadata& newtemplate)
     if (a.metadata().has_flag("readonly") && !a.metadata().has_flag("preset"))
       continue;
     metadata_.set_attribute(a);
+    this->_apply_attributes();
   }
-//  metadata_.set_attributes(newtemplate.attributes_flat());
 
   metadata_.detectors.clear(); // really?
-
-  this->_apply_attributes();
-//  DBG << "<Consumer::from_prototype>" << metadata_.get_attribute("name").value_text << " made with dims=" << metadata_.dimensions();
-//  DBG << "from prototype " << metadata_.debug();
-//  mutex_.unlock();
 }
 
 void Consumer::push_spill(const Spill& spill)
@@ -163,6 +158,7 @@ void Consumer::set_attribute(const Setting &setting, bool greedy)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attribute(setting, greedy);
+  this->_apply_attributes();
   changed_ = true;
 }
 
@@ -170,6 +166,7 @@ void Consumer::set_attributes(const Setting &settings)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attributes(settings.branches.data(), true);
+  this->_apply_attributes();
   changed_ = true;
 }
 

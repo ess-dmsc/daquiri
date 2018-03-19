@@ -26,7 +26,7 @@ struct ValueFilter
   bool enabled_ {false};
   std::string name_;
   uint32_t min_ {0};
-  uint32_t max_ {std::numeric_limits<uint32_t>::max()};
+  uint32_t max_ {std::numeric_limits<int32_t>::max()};
 
   int idx_ {-1};
 

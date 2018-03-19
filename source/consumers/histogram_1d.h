@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class Histogram1D : public Spectrum
 {
@@ -24,8 +25,8 @@ class Histogram1D : public Spectrum
 
     // cached parameters:
     uint16_t downsample_{0};
-    uint32_t cutoff_bin_{0};
     std::string val_name_;
+    FilterBlock filters_;
 
     //from status manifest
     int value_idx_{-1};

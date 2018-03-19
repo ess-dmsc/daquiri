@@ -19,6 +19,7 @@ void ValueFilter::settings(const Setting& s)
 Setting ValueFilter::settings(int32_t index) const
 {
   auto ret = Setting::stem("filter");
+  ret.set_indices({index});
 
   SettingMeta en("enabled", SettingType::boolean, "Enabled");
   Setting enabled(en);
@@ -26,7 +27,7 @@ Setting ValueFilter::settings(int32_t index) const
   enabled.set_indices({index});
   ret.branches.add(enabled);
 
-  SettingMeta mname("name", SettingType::boolean, "Value ID");
+  SettingMeta mname("name", SettingType::text, "Value ID");
   mname.set_flag("event_value");
   Setting name(mname);
   name.set_text(name_);
@@ -35,7 +36,7 @@ Setting ValueFilter::settings(int32_t index) const
 
   SettingMeta mmin("min", SettingType::integer, "Minimum value");
   mmin.set_val("min", 0);
-  mmin.set_val("max", std::numeric_limits<uint32_t>::max());
+  mmin.set_val("max", std::numeric_limits<int32_t>::max());
   Setting min(mmin);
   min.set_int(min_);
   min.set_indices({index});
@@ -43,7 +44,7 @@ Setting ValueFilter::settings(int32_t index) const
 
   SettingMeta mmax("max", SettingType::integer, "Maximum value");
   mmax.set_val("min", 0);
-  mmax.set_val("max", std::numeric_limits<uint32_t>::max());
+  mmax.set_val("max", std::numeric_limits<int32_t>::max());
   Setting max(mmax);
   max.set_int(max_);
   max.set_indices({index});
@@ -60,6 +61,8 @@ void FilterBlock::settings(const Setting& s)
   size_t i = 0;
   for (auto ss : s.branches)
   {
+    if (ss.id() == "filter_count")
+      continue;
     filters_[i++].settings(ss);
     if (i >= filter_count)
       break;
@@ -68,7 +71,7 @@ void FilterBlock::settings(const Setting& s)
 
 Setting FilterBlock::settings() const
 {
-  auto ret = Setting::stem("filter");
+  auto ret = Setting::stem("filters");
 
   SettingMeta fc("filter_count", SettingType::integer, "Number of filters");
   fc.set_val("min", 0);
@@ -78,7 +81,7 @@ Setting FilterBlock::settings() const
   ret.branches.add(filter_count);
 
   for (size_t i=0; i < filters_.size(); ++i)
-    ret.branches.add(filters_[i].settings(i));
+    ret.branches.add_a(filters_[i].settings(i));
 
   return ret;
 }

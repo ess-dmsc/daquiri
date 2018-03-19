@@ -224,6 +224,35 @@ void Setting::set_all(const Setting &setting, Match m)
     q.set_all(setting, m);
 }
 
+bool Setting::replace_first(const Setting &setting, Match m)
+{
+  if (this->compare(setting, m))
+  {
+    *this = setting;
+    return true;
+  }
+  for (auto &q : this->branches)
+    if (q.replace_first(setting, m))
+      return true;
+  return false;
+}
+
+void Setting::replace_all(const Setting &setting, Match m)
+{
+  if (this->compare(setting, m))
+    *this = setting;
+  for (auto &q : this->branches)
+    q.replace_all(setting, m);
+}
+
+void Setting::replace(const Setting &s, Match m, bool greedy)
+{
+  if (greedy)
+    replace_all(s, m);
+  else
+    replace_first(s, m);
+}
+
 void Setting::set(const Setting &s, Match m, bool greedy)
 {
   if (greedy)
