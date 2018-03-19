@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class TOFVal2D : public Spectrum
 {
@@ -30,6 +31,7 @@ protected:
   double units_multiplier_{1};
   std::string val_name_;
   uint16_t downsample_ {0};
+  FilterBlock filters_;
 
   //from status manifest
   int value_idx_ {-1};

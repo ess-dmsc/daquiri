@@ -45,6 +45,8 @@ Image2D::Image2D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -56,6 +58,9 @@ void Image2D::_apply_attributes()
   y_name_ = metadata_.get_attribute("y_name").get_text();
   val_name_ = metadata_.get_attribute("val_name").get_text();
   downsample_ = metadata_.get_attribute("downsample").get_number();
+
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 }
 
 void Image2D::_init_from_file()
@@ -129,6 +134,7 @@ void Image2D::_push_stats_pre(const Spill &spill)
     x_idx_ = spill.event_model.name_to_val.at(x_name_);
     y_idx_ = spill.event_model.name_to_val.at(y_name_);
     val_idx_ = spill.event_model.name_to_val.at(val_name_);
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
@@ -138,20 +144,23 @@ void Image2D::_flush()
   Spectrum::_flush();
 }
 
-void Image2D::_push_event(const Event& e)
+void Image2D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   if (downsample_)
   {
-    entry_.first[0] = (e.value(x_idx_) >> downsample_);
-    entry_.first[1] = (e.value(y_idx_) >> downsample_);
+    entry_.first[0] = (event.value(x_idx_) >> downsample_);
+    entry_.first[1] = (event.value(y_idx_) >> downsample_);
   }
   else
   {
-    entry_.first[0] = e.value(x_idx_);
-    entry_.first[1] = e.value(y_idx_);
+    entry_.first[0] = event.value(x_idx_);
+    entry_.first[1] = event.value(y_idx_);
   }
 
-  entry_.second = e.value(val_idx_);
+  entry_.second = event.value(val_idx_);
   data_->add(entry_);
   total_count_++;  //not += ?
   recent_count_++; //not += ?

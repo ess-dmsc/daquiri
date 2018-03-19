@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class Histogram2D : public Spectrum
 {
@@ -28,6 +29,7 @@ protected:
   std::string x_name_;
   std::string y_name_;
   uint16_t downsample_ {0};
+  FilterBlock filters_;
 
   //from status manifest
   int x_idx_ {-1};

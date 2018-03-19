@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class TimeSpectrum : public Spectrum
 {
@@ -28,6 +29,7 @@ protected:
   double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
+  FilterBlock filters_;
 
   uint16_t downsample_ {0};
   std::string val_name_;

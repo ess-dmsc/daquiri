@@ -43,6 +43,8 @@ TimeSpectrum::TimeSpectrum()
   val_name.set_val("description", "Name of event value to bin");
   base_options.branches.add(val_name);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -59,6 +61,9 @@ void TimeSpectrum::_apply_attributes()
   units_multiplier_ = std::pow(10, unit);
 
   time_resolution_ /= units_multiplier_;
+
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 
 //  DBG << "Time resolution " << metadata_.get_attribute("time_resolution").get_number()
 //      << " " << units_name_;
@@ -131,20 +136,24 @@ void TimeSpectrum::_push_stats_pre(const Spill& spill)
   {
     value_idx_ = spill.event_model.name_to_val.at(val_name_);
     timebase_ = spill.event_model.timebase;
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
-void TimeSpectrum::_push_event(const Event& e)
+void TimeSpectrum::_push_event(const Event& event)
 {
-  double nsecs = timebase_.to_nanosec(e.timestamp());
+  if (!filters_.accept(event))
+    return;
+
+  double nsecs = timebase_.to_nanosec(event.timestamp());
 
   coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
 
   if (downsample_)
-    coords_[1] = (e.value(value_idx_) >> downsample_);
+    coords_[1] = (event.value(value_idx_) >> downsample_);
   else
-    coords_[1] = e.value(value_idx_);
+    coords_[1] = event.value(value_idx_);
 
   if (coords_[0] >= domain_.size())
   {

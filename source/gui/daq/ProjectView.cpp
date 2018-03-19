@@ -254,7 +254,7 @@ void ProjectView::on_pushFullInfo_clicked()
       new ConsumerDialog(consumer, std::vector<Detector>(),
                          detectors_, stream_manifest_, true, false, this);
 
-  DBG << "Consumer:\n" << consumer->debug() << "\n";
+  //DBG << "Consumer:\n" << consumer->debug() << "\n";
 
   if (newSpecDia->exec() == QDialog::Accepted)
   {
