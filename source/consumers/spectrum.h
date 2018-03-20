@@ -20,7 +20,7 @@ class Spectrum : public Consumer
     Spectrum();
 
   protected:
-    bool _initialize() override;
+    void _apply_attributes() override;
     bool _accept_spill(const Spill& spill) override;
     void _push_stats_pre(const Spill& spill) override;
     void _push_stats_post(const Spill& spill) override;
@@ -29,7 +29,7 @@ class Spectrum : public Consumer
   protected:
     bool clear_next_spill_ {false};
     bool clear_periodically_ {false};
-    int clear_reference_timer_ {0};
+    int64_t clear_reference_timer_ {0};
     double clear_at_ {0};
 
     // cached results:

@@ -20,42 +20,35 @@ Consumer::Consumer()
   metadata_.overwrite_all_attributes(attributes);
 }
 
-bool Consumer::_initialize()
+void Consumer::_apply_attributes()
 {
-  metadata_.disable_presets();
+//  metadata_.disable_presets();
   stream_id_ = metadata_.get_attribute("stream_id").get_text();
-
-  return false; //abstract sink indicates failure to init
 }
 
 void Consumer::_init_from_file()
 {
-  this->_initialize();
+  this->_apply_attributes();
   this->_recalc_axes();
   this->_flush();
 }
 
-bool Consumer::from_prototype(const ConsumerMetadata& newtemplate)
+void Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
 
   if (metadata_.type() != newtemplate.type())
-    return false;
+    return;
 
   for (const auto& a : newtemplate.attributes_flat())
   {
     if (a.metadata().has_flag("readonly") && !a.metadata().has_flag("preset"))
       continue;
     metadata_.set_attribute(a);
+    this->_apply_attributes();
   }
-//  metadata_.set_attributes(newtemplate.attributes_flat());
 
   metadata_.detectors.clear(); // really?
-
-  return (this->_initialize());
-//  DBG << "<Consumer::from_prototype>" << metadata_.get_attribute("name").value_text << " made with dims=" << metadata_.dimensions();
-//  DBG << "from prototype " << metadata_.debug();
-//  mutex_.unlock();
 }
 
 void Consumer::push_spill(const Spill& spill)
@@ -165,6 +158,7 @@ void Consumer::set_attribute(const Setting &setting, bool greedy)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attribute(setting, greedy);
+  this->_apply_attributes();
   changed_ = true;
 }
 
@@ -172,6 +166,7 @@ void Consumer::set_attributes(const Setting &settings)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attributes(settings.branches.data(), true);
+  this->_apply_attributes();
   changed_ = true;
 }
 
@@ -181,26 +176,23 @@ void Consumer::set_attributes(const Setting &settings)
 /////////////////////
 /// Save and load ///
 /////////////////////
-bool Consumer::load(hdf5::node::Group& g, bool withdata)
+void Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   if (!hdf5::has_group(g, "metadata"))
-    return false;
+    return;
 
   json j;
   hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
   metadata_ = j;
 //  metadata_.from_json(g.open_group("metadata"));
 
-  bool ret = this->_initialize();
+  this->_apply_attributes();
 
-  if (ret && withdata && data_)
+  if (withdata && data_)
     data_->load(g);
 
-  if (ret)
-    this->_recalc_axes();
-
-  return ret;
+  this->_recalc_axes();
 }
 
 void Consumer::save(hdf5::node::Group& g) const

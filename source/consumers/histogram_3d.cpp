@@ -18,10 +18,6 @@ Histogram3D::Histogram3D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event-based 3D spectrum");
 
-  SettingMeta app("appearance", SettingType::text, "Appearance");
-  app.set_flag("gradient-name");
-  base_options.branches.add(Setting(app));
-
   SettingMeta x_name("x_name", SettingType::text);
   x_name.set_flag("preset");
   x_name.set_flag("event_value");
@@ -40,26 +36,29 @@ Histogram3D::Histogram3D()
   z_name.set_val("description", "Name of event value for z coordinate");
   base_options.branches.add(z_name);
 
-  SettingMeta ds("downsample", SettingType::integer, "Downsample x&y by");
+  SettingMeta ds("downsample", SettingType::integer, "Downsample bins by");
   ds.set_val("units", "bits");
   ds.set_flag("preset");
   ds.set_val("min", 0);
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Histogram3D::_initialize()
+void Histogram3D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
   z_name_ = metadata_.get_attribute("z_name").get_text();
   downsample_ = metadata_.get_attribute("downsample").get_number();
 
-  return true;
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 }
 
 void Histogram3D::_init_from_file()
@@ -123,6 +122,7 @@ void Histogram3D::_push_stats_pre(const Spill &spill)
     x_idx_ = spill.event_model.name_to_val.at(x_name_);
     y_idx_ = spill.event_model.name_to_val.at(y_name_);
     z_idx_ = spill.event_model.name_to_val.at(z_name_);
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
@@ -132,19 +132,22 @@ void Histogram3D::_flush()
   Spectrum::_flush();
 }
 
-void Histogram3D::_push_event(const Event& e)
+void Histogram3D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   if (downsample_)
   {
-    coords_[0] = (e.value(x_idx_) >> downsample_);
-    coords_[1] = (e.value(y_idx_) >> downsample_);
-    coords_[2] = (e.value(z_idx_) >> downsample_);
+    coords_[0] = (event.value(x_idx_) >> downsample_);
+    coords_[1] = (event.value(y_idx_) >> downsample_);
+    coords_[2] = (event.value(z_idx_) >> downsample_);
   }
   else
   {
-    coords_[0] = e.value(x_idx_);
-    coords_[1] = e.value(y_idx_);
-    coords_[2] = e.value(z_idx_);
+    coords_[0] = event.value(x_idx_);
+    coords_[1] = event.value(y_idx_);
+    coords_[2] = event.value(z_idx_);
   }
 
   data_->add_one(coords_);

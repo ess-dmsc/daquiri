@@ -224,6 +224,35 @@ void Setting::set_all(const Setting &setting, Match m)
     q.set_all(setting, m);
 }
 
+bool Setting::replace_first(const Setting &setting, Match m)
+{
+  if (this->compare(setting, m))
+  {
+    *this = setting;
+    return true;
+  }
+  for (auto &q : this->branches)
+    if (q.replace_first(setting, m))
+      return true;
+  return false;
+}
+
+void Setting::replace_all(const Setting &setting, Match m)
+{
+  if (this->compare(setting, m))
+    *this = setting;
+  for (auto &q : this->branches)
+    q.replace_all(setting, m);
+}
+
+void Setting::replace(const Setting &s, Match m, bool greedy)
+{
+  if (greedy)
+    replace_all(s, m);
+  else
+    replace_first(s, m);
+}
+
 void Setting::set(const Setting &s, Match m, bool greedy)
 {
   if (greedy)
@@ -541,6 +570,16 @@ void Setting::set_number(double val)
   enforce_limits();
 }
 
+void Setting::set_int(integer_t v)
+{
+  value_int = v;
+}
+
+integer_t Setting::get_int() const
+{
+  return value_int;
+}
+
 void Setting::select(integer_t v)
 {
   value_int = v;
@@ -551,9 +590,19 @@ integer_t Setting::selection() const
   return value_int;
 }
 
+bool Setting::get_bool() const
+{
+  return (0 != value_int);
+}
+
+void Setting::set_bool(bool b)
+{
+  value_int = b;
+}
+
 bool Setting::triggered() const
 {
-  return value_int;
+  return (0 != value_int);
 }
 
 void Setting::trigger()

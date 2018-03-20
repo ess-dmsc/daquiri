@@ -64,14 +64,13 @@ Spectrum::Spectrum()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Spectrum::_initialize()
+void Spectrum::_apply_attributes()
 {
-  Consumer::_initialize();
+  Consumer::_apply_attributes();
 
   clear_periodically_ = metadata_.get_attribute("clear_periodically").triggered();
   clear_at_ = metadata_.get_attribute("clear_at").get_number() * 0.001;
   clear_reference_timer_ = metadata_.get_attribute("clear_using").selection();
-  return false;
 }
 
 bool Spectrum::_accept_spill(const Spill& spill)

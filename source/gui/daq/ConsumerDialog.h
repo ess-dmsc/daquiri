@@ -5,7 +5,7 @@
 #include "SettingDelegate.h"
 #include "SettingsTreeModel.h"
 //#include "widget_detectors.h"
-#include "consumer_metadata.h"
+#include "consumer.h"
 #include "spill.h"
 
 namespace Ui {
@@ -17,7 +17,7 @@ class ConsumerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConsumerDialog(DAQuiri::ConsumerMetadata sink_metadata,
+    explicit ConsumerDialog(DAQuiri::ConsumerPtr consumer,
                             std::vector<DAQuiri::Detector> current_detectors,
                             Container<DAQuiri::Detector>& detDB,
                             DAQuiri::StreamManifest stream_manifest,
@@ -26,7 +26,7 @@ public:
                             QWidget *parent = 0);
     ~ConsumerDialog();
 
-    DAQuiri::ConsumerMetadata product() { return sink_metadata_; }
+    DAQuiri::ConsumerMetadata product();
 
 private slots:
     void on_buttonBox_accepted();
@@ -50,10 +50,10 @@ private slots:
 
 private:
     Ui::ConsumerDialog *ui;
-    DAQuiri::ConsumerMetadata sink_metadata_;
+    DAQuiri::ConsumerPtr consumer_;
 
-    SettingsTreeModel               attr_model_;
-    SettingDelegate         attr_delegate_;
+    SettingsTreeModel    attr_model_;
+    SettingDelegate      attr_delegate_;
 
     Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_detectors_;

@@ -30,19 +30,24 @@ TimeDomain::TimeDomain()
   units.set_enum(9, "s");
   base_options.branches.add(units);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
   //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
 }
 
-bool TimeDomain::_initialize()
+void TimeDomain::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
+
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 
   int adds = 1; //0;
   //  std::vector<bool> gts = add_channels_.gates();
@@ -53,10 +58,7 @@ bool TimeDomain::_initialize()
   if (adds != 1)
   {
     WARN << "<TimeDomain> Cannot initialize. Add pattern must have 1 selected channel.";
-    return false;
   }
-
-  return true;
 }
 
 void TimeDomain::_init_from_file()
@@ -108,12 +110,16 @@ void TimeDomain::_push_stats_pre(const Spill& spill)
   if (this->_accept_spill(spill))
   {
     timebase_ = spill.event_model.timebase;
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
 void TimeDomain::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   double nsecs = timebase_.to_nanosec(event.timestamp());
 
   coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));

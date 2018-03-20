@@ -41,18 +41,21 @@ Histogram2D::Histogram2D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Histogram2D::_initialize()
+void Histogram2D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   x_name_ = metadata_.get_attribute("x_name").get_text();
   y_name_ = metadata_.get_attribute("y_name").get_text();
   downsample_ = metadata_.get_attribute("downsample").get_number();
 
-  return true;
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 }
 
 void Histogram2D::_init_from_file()
@@ -110,6 +113,7 @@ void Histogram2D::_push_stats_pre(const Spill &spill)
   {
     x_idx_ = spill.event_model.name_to_val.at(x_name_);
     y_idx_ = spill.event_model.name_to_val.at(y_name_);
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
@@ -119,17 +123,20 @@ void Histogram2D::_flush()
   Spectrum::_flush();
 }
 
-void Histogram2D::_push_event(const Event& e)
+void Histogram2D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   if (downsample_)
   {
-    coords_[0] = (e.value(x_idx_) >> downsample_);
-    coords_[1] = (e.value(y_idx_) >> downsample_);
+    coords_[0] = (event.value(x_idx_) >> downsample_);
+    coords_[1] = (event.value(y_idx_) >> downsample_);
   }
   else
   {
-    coords_[0] = e.value(x_idx_);
-    coords_[1] = e.value(y_idx_);
+    coords_[0] = event.value(x_idx_);
+    coords_[1] = event.value(y_idx_);
   }
 
   data_->add_one(coords_);
