@@ -29,9 +29,9 @@ class Consumer
     virtual ~Consumer() {}
 
     //named constructors, used by factory
-    bool from_prototype(const ConsumerMetadata&);
+    void from_prototype(const ConsumerMetadata&);
 
-    bool load(hdf5::node::Group&, bool withdata);
+    void load(hdf5::node::Group&, bool withdata);
     void save(hdf5::node::Group&) const;
 
     //data acquisition
@@ -61,7 +61,7 @@ class Consumer
     //////////////////////////////////////////
 
     virtual std::string my_type() const = 0;
-    virtual bool _initialize();
+    virtual void _apply_attributes();
     virtual void _init_from_file();
     virtual void _recalc_axes() = 0;
 

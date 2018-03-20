@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class Histogram3D : public Spectrum
 {
@@ -12,7 +13,7 @@ public:
 protected:
   std::string my_type() const override {return "Histogram 3D";}
 
-  bool _initialize() override;
+  void _apply_attributes() override;
   void _init_from_file() override;
   void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
@@ -29,6 +30,7 @@ protected:
   std::string y_name_;
   std::string z_name_;
   uint16_t downsample_ {0};
+  FilterBlock filters_;
 
   //from status manifest
   int x_idx_ {-1};

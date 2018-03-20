@@ -21,8 +21,11 @@ ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) 
 {
 //  DBG << "<ConsumerFactory> creating " << tem.type();
   ConsumerPtr instance = create_type(tem.type());
-  if (instance && instance->from_prototype(tem))
+  if (instance)
+  {
+    instance->from_prototype(tem);
     return instance;
+  }
   return ConsumerPtr();
 }
 
@@ -37,8 +40,11 @@ ConsumerPtr ConsumerFactory::create_from_h5(hdf5::node::Group &group, bool withd
   group.attributes["type"].read(type);
 //  auto type = group.read_attribute<std::string>("type");
   ConsumerPtr instance = create_type(type);
-  if (instance && instance->load(group, withdata))
+  if (instance)
+  {
+    instance->load(group, withdata);
     return instance;
+  }
 
   return ConsumerPtr();
 }

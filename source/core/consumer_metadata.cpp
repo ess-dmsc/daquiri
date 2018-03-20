@@ -75,6 +75,11 @@ Setting ConsumerMetadata::get_attribute(std::string setting, int32_t idx) const
   return attributes_.find(find, Match::id | Match::indices);
 }
 
+void ConsumerMetadata::replace_attribute(const Setting &setting, bool greedy)
+{
+  attributes_.replace(setting, Match::id | Match::indices, greedy);
+}
+
 void ConsumerMetadata::set_attribute(const Setting &setting, bool greedy)
 {
   attributes_.set(setting, Match::id | Match::indices, greedy);

@@ -26,13 +26,12 @@ Prebinned1D::Prebinned1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Prebinned1D::_initialize()
+void Prebinned1D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
   trace_name_ = metadata_.get_attribute("value_name").get_text();
 
   this->_recalc_axes();
-  return true;
 }
 
 void Prebinned1D::_init_from_file()
