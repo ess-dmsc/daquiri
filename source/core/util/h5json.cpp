@@ -2,7 +2,7 @@
 
 std::string vector_idx_minlen(size_t idx, size_t max)
 {
-  size_t minlen = std::to_string(max - 1).size();
+  size_t minlen = std::to_string(max).size();
 
   std::string name = std::to_string(idx);
   if (name.size() < minlen)

@@ -291,7 +291,7 @@ void Project::save_as(std::string file_name)
       int i = 0;
       for (auto &q : sinks_) {
 
-        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size()));
+        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size() - 1));
 
         ssg.attributes.create<int64_t>("index").write(q.first);
 
@@ -398,22 +398,19 @@ void Project::save_split(std::string file_name)
   for (auto &s :spills_)
     proj_json["spills"].push_back(json(s));
 
-  if (!sinks_.empty())
+  for (auto &q : sinks_)
   {
-    int i = 0;
-    for (auto &q : sinks_)
-    {
-      std::ofstream ofs(file_name + "_" + vector_idx_minlen(i++, sinks_.size()) + ".csv",
-                        std::ofstream::out | std::ofstream::trunc);
-      ofs << "Daquiri consumer at index=" << q.first << "\n\n";
-      q.second->data()->save(ofs);
-      ofs.close();
+    std::ofstream ofs(file_name + "_" + vector_idx_minlen(q.first, sinks_.rbegin()->first) + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    q.second->data()->save(ofs);
+    ofs.close();
 
-      proj_json["consumers"].push_back(json(q.second->metadata()));
-    }
+    auto jmeta = json(q.second->metadata());
+    jmeta["consumer_index"] = q.first;
+    proj_json["consumers"].push_back(jmeta);
   }
 
-  std::ofstream jfs (file_name + "_metadata.json", std::ofstream::out | std::ofstream::trunc);
+  std::ofstream jfs(file_name + "_metadata.json", std::ofstream::out | std::ofstream::trunc);
   jfs << proj_json.dump(2);
   jfs.close();
 }
