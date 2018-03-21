@@ -125,19 +125,19 @@ def docker_tests_coverage(image_key) {
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
     } catch(e) {
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project}/build/test ./"
-        junit 'test/unit_tests_run.xml'
+        junit 'tests/unit_tests_run.xml'
         failure_function(e, 'Run tests (${container_name(image_key)}) failed')
     }
 
     dir("${project}/build") {
-        junit 'test/unit_tests_run.xml'
-        sh "../jenkins/redirect_coverage.sh ./test/coverage/coverage.xml ${abs_dir}/${project}"
+        junit 'tests/unit_tests_run.xml'
+        sh "../jenkins/redirect_coverage.sh ./tests/coverage/coverage.xml ${abs_dir}/${project}"
 
         step([
                 $class: 'CoberturaPublisher',
                 autoUpdateHealth: true,
                 autoUpdateStability: true,
-                coberturaReportFile: 'test/coverage/coverage.xml',
+                coberturaReportFile: 'tests/coverage/coverage.xml',
                 failUnhealthy: false,
                 failUnstable: false,
                 maxNumberOfBuilds: 0,
