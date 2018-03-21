@@ -53,7 +53,7 @@ def docker_clone(image_key) {
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         git clone \
             --branch ${env.BRANCH_NAME} \
-            https://github.com/ess-dmsc/event-formation-unit.git /home/jenkins/${project}
+            https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
         cd ${project}
         git submodule update --init
     \""""
