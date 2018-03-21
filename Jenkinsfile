@@ -68,7 +68,7 @@ def docker_dependencies(image_key) {
         conan remote add \\
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
-        conan install --build=outdated ../${project}/conanfile.txt
+        conan install --build=outdated ..
                     """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
 }
