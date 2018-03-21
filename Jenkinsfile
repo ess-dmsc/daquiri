@@ -74,12 +74,12 @@ def docker_dependencies(image_key) {
 }
 
 def docker_cmake(image_key, xtra_flags) {
-    def cmake_exec = "/home/jenkins/build/bin/cmake"
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd ${project}/build
-        ${cmake_exec} --version
-        ${cmake_exec} -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        . ./activate_run.sh
+        cmake --version
+        cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
               ${xtra_flags} \
               ..
@@ -92,6 +92,7 @@ def docker_build(image_key) {
     def custom_sh = images[image_key]['sh']
     def build_script = """
         cd ${project}/build
+        . ./activate_run.sh
         make --version
         make VERBOSE=1
                   """
