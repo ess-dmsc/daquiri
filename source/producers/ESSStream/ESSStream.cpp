@@ -27,6 +27,9 @@ ESSStream::ESSStream()
   ti.set_val("units", "ms");
   add_definition(ti);
 
+  SettingMeta drop {mp + "KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
+  add_definition(drop);
+
   SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
   mb.set_val("min", 1);
   mb.set_val("units", "buffers");
@@ -45,7 +48,8 @@ ESSStream::ESSStream()
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
   root.set_enum(3, mp + "KafkaDecomission");
-  root.set_enum(4, mp + "KafkaMaxBacklog");
+  root.set_enum(4, mp + "KafkaFF");
+  root.set_enum(5, mp + "KafkaMaxBacklog");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -101,6 +105,7 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
   set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
+  set.set(Setting::boolean("ESSStream/KafkaFF", kafka_ff_));
   set.set(Setting::integer("ESSStream/KafkaMaxBacklog", kafka_max_backlog_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
@@ -129,6 +134,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
   kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
+  kafka_ff_ = set.find({"ESSStream/KafkaFF"}).get_bool();
   kafka_max_backlog_ = set.find({"ESSStream/KafkaMaxBacklog"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
@@ -310,21 +316,8 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
       if (!message->len())
         return 0;
 
-      int64_t hi_o {0}, lo_o {0};
-      stream_->get_watermark_offsets(kafka_topic_name_,
-                                     message->partition(),
-                                     &lo_o, &hi_o);
-
-      if ((hi_o - message->offset()) > kafka_max_backlog_)
-      {
-        DBG << "<ESSStream:" << kafka_topic_name_ << "> "
-            << "Backlog exceeded on partition " << message->partition()
-            << " offset=" << message->offset() << "  hi=" << hi_o;
-
-        seek(kafka_topic_name_, message->partition(), hi_o);
-
-        dropped_buffers_ += (hi_o - message->offset());
-      }
+      if (kafka_ff_)
+        ff_stream(message);
 
       uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
 
@@ -334,7 +327,7 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
     else
     {
       WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-           << "Consume failed. No parser to inerpret buffer.";
+           << "Consume failed. No parser to interpret buffer.";
       return 0;
     }
 
@@ -346,6 +339,26 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
 
   return 0;
 }
+
+void ESSStream::ff_stream(std::shared_ptr<RdKafka::Message> message)
+{
+  int64_t hi_o {0}, lo_o {0};
+  stream_->get_watermark_offsets(kafka_topic_name_,
+                                 message->partition(),
+                                 &lo_o, &hi_o);
+
+  if ((hi_o - message->offset()) > kafka_max_backlog_)
+  {
+    DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Backlog exceeded on partition " << message->partition()
+        << " offset=" << message->offset() << "  hi=" << hi_o;
+
+    seek(kafka_topic_name_, message->partition(), hi_o);
+
+    dropped_buffers_ += (hi_o - message->offset());
+  }
+}
+
 
 /**
  * Seek to given offset on specified topic and partition

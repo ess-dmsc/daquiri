@@ -52,6 +52,8 @@ private:
   std::string kafka_topic_name_;
   uint16_t kafka_timeout_ {1000};
   uint16_t kafka_decomission_wait_ {5000};
+
+  bool kafka_ff_ {false};
   int32_t kafka_max_backlog_ {3};
 
   std::shared_ptr<fb_parser> parser_;
@@ -68,5 +70,6 @@ private:
   std::vector<RdKafka::TopicPartition*> get_partitions();
   std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
 
+  void ff_stream(std::shared_ptr<RdKafka::Message> message);
   void seek(const std::string &topic, uint32_t partition, int64_t offset) const;
 };
