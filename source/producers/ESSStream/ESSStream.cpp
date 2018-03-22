@@ -210,26 +210,6 @@ void ESSStream::boot()
     return;
   }
 
-  try
-  {
-    partitions_ = get_partitions();
-  }
-  catch (...)
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Failed to retrieve topic partitions";
-    die();
-    return;
-  }
-
-  if (partitions_.empty())
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "No partitions found for given topic";
-    die();
-    return;
-  }
-
   INFO << "<ESSStream:" << kafka_topic_name_ << "> "
        << " booted with consumer " << stream_->name();
 
@@ -240,8 +220,6 @@ void ESSStream::boot()
 void ESSStream::die()
 {
 //  INFO << "<ESSStream> Shutting down";
-  if (partitions_.size())
-    RdKafka::TopicPartition::destroy(partitions_);
   if (stream_)
   {
     stream_->close();
@@ -343,13 +321,9 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
             << "Backlog exceeded on partition " << message->partition()
             << " offset=" << message->offset() << "  hi=" << hi_o;
 
-        dropped_buffers_ += (hi_o - message->offset());
+        seek(kafka_topic_name_, message->partition(), hi_o);
 
-        auto topicPartition = partitions_[message->partition()];
-        topicPartition->set_offset(hi_o);
-//        stream_->offsetsForTimes(partitions_, 10000);
-//        stream_->seek(*topicPartition, 0);
-        stream_->assign(partitions_);
+        dropped_buffers_ += (hi_o - message->offset());
       }
 
       uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
@@ -371,6 +345,29 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
   }
 
   return 0;
+}
+
+/**
+ * Seek to given offset on specified topic and partition
+ *
+ * @param topic : topic name
+ * @param partition : partition number
+ * @param offset : offset to seek to
+ */
+void ESSStream::seek(const std::string &topic, uint32_t partition, int64_t offset) const
+{
+  auto topicPartition = RdKafka::TopicPartition::create(topic, partition);
+  topicPartition->set_offset(offset);
+  auto error = stream_->seek(*topicPartition, 2000);
+  if (error)
+  {
+    std::ostringstream os;
+    os << "Offset seek failed with error: '" << error << "'";
+    throw std::runtime_error(os.str());
+  }
+  INFO << "<ESSStream:" << kafka_topic_name_ << "> "
+       << "Successful seek of topic: " << topic
+       << ", partition: " << partition << " to offset: " << offset;
 }
 
 std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()

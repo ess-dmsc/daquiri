@@ -46,7 +46,6 @@ private:
 
   //Kafka
   std::unique_ptr<RdKafka::KafkaConsumer> stream_;
-  std::vector<RdKafka::TopicPartition*> partitions_;
 
   // cached params
   std::string kafka_broker_name_;
@@ -68,4 +67,6 @@ private:
 
   std::vector<RdKafka::TopicPartition*> get_partitions();
   std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
+
+  void seek(const std::string &topic, uint32_t partition, int64_t offset) const;
 };
