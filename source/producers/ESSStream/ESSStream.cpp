@@ -27,6 +27,9 @@ ESSStream::ESSStream()
   ti.set_val("units", "ms");
   add_definition(ti);
 
+  SettingMeta drop {mp + "KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
+  add_definition(drop);
+
   SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
   mb.set_val("min", 1);
   mb.set_val("units", "buffers");
@@ -45,7 +48,8 @@ ESSStream::ESSStream()
   root.set_enum(1, mp + "KafkaTopic");
   root.set_enum(2, mp + "KafkaTimeout");
   root.set_enum(3, mp + "KafkaDecomission");
-  root.set_enum(4, mp + "KafkaMaxBacklog");
+  root.set_enum(4, mp + "KafkaFF");
+  root.set_enum(5, mp + "KafkaMaxBacklog");
   root.set_enum(7, mp + "Parser");
   add_definition(root);
 
@@ -101,6 +105,7 @@ void ESSStream::read_settings_bulk(Setting &set) const
   set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
   set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
   set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
+  set.set(Setting::boolean("ESSStream/KafkaFF", kafka_ff_));
   set.set(Setting::integer("ESSStream/KafkaMaxBacklog", kafka_max_backlog_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
@@ -129,6 +134,7 @@ void ESSStream::write_settings_bulk(const Setting& settings)
   kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
   kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
   kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
+  kafka_ff_ = set.find({"ESSStream/KafkaFF"}).get_bool();
   kafka_max_backlog_ = set.find({"ESSStream/KafkaMaxBacklog"}).get_number();
 
   auto parser_set = set.find({"ESSStream/Parser"});
@@ -210,26 +216,6 @@ void ESSStream::boot()
     return;
   }
 
-  try
-  {
-    partitions_ = get_partitions();
-  }
-  catch (...)
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Failed to retrieve topic partitions";
-    die();
-    return;
-  }
-
-  if (partitions_.empty())
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "No partitions found for given topic";
-    die();
-    return;
-  }
-
   INFO << "<ESSStream:" << kafka_topic_name_ << "> "
        << " booted with consumer " << stream_->name();
 
@@ -240,8 +226,6 @@ void ESSStream::boot()
 void ESSStream::die()
 {
 //  INFO << "<ESSStream> Shutting down";
-  if (partitions_.size())
-    RdKafka::TopicPartition::destroy(partitions_);
   if (stream_)
   {
     stream_->close();
@@ -332,25 +316,8 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
       if (!message->len())
         return 0;
 
-      int64_t hi_o {0}, lo_o {0};
-      stream_->get_watermark_offsets(kafka_topic_name_,
-                                     message->partition(),
-                                     &lo_o, &hi_o);
-
-      if ((hi_o - message->offset()) > kafka_max_backlog_)
-      {
-        DBG << "<ESSStream:" << kafka_topic_name_ << "> "
-            << "Backlog exceeded on partition " << message->partition()
-            << " offset=" << message->offset() << "  hi=" << hi_o;
-
-        dropped_buffers_ += (hi_o - message->offset());
-
-        auto topicPartition = partitions_[message->partition()];
-        topicPartition->set_offset(hi_o);
-//        stream_->offsetsForTimes(partitions_, 10000);
-//        stream_->seek(*topicPartition, 0);
-        stream_->assign(partitions_);
-      }
+      if (kafka_ff_)
+        ff_stream(message);
 
       uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
 
@@ -360,7 +327,7 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
     else
     {
       WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-           << "Consume failed. No parser to inerpret buffer.";
+           << "Consume failed. No parser to interpret buffer.";
       return 0;
     }
 
@@ -371,6 +338,49 @@ uint64_t ESSStream::get_message(SpillQueue spill_queue)
   }
 
   return 0;
+}
+
+void ESSStream::ff_stream(std::shared_ptr<RdKafka::Message> message)
+{
+  int64_t hi_o {0}, lo_o {0};
+  stream_->get_watermark_offsets(kafka_topic_name_,
+                                 message->partition(),
+                                 &lo_o, &hi_o);
+
+  if ((hi_o - message->offset()) > kafka_max_backlog_)
+  {
+    DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+        << "Backlog exceeded on partition " << message->partition()
+        << " offset=" << message->offset() << "  hi=" << hi_o;
+
+    seek(kafka_topic_name_, message->partition(), hi_o);
+
+    dropped_buffers_ += (hi_o - message->offset());
+  }
+}
+
+
+/**
+ * Seek to given offset on specified topic and partition
+ *
+ * @param topic : topic name
+ * @param partition : partition number
+ * @param offset : offset to seek to
+ */
+void ESSStream::seek(const std::string &topic, uint32_t partition, int64_t offset) const
+{
+  auto topicPartition = RdKafka::TopicPartition::create(topic, partition);
+  topicPartition->set_offset(offset);
+  auto error = stream_->seek(*topicPartition, 2000);
+  if (error)
+  {
+    std::ostringstream os;
+    os << "Offset seek failed with error: '" << error << "'";
+    throw std::runtime_error(os.str());
+  }
+  INFO << "<ESSStream:" << kafka_topic_name_ << "> "
+       << "Successful seek of topic: " << topic
+       << ", partition: " << partition << " to offset: " << offset;
 }
 
 std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
