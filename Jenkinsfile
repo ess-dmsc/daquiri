@@ -28,7 +28,7 @@ def failure_function(exception_obj, failureMessage) {
             recipientProviders: toEmails,
             subject: '${DEFAULT_SUBJECT}'
     slackSend color: 'danger',
-            message: "${project}-${env.BRANCH_NAME}: " + failureMessage
+            message: "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}: " + failureMessage
     throw exception_obj
 }
 
@@ -50,13 +50,14 @@ def create_container(image_key) {
 
 def docker_clone(image_key) {
     def custom_sh = images[image_key]['sh']
-    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+    def clone_script = """
         git clone \
             --branch ${env.BRANCH_NAME} \
             https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
         cd ${project}
         git submodule update --init
-    \""""
+        """
+    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${clone_script}\""
 }
 
 def docker_dependencies(image_key) {
