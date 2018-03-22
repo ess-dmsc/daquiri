@@ -230,7 +230,7 @@ def get_macos_pipeline() {
 node('docker') {
     cleanWs()
 
-    dir("${project}/code") {
+    dir("${project}_code") {
         stage('Checkout') {
             try {
                 scm_vars = checkout scm
