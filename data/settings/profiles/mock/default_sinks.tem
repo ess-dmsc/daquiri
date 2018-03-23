@@ -9,7 +9,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -62,84 +63,6 @@
      },
      "type": "menu",
      "value": 0
-    },
-    {
-     "id": "total_count",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Total count"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "total_count",
-      "type": "precise"
-     },
-     "type": "precise",
-     "value": 0.0
-    },
-    {
-     "id": "start_time",
-     "metadata": {
-      "contents": {
-       "name": "Start time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "start_time",
-      "type": "time"
-     },
-     "type": "time",
-     "value": "INVALID"
-    },
-    {
-     "id": "live_time",
-     "metadata": {
-      "contents": {
-       "name": "Live time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "live_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "real_time",
-     "metadata": {
-      "contents": {
-       "name": "Real time"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "real_time",
-      "type": "duration"
-     },
-     "type": "duration",
-     "value": "00:00:00"
-    },
-    {
-     "id": "instant_rate",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Instant count rate",
-       "units": "cps"
-      },
-      "flags": [
-       "readonly"
-      ],
-      "id": "instant_rate",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 0.0
     },
     {
      "id": "clear_periodically",
@@ -212,7 +135,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#80ec0c08"
+     "value": "#806833e2"
     },
     {
      "id": "time_resolution",
@@ -263,6 +186,33 @@
      },
      "type": "menu",
      "value": 9
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -287,7 +237,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -412,7 +363,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#8026ce2c"
+     "value": "#8026ce63"
     },
     {
      "id": "downsample",
@@ -433,28 +384,13 @@
      "value": 6
     },
     {
-     "id": "cutoff",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Hits rejected below minimum value"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "cutoff",
-      "type": "integer"
-     },
-     "type": "integer",
-     "value": 0
-    },
-    {
      "id": "value_name",
      "metadata": {
       "contents": {
        "name": "Name of event value to bin"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "value_name",
@@ -462,6 +398,116 @@
      },
      "type": "text",
      "value": "x"
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 4500
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 7500
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -486,7 +532,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -611,7 +658,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "#801069d6"
+     "value": "#808a10d6"
     },
     {
      "id": "downsample",
@@ -632,28 +679,13 @@
      "value": 6
     },
     {
-     "id": "cutoff",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Hits rejected below minimum value"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "cutoff",
-      "type": "integer"
-     },
-     "type": "integer",
-     "value": 0
-    },
-    {
      "id": "value_name",
      "metadata": {
       "contents": {
        "name": "Name of event value to bin"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "value_name",
@@ -661,6 +693,33 @@
      },
      "type": "text",
      "value": "x"
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -685,7 +744,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -820,6 +880,7 @@
        "name": "x_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "x_name",
@@ -836,6 +897,7 @@
        "name": "y_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "y_name",
@@ -861,6 +923,116 @@
      },
      "type": "integer",
      "value": 6
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 4500
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 7500
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -885,7 +1057,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -1010,7 +1183,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "Cold"
+     "value": "YlGn5"
     },
     {
      "id": "time_resolution",
@@ -1088,6 +1261,7 @@
        "name": "value_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "value_name",
@@ -1095,6 +1269,33 @@
      },
      "type": "text",
      "value": "x"
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",

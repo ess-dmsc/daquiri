@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
+#include "value_filter.h"
 
 class TimeDomain : public Spectrum
 {
@@ -12,7 +13,7 @@ public:
 protected:
   std::string my_type() const override {return "Time-Activity 1D";}
 
-  bool _initialize() override;
+  void _apply_attributes() override;
   void _init_from_file() override;
   void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
@@ -28,6 +29,7 @@ protected:
   double time_resolution_ {1};
   std::string units_name_;
   double units_multiplier_{1};
+  FilterBlock filters_;
 
   double window_{1.0};
 

@@ -49,6 +49,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
 
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save.png"), "Save project", this, SLOT(projectSave()));
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save_as.png"), "Save project as...", this, SLOT(projectSaveAs()));
+  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"), "Save as json + csv", this, SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
 
   this->setWindowTitle(QString::fromStdString(project_->identity()));
@@ -211,25 +212,22 @@ void ProjectForm::update_plots()
   ui->pushEditSpectra->setVisible(project_->empty());
 
   if (ui->projectView->isVisible())
-  {
-    this->setCursor(Qt::WaitCursor);
     ui->projectView->update_plots();
-  }
 
   //ui->statusBar->showMessage("Spectra acquisition in progress...");
 //  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
-  this->setCursor(Qt::ArrowCursor);
 }
 
 
 void ProjectForm::projectSave()
 {
-  if (project_->changed() && (project_->identity() != "New project")) {
+  if (project_->changed() && (project_->identity() != "New project"))
+  {
     int reply = QMessageBox::warning(this, "Save?",
                                      "Save changes to existing project: " + QString::fromStdString(project_->identity()),
                                      QMessageBox::Yes|QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes) {
-      this->setCursor(Qt::WaitCursor);
+    if (reply == QMessageBox::Yes)
+    {
       project_->save();
       update_plots();
     }
@@ -243,10 +241,26 @@ void ProjectForm::projectSaveAs()
 
   QString fileName = CustomSaveFileDialog(this, "Save project",
                                           data_directory_, formats);
-  if (validateFile(this, fileName, true)) {
+  if (validateFile(this, fileName, true))
+  {
     INFO << "Writing project to " << fileName.toStdString();
-    this->setCursor(Qt::WaitCursor);
     project_->save_as(fileName.toStdString());
+    update_plots();
+  }
+
+  data_directory_ = path_of_file(fileName);
+}
+
+void ProjectForm::projectSaveSplit()
+{
+  QString formats = "";
+
+  QString fileName = CustomSaveFileDialog(this, "Save split",
+                                          data_directory_, formats);
+  if (validateFile(this, fileName+ "_metadata.json", true))
+  {
+    INFO << "Writing project to " << fileName.toStdString();
+    project_->save_split(fileName.toStdString());
     update_plots();
   }
 
@@ -345,7 +359,6 @@ void ProjectForm::projectOpen()
 
   //toggle_push(false, false);
   INFO << "Reading spectra from file " << fileName.toStdString();
-  this->setCursor(Qt::WaitCursor);
   clearGraphs();
 
   project_->open(fileName.toStdString());
@@ -354,8 +367,6 @@ void ProjectForm::projectOpen()
   project_->activate();
 
   emit toggleIO(true);
-
-  this->setCursor(Qt::ArrowCursor);
 }
 
 void ProjectForm::newProject()

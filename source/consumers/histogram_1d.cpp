@@ -24,34 +24,31 @@ Histogram1D::Histogram1D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
-  SettingMeta cutoff_bin("cutoff", SettingType::integer, "Hits rejected below minimum value");
-  cutoff_bin.set_val("min", 0);
-  cutoff_bin.set_flag("preset");
-  base_options.branches.add(cutoff_bin);
-
   SettingMeta val_name("value_name", SettingType::text, "Name of event value to bin");
   val_name.set_flag("preset");
   val_name.set_flag("event_value");
   base_options.branches.add(val_name);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool Histogram1D::_initialize()
+void Histogram1D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
   downsample_ = metadata_.get_attribute("downsample").get_number();
-  cutoff_bin_ = metadata_.get_attribute("cutoff").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
 
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
+
   this->_recalc_axes();
-  return true;
 }
 
 void Histogram1D::_init_from_file()
 {
   metadata_.set_attribute(Setting::integer("downsample", downsample_));
-  metadata_.set_attribute(Setting::integer("cutoff", cutoff_bin_));
   Spectrum::_init_from_file();
 }
 
@@ -106,19 +103,20 @@ void Histogram1D::_push_stats_pre(const Spill& spill)
   if (this->_accept_spill(spill))
   {
     value_idx_ = spill.event_model.name_to_val.at(val_name_);
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
 void Histogram1D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   if (downsample_)
     coords_[0] = (event.value(value_idx_) >> downsample_);
   else
     coords_[0] = event.value(value_idx_);
-
-  if (coords_[0] < cutoff_bin_)
-    return;
 
   data_->add_one(coords_);
   total_count_++;

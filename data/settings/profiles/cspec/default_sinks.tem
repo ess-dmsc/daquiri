@@ -9,7 +9,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -39,7 +40,7 @@
       "type": "boolean"
      },
      "type": "boolean",
-     "value": true
+     "value": false
     },
     {
      "id": "preferred_scale",
@@ -185,6 +186,33 @@
      },
      "type": "menu",
      "value": 9
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -209,7 +237,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -239,7 +268,7 @@
       "type": "boolean"
      },
      "type": "boolean",
-     "value": true
+     "value": false
     },
     {
      "id": "preferred_scale",
@@ -409,7 +438,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -439,7 +469,7 @@
       "type": "boolean"
      },
      "type": "boolean",
-     "value": true
+     "value": false
     },
     {
      "id": "preferred_scale",
@@ -609,7 +639,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -744,6 +775,7 @@
        "name": "x_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "x_name",
@@ -760,6 +792,7 @@
        "name": "y_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "y_name",
@@ -785,6 +818,33 @@
      },
      "type": "integer",
      "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -809,7 +869,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -944,6 +1005,7 @@
        "name": "x_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "x_name",
@@ -960,6 +1022,7 @@
        "name": "y_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "y_name",
@@ -985,6 +1048,33 @@
      },
      "type": "integer",
      "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -1009,7 +1099,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -1144,6 +1235,7 @@
        "name": "x_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "x_name",
@@ -1160,6 +1252,7 @@
        "name": "y_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
       "id": "y_name",
@@ -1185,6 +1278,33 @@
      },
      "type": "integer",
      "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -1209,7 +1329,8 @@
        "name": "Stream ID"
       },
       "flags": [
-       "preset"
+       "preset",
+       "stream"
       ],
       "id": "stream_id",
       "type": "text"
@@ -1227,7 +1348,7 @@
       "type": "text"
      },
      "type": "text",
-     "value": "TOF X"
+     "value": "yz0"
     },
     {
      "id": "visible",
@@ -1261,7 +1382,7 @@
       "type": "menu"
      },
      "type": "menu",
-     "value": 1
+     "value": 0
     },
     {
      "id": "clear_periodically",
@@ -1325,7 +1446,7 @@
      "id": "appearance",
      "metadata": {
       "contents": {
-       "name": "Plot appearance"
+       "name": "Appearance"
       },
       "flags": [
        "gradient-name"
@@ -1337,534 +1458,34 @@
      "value": "Spectrum2"
     },
     {
-     "id": "time_resolution",
+     "id": "x_name",
      "metadata": {
       "contents": {
-       "min": 1,
-       "name": "Time resolution",
-       "units": "units (see below)"
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
-      "id": "time_resolution",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 1.0
-    },
-    {
-     "id": "time_units",
-     "metadata": {
-      "contents": {
-       "name": "Time units (domain)"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "time_units",
-      "items": [
-       {
-        "meaning": "ns",
-        "val": 0
-       },
-       {
-        "meaning": "μs",
-        "val": 3
-       },
-       {
-        "meaning": "ms",
-        "val": 6
-       },
-       {
-        "meaning": "s",
-        "val": 9
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 3
-    },
-    {
-     "id": "value_name",
-     "metadata": {
-      "contents": {
-       "description": "Name of event value to bin",
-       "name": "value_name"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "value_name",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "x"
-    },
-    {
-     "id": "downsample",
-     "metadata": {
-      "contents": {
-       "max": 31,
-       "min": 0,
-       "name": "Downsample value by",
-       "units": "bits"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "downsample",
-      "type": "integer"
-     },
-     "type": "integer",
-     "value": 0
-    }
-   ],
-   "id": "Attributes",
-   "metadata": {
-    "contents": {
-     "name": "Attributes"
-    },
-    "id": "Attributes",
-    "type": "stem"
-   },
-   "type": "stem"
-  },
-  "type": "Time of Flight 2D"
- },
- {
-  "attributes": {
-   "branches": [
-    {
-     "id": "stream_id",
-     "metadata": {
-      "contents": {
-       "name": "Stream ID"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "stream_id",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "cspec"
-    },
-    {
-     "id": "name",
-     "metadata": {
-      "contents": {
-       "name": "Name"
-      },
-      "id": "name",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "TOF Y"
-    },
-    {
-     "id": "visible",
-     "metadata": {
-      "contents": {
-       "name": "Visible"
-      },
-      "id": "visible",
-      "type": "boolean"
-     },
-     "type": "boolean",
-     "value": true
-    },
-    {
-     "id": "preferred_scale",
-     "metadata": {
-      "contents": {
-       "name": "Plot scale for counts"
-      },
-      "id": "preferred_scale",
-      "items": [
-       {
-        "meaning": "Linear",
-        "val": 0
-       },
-       {
-        "meaning": "Logarithmic",
-        "val": 1
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 1
-    },
-    {
-     "id": "clear_periodically",
-     "metadata": {
-      "contents": {
-       "name": "Clear periodically"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "clear_periodically",
-      "type": "boolean"
-     },
-     "type": "boolean",
-     "value": true
-    },
-    {
-     "id": "clear_at",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Clear at real-time threshold",
-       "units": "ms"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "clear_at",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 1000.0
-    },
-    {
-     "id": "clear_using",
-     "metadata": {
-      "contents": {
-       "name": "Clear time reference"
-      },
-      "id": "clear_using",
-      "items": [
-       {
-        "meaning": "Producer wall clock (receipt of data)",
-        "val": 0
-       },
-       {
-        "meaning": "Consumer wall clock (time of binning)",
-        "val": 1
-       },
-       {
-        "meaning": "native_time provided by DAQ",
-        "val": 2
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 0
-    },
-    {
-     "id": "appearance",
-     "metadata": {
-      "contents": {
-       "name": "Plot appearance"
-      },
-      "flags": [
-       "gradient-name"
-      ],
-      "id": "appearance",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "Spectrum2"
-    },
-    {
-     "id": "time_resolution",
-     "metadata": {
-      "contents": {
-       "min": 1,
-       "name": "Time resolution",
-       "units": "units (see below)"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "time_resolution",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 1.0
-    },
-    {
-     "id": "time_units",
-     "metadata": {
-      "contents": {
-       "name": "Time units (domain)"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "time_units",
-      "items": [
-       {
-        "meaning": "ns",
-        "val": 0
-       },
-       {
-        "meaning": "μs",
-        "val": 3
-       },
-       {
-        "meaning": "ms",
-        "val": 6
-       },
-       {
-        "meaning": "s",
-        "val": 9
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 3
-    },
-    {
-     "id": "value_name",
-     "metadata": {
-      "contents": {
-       "description": "Name of event value to bin",
-       "name": "value_name"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "value_name",
+      "id": "x_name",
       "type": "text"
      },
      "type": "text",
      "value": "y"
     },
     {
-     "id": "downsample",
+     "id": "y_name",
      "metadata": {
       "contents": {
-       "max": 31,
-       "min": 0,
-       "name": "Downsample value by",
-       "units": "bits"
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
       },
       "flags": [
+       "event_value",
        "preset"
       ],
-      "id": "downsample",
-      "type": "integer"
-     },
-     "type": "integer",
-     "value": 0
-    }
-   ],
-   "id": "Attributes",
-   "metadata": {
-    "contents": {
-     "name": "Attributes"
-    },
-    "id": "Attributes",
-    "type": "stem"
-   },
-   "type": "stem"
-  },
-  "type": "Time of Flight 2D"
- },
- {
-  "attributes": {
-   "branches": [
-    {
-     "id": "stream_id",
-     "metadata": {
-      "contents": {
-       "name": "Stream ID"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "stream_id",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "cspec"
-    },
-    {
-     "id": "name",
-     "metadata": {
-      "contents": {
-       "name": "Name"
-      },
-      "id": "name",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "TOF Z"
-    },
-    {
-     "id": "visible",
-     "metadata": {
-      "contents": {
-       "name": "Visible"
-      },
-      "id": "visible",
-      "type": "boolean"
-     },
-     "type": "boolean",
-     "value": true
-    },
-    {
-     "id": "preferred_scale",
-     "metadata": {
-      "contents": {
-       "name": "Plot scale for counts"
-      },
-      "id": "preferred_scale",
-      "items": [
-       {
-        "meaning": "Linear",
-        "val": 0
-       },
-       {
-        "meaning": "Logarithmic",
-        "val": 1
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 1
-    },
-    {
-     "id": "clear_periodically",
-     "metadata": {
-      "contents": {
-       "name": "Clear periodically"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "clear_periodically",
-      "type": "boolean"
-     },
-     "type": "boolean",
-     "value": true
-    },
-    {
-     "id": "clear_at",
-     "metadata": {
-      "contents": {
-       "min": 0,
-       "name": "Clear at real-time threshold",
-       "units": "ms"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "clear_at",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 1000.0
-    },
-    {
-     "id": "clear_using",
-     "metadata": {
-      "contents": {
-       "name": "Clear time reference"
-      },
-      "id": "clear_using",
-      "items": [
-       {
-        "meaning": "Producer wall clock (receipt of data)",
-        "val": 0
-       },
-       {
-        "meaning": "Consumer wall clock (time of binning)",
-        "val": 1
-       },
-       {
-        "meaning": "native_time provided by DAQ",
-        "val": 2
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 0
-    },
-    {
-     "id": "appearance",
-     "metadata": {
-      "contents": {
-       "name": "Plot appearance"
-      },
-      "flags": [
-       "gradient-name"
-      ],
-      "id": "appearance",
-      "type": "text"
-     },
-     "type": "text",
-     "value": "Spectrum2"
-    },
-    {
-     "id": "time_resolution",
-     "metadata": {
-      "contents": {
-       "min": 1,
-       "name": "Time resolution",
-       "units": "units (see below)"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "time_resolution",
-      "type": "floating"
-     },
-     "type": "floating",
-     "value": 1.0
-    },
-    {
-     "id": "time_units",
-     "metadata": {
-      "contents": {
-       "name": "Time units (domain)"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "time_units",
-      "items": [
-       {
-        "meaning": "ns",
-        "val": 0
-       },
-       {
-        "meaning": "μs",
-        "val": 3
-       },
-       {
-        "meaning": "ms",
-        "val": 6
-       },
-       {
-        "meaning": "s",
-        "val": 9
-       }
-      ],
-      "type": "menu"
-     },
-     "type": "menu",
-     "value": 3
-    },
-    {
-     "id": "value_name",
-     "metadata": {
-      "contents": {
-       "description": "Name of event value to bin",
-       "name": "value_name"
-      },
-      "flags": [
-       "preset"
-      ],
-      "id": "value_name",
+      "id": "y_name",
       "type": "text"
      },
      "type": "text",
@@ -1876,7 +1497,7 @@
       "contents": {
        "max": 31,
        "min": 0,
-       "name": "Downsample value by",
+       "name": "Downsample x&y by",
        "units": "bits"
       },
       "flags": [
@@ -1887,6 +1508,116 @@
      },
      "type": "integer",
      "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 0
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 0
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
     }
    ],
    "id": "Attributes",
@@ -1899,6 +1630,1927 @@
    },
    "type": "stem"
   },
-  "type": "Time of Flight 2D"
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "cspec"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "yz1"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1000.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Spectrum2"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "z"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 1
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "cspec"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "yz2"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1000.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Spectrum2"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "z"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 2
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 2
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "cspec"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "yz3"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 1000.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "gradient-name"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "Spectrum2"
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "z"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample x&y by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "branches": [
+        {
+         "id": "enabled",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Enabled"
+          },
+          "id": "enabled",
+          "type": "boolean"
+         },
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "name",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "name": "Value ID"
+          },
+          "flags": [
+           "event_value"
+          ],
+          "id": "name",
+          "type": "text"
+         },
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "id": "min",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Minimum value"
+          },
+          "id": "min",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 3
+        },
+        {
+         "id": "max",
+         "indices": [
+          0
+         ],
+         "metadata": {
+          "contents": {
+           "max": 2147483647,
+           "min": 0,
+           "name": "Maximum value"
+          },
+          "id": "max",
+          "type": "integer"
+         },
+         "type": "integer",
+         "value": 3
+        }
+       ],
+       "id": "filter",
+       "indices": [
+        0
+       ],
+       "metadata": {
+        "contents": {
+         "name": "filter"
+        },
+        "id": "filter",
+        "type": "stem"
+       },
+       "type": "stem"
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 2D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_x"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "color"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "#8013c11f"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "event_trace",
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_y"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "color"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "#80c13313"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "event_trace",
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "adc_y"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_x"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "color"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "#800246c3"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "event_trace",
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_x"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "hists"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_y"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 1
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": true
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "appearance",
+     "metadata": {
+      "contents": {
+       "name": "Appearance"
+      },
+      "flags": [
+       "color"
+      ],
+      "id": "appearance",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "#80c38102"
+    },
+    {
+     "id": "value_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value to bin",
+       "name": "value_name"
+      },
+      "flags": [
+       "event_trace",
+       "preset"
+      ],
+      "id": "value_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "strips_y"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Prebinned 1D"
+ },
+ {
+  "attributes": {
+   "branches": [
+    {
+     "id": "stream_id",
+     "metadata": {
+      "contents": {
+       "name": "Stream ID"
+      },
+      "flags": [
+       "preset",
+       "stream"
+      ],
+      "id": "stream_id",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "cspec"
+    },
+    {
+     "id": "name",
+     "metadata": {
+      "contents": {
+       "name": "Name"
+      },
+      "id": "name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "xyz"
+    },
+    {
+     "id": "visible",
+     "metadata": {
+      "contents": {
+       "name": "Visible"
+      },
+      "id": "visible",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "preferred_scale",
+     "metadata": {
+      "contents": {
+       "name": "Plot scale for counts"
+      },
+      "id": "preferred_scale",
+      "items": [
+       {
+        "meaning": "Linear",
+        "val": 0
+       },
+       {
+        "meaning": "Logarithmic",
+        "val": 1
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "total_count",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Total count"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "total_count",
+      "type": "precise"
+     },
+     "type": "precise",
+     "value": 0.0
+    },
+    {
+     "id": "start_time",
+     "metadata": {
+      "contents": {
+       "name": "Start time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "start_time",
+      "type": "time"
+     },
+     "type": "time",
+     "value": "INVALID"
+    },
+    {
+     "id": "live_time",
+     "metadata": {
+      "contents": {
+       "name": "Live time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "live_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "real_time",
+     "metadata": {
+      "contents": {
+       "name": "Real time"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "real_time",
+      "type": "duration"
+     },
+     "type": "duration",
+     "value": "00:00:00"
+    },
+    {
+     "id": "instant_rate",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Instant count rate",
+       "units": "cps"
+      },
+      "flags": [
+       "readonly"
+      ],
+      "id": "instant_rate",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_periodically",
+     "metadata": {
+      "contents": {
+       "name": "Clear periodically"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_periodically",
+      "type": "boolean"
+     },
+     "type": "boolean",
+     "value": false
+    },
+    {
+     "id": "clear_at",
+     "metadata": {
+      "contents": {
+       "min": 0,
+       "name": "Clear at real-time threshold",
+       "units": "ms"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "clear_at",
+      "type": "floating"
+     },
+     "type": "floating",
+     "value": 0.0
+    },
+    {
+     "id": "clear_using",
+     "metadata": {
+      "contents": {
+       "name": "Clear time reference"
+      },
+      "id": "clear_using",
+      "items": [
+       {
+        "meaning": "Producer wall clock (receipt of data)",
+        "val": 0
+       },
+       {
+        "meaning": "Consumer wall clock (time of binning)",
+        "val": 1
+       },
+       {
+        "meaning": "native_time provided by DAQ",
+        "val": 2
+       }
+      ],
+      "type": "menu"
+     },
+     "type": "menu",
+     "value": 0
+    },
+    {
+     "id": "x_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for x coordinate",
+       "name": "x_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "x_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "y"
+    },
+    {
+     "id": "y_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for y coordinate",
+       "name": "y_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "y_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "x"
+    },
+    {
+     "id": "z_name",
+     "metadata": {
+      "contents": {
+       "description": "Name of event value for z coordinate",
+       "name": "z_name"
+      },
+      "flags": [
+       "event_value",
+       "preset"
+      ],
+      "id": "z_name",
+      "type": "text"
+     },
+     "type": "text",
+     "value": "z"
+    },
+    {
+     "id": "downsample",
+     "metadata": {
+      "contents": {
+       "max": 31,
+       "min": 0,
+       "name": "Downsample bins by",
+       "units": "bits"
+      },
+      "flags": [
+       "preset"
+      ],
+      "id": "downsample",
+      "type": "integer"
+     },
+     "type": "integer",
+     "value": 0
+    },
+    {
+     "branches": [
+      {
+       "id": "filter_count",
+       "metadata": {
+        "contents": {
+         "max": 16,
+         "min": 0,
+         "name": "Number of filters"
+        },
+        "id": "filter_count",
+        "type": "integer"
+       },
+       "type": "integer",
+       "value": 0
+      }
+     ],
+     "id": "filters",
+     "metadata": {
+      "contents": {
+       "name": "filters"
+      },
+      "id": "filters",
+      "type": "stem"
+     },
+     "type": "stem"
+    }
+   ],
+   "id": "Attributes",
+   "metadata": {
+    "contents": {
+     "name": "Attributes"
+    },
+    "id": "Attributes",
+    "type": "stem"
+   },
+   "type": "stem"
+  },
+  "type": "Histogram 3D"
  }
 ]

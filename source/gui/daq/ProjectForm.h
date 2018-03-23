@@ -55,6 +55,7 @@ class ProjectForm : public QWidget
 
     void projectSave();
     void projectSaveAs();
+    void projectSaveSplit();
     void projectOpen();
 
     void on_doubleSpinMinPause_editingFinished();

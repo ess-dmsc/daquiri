@@ -1,6 +1,14 @@
 #include "h5json.h"
 
-#ifdef DAQUIRI_USE_H5
+std::string vector_idx_minlen(size_t idx, size_t max)
+{
+  size_t minlen = std::to_string(max).size();
+
+  std::string name = std::to_string(idx);
+  if (name.size() < minlen)
+    name = std::string(minlen - name.size(), '0').append(name);
+  return name;
+}
 
 namespace hdf5 {
 
@@ -231,5 +239,3 @@ void dataset_from_json(const json &j,
 }
 
 }
-
-#endif

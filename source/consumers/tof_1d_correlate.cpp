@@ -44,9 +44,9 @@ TOF1DCorrelate::TOF1DCorrelate()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TOF1DCorrelate::_initialize()
+void TOF1DCorrelate::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   channel_num_ = metadata_.get_attribute("channel_num").get_number();
 
@@ -59,7 +59,6 @@ bool TOF1DCorrelate::_initialize()
   chopper_stream_id_ = metadata_.get_attribute("chopper_stream_id").get_text();
 
   this->_recalc_axes();
-  return true;
 }
 
 void TOF1DCorrelate::_init_from_file()
