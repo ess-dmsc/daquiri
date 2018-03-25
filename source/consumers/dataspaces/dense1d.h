@@ -20,10 +20,10 @@ class Dense1D : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
-#ifdef DAQUIRI_USE_H5
+    void save(std::ostream& os) override;
+
     void save(hdf5::node::Group&) const override;
     void load(hdf5::node::Group&) override;
-#endif
 
   protected:
     // data

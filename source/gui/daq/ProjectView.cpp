@@ -229,19 +229,15 @@ void ProjectView::enforce_all()
 
 void ProjectView::update_plots()
 {
-  this->setCursor(Qt::WaitCursor);
-  //  CustomTimer guiside(true);
-
-  CustomTimer t(true);
+//  CustomTimer t(true);
   for (auto &consumer_widget : consumers_)
     consumer_widget->update();
-//  DBG << "<ProjectView> plotting took " << t.s();
 
   for (auto &consumer_widget : consumers_)
     consumer_widget->refresh();
 
   selectorItemSelected(SelectorItem());
-  this->setCursor(Qt::ArrowCursor);
+//  DBG << "<ProjectView> plotting took " << t.s();
 }
 
 void ProjectView::on_pushFullInfo_clicked()
@@ -251,10 +247,10 @@ void ProjectView::on_pushFullInfo_clicked()
     return;
 
   ConsumerDialog* newSpecDia =
-      new ConsumerDialog(consumer->metadata(), std::vector<Detector>(),
+      new ConsumerDialog(consumer, std::vector<Detector>(),
                          detectors_, stream_manifest_, true, false, this);
 
-  DBG << "Consumer:\n" << consumer->debug() << "\n";
+  //DBG << "Consumer:\n" << consumer->debug() << "\n";
 
   if (newSpecDia->exec() == QDialog::Accepted)
   {

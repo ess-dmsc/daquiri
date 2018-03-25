@@ -97,7 +97,6 @@ void DenseMatrix2D::fill_list(EntryList& result,
   }
 }
 
-#ifdef DAQUIRI_USE_H5
 void DenseMatrix2D::save(hdf5::node::Group& g) const
 {
   using namespace hdf5;
@@ -178,7 +177,6 @@ void DenseMatrix2D::load(hdf5::node::Group& g)
   for (size_t i=0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
 }
-#endif
 
 std::string DenseMatrix2D::data_debug(__attribute__((unused)) const std::string &prepend) const
 {
@@ -190,7 +188,7 @@ std::string DenseMatrix2D::data_debug(__attribute__((unused)) const std::string 
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
   
-  ss << "Maximum=" << maximum
+  ss << prepend << "Maximum=" << maximum
      << " rows=" << spectrum_.rows()
      << " cols=" << spectrum_.cols()
      << "\n";
@@ -199,6 +197,7 @@ std::string DenseMatrix2D::data_debug(__attribute__((unused)) const std::string 
   
   for (uint16_t i = 0; i <= limits_[0]; i++)
   {
+    ss << prepend << "|";
     for (uint16_t j = 0; j <= limits_[1]; j++)
     {
 //      uint16_t v = 0;

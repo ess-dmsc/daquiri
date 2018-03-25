@@ -7,12 +7,12 @@
 
 #include <boost/timer/timer.hpp>
 
-inline static void wait_ms(int millisex)
+inline static void wait_ms(int64_t millisex)
 {
   std::this_thread::sleep_for(std::chrono::milliseconds(millisex));
 }
 
-inline static void wait_us(int microsex)
+inline static void wait_us(int64_t microsex)
 {
   std::this_thread::sleep_for(std::chrono::microseconds(microsex));
 }

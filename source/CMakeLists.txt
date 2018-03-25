@@ -13,12 +13,8 @@ include(${EXTRA_MODULES_DIR}/InstallConfig.cmake)
 include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
-find_package(h5cpp)
-find_package(Threads)
-
-if (h5cpp_FOUND)
-  add_definitions(-DDAQUIRI_USE_H5=1)
-endif()
+find_package(h5cpp 0.0.5 REQUIRED)
+find_package(Threads REQUIRED)
 
 add_subdirectory(core)
 add_subdirectory(consumers)
@@ -32,7 +28,4 @@ if (DAQuiri_gui)
   add_subdirectory(gui)
 endif ()
 
-#option(test "Build all tests." ON)
-#if (test)
-  add_subdirectory(tests)
-#endif ()
+add_subdirectory(tests)

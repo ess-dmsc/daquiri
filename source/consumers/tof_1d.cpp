@@ -34,9 +34,9 @@ TOF1D::TOF1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TOF1D::_initialize()
+void TOF1D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
@@ -45,7 +45,6 @@ bool TOF1D::_initialize()
   time_resolution_ /= units_multiplier_;
 
   this->_recalc_axes();
-  return true;
 }
 
 void TOF1D::_init_from_file()

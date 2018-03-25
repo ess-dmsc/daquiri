@@ -18,6 +18,7 @@ void Dense1D::reserve(const Coords& limits)
 void Dense1D::clear()
 {
   total_count_ = 0;
+  maxchan_ = 0;
   spectrum_.clear();
 }
 
@@ -84,7 +85,6 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   return result;
 }
 
-#ifdef DAQUIRI_USE_H5
 void Dense1D::save(hdf5::node::Group& g) const
 {
   hdf5::error::Singleton::instance().auto_print(false);
@@ -125,7 +125,6 @@ void Dense1D::load(hdf5::node::Group& g)
       maxchan_ = i;
   }
 }
-#endif
 
 std::string Dense1D::data_debug(const std::string &prepend) const
 {
@@ -150,6 +149,18 @@ std::string Dense1D::data_debug(const std::string &prepend) const
   }
 
   return ss.str();
+}
+
+void Dense1D::save(std::ostream& os)
+{
+  if (!spectrum_.size())
+    return;
+
+  for (uint32_t i = 0; i <= maxchan_; i++)
+  {
+    double val = static_cast<double>(spectrum_[i]);
+    os << val << ", ";
+  }
 }
 
 }

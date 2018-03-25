@@ -13,7 +13,7 @@
   {
    "id": "MaxPackets",
    "type": "integer",
-   "value": 1
+   "value": 3
   },
   {
    "branches": [
@@ -40,7 +40,7 @@
     {
      "id": "ESSStream/KafkaMaxBacklog",
      "type": "integer",
-     "value": 1
+     "value": 3
     },
     {
      "id": "ESSStream/Parser",
@@ -57,7 +57,7 @@
       {
        "id": "ev42_events/extent_x",
        "type": "integer",
-       "value": 16
+       "value": 4
       },
       {
        "id": "ev42_events/extent_y",
@@ -67,7 +67,7 @@
       {
        "id": "ev42_events/extent_z",
        "type": "integer",
-       "value": 8
+       "value": 20
       },
       {
        "id": "ev42_events/panels",
@@ -87,12 +87,27 @@
       {
        "id": "ev42_events/SpoofClock",
        "type": "menu",
-       "value": 1
+       "value": 2
       },
       {
        "id": "ev42_events/Heartbeat",
        "type": "boolean",
        "value": true
+      },
+      {
+       "id": "ev42_events/FilterSourceName",
+       "type": "boolean",
+       "value": false
+      },
+      {
+       "id": "ev42_events/SourceName",
+       "type": "text",
+       "value": ""
+      },
+      {
+       "id": "ev42_events/MessageOrdering",
+       "type": "menu",
+       "value": 0
       }
      ],
      "id": "ev42_events",
@@ -101,6 +116,79 @@
    ],
    "id": "ESSStream",
    "reference": "cspec",
+   "type": "stem"
+  },
+  {
+   "branches": [
+    {
+     "id": "ESSStream/KafkaBroker",
+     "type": "text",
+     "value": "localhost:9092"
+    },
+    {
+     "id": "ESSStream/KafkaTopic",
+     "type": "text",
+     "value": "C-SPEC_monitor"
+    },
+    {
+     "id": "ESSStream/KafkaTimeout",
+     "type": "integer",
+     "value": 1000
+    },
+    {
+     "id": "ESSStream/KafkaDecomission",
+     "type": "integer",
+     "value": 2000
+    },
+    {
+     "id": "ESSStream/KafkaMaxBacklog",
+     "type": "integer",
+     "value": 1
+    },
+    {
+     "id": "ESSStream/Parser",
+     "type": "menu",
+     "value": 2
+    },
+    {
+     "branches": [
+      {
+       "id": "mo01_nmx/HistsStream",
+       "type": "text",
+       "value": "hists"
+      },
+      {
+       "id": "mo01_nmx/XStream",
+       "type": "text",
+       "value": ""
+      },
+      {
+       "id": "mo01_nmx/YStream",
+       "type": "text",
+       "value": ""
+      },
+      {
+       "id": "mo01_nmx/HitsStream",
+       "type": "text",
+       "value": "hits"
+      },
+      {
+       "id": "mo01_nmx/TimebaseMult",
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "id": "mo01_nmx/TimebaseDiv",
+       "type": "integer",
+       "value": 1
+      }
+     ],
+     "id": "mo01_nmx",
+     "type": "stem"
+    }
+   ],
+   "id": "ESSStream",
+   "reference": "monitor",
    "type": "stem"
   }
  ],

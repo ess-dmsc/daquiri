@@ -2,9 +2,7 @@
 #include "consumer_factory.h"
 #include "custom_logger.h"
 
-#ifdef DAQUIRI_USE_H5
 #include "h5json.h"
-#endif
 
 #include "print_exception.h"
 
@@ -263,21 +261,13 @@ void Project::save()
 
 void Project::save_as(std::string file_name)
 {
-  write_h5(file_name);
-}
+  try
+  {
+    auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
+    auto f = file.root();
+    auto group = hdf5::require_group(f, "project");
 
-void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
-{
-#ifdef DAQUIRI_USE_H5
-  if (hdf5::file::is_hdf5_file(file_name))
-    read_h5(file_name, with_sinks, with_full_sinks);
-#endif
-}
-
-#ifdef DAQUIRI_USE_H5
-void Project::to_h5(hdf5::node::Group &group) const
-{
-  group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
+    group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
 
 //  if (!spills_.empty()) {
 //    auto sg = hdf5::require_group(group, "spills");
@@ -295,34 +285,52 @@ void Project::to_h5(hdf5::node::Group &group) const
 //    }
 //  }
 
-  if (!sinks_.empty()) {
-    auto sg = group.create_group("sinks");
+    if (!sinks_.empty()) {
+      auto sg = hdf5::require_group(group, "sinks");
 
-    int i = 0;
-    size_t len = std::to_string(sinks_.size() - 1).size();
-    for (auto &q : sinks_) {
-      std::string name = std::to_string(i++);
-      if (name.size() < len)
-        name = std::string(len - name.size(), '0').append(name);
+      int i = 0;
+      for (auto &q : sinks_) {
 
-      auto ssg = sg.create_group(name);
+        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size() - 1));
 
-      ssg.attributes.create<int64_t>("index").write(q.first);
+        ssg.attributes.create<int64_t>("index").write(q.first);
 
-//      if (q.second->dimensions() == 1)
-//        q.second->save(ssg);
+        if (q.second->dimensions() == 1)
+          q.second->save(ssg);
+      }
     }
-  }
 
-  changed_ = false;
-  ready_ = true;
-  newdata_ = true;
+    changed_ = false;
+    ready_ = true;
+    newdata_ = true;
+
+    for (auto &q : sinks_)
+      q.second->reset_changed();
+
+    unique_lock lock(mutex_);
+    identity_ = file_name;
+    cond_.notify_all();
+
+  }
+  catch (std::exception& e) {
+    ERR << "<Project> Failed to write '"
+        << file_name << "'\n"
+        << hdf5::error::print_nested(e);
+  }
 }
 
-void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_sinks)
+void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 {
-  UNIQUE_LOCK_EVENTUALLY
-  clear_helper();
+  if (!hdf5::file::is_hdf5_file(file_name))
+    return;
+  try
+  {
+    auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
+    auto f = file.root();
+    auto group = hdf5::require_group(f, "project");
+
+    UNIQUE_LOCK_EVENTUALLY
+    clear_helper();
 
 //  if (hdf5::has_group(group, "spills"))
 //  {
@@ -340,74 +348,35 @@ void Project::from_h5(hdf5::node::Group &group, bool with_sinks, bool with_full_
 //    }
 //  }
 
-  if (!with_sinks)
-    return;
+    if (!with_sinks)
+      return;
 
-  if (hdf5::has_group(group, "sinks"))
-    for (auto n : hdf5::node::Group(group["sinks"]).nodes)
-    {
-      if (n.type() != hdf5::node::Type::GROUP)
-        continue;
-      auto sg = hdf5::node::Group(n);
+    if (hdf5::has_group(group, "sinks"))
+      for (auto n : hdf5::node::Group(group["sinks"]).nodes)
+      {
+        if (n.type() != hdf5::node::Type::GROUP)
+          continue;
+        auto sg = hdf5::node::Group(n);
 
-      if (sg.attributes.exists("index"))
-        sg.attributes["index"].read(current_index_);
-      else {
-        WARN << "<Project> Consumer has no index";
-        continue;
+        if (sg.attributes.exists("index"))
+          sg.attributes["index"].read(current_index_);
+        else {
+          WARN << "<Project> Consumer has no index";
+          continue;
+        }
+
+        ConsumerPtr sink = ConsumerFactory::singleton().create_from_h5(sg, with_full_sinks);
+        if (!sink)
+          WARN << "<Project> Could not parse sink";
+        else
+          sinks_[current_index_] = sink;
       }
 
-      ConsumerPtr sink = ConsumerFactory::singleton().create_from_h5(sg, with_full_sinks);
-      if (!sink)
-        WARN << "<Project> Could not parse sink";
-      else
-        sinks_[current_index_] = sink;
-    }
+    current_index_++;
 
-  current_index_++;
-
-  changed_ = false;
-  ready_ = true;
-  newdata_ = true;
-}
-#endif
-
-void Project::write_h5(std::string file_name)
-{
-#ifdef DAQUIRI_USE_H5
-  try
-  {
-    auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
-    auto f = file.root();
-    auto group = f.create_group("project");
-    to_h5(group);
-
-    for (auto &q : sinks_)
-      q.second->reset_changed();
-
-    unique_lock lock(mutex_);
-    identity_ = file_name;
-    cond_.notify_all();
-  }
-  catch (std::exception& e) {
-    ERR << "<Project> Failed to write '"
-        << file_name << "'\n"
-        << hdf5::error::print_nested(e);
-  }
-#endif
-}
-
-void Project::read_h5(std::string file_name,
-                      bool with_sinks,
-                      bool with_full_sinks)
-{
-#ifdef DAQUIRI_USE_H5
-  try
-  {
-    auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
-    auto f = file.root();
-    auto group = hdf5::require_group(f, "project");
-    from_h5(group, with_sinks, with_full_sinks);
+    changed_ = false;
+    ready_ = true;
+    newdata_ = true;
 
     unique_lock lock(mutex_);
     identity_ = file_name;
@@ -419,7 +388,45 @@ void Project::read_h5(std::string file_name,
         << hdf5::error::print_nested(e);
     ERR << "<Project> Failed to read h5 " << file_name;
   }
-#endif
+}
+
+void Project::save_split(std::string file_name)
+{
+  json proj_json;
+  proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
+
+  for (auto &s :spills_)
+    proj_json["spills"].push_back(json(s));
+
+  for (auto &q : sinks_)
+  {
+    std::ofstream ofs(file_name + "_" + vector_idx_minlen(q.first, sinks_.rbegin()->first) + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    q.second->data()->save(ofs);
+    ofs.close();
+
+    auto jmeta = json(q.second->metadata());
+    jmeta["consumer_index"] = q.first;
+    proj_json["consumers"].push_back(jmeta);
+  }
+
+  std::ofstream jfs(file_name + "_metadata.json", std::ofstream::out | std::ofstream::trunc);
+  jfs << proj_json.dump(2);
+  jfs.close();
+}
+
+std::ostream &operator<<(std::ostream &stream, const Project &project)
+{
+  stream << "Project \"" << project.identity_ << "\"\n";
+  stream << "        " << (project.changed_ ? "CHANGED" : "NOT-CHANGED");
+  stream << " " << (project.ready_ ? "READY" : " NOT-READY");
+  stream << " " << (project.newdata_ ? "NEWDATA" : " NOT-NEWDATA") << "\n";
+  stream << "        " << "next index = " << project.current_index_ << "\n";
+  for (const auto& s : project.spills_)
+    stream << s.to_string() << "\n";
+  for (const auto& s : project.sinks_)
+    stream << "Consumer[" << s.first << "] "<< s.second->debug("", false) << "\n";
+  return stream;
 }
 
 }

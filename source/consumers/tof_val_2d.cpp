@@ -44,12 +44,14 @@ TOFVal2D::TOFVal2D()
   ds.set_val("max", 31);
   base_options.branches.add(ds);
 
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
-bool TOFVal2D::_initialize()
+void TOFVal2D::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
   downsample_ = metadata_.get_attribute("value_downsample").get_number();
@@ -60,8 +62,10 @@ bool TOFVal2D::_initialize()
 
   time_resolution_ /= units_multiplier_;
 
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
+
   this->_recalc_axes();
-  return true;
 }
 
 void TOFVal2D::_init_from_file()
@@ -118,14 +122,17 @@ void TOFVal2D::_push_stats_pre(const Spill& spill)
     value_idx_ = spill.event_model.name_to_val.at(val_name_);
     pulse_time_ = timebase_.to_nanosec(
           spill.state.find(Setting("pulse_time")).get_number());
-
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
-void TOFVal2D::_push_event(const Event& e)
+void TOFVal2D::_push_event(const Event& event)
 {
-  double nsecs = timebase_.to_nanosec(e.timestamp()) - pulse_time_;
+  if (!filters_.accept(event))
+    return;
+
+  double nsecs = timebase_.to_nanosec(event.timestamp()) - pulse_time_;
 
   if (nsecs < 0)
     return;
@@ -133,9 +140,9 @@ void TOFVal2D::_push_event(const Event& e)
   coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
   if (downsample_)
-    coords_[1] = (e.value(value_idx_) >> downsample_);
+    coords_[1] = (event.value(value_idx_) >> downsample_);
   else
-    coords_[1] = e.value(value_idx_);
+    coords_[1] = event.value(value_idx_);
 
   if (coords_[0] >= domain_.size())
   {

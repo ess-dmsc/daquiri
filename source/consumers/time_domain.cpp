@@ -16,6 +16,13 @@ TimeDomain::TimeDomain()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
+  SettingMeta win("window", SettingType::floating, "Window size");
+  win.set_flag("preset");
+  win.set_val("min", 1);
+  win.set_val("units", "units (see below)");
+  win.set_val("description", "Infinite if =0");
+  base_options.branches.add(win);
+
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
@@ -30,13 +37,17 @@ TimeDomain::TimeDomain()
   units.set_enum(9, "s");
   base_options.branches.add(units);
 
+  SettingMeta trim("trim", SettingType::boolean, "Trim last bin");
+  base_options.branches.add(trim);
+
+  base_options.branches.add(filters_.settings());
+
   metadata_.overwrite_all_attributes(base_options);
-  //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
 }
 
-bool TimeDomain::_initialize()
+void TimeDomain::_apply_attributes()
 {
-  Spectrum::_initialize();
+  Spectrum::_apply_attributes();
 
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
@@ -44,19 +55,11 @@ bool TimeDomain::_initialize()
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
 
-  int adds = 1; //0;
-  //  std::vector<bool> gts = add_channels_.gates();
-  //  for (size_t i=0; i < gts.size(); ++i)
-  //    if (gts[i])
-  //      adds++;
+  window_ = metadata_.get_attribute("window").get_number() * units_multiplier_;
+  trim_ = metadata_.get_attribute("trim").get_bool();
 
-  if (adds != 1)
-  {
-    WARN << "<TimeDomain> Cannot initialize. Add pattern must have 1 selected channel.";
-    return false;
-  }
-
-  return true;
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 }
 
 void TimeDomain::_init_from_file()
@@ -89,8 +92,26 @@ void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
 
 void TimeDomain::_recalc_axes()
 {
+  std::vector<double> domain(domain_.begin(), domain_.end());
+  for (auto& d : domain)
+    d /= units_multiplier_;
+
+  size_t max = range_.size();
+  if (trim_ && (max > 1))
+  {
+    max--;
+    domain.resize(max);
+  }
+
+  data_->clear();
   CalibID id("time", "", units_name_);
-  data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
+  data_->set_axis(0, DataAxis(Calibration(id, id), domain));
+  for (size_t i = 0; i < max; ++i)
+  {
+    entry_.first[0] = i;
+    entry_.second = range_[i];
+    data_->add(entry_);
+  }
 }
 
 bool TimeDomain::_accept_spill(const Spill& spill)
@@ -108,26 +129,47 @@ void TimeDomain::_push_stats_pre(const Spill& spill)
   if (this->_accept_spill(spill))
   {
     timebase_ = spill.event_model.timebase;
+    filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
 void TimeDomain::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   double nsecs = timebase_.to_nanosec(event.timestamp());
 
-  coords_[0] = static_cast<size_t>(std::round(nsecs * time_resolution_));
+  if (nsecs < earliest_)
+    return;
 
-  if (coords_[0] >= domain_.size())
+  if (window_ > 0.0)
   {
-    size_t oldbound = domain_.size();
-    domain_.resize(coords_[0]+1);
+    while (domain_.size() && (domain_[0] < (nsecs - window_)))
+    {
+      total_count_ -= range_[0];
+      domain_.erase(domain_.begin());
+      range_.erase(range_.begin());
+    }
 
-    for (size_t i=oldbound; i <= coords_[0]; ++i)
-      domain_[i] = i / time_resolution_ / units_multiplier_;
+    if (domain_.size())
+      earliest_ = domain_[0];
   }
 
-  data_->add_one(coords_);
+  size_t bin = static_cast<size_t>(std::round((nsecs - earliest_) * time_resolution_));
+
+  if (bin >= domain_.size())
+  {
+    size_t oldbound = domain_.size();
+    domain_.resize(bin + 1);
+    range_.resize(bin + 1, 0.0);
+
+    for (size_t i = oldbound; i <= bin; ++i)
+      domain_[i] = i / time_resolution_ + earliest_;
+  }
+
+  range_[bin]++;
   total_count_++;
   recent_count_++;
 }
