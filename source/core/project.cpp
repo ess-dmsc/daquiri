@@ -285,18 +285,16 @@ void Project::save_as(std::string file_name)
 //    }
 //  }
 
-    if (!sinks_.empty()) {
-      auto sg = hdf5::require_group(group, "sinks");
+    if (!sinks_.empty())
+    {
+      auto sg = hdf5::require_group(group, "consumers");
 
       int i = 0;
-      for (auto &q : sinks_) {
-
+      for (auto &q : sinks_)
+      {
         auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size() - 1));
-
         ssg.attributes.create<int64_t>("index").write(q.first);
-
-        if (q.second->dimensions() == 1)
-          q.second->save(ssg);
+        q.second->save(ssg);
       }
     }
 

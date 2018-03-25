@@ -107,26 +107,12 @@ void SparseMap3D::fill_list(EntryList& result,
 
 void SparseMap3D::save(hdf5::node::Group& g) const
 {
-  auto dgroup = hdf5::require_group(g, "data");
-
-  hdf5::property::LinkCreationList lcpl;
-  hdf5::property::DatasetCreationList dcpl;
-  dcpl.layout(hdf5::property::DatasetLayout::CHUNKED);
-
-  hdf5::dataspace::Simple i_space({spectrum_.size(),3});
-  dcpl.chunk({128,3});
-  auto didx = dgroup.create_dataset("indices", hdf5::datatype::create<uint16_t>(), i_space, lcpl, dcpl);
-
-  hdf5::dataspace::Simple c_space({spectrum_.size()});
-  dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", hdf5::datatype::create<double>(), c_space, lcpl, dcpl);
-
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
   std::vector<uint16_t> dz(spectrum_.size());
   std::vector<double> dc(spectrum_.size());
   size_t i = 0;
-  
+
   for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
   {
     dx[i] = std::get<0>(it->first);
@@ -136,8 +122,22 @@ void SparseMap3D::save(hdf5::node::Group& g) const
     i++;
   }
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({spectrum_.size(), 1});
+  using namespace hdf5;
+  auto dgroup = require_group(g, "data");
+
+  property::LinkCreationList lcpl;
+  property::DatasetCreationList dcpl;
+  dcpl.layout(property::DatasetLayout::CHUNKED);
+
+  dataspace::Simple i_space({spectrum_.size(),3});
+  dcpl.chunk({128,3});
+  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+
+  dataspace::Simple c_space({spectrum_.size()});
+  dcpl.chunk({128});
+  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+
+  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(spectrum_.size()), 1});
 
   slab.offset({0,0});
   didx.write(dx, slab);

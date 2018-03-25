@@ -104,8 +104,6 @@ void SparseMatrix2D::fill_list(EntryList& result,
 
 void SparseMatrix2D::save(hdf5::node::Group& g) const
 {
-  hdf5::error::Singleton::instance().auto_print(false);
-
   std::vector<uint16_t> dx;
   std::vector<uint16_t> dy;
   std::vector<double> dc;
@@ -118,8 +116,6 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
       dc.push_back(static_cast<double>(it.value()));
     }
   }
-
-  DBG << "DC size = " << dc.size();
 
   using namespace hdf5;
   auto dgroup = g.create_group("data");
@@ -134,19 +130,17 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
 
   auto c_space = dataspace::Simple({dc.size()});
   dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space);//, lcpl, dcpl);
+  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
+  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
 
-  dataspace::Hyperslab slab(2);
-  slab.block({static_cast<size_t>(dc.size()), 1});
+  slab.offset({0,0});
+  didx.write(dx, slab);
 
-//  slab.offset({0,0});
-//  didx.write(dx, slab);
-//
-//  slab.offset({0,1});
-//  didx.write(dy, slab);
+  slab.offset({0,1});
+  didx.write(dy, slab);
 
-//  dcts.write(dc);
+  dcts.write(dc);
 }
 
 void SparseMatrix2D::load(hdf5::node::Group& g)

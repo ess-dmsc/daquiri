@@ -87,8 +87,6 @@ EntryList Dense1D::range(std::vector<Pair> list) const
 
 void Dense1D::save(hdf5::node::Group& g) const
 {
-  hdf5::error::Singleton::instance().auto_print(false);
-
   std::vector<double> d(maxchan_);
   for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<double>(spectrum_[i]);
