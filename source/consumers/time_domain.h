@@ -5,37 +5,39 @@
 
 class TimeDomain : public Spectrum
 {
-public:
-  TimeDomain();
-  TimeDomain* clone() const override
-  { return new TimeDomain(*this); }
-  
-protected:
-  std::string my_type() const override {return "Time-Activity 1D";}
+  public:
+    TimeDomain();
+    TimeDomain *clone() const override { return new TimeDomain(*this); }
 
-  void _apply_attributes() override;
-  void _init_from_file() override;
-  void _set_detectors(const std::vector<Detector>& dets) override;
-  void _recalc_axes() override;
+  protected:
+    std::string my_type() const override { return "Time-Activity 1D"; }
 
-  //event processing
-  void _push_event(const Event& event) override;
-  void _push_stats_pre(const Spill& spill) override;
+    void _apply_attributes() override;
+    void _init_from_file() override;
+    void _set_detectors(const std::vector<Detector> &dets) override;
+    void _recalc_axes() override;
 
-  bool _accept_spill(const Spill& spill) override;
-  bool _accept_events(const Spill& spill) override;
+    //event processing
+    void _push_event(const Event &event) override;
+    void _push_stats_pre(const Spill &spill) override;
 
-  //cached parameters
-  double time_resolution_ {1};
-  std::string units_name_;
-  double units_multiplier_{1};
-  FilterBlock filters_;
+    bool _accept_spill(const Spill &spill) override;
+    bool _accept_events(const Spill &spill) override;
 
-  std::vector<double> domain_;
+    //cached parameters
+    double time_resolution_{1};
+    std::string units_name_;
+    double units_multiplier_{1};
+    FilterBlock filters_;
+    bool trim_{false};
 
-  //from status manifest
-  TimeBase timebase_;
+    std::vector<double> domain_;
+    std::vector<double> range_;
 
-  //reserve memory
-  Coords coords_ {0};
+    //from status manifest
+    TimeBase timebase_;
+
+    //reserve memory
+//    Coords coords_{0};
+    Entry entry_{{0}, 0};
 };
