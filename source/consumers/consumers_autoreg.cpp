@@ -5,8 +5,9 @@
 #include "prebinned_1d.h"
 #include "tof_1d.h"
 #include "tof_1d_correlate.h"
-#include "tof_val_2d.h"
 #include "time_domain.h"
+
+#include "tof_val_2d.h"
 #include "histogram_2d.h"
 #include "image_2d.h"
 #include "spectrum_time.h"
