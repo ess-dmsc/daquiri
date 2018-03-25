@@ -3,15 +3,15 @@
 #include "spectrum.h"
 #include "value_filter.h"
 
-class TimeDomain : public Spectrum
+class MovingWindow : public Spectrum
 {
 public:
-  TimeDomain();
-  TimeDomain* clone() const override
-  { return new TimeDomain(*this); }
+  MovingWindow();
+  MovingWindow* clone() const override
+  { return new MovingWindow(*this); }
   
 protected:
-  std::string my_type() const override {return "Time-Activity 1D";}
+  std::string my_type() const override {return "Moving Window 1D";}
 
   void _apply_attributes() override;
   void _init_from_file() override;
@@ -31,11 +31,16 @@ protected:
   double units_multiplier_{1};
   FilterBlock filters_;
 
+  double window_{1.0};
+
+  double earliest_{0.0};
   std::vector<double> domain_;
+  std::vector<double> range_;
 
   //from status manifest
   TimeBase timebase_;
 
   //reserve memory
-  Coords coords_ {0};
+//  Coords coords_ {0};
+  Entry entry_ {{0}, 0};
 };
