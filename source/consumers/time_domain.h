@@ -29,8 +29,10 @@ class TimeDomain : public Spectrum
     std::string units_name_;
     double units_multiplier_{1};
     FilterBlock filters_;
-    bool trim_{false};
+    double window_{0.0};
+    bool trim_{true};
 
+    double earliest_{0.0};
     std::vector<double> domain_;
     std::vector<double> range_;
 
@@ -38,6 +40,5 @@ class TimeDomain : public Spectrum
     TimeBase timebase_;
 
     //reserve memory
-//    Coords coords_{0};
     Entry entry_{{0}, 0};
 };

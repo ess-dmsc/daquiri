@@ -16,6 +16,13 @@ TimeDomain::TimeDomain()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
+  SettingMeta win("window", SettingType::floating, "Window size");
+  win.set_flag("preset");
+  win.set_val("min", 1);
+  win.set_val("units", "units (see below)");
+  win.set_val("description", "Infinite if =0");
+  base_options.branches.add(win);
+
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
@@ -36,7 +43,6 @@ TimeDomain::TimeDomain()
   base_options.branches.add(filters_.settings());
 
   metadata_.overwrite_all_attributes(base_options);
-  //  DBG << "<TimeDomain:" << metadata_.get_attribute("name").value_text << ">  made with dims=" << metadata_.dimensions();
 }
 
 void TimeDomain::_apply_attributes()
@@ -49,6 +55,7 @@ void TimeDomain::_apply_attributes()
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
 
+  window_ = metadata_.get_attribute("window").get_number() * units_multiplier_;
   trim_ = metadata_.get_attribute("trim").get_bool();
 
   filters_.settings(metadata_.get_attribute("filters"));
@@ -85,12 +92,9 @@ void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
 
 void TimeDomain::_recalc_axes()
 {
-//  CalibID id("time", "", units_name_);
-//  data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
-
   std::vector<double> domain(domain_.begin(), domain_.end());
-//  for (auto& d : domain)
-//    d /= units_multiplier_;
+  for (auto& d : domain)
+    d /= units_multiplier_;
 
   size_t max = range_.size();
   if (trim_ && (max > 1))
@@ -137,7 +141,23 @@ void TimeDomain::_push_event(const Event& event)
 
   double nsecs = timebase_.to_nanosec(event.timestamp());
 
-  size_t bin = static_cast<size_t>(std::round(nsecs * time_resolution_));
+  if (nsecs < earliest_)
+    return;
+
+  if (window_ > 0.0)
+  {
+    while (domain_.size() && (domain_[0] < (nsecs - window_)))
+    {
+      total_count_ -= range_[0];
+      domain_.erase(domain_.begin());
+      range_.erase(range_.begin());
+    }
+
+    if (domain_.size())
+      earliest_ = domain_[0];
+  }
+
+  size_t bin = static_cast<size_t>(std::round((nsecs - earliest_) * time_resolution_));
 
   if (bin >= domain_.size())
   {
@@ -146,7 +166,7 @@ void TimeDomain::_push_event(const Event& event)
     range_.resize(bin + 1, 0.0);
 
     for (size_t i = oldbound; i <= bin; ++i)
-      domain_[i] = i / time_resolution_ / units_multiplier_;
+      domain_[i] = i / time_resolution_ + earliest_;
   }
 
   range_[bin]++;

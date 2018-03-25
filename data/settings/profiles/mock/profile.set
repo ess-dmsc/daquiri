@@ -25,7 +25,7 @@
     {
      "id": "MockProducer/SpillInterval",
      "type": "floating",
-     "value": 0.01
+     "value": 0.1
     },
     {
      "id": "MockProducer/Resolution",
@@ -60,7 +60,7 @@
     {
      "id": "MockProducer/SpillLambda",
      "type": "floating",
-     "value": 0.1
+     "value": 0.0
     },
     {
      "id": "MockProducer/ValueCount",
