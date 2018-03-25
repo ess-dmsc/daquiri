@@ -3,8 +3,7 @@
 
 #include "custom_logger.h"
 
-
-void ValueDefinition::define(EventModel& def)
+void ValueDefinition::define(EventModel &def)
 {
   dist = std::normal_distribution<double>(center * max, spread);
   def.add_value(name, max);
@@ -13,11 +12,11 @@ void ValueDefinition::define(EventModel& def)
     def.add_trace(name, {trace_size});
 
   DBG << "Adding " << name
-         << " at center=" << center
-            << " spread=" << spread;
+      << " at center=" << center
+      << " spread=" << spread;
 }
 
-void ValueDefinition::generate(size_t index, Event& event, std::default_random_engine& gen)
+void ValueDefinition::generate(size_t index, Event &event, std::default_random_engine &gen)
 {
   auto val = generate(gen);
   event.set_value(index, val);
@@ -25,20 +24,20 @@ void ValueDefinition::generate(size_t index, Event& event, std::default_random_e
     make_trace(index, event, val);
 }
 
-uint32_t ValueDefinition::generate(std::default_random_engine& gen)
+uint32_t ValueDefinition::generate(std::default_random_engine &gen)
 {
   return std::round(std::max(std::min(dist(gen), double(max)), 0.0));
 }
 
-void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
+void ValueDefinition::make_trace(size_t index, Event &e, uint32_t val)
 {
-  auto& trc = e.trace(index);
+  auto &trc = e.trace(index);
 
   size_t onset = double(trc.size()) * trace_onset;
   size_t peak = double(trc.size()) * (trace_onset + trace_risetime);
 
   //rise
-  double slope_up = double(val) / double(peak-onset);
+  double slope_up = double(val) / double(peak - onset);
   for (size_t i = onset; i < peak; ++i)
     trc[i] = (i - onset) * slope_up;
 
@@ -48,17 +47,15 @@ void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
     trc[i] = val - (i - peak) * slope_down;
 
   // add baseline & noise
-  for (size_t i=0; i < trc.size(); ++i)
+  for (size_t i = 0; i < trc.size(); ++i)
     trc[i] += trace_baseline
-        + trace_baseline ? ((rand() % trace_baseline) / 5
-                             - trace_baseline/10) : 0;
+                  + trace_baseline ? ((rand() % trace_baseline) / 5
+        - trace_baseline / 10) : 0;
 }
-
-
 
 MockProducer::MockProducer()
 {
-  std::string mp {"MockProducer/"};
+  std::string mp{"MockProducer/"};
 
   SettingMeta streamid(mp + "StreamID", SettingType::text, "DAQuiri stream ID");
   streamid.set_flag("preset");
@@ -117,7 +114,6 @@ MockProducer::MockProducer()
   vc.set_val("max", 16);
   add_definition(vc);
 
-
   SettingMeta valname(mp + "Value/Name", SettingType::text, "Value name");
   valname.set_flag("preset");
   add_definition(valname);
@@ -140,8 +136,6 @@ MockProducer::MockProducer()
   val.set_enum(1, mp + "Value/PeakCenter");
   val.set_enum(2, mp + "Value/PeakSpread");
   add_definition(val);
-
-
 
   SettingMeta root("MockProducer", SettingType::stem);
   root.set_flag("producer");
@@ -209,7 +203,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
   set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
   set.set(Setting::integer("MockProducer/Resolution", bits_));
   set.set(Setting::floating("MockProducer/CountRate", count_rate_));
-  set.set(Setting::floating("MockProducer/DeadTime", dead_*100.0));
+  set.set(Setting::floating("MockProducer/DeadTime", dead_ * 100.0));
   set.set(Setting::integer("MockProducer/TimebaseMult", event_definition_.timebase.multiplier()));
   set.set(Setting::integer("MockProducer/TimebaseDiv", event_definition_.timebase.divider()));
   set.set(Setting::floating("MockProducer/Lambda", lambda_));
@@ -219,20 +213,19 @@ void MockProducer::read_settings_bulk(Setting &set) const
   while (set.branches.has_a(Setting({"MockProducer/Value", SettingType::stem})))
     set.branches.remove_a(Setting({"MockProducer/Value", SettingType::stem}));
 
-  for (int i=0; i < int(val_defs_.size()); ++i)
+  for (int i = 0; i < int(val_defs_.size()); ++i)
   {
     Setting v = get_rich_setting("MockProducer/Value");
     v.set_indices({i});
     v.branches = get_rich_setting("MockProducer/Value").branches;
     v.set(Setting::text("MockProducer/Value/Name", val_defs_[i].name));
-    v.set(Setting::floating("MockProducer/Value/PeakCenter", val_defs_[i].center*100));
+    v.set(Setting::floating("MockProducer/Value/PeakCenter", val_defs_[i].center * 100));
     v.set(Setting::floating("MockProducer/Value/PeakSpread", val_defs_[i].spread));
-    for (auto& vv : v.branches)
+    for (auto &vv : v.branches)
       vv.set_indices({i});
     set.branches.add_a(v);
   }
 }
-
 
 void MockProducer::write_settings_bulk(const Setting &settings)
 {
@@ -264,7 +257,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
 //    DBG << "Write idx " << idx;
     if (idx >= val_defs_.size())
       continue;
-    val_defs_[idx].center= v.find({"MockProducer/Value/PeakCenter"}).get_number() * 0.01;
+    val_defs_[idx].center = v.find({"MockProducer/Value/PeakCenter"}).get_number() * 0.01;
     val_defs_[idx].spread = v.find({"MockProducer/Value/PeakSpread"}).get_number();
     val_defs_[idx].name = v.find({"MockProducer/Value/Name"}).get_text();
     val_defs_[idx].max = resolution;
@@ -272,9 +265,9 @@ void MockProducer::write_settings_bulk(const Setting &settings)
 
   event_definition_ = EventModel();
   event_definition_.timebase = TimeBase(set.find({"MockProducer/TimebaseMult"}).get_number(),
-                                set.find({"MockProducer/TimebaseDiv"}).get_number());
+                                        set.find({"MockProducer/TimebaseDiv"}).get_number());
 
-  for (size_t i=0; i < val_defs_.size(); ++i)
+  for (size_t i = 0; i < val_defs_.size(); ++i)
     val_defs_[i].define(event_definition_);
 }
 
@@ -289,7 +282,7 @@ void MockProducer::boot()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
   INFO << "<MockProducer> Booting"
-        << " rate=" << count_rate_ << "cps";
+       << " rate=" << count_rate_ << "cps";
 //        << " with peak at " << peak_center_ << "%   stdev=" << peak_spread_;
 
 
@@ -315,19 +308,23 @@ void MockProducer::worker_run(SpillQueue spill_queue)
   spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
   while (!terminate_.load())
   {
-    wait_us(spill_interval_ * 1000000.0);
     spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
+    wait_ms(spill_interval_ * 1000.0);
+
+    double seconds = timer.s();
+    double overshoot = ((event_definition_.timebase.to_sec(clock_) - seconds) / seconds * 100.0);
+    if (overshoot > 0)
+      DBG << "<MockProducer> Native clock overshoot " << overshoot << "%";
   }
   spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
 }
 
-void MockProducer::add_hit(Spill& spill)
+void MockProducer::add_hit(Spill &spill, uint64_t time)
 {
-  auto& e = spill.events.last();
-  e.set_time(clock_);
-  for (size_t i=0; i < val_defs_.size(); ++i)
+  auto &e = spill.events.last();
+  e.set_time(time);
+  for (size_t i = 0; i < val_defs_.size(); ++i)
     val_defs_[i].generate(i, e, gen_);
-
   ++spill.events;
 }
 
@@ -335,50 +332,43 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
 {
   SpillPtr spill = std::make_shared<Spill>(stream_id_, t);
 
-  recent_pulse_time_ = clock_;
+  recent_pulse_time_ = clock_ = event_definition_.timebase.to_native(seconds * pow(10, 9));
 
   if (t == StatusType::running)
-  {
-    double rate = count_rate_;
-
-    if (lambda_)
-    {
-      double frac = exp(0.0 - lambda_ * seconds);
-      rate *= frac;
-//      DBG << "<MockProducer> s=" << seconds
-//          << "  frac=" << frac
-//          << "  rate=" << rate;
-    }
-
-    uint64_t event_interval
-        = event_definition_.timebase.to_native(spill_interval_ * pow(10,9)) / rate;
-
-    std::uniform_real_distribution<> dis(0, 1);
-    uint32_t tothits = (rate * spill_interval_);
-
-    spill->events.reserve(tothits, event_definition_);
-
-    for (uint32_t i=0; i< tothits; i++)
-    {
-      if (spill_lambda_ < 100)
-      {
-        double diff = (spill_lambda_ * 0.01)  +
-            (1.0 - (spill_lambda_ * 0.01)) *
-            (double(tothits - i) / double(tothits));
-        if (dis(gen_) < diff)
-          add_hit(*spill);
-      }
-      else
-        add_hit(*spill);
-      clock_ += event_interval;
-    }
-  }
-
+    fill_events(spill, seconds);
   spill->events.finalize();
 
+  clock_ = event_definition_.timebase.to_native((seconds + spill_interval_) * pow(10, 9));
   fill_stats(*spill);
 
   return spill;
+}
+
+void MockProducer::fill_events(SpillPtr &spill, double seconds)
+{
+  double rate = count_rate_;
+  if (lambda_)
+    rate *= exp(0.0 - lambda_ * seconds);
+
+  uint32_t total_events = (rate * spill_interval_) * (1.0 - dead_);
+  double event_interval = event_definition_.timebase.to_native(spill_interval_ * pow(10, 9)) / total_events;
+
+  spill->events.reserve(total_events, event_definition_);
+  double time_bonus {0};
+  for (uint32_t i = 0; i < total_events; i++)
+  {
+    if ((spill_lambda_ >= 100) || eval_spill_lambda(i, total_events))
+      add_hit(*spill, clock_ + time_bonus);
+    time_bonus += event_interval;
+  }
+}
+
+bool MockProducer::eval_spill_lambda(uint32_t i, uint32_t total)
+{
+  double diff = (spill_lambda_ * 0.01) +
+      (1.0 - (spill_lambda_ * 0.01)) *
+          (double(total - i) / double(total));
+  return (event_chance_(gen_) < diff);
 }
 
 void MockProducer::fill_stats(Spill &spill) const
