@@ -6,6 +6,8 @@
 #include "color_bash.h"
 #include <boost/algorithm/string.hpp>
 
+#include <custom_logger.h>
+
 namespace DAQuiri {
 
 Setting::Setting(std::string id)
@@ -786,7 +788,7 @@ json Setting::val_to_json() const
 void Setting::val_from_json(const json &j)
 {
   if (is(SettingType::boolean))
-    value_int = j.get<bool>();
+    value_int = j.get<integer_t>();
   else if (is(SettingType::integer) ||
            is(SettingType::menu) ||
            is(SettingType::binary) ||

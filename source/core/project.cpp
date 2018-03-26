@@ -323,8 +323,8 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 {
   if (!hdf5::file::is_hdf5_file(file_name))
     return;
-  try
-  {
+//  try
+//  {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
     auto f = file.root();
     auto group = hdf5::node::Group(f["project"]);
@@ -381,14 +381,14 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
     identity_ = file_name;
     cond_.notify_all();
-  }
-  catch (std::exception &e)
-  {
-    ERR << "<Project> Failed to read '"
-        << file_name << "'\n"
-        << hdf5::error::print_nested(e);
-    ERR << "<Project> Failed to read h5 " << file_name;
-  }
+//  }
+//  catch (std::exception &e)
+//  {
+//    ERR << "<Project> Failed to read '"
+//        << file_name << "'\n"
+//        << hdf5::error::print_nested(e);
+//    ERR << "<Project> Failed to read h5 " << file_name;
+//  }
 }
 
 void Project::save_split(std::string file_name)

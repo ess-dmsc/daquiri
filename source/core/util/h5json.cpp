@@ -56,16 +56,16 @@ void to_json(json &j, const node::Group &g)
     if (n.type() == node::Type::DATASET)
     {
       auto d = node::Dataset(n);
-      json j;
-      to_json(j, d);
-      j[n.link().path().name()] = j;
+      json jj;
+      to_json(jj, d);
+      j[n.link().path().name()] = jj;
     }
     else if (n.type() == node::Type::GROUP)
     {
       auto gg = node::Group(n);
-      json j;
-      to_json(j, gg);
-      j[n.link().path().name()] = j;
+      json jj;
+      to_json(jj, gg);
+      j[n.link().path().name()] = jj;
     }
   }
 
@@ -130,12 +130,11 @@ void attr_to_json(json &j, const attribute::Attribute &a)
     std::string val;
     a.read(val);
     j[a.name()] = val;
+  } else if (a.datatype() == datatype::create<bool>()) {
+    bool val;
+    a.read(val);
+    j[a.name()] = val;
   }
-//  else if (a.datatype() == datatype::create<bool>()) {
-//    bool val;
-//    a.read(val);
-//    j[a.name()] = val;
-//  }
 //  else if (g.template attr_is_enum<int16_t>())
 //    return json(g.template read_enum<int16_t>());
 //  else
@@ -160,9 +159,9 @@ void attribute_from_json(const json &j, const std::string &name,
   } else if (j.is_number_integer()) {
     attribute::Attribute a = g.attributes.create<int64_t>(name);
     a.write(j.get<int64_t>());
-//  } else if (j.is_boolean()) {
-//    attribute::Attribute a = g.attributes.create<bool>(name);
-//    a.write(j.get<bool>());
+  } else if (j.is_boolean()) {
+    attribute::Attribute a = g.attributes.create<bool>(name);
+    a.write(j.get<bool>());
   } else if (j.is_string()) {
     attribute::Attribute a = g.attributes.create<std::string>(name);
     a.write(j.get<std::string>());
