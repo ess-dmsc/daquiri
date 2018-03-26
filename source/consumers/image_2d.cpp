@@ -5,8 +5,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 2
-
 Image2D::Image2D()
   : Spectrum()
 {
@@ -61,38 +59,6 @@ void Image2D::_apply_attributes()
 
   filters_.settings(metadata_.get_attribute("filters"));
   metadata_.replace_attribute(filters_.settings());
-}
-
-void Image2D::_init_from_file()
-{
-  metadata_.set_attribute(Setting::integer("downsample", downsample_));
-  metadata_.set_attribute(Setting::text("x_name", "x"));
-  metadata_.set_attribute(Setting::text("y_name", "y"));
-  metadata_.set_attribute(Setting::text("val_name", "val"));
-
-  Spectrum::_init_from_file();
-}
-
-void Image2D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void Image2D::_recalc_axes()

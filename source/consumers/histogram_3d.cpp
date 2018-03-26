@@ -6,8 +6,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 3
-
 Histogram3D::Histogram3D()
   : Spectrum()
 {
@@ -69,28 +67,6 @@ void Histogram3D::_init_from_file()
   metadata_.set_attribute(Setting::text("z_name", "value3"));
 
   Spectrum::_init_from_file();
-}
-
-void Histogram3D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void Histogram3D::_recalc_axes()

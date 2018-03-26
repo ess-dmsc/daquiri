@@ -13,8 +13,6 @@ class Histogram1D : public Spectrum
     std::string my_type() const override { return "Histogram 1D"; }
 
     void _apply_attributes() override;
-    void _init_from_file() override;
-    void _set_detectors(const std::vector<Detector> &dets) override;
     void _recalc_axes() override;
 
     //event processing

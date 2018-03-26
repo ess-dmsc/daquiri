@@ -65,7 +65,7 @@ class Consumer
     virtual void _init_from_file();
     virtual void _recalc_axes() = 0;
 
-    virtual void _set_detectors(const std::vector<Detector>& dets) = 0;
+    virtual void _set_detectors(const std::vector<Detector>& dets);
 
     virtual void _push_spill(const Spill&);
 

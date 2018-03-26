@@ -2,8 +2,6 @@
 #include "custom_logger.h"
 #include "dense1d.h"
 
-#define kDimensions 1
-
 TimeDomain::TimeDomain()
   : Spectrum()
 {
@@ -64,30 +62,15 @@ void TimeDomain::_apply_attributes()
 
 void TimeDomain::_init_from_file()
 {
+  domain_ = data_->axis(0).domain;
+  for (auto& d : domain_)
+    d *= units_multiplier_;
+
+  range_.resize(domain_.size(), 0.0);
+  auto data = data_->range({});
+  for (auto e : *data)
+    range_[e.first[0]] = static_cast<double>(e.second);
   Spectrum::_init_from_file();
-}
-
-
-void TimeDomain::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void TimeDomain::_recalc_axes()

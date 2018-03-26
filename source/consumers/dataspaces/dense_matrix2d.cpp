@@ -97,10 +97,9 @@ void DenseMatrix2D::fill_list(EntryList& result,
   }
 }
 
-void DenseMatrix2D::save(hdf5::node::Group& g) const
+void DenseMatrix2D::data_save(hdf5::node::Group g) const
 {
   using namespace hdf5;
-  auto dgroup = g.create_group("data");
 
   property::LinkCreationList lcpl;
   property::DatasetCreationList dcpl;
@@ -108,11 +107,11 @@ void DenseMatrix2D::save(hdf5::node::Group& g) const
 
   auto i_space = dataspace::Simple({static_cast<size_t>(spectrum_.nonZeros()),2});
   dcpl.chunk({128,2});
-  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
   dataspace::Simple c_space({static_cast<size_t>(spectrum_.nonZeros())});
   dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
@@ -138,21 +137,19 @@ void DenseMatrix2D::save(hdf5::node::Group& g) const
   dcts.write(dc);
 }
 
-void DenseMatrix2D::load(hdf5::node::Group& g)
+void DenseMatrix2D::data_load(hdf5::node::Group g)
 {
-  if (!hdf5::has_group(g, "data"))
+  if (!g.has_dataset("indices") ||
+      !g.has_dataset("counts"))
     return;
-  auto dgroup = hdf5::node::Group(g.nodes["data"]);
-  
-  if (!hdf5::has_dataset(dgroup, "indices") ||
-      !hdf5::has_dataset(dgroup, "counts"))
-    return;
-  
-  auto didx = hdf5::node::Dataset(dgroup.nodes["indices"]);
-  auto dcts = hdf5::node::Dataset(dgroup.nodes["counts"]);
 
-  auto didx_ds = hdf5::dataspace::Simple(didx.dataspace());
-  auto dcts_ds = hdf5::dataspace::Simple(dcts.dataspace());
+  using namespace hdf5;
+
+  auto didx = node::Dataset(g.nodes["indices"]);
+  auto dcts = node::Dataset(g.nodes["counts"]);
+
+  auto didx_ds = dataspace::Simple(didx.dataspace());
+  auto dcts_ds = dataspace::Simple(dcts.dataspace());
   if ((didx_ds.current_dimensions().size() != 2) ||
       (dcts_ds.current_dimensions().size() != 1) ||
       (didx_ds.current_dimensions()[0] !=
@@ -163,13 +160,12 @@ void DenseMatrix2D::load(hdf5::node::Group& g)
   std::vector<uint16_t> dy(didx_ds.current_dimensions()[0]);
   std::vector<double> dc(didx_ds.current_dimensions()[0]);
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({dx.size(), 1});
+  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
 
-  slab.offset(0,0);
+  slab.offset({0,0});
   didx.read(dx, slab);
 
-  slab.offset(0,1);
+  slab.offset({0,1});
   didx.read(dy, slab);
 
   dcts.read(dc);

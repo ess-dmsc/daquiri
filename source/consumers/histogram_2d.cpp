@@ -6,8 +6,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 2
-
 Histogram2D::Histogram2D()
   : Spectrum()
 {
@@ -56,37 +54,6 @@ void Histogram2D::_apply_attributes()
 
   filters_.settings(metadata_.get_attribute("filters"));
   metadata_.replace_attribute(filters_.settings());
-}
-
-void Histogram2D::_init_from_file()
-{
-  metadata_.set_attribute(Setting::integer("downsample", downsample_));
-  metadata_.set_attribute(Setting::text("x_name", "value1"));
-  metadata_.set_attribute(Setting::text("y_name", "value2"));
-
-  Spectrum::_init_from_file();
-}
-
-void Histogram2D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void Histogram2D::_recalc_axes()

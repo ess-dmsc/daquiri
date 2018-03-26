@@ -3,8 +3,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 1
-
 TOF1D::TOF1D()
   : Spectrum()
 {
@@ -49,31 +47,8 @@ void TOF1D::_apply_attributes()
 
 void TOF1D::_init_from_file()
 {
-//  metadata_.set_attribute(Setting::integer("time_resolution", bits_));
-
+  domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
-}
-
-void TOF1D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void TOF1D::_recalc_axes()

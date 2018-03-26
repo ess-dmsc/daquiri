@@ -107,8 +107,11 @@ void SparseMap3D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap3D::save(hdf5::node::Group& g) const
+void SparseMap3D::data_save(hdf5::node::Group g) const
 {
+  if (!spectrum_.size())
+    return;
+
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
   std::vector<uint16_t> dz(spectrum_.size());
@@ -125,7 +128,6 @@ void SparseMap3D::save(hdf5::node::Group& g) const
   }
 
   using namespace hdf5;
-  auto dgroup = require_group(g, "data");
 
   property::LinkCreationList lcpl;
   property::DatasetCreationList dcpl;
@@ -133,11 +135,11 @@ void SparseMap3D::save(hdf5::node::Group& g) const
 
   dataspace::Simple i_space({spectrum_.size(),3});
   dcpl.chunk({128,3});
-  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
   dataspace::Simple c_space({spectrum_.size()});
   dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
   dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(spectrum_.size()), 1});
 
@@ -153,28 +155,19 @@ void SparseMap3D::save(hdf5::node::Group& g) const
   dcts.write(dc);
 }
 
-void SparseMap3D::load(hdf5::node::Group& g)
+void SparseMap3D::data_load(hdf5::node::Group g)
 {
   using namespace hdf5;
 
-  if (!has_group(g, "data"))
-    return;
-  auto dgroup = node::Group(g.nodes["data"]);
-
-  if (!has_dataset(dgroup, "indices") ||
-      !has_dataset(dgroup, "counts"))
+  if (!g.has_dataset("indices") ||
+      !g.has_dataset("counts"))
     return;
 
-  auto didx = node::Dataset(dgroup.nodes["indices"]);
-  auto dcts = node::Dataset(dgroup.nodes["counts"]);
+  auto didx = node::Dataset(g.nodes["indices"]);
+  auto dcts = node::Dataset(g.nodes["counts"]);
 
   auto didx_ds = dataspace::Simple(didx.dataspace());
   auto dcts_ds = dataspace::Simple(dcts.dataspace());
-  if ((didx_ds.current_dimensions().size() != 2) ||
-      (dcts_ds.current_dimensions().size() != 1) ||
-      (didx_ds.current_dimensions()[0] !=
-          dcts_ds.current_dimensions()[0]))
-    return;
 
   std::vector<uint16_t> dx(didx_ds.current_dimensions()[0], 0);
   std::vector<uint16_t> dy(didx_ds.current_dimensions()[0], 0);

@@ -788,7 +788,12 @@ json Setting::val_to_json() const
 void Setting::val_from_json(const json &j)
 {
   if (is(SettingType::boolean))
-    value_int = j.get<integer_t>();
+  {
+    if (j.is_number())
+      value_int = j.get<integer_t>();
+    else if (j.is_boolean())
+      value_int = j.get<bool>();
+  }
   else if (is(SettingType::integer) ||
            is(SettingType::menu) ||
            is(SettingType::binary) ||

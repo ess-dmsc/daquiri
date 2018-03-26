@@ -21,11 +21,6 @@ class SparseMap2D : public Dataspace
 
     void save(std::ostream& os) override;
 
-    void save(hdf5::node::Group&) const override;
-    void load(hdf5::node::Group&) override;
-
-    std::string data_debug(const std::string& prepend) const override;
-
   protected:
     typedef std::map<std::pair<uint16_t,uint16_t>, PreciseFloat> SpectrumMap2D;
 
@@ -57,6 +52,11 @@ class SparseMap2D : public Dataspace
     void fill_list(EntryList &result,
                    size_t min0, size_t max0,
                    size_t min1, size_t max1) const;
+
+    void data_save(hdf5::node::Group) const override;
+    void data_load(hdf5::node::Group) override;
+    std::string data_debug(const std::string& prepend) const override;
+
 };
 
 }

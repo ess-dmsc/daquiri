@@ -87,7 +87,7 @@ Setting get_profile()
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
   settings.set_text("producer1");
   settings.set(Setting::text("MockProducer/StreamID", "exy"));
-  settings.set(Setting::floating("MockProducer/SpillInterval", 0.1));
+  settings.set(Setting::floating("MockProducer/SpillInterval", 0.2));
   settings.set(Setting::integer("MockProducer/Resolution", 16));
   settings.set(Setting::floating("MockProducer/CountRate", 50000));
   settings.set(Setting::floating("MockProducer/DeadTime", 5));
@@ -135,6 +135,25 @@ Container<ConsumerMetadata> get_prototypes()
   vtype.set_attribute(Setting::text("y_name", "y"));
   vtype.set_attribute(Setting::text("z_name", "energy"));
   prototypes.add(vtype);
+
+  auto pbtype = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
+  pbtype.set_attribute(Setting::text("stream_id", "exy"));
+  pbtype.set_attribute(Setting::text("value_name", "x"));
+  prototypes.add(pbtype);
+
+  auto tdtype = ConsumerFactory::singleton().create_prototype("Time-Activity 1D");
+  tdtype.set_attribute(Setting::text("stream_id", "exy"));
+  tdtype.set_attribute(Setting::floating("time_resolution", 25));
+  tdtype.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(tdtype);
+
+  auto tstype = ConsumerFactory::singleton().create_prototype("TimeSpectrum 2D");
+  tstype.set_attribute(Setting::text("stream_id", "exy"));
+  tstype.set_attribute(Setting::text("value_name", "x"));
+  tstype.set_attribute(Setting::integer("downsample", 10));
+  tstype.set_attribute(Setting::floating("time_resolution", 25));
+  tstype.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(tstype);
 
   return prototypes;
 }

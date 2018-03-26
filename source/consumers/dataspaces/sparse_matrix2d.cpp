@@ -102,8 +102,11 @@ void SparseMatrix2D::fill_list(EntryList& result,
   }
 }
 
-void SparseMatrix2D::save(hdf5::node::Group& g) const
+void SparseMatrix2D::data_save(hdf5::node::Group g) const
 {
+  if (!spectrum_.size())
+    return;
+
   std::vector<uint16_t> dx;
   std::vector<uint16_t> dy;
   std::vector<double> dc;
@@ -118,7 +121,6 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
   }
 
   using namespace hdf5;
-  auto dgroup = g.create_group("data");
 
   property::LinkCreationList lcpl;
   property::DatasetCreationList dcpl;
@@ -126,11 +128,11 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
 
   auto i_space = dataspace::Simple({dc.size(),2});
   dcpl.chunk({128,1});
-  auto didx = dgroup.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
   auto c_space = dataspace::Simple({dc.size()});
   dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
   dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
 
@@ -143,28 +145,19 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
   dcts.write(dc);
 }
 
-void SparseMatrix2D::load(hdf5::node::Group& g)
+void SparseMatrix2D::data_load(hdf5::node::Group g)
 {
   using namespace hdf5;
 
-  if (!has_group(g, "data"))
-    return;
-  auto dgroup = node::Group(g.nodes["data"]);
-
-  if (!has_dataset(dgroup, "indices") ||
-      !has_dataset(dgroup, "counts"))
+  if (!g.has_dataset("indices") ||
+      !g.has_dataset("counts"))
     return;
 
-  auto didx = node::Dataset(dgroup.nodes["indices"]);
-  auto dcts = node::Dataset(dgroup.nodes["counts"]);
+  auto didx = node::Dataset(g.nodes["indices"]);
+  auto dcts = node::Dataset(g.nodes["counts"]);
 
   auto didx_ds = dataspace::Simple(didx.dataspace());
   auto dcts_ds = dataspace::Simple(dcts.dataspace());
-  if ((didx_ds.current_dimensions().size() != 2) ||
-      (dcts_ds.current_dimensions().size() != 1) ||
-      (didx_ds.current_dimensions()[0] !=
-          dcts_ds.current_dimensions()[0]))
-    return;
 
   std::vector<uint16_t> dx(didx_ds.current_dimensions()[0], 0);
   std::vector<uint16_t> dy(didx_ds.current_dimensions()[0], 0);
