@@ -68,8 +68,6 @@ void TimeSpectrum::_apply_attributes()
 
 void TimeSpectrum::_init_from_file()
 {
-  DBG << "<TimeSpectrum> Data loaded " << data_->debug("");
-
   domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
 }
