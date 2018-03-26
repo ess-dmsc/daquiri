@@ -145,36 +145,37 @@ void SparseMatrix2D::save(hdf5::node::Group& g) const
 
 void SparseMatrix2D::load(hdf5::node::Group& g)
 {
-  if (!hdf5::has_group(g, "data"))
+  using namespace hdf5;
+
+  if (!has_group(g, "data"))
     return;
-  auto dgroup = hdf5::node::Group(g.nodes["data"]);
+  auto dgroup = node::Group(g.nodes["data"]);
 
-  if (!hdf5::has_dataset(dgroup, "indices") ||
-      !hdf5::has_dataset(dgroup, "counts"))
+  if (!has_dataset(dgroup, "indices") ||
+      !has_dataset(dgroup, "counts"))
     return;
 
-  auto didx = hdf5::node::Dataset(dgroup.nodes["indices"]);
-  auto dcts = hdf5::node::Dataset(dgroup.nodes["counts"]);
+  auto didx = node::Dataset(dgroup.nodes["indices"]);
+  auto dcts = node::Dataset(dgroup.nodes["counts"]);
 
-  auto didx_ds = hdf5::dataspace::Simple(didx.dataspace());
-  auto dcts_ds = hdf5::dataspace::Simple(dcts.dataspace());
+  auto didx_ds = dataspace::Simple(didx.dataspace());
+  auto dcts_ds = dataspace::Simple(dcts.dataspace());
   if ((didx_ds.current_dimensions().size() != 2) ||
       (dcts_ds.current_dimensions().size() != 1) ||
       (didx_ds.current_dimensions()[0] !=
           dcts_ds.current_dimensions()[0]))
     return;
 
-  std::vector<uint16_t> dx(didx_ds.current_dimensions()[0]);
-  std::vector<uint16_t> dy(didx_ds.current_dimensions()[0]);
-  std::vector<double> dc(didx_ds.current_dimensions()[0]);
+  std::vector<uint16_t> dx(didx_ds.current_dimensions()[0], 0);
+  std::vector<uint16_t> dy(didx_ds.current_dimensions()[0], 0);
+  std::vector<double> dc(dcts_ds.current_dimensions()[0], 0.0);
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({dx.size(), 1});
+  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
 
-  slab.offset(0,0);
+  slab.offset({0,0});
   didx.read(dx, slab);
 
-  slab.offset(0,1);
+  slab.offset({0,1});
   didx.read(dy, slab);
 
   dcts.read(dc);

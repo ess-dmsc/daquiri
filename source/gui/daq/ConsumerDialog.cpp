@@ -17,7 +17,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
                                StreamManifest stream_manifest,
-                               bool has_sink_parent,
+                               bool has_consumer_parent,
                                bool allow_edit_type,
                                QWidget *parent)
   : QDialog(parent)
@@ -29,7 +29,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   , current_detectors_(current_detectors)
   , stream_manifest_(stream_manifest)
   , changed_(false)
-  , has_sink_parent_(has_sink_parent)
+  , has_consumer_parent_(has_consumer_parent)
 {
   ui->setupUi(this);
 
@@ -47,7 +47,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   ui->labelWarning->setVisible(false);
   ui->treeAttribs->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-  ui->pushLock->setVisible(has_sink_parent);
+  ui->pushLock->setVisible(has_consumer_parent);
   ui->comboType->setEnabled(allow_edit_type);
   ui->widgetDetectors->setVisible(!allow_edit_type);
 
@@ -77,14 +77,14 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   attr_model_.set_show_address_(false);
 
   //this could be done better!!
-  attr_model_.set_show_read_only(has_sink_parent_);
+  attr_model_.set_show_read_only(has_consumer_parent_);
 //  attr_model_.set_show_read_only(true);
 
   if (!consumer_)
   {
     ui->spinDets->setValue(current_detectors_.size());
     on_comboType_activated(ui->comboType->currentText());
-//    initialize_gui_specific(sink_metadata_);
+//    initialize_gui_specific(consumer_metadata_);
   }
 
   updateData();
@@ -111,7 +111,7 @@ void ConsumerDialog::open_close_locks()
 {
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
-  ui->spinDets->setEnabled(lockit || !has_sink_parent_);
+  ui->spinDets->setEnabled(lockit || !has_consumer_parent_);
 
   ui->treeAttribs->clearSelection();
 //  ui->tableDetectors->clearSelection();
@@ -258,12 +258,12 @@ void ConsumerDialog::toggle_push()
 //    return;
 //  int i = ixl.front().row();
 
-//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  if (i < static_cast<int>(consumer_metadata_.detectors.size()))
 //  {
 //    ui->pushDetEdit->setEnabled(unlocked);
 //    ui->pushDetRename->setEnabled(unlocked);
 //    ui->pushDetToDB->setEnabled(unlocked);
-//    Detector det = sink_metadata_.detectors[i];
+//    Detector det = consumer_metadata_.detectors[i];
 //    if (unlocked && detectors_.has_a(det))
 //      ui->pushDetFromDB->setEnabled(true);
 //  }
@@ -280,10 +280,10 @@ void ConsumerDialog::on_buttonBox_accepted()
     reject();
   else
   {
-    ConsumerPtr newsink =
+    ConsumerPtr newconsumer =
         ConsumerFactory::singleton().create_from_prototype(consumer_->metadata());
 
-    if (!newsink)
+    if (!newconsumer)
     {
       QMessageBox msgBox;
       msgBox.setText("Attributes invalid for this type. Check requirements.");
@@ -292,7 +292,7 @@ void ConsumerDialog::on_buttonBox_accepted()
     }
     else
     {
-      consumer_ = newsink;
+      consumer_ = newconsumer;
       accept();
     }
   }
@@ -390,13 +390,13 @@ void ConsumerDialog::changeDet(Detector newDetector)
 //    return;
 //  int i = ixl.front().row();
 
-//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  if (i < static_cast<int>(consumer_metadata_.detectors.size()))
 //  {
-//    sink_metadata_.detectors[i] = newDetector;
+//    consumer_metadata_.detectors[i] = newDetector;
 //    changed_ = true;
 
 //    spectrum_detectors_.clear();
-//    for (auto &q: sink_metadata_.detectors)
+//    for (auto &q: consumer_metadata_.detectors)
 //      spectrum_detectors_.add_a(q);
 ////    det_table_model_.update();
 //    open_close_locks();
@@ -417,13 +417,13 @@ void ConsumerDialog::on_pushDetRename_clicked()
 //                                       &ok);
 //  if (ok && !text.isEmpty())
 //  {
-//    if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//    if (i < static_cast<int>(consumer_metadata_.detectors.size()))
 //    {
-//      sink_metadata_.detectors[i].set_name(text.toStdString());
+//      consumer_metadata_.detectors[i].set_name(text.toStdString());
 //      changed_ = true;
 
 //      spectrum_detectors_.clear();
-//      for (auto &q: sink_metadata_.detectors)
+//      for (auto &q: consumer_metadata_.detectors)
 //        spectrum_detectors_.add_a(q);
 ////      det_table_model_.update();
 //      open_close_locks();
@@ -438,14 +438,14 @@ void ConsumerDialog::on_pushDetFromDB_clicked()
 //    return;
 //  int i = ixl.front().row();
 
-//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  if (i < static_cast<int>(consumer_metadata_.detectors.size()))
 //  {
-//    Detector newdet = detectors_.get(sink_metadata_.detectors[i]);
-//    sink_metadata_.detectors[i] = newdet;
+//    Detector newdet = detectors_.get(consumer_metadata_.detectors[i]);
+//    consumer_metadata_.detectors[i] = newdet;
 //    changed_ = true;
 
 //    spectrum_detectors_.clear();
-//    for (auto &q: sink_metadata_.detectors)
+//    for (auto &q: consumer_metadata_.detectors)
 //      spectrum_detectors_.add_a(q);
 ////    det_table_model_.update();
 //    open_close_locks();
@@ -459,9 +459,9 @@ void ConsumerDialog::on_pushDetToDB_clicked()
 //    return;
 //  int i = ixl.front().row();
 
-//  if (i < static_cast<int>(sink_metadata_.detectors.size()))
+//  if (i < static_cast<int>(consumer_metadata_.detectors.size()))
 //  {
-//    Detector newdet = sink_metadata_.detectors[i];
+//    Detector newdet = consumer_metadata_.detectors[i];
 
 //    if (!detectors_.has_a(newdet)) {
 //      bool ok;
@@ -485,9 +485,9 @@ void ConsumerDialog::on_pushDetToDB_clicked()
 //            return;
 //          else {
 //            detectors_.replace(newdet);
-//            if (sink_metadata_.detectors[i].name() != newdet.name())
+//            if (consumer_metadata_.detectors[i].name() != newdet.name())
 //            {
-//              sink_metadata_.detectors[i] = newdet;
+//              consumer_metadata_.detectors[i] = newdet;
 //              changed_ = true;
 ////              updateData();
 //            }

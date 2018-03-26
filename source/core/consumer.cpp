@@ -182,9 +182,9 @@ void Consumer::load(hdf5::node::Group& g, bool withdata)
   if (!hdf5::has_group(g, "metadata"))
     return;
 
-  json j;
-  hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
-  metadata_ = j;
+//  json j;
+//  hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
+//  metadata_ = j;
 //  metadata_.from_json(g.open_group("metadata"));
 
   this->_apply_attributes();

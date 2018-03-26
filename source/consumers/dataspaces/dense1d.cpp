@@ -116,8 +116,10 @@ void Dense1D::load(hdf5::node::Group& g)
   }
 
   maxchan_ = 0;
+  total_count_ = 0;
   for (size_t i = 0; i < rdata.size(); i++)
   {
+    total_count_ += rdata[i];
     spectrum_[i] = PreciseFloat(rdata[i]);
     if (rdata[i])
       maxchan_ = i;

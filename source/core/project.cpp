@@ -15,10 +15,10 @@ Project::Project(const Project &other)
   changed_ = true;
   identity_ = other.identity_;
   current_index_ = other.current_index_;
-  sinks_ = other.sinks_;
+  consumers_ = other.consumers_;
   spills_ = other.spills_;
-  for (auto sink : other.sinks_)
-    sinks_[sink.first] = ConsumerFactory::singleton().create_copy(sink.second);
+  for (auto consumer : other.consumers_)
+    consumers_[consumer.first] = ConsumerFactory::singleton().create_copy(consumer.second);
   DBG << "<Project> deep copy performed";
 }
 
@@ -44,12 +44,12 @@ void Project::clear()
 void Project::clear_helper()
 {
   //private, no lock needed
-  if (!sinks_.empty()
+  if (!consumers_.empty()
       )
 //      || !spills_.empty())
     changed_ = true;
 
-  sinks_.clear();
+  consumers_.clear();
 //  spills_.clear();
   current_index_ = 0;
 }
@@ -58,9 +58,9 @@ void Project::flush()
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  if (!sinks_.empty())
+  if (!consumers_.empty())
   {
-    for (auto &q: sinks_)
+    for (auto &q: consumers_)
     {
       //DBG << "closing " << q->name();
       q.second->flush();
@@ -95,7 +95,7 @@ bool Project::new_data()
 bool Project::changed() const
 {
   UNIQUE_LOCK_EVENTUALLY
-  for (auto &q : sinks_)
+  for (auto &q : consumers_)
     if (q.second->changed())
       changed_ = true;
 
@@ -111,65 +111,65 @@ void Project::mark_changed()
 bool Project::empty() const
 {
   UNIQUE_LOCK_EVENTUALLY
-  return sinks_.empty();
+  return consumers_.empty();
 }
 
 std::vector<std::string> Project::types() const
 {
   UNIQUE_LOCK_EVENTUALLY
   std::set<std::string> my_types;
-  for (auto &q: sinks_)
+  for (auto &q: consumers_)
     my_types.insert(q.second->type());
   std::vector<std::string> output(my_types.begin(), my_types.end());
   return output;
 }
 
-ConsumerPtr Project::get_sink(int64_t idx)
+ConsumerPtr Project::get_consumer(int64_t idx)
 {
   UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as sink implemented as thread-safe
-  if (sinks_.count(idx))
-    return sinks_.at(idx);
+  //threadsafe so long as consumer implemented as thread-safe
+  if (consumers_.count(idx))
+    return consumers_.at(idx);
   else
     return nullptr;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_sinks(int32_t dimensions)
+std::map<int64_t, ConsumerPtr> Project::get_consumers(int32_t dimensions)
 {
   UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as sink implemented as thread-safe
+  //threadsafe so long as consumer implemented as thread-safe
 
   if (dimensions == -1)
-    return sinks_;
+    return consumers_;
 
   std::map<int64_t, ConsumerPtr> ret;
-  for (auto &q: sinks_)
+  for (auto &q: consumers_)
     if (q.second->dimensions() == dimensions)
       ret.insert(q);
   return ret;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_sinks(std::string type)
+std::map<int64_t, ConsumerPtr> Project::get_consumers(std::string type)
 {
   UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as sink implemented as thread-safe
+  //threadsafe so long as consumer implemented as thread-safe
 
   std::map<int64_t, ConsumerPtr> ret;
-  for (auto &q: sinks_)
+  for (auto &q: consumers_)
     if (q.second->type() == type)
       ret.insert(q);
   return ret;
 }
 
 //client should activate replot after loading all files, as loading multiple
-// sink might create a long queue of plot update signals
-int64_t Project::add_sink(ConsumerPtr sink)
+// consumer might create a long queue of plot update signals
+int64_t Project::add_consumer(ConsumerPtr consumer)
 {
-  if (!sink)
+  if (!consumer)
     return 0;
   UNIQUE_LOCK_EVENTUALLY
 
-  sinks_[++current_index_] = sink;
+  consumers_[++current_index_] = consumer;
   changed_ = true;
   ready_ = true;
   newdata_ = true;
@@ -177,14 +177,14 @@ int64_t Project::add_sink(ConsumerPtr sink)
   return current_index_;
 }
 
-int64_t Project::add_sink(ConsumerMetadata prototype)
+int64_t Project::add_consumer(ConsumerMetadata prototype)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(prototype);
-  if (!sink)
+  ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(prototype);
+  if (!consumer)
     return 0;
-  sinks_[++current_index_] = sink;
+  consumers_[++current_index_] = consumer;
   changed_ = true;
   ready_ = true;
   newdata_ = false;
@@ -192,20 +192,20 @@ int64_t Project::add_sink(ConsumerMetadata prototype)
   return current_index_;
 }
 
-void Project::delete_sink(int64_t idx)
+void Project::delete_consumer(int64_t idx)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  if (!sinks_.count(idx))
+  if (!consumers_.count(idx))
     return;
 
-  sinks_.erase(idx);
+  consumers_.erase(idx);
   changed_ = true;
   ready_ = true;
   newdata_ = false;
   // cond_.notify_one();
 
-  if (sinks_.empty())
+  if (consumers_.empty())
     current_index_ = 0;
 }
 
@@ -215,14 +215,15 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
 
   clear_helper();
 
-  for (const auto& definition : prototypes)
+  for (const auto &definition : prototypes)
   {
-//    DBG << "Creating sink " << prototypes.get(i).debug();
+//    DBG << "Creating consumer " << prototypes.get(i).debug();
 
-    ConsumerPtr sink = ConsumerFactory::singleton().create_from_prototype(definition);
-    if (sink) {
-      sinks_[++current_index_] = sink;
-//      DBG << "Added sink " << sink->debug();
+    ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(definition);
+    if (consumer)
+    {
+      consumers_[++current_index_] = consumer;
+//      DBG << "Added consumer " << consumer->debug();
     }
   }
 
@@ -236,7 +237,7 @@ void Project::add_spill(SpillPtr one_spill)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  for (auto &q: sinks_)
+  for (auto &q: consumers_)
     q.second->push_spill(*one_spill);
 
 //  if (!one_spill->detectors.empty()
@@ -285,14 +286,14 @@ void Project::save_as(std::string file_name)
 //    }
 //  }
 
-    if (!sinks_.empty())
+    if (!consumers_.empty())
     {
       auto sg = hdf5::require_group(group, "consumers");
 
       int i = 0;
-      for (auto &q : sinks_)
+      for (auto &q : consumers_)
       {
-        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, sinks_.size() - 1));
+        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, consumers_.size() - 1));
         ssg.attributes.create<int64_t>("index").write(q.first);
         q.second->save(ssg);
       }
@@ -302,7 +303,7 @@ void Project::save_as(std::string file_name)
     ready_ = true;
     newdata_ = true;
 
-    for (auto &q : sinks_)
+    for (auto &q : consumers_)
       q.second->reset_changed();
 
     unique_lock lock(mutex_);
@@ -310,14 +311,15 @@ void Project::save_as(std::string file_name)
     cond_.notify_all();
 
   }
-  catch (std::exception& e) {
+  catch (std::exception &e)
+  {
     ERR << "<Project> Failed to write '"
         << file_name << "'\n"
         << hdf5::error::print_nested(e);
   }
 }
 
-void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
+void Project::open(std::string file_name, bool with_consumers, bool with_full_consumers)
 {
   if (!hdf5::file::is_hdf5_file(file_name))
     return;
@@ -325,7 +327,7 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
   {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
     auto f = file.root();
-    auto group = hdf5::require_group(f, "project");
+    auto group = hdf5::node::Group(f["project"]);
 
     UNIQUE_LOCK_EVENTUALLY
     clear_helper();
@@ -346,11 +348,11 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 //    }
 //  }
 
-    if (!with_sinks)
+    if (!with_consumers)
       return;
 
-    if (hdf5::has_group(group, "sinks"))
-      for (auto n : hdf5::node::Group(group["sinks"]).nodes)
+    if (hdf5::has_group(group, "consumers"))
+      for (auto n : hdf5::node::Group(group["consumers"]).nodes)
       {
         if (n.type() != hdf5::node::Type::GROUP)
           continue;
@@ -358,16 +360,17 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
 
         if (sg.attributes.exists("index"))
           sg.attributes["index"].read(current_index_);
-        else {
+        else
+        {
           WARN << "<Project> Consumer has no index";
           continue;
         }
 
-        ConsumerPtr sink = ConsumerFactory::singleton().create_from_h5(sg, with_full_sinks);
-        if (!sink)
-          WARN << "<Project> Could not parse sink";
+        ConsumerPtr consumer = ConsumerFactory::singleton().create_from_h5(sg, with_full_consumers);
+        if (!consumer)
+          WARN << "<Project> Could not parse consumer";
         else
-          sinks_[current_index_] = sink;
+          consumers_[current_index_] = consumer;
       }
 
     current_index_++;
@@ -376,11 +379,11 @@ void Project::open(std::string file_name, bool with_sinks, bool with_full_sinks)
     ready_ = true;
     newdata_ = true;
 
-    unique_lock lock(mutex_);
     identity_ = file_name;
     cond_.notify_all();
   }
-  catch (std::exception &e) {
+  catch (std::exception &e)
+  {
     ERR << "<Project> Failed to read '"
         << file_name << "'\n"
         << hdf5::error::print_nested(e);
@@ -396,9 +399,9 @@ void Project::save_split(std::string file_name)
   for (auto &s :spills_)
     proj_json["spills"].push_back(json(s));
 
-  for (auto &q : sinks_)
+  for (auto &q : consumers_)
   {
-    std::ofstream ofs(file_name + "_" + vector_idx_minlen(q.first, sinks_.rbegin()->first) + ".csv",
+    std::ofstream ofs(file_name + "_" + vector_idx_minlen(q.first, consumers_.rbegin()->first) + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
     q.second->data()->save(ofs);
     ofs.close();
@@ -420,10 +423,10 @@ std::ostream &operator<<(std::ostream &stream, const Project &project)
   stream << " " << (project.ready_ ? "READY" : " NOT-READY");
   stream << " " << (project.newdata_ ? "NEWDATA" : " NOT-NEWDATA") << "\n";
   stream << "        " << "next index = " << project.current_index_ << "\n";
-  for (const auto& s : project.spills_)
+  for (const auto &s : project.spills_)
     stream << s.to_string() << "\n";
-  for (const auto& s : project.sinks_)
-    stream << "Consumer[" << s.first << "] "<< s.second->debug("", false) << "\n";
+  for (const auto &s : project.consumers_)
+    stream << "Consumer[" << s.first << "] " << s.second->debug("", false) << "\n";
   return stream;
 }
 

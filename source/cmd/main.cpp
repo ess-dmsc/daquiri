@@ -64,9 +64,16 @@ int main(int argc, char **argv)
 
   DBG << "\n" << *project;
 
-  project->save_split("./test_split");
+  DBG << "============================";
+  DBG << "======testing file ops======";
+  DBG << "============================";
 
+  project->save_split("./test_split");
   project->save_as("./results.h5");
+  ProjectPtr project2 = ProjectPtr( new Project() );
+  project2->open("./results.h5");
+
+  DBG << "\n" << *project2;
 
   wait_ms(2000);
 
