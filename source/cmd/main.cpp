@@ -75,8 +75,6 @@ int main(int argc, char **argv)
 
   DBG << "\n" << *project2;
 
-  wait_ms(2000);
-
   return 0;
 }
 

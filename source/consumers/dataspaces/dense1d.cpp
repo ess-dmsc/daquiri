@@ -96,7 +96,6 @@ void Dense1D::data_save(hdf5::node::Group g) const
 
   auto dtype = hdf5::datatype::create<double>();
   auto dspace = hdf5::dataspace::Simple({d.size()});
-
   auto dset = g.create_dataset("counts", dtype, dspace);
   dset.write(d);
 }

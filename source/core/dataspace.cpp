@@ -131,17 +131,17 @@ void Dataspace::load(hdf5::node::Group &g)
 {
   using namespace hdf5;
 
-  auto dgroup = node::Group(g["dataspace"]);
+  auto dgroup = g.get_group("dataspace");
   axes_.clear();
   if (dgroup.has_group("axes"))
   {
-    for (auto n : node::Group(dgroup["axes"]).nodes)
+    for (auto n : dgroup.get_group("axes").nodes)
     {
       auto ssg = node::Group(n);
       json jj;
       hdf5::to_json(jj, ssg);
       DataAxis ax = jj;
-      auto domainds = node::Dataset(ssg["domain"]);
+      auto domainds = ssg.get_dataset("domain");
       auto shape = dataspace::Simple(domainds.dataspace()).current_dimensions();
       ax.domain.resize(shape[0]);
       domainds.read(ax.domain);
@@ -163,11 +163,11 @@ void Dataspace::save(hdf5::node::Group &g) const
     for (size_t i=0; i < axes_.size(); ++i)
     {
       auto ssg = axes_group.create_group(vector_idx_minlen(i, axes_.size() - 1));
-      json j = axes_[i];
-      hdf5::from_json(j, ssg);
+      hdf5::from_json(json(axes_[i]), ssg);
       auto& data = axes_[i].domain;
-      auto type = datatype::create<std::vector<double>>();
-      auto domainds = ssg.create_dataset("domain", type, dataspace::create(data));
+      auto dtype = datatype::create<double>();
+      auto dspace = hdf5::dataspace::Simple({data.size()});
+      auto domainds = ssg.create_dataset("domain", dtype, dspace);
       domainds.write(data);
     }
   }

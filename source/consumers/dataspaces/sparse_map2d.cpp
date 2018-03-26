@@ -144,29 +144,23 @@ void SparseMap2D::data_load(hdf5::node::Group g)
       !g.has_dataset("counts"))
     return;
 
-  auto didx = node::Dataset(g.nodes["indices"]);
-  auto dcts = node::Dataset(g.nodes["counts"]);
+  auto didx = g.get_dataset("indices");
+  auto dcts = g.get_dataset("counts");
 
-  auto didx_ds = dataspace::Simple(didx.dataspace());
-  auto dcts_ds = dataspace::Simple(dcts.dataspace());
-  if ((didx_ds.current_dimensions().size() != 2) ||
-      (dcts_ds.current_dimensions().size() != 1) ||
-      (didx_ds.current_dimensions()[0] !=
-          dcts_ds.current_dimensions()[0]))
-    return;
+  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  std::vector<uint16_t> dx(didx_ds.current_dimensions()[0], 0);
-  std::vector<uint16_t> dy(didx_ds.current_dimensions()[0], 0);
-  std::vector<double> dc(dcts_ds.current_dimensions()[0], 0.0);
+  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
-
+  std::vector<uint16_t> dx(didx_ds[0], 0);
   slab.offset({0,0});
   didx.read(dx, slab);
 
+  std::vector<uint16_t> dy(didx_ds[0], 0);
   slab.offset({0,1});
   didx.read(dy, slab);
 
+  std::vector<double> dc(dcts_ds[0], 0.0);
   dcts.read(dc);
 
   for (size_t i=0; i < dx.size(); ++i)
