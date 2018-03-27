@@ -110,9 +110,9 @@ void SparseMatrix2D::data_save(hdf5::node::Group g) const
   std::vector<uint16_t> dx;
   std::vector<uint16_t> dy;
   std::vector<double> dc;
-  for (int k=0; k < spectrum_.outerSize(); ++k)
+  for (int k = 0; k < spectrum_.outerSize(); ++k)
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
     {
       dx.push_back(it.row());
       dy.push_back(it.col());
@@ -126,20 +126,24 @@ void SparseMatrix2D::data_save(hdf5::node::Group g) const
   property::DatasetCreationList dcpl;
   dcpl.layout(property::DatasetLayout::CHUNKED);
 
-  auto i_space = dataspace::Simple({dc.size(),2});
-  dcpl.chunk({128,1});
+  size_t chunksize = spectrum_.outerSize();
+  if (chunksize > 128)
+    chunksize = 128;
+
+  auto i_space = dataspace::Simple({dc.size(), 2});
+  dcpl.chunk({chunksize, 1});
   auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
   auto c_space = dataspace::Simple({dc.size()});
-  dcpl.chunk({128});
+  dcpl.chunk({chunksize});
   auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
-  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(dc.size()), 1});
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(dc.size()), 1});
 
-  slab.offset({0,0});
+  slab.offset({0, 0});
   didx.write(dx, slab);
 
-  slab.offset({0,1});
+  slab.offset({0, 1});
   didx.write(dy, slab);
 
   dcts.write(dc);
@@ -159,20 +163,20 @@ void SparseMatrix2D::data_load(hdf5::node::Group g)
   auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
   auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(didx_ds[0]), 1});
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
   std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0,0});
+  slab.offset({0, 0});
   didx.read(dx, slab);
 
   std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0,1});
+  slab.offset({0, 1});
   didx.read(dy, slab);
 
   std::vector<double> dc(dcts_ds[0], 0.0);
   dcts.read(dc);
 
-  for (size_t i=0; i < dx.size(); ++i)
+  for (size_t i = 0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dc[i]);
 }
 
@@ -207,6 +211,9 @@ std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string
 
 void SparseMatrix2D::save(std::ostream& os)
 {
+  if (!spectrum_.size())
+    return;
+
   for (uint16_t i = 0; i <= limits_[0]; i++)
   {
     for (uint16_t j = 0; j <= limits_[1]; j++)

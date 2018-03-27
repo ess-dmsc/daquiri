@@ -67,7 +67,7 @@ void TimeDomain::_init_from_file()
     d *= units_multiplier_;
 
   range_.resize(domain_.size(), 0.0);
-  auto data = data_->range({});
+  auto data = data_->all_data();
   for (auto e : *data)
     range_[e.first[0]] = static_cast<double>(e.second);
   Spectrum::_init_from_file();
@@ -79,17 +79,10 @@ void TimeDomain::_recalc_axes()
   for (auto& d : domain)
     d /= units_multiplier_;
 
-  size_t max = range_.size();
-  if (trim_ && (max > 1))
-  {
-    max--;
-    domain.resize(max);
-  }
-
   data_->clear();
   CalibID id("time", "", units_name_);
   data_->set_axis(0, DataAxis(Calibration(id, id), domain));
-  for (size_t i = 0; i < max; ++i)
+  for (size_t i = 0; i < range_.size(); ++i)
   {
     entry_.first[0] = i;
     entry_.second = range_[i];

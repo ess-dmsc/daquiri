@@ -133,23 +133,27 @@ void SparseMap3D::data_save(hdf5::node::Group g) const
   property::DatasetCreationList dcpl;
   dcpl.layout(property::DatasetLayout::CHUNKED);
 
-  dataspace::Simple i_space({spectrum_.size(),3});
-  dcpl.chunk({128,3});
+  size_t chunksize = spectrum_.size();
+  if (chunksize > 128)
+    chunksize = 128;
+
+  dataspace::Simple i_space({spectrum_.size(), 3});
+  dcpl.chunk({chunksize, 3});
   auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
 
   dataspace::Simple c_space({spectrum_.size()});
-  dcpl.chunk({128});
+  dcpl.chunk({chunksize});
   auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
 
-  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(spectrum_.size()), 1});
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
 
-  slab.offset({0,0});
+  slab.offset({0, 0});
   didx.write(dx, slab);
 
-  slab.offset({0,1});
+  slab.offset({0, 1});
   didx.write(dy, slab);
 
-  slab.offset({0,2});
+  slab.offset({0, 2});
   didx.write(dz, slab);
 
   dcts.write(dc);
@@ -169,24 +173,24 @@ void SparseMap3D::data_load(hdf5::node::Group g)
   auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
   auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0,0}, {static_cast<size_t>(didx_ds[0]), 1});
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
   std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0,0});
+  slab.offset({0, 0});
   didx.read(dx, slab);
 
   std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0,1});
+  slab.offset({0, 1});
   didx.read(dy, slab);
 
   std::vector<uint16_t> dz(didx_ds[0], 0);
-  slab.offset({0,2});
+  slab.offset({0, 2});
   didx.read(dz, slab);
 
   std::vector<double> dc(dcts_ds[0], 0.0);
   dcts.read(dc);
 
-  for (size_t i=0; i < dx.size(); ++i)
+  for (size_t i = 0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dz[i], dc[i]);
 }
 

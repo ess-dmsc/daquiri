@@ -52,7 +52,7 @@ void TOFVal2D::_apply_attributes()
   Spectrum::_apply_attributes();
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
-  downsample_ = metadata_.get_attribute("value_downsample").get_number();
+  downsample_ = metadata_.get_attribute("downsample").get_number();
 
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);

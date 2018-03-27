@@ -63,8 +63,9 @@ std::string DataAxis::debug() const
     ss << " [" << domain[0]
        << "-" << domain[domain.size()-1]
        << "]";
-  if (calibration.valid())
-    ss << " " << calibration.debug();
+  if (resample_shift_)
+    ss << " [resample_shift=" << resample_shift_ << "]";
+  ss << " " << calibration.debug();
   return ss.str();
 }
 
