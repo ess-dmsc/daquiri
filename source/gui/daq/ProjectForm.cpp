@@ -118,7 +118,7 @@ void ProjectForm::loadSettings()
   settings.endGroup();
 
   spectra_templates_ =
-      from_json_file(Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
+      from_json_file(Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
@@ -149,10 +149,10 @@ void ProjectForm::saveSettings()
       && !project_->empty())
   {
     spectra_templates_.clear();
-    for (auto &q : project_->get_sinks())
+    for (auto &q : project_->get_consumers())
       spectra_templates_.add_a(q.second->metadata().prototype());
     to_json_file(spectra_templates_,
-                 Profiles::current_profile_dir().toStdString() + "/default_sinks.tem");
+                 Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
   }
 }
 
@@ -407,7 +407,7 @@ void ProjectForm::on_pushForceRefresh_clicked()
 
 //void ProjectForm::on_pushDetails_clicked()
 //{
-////  for (auto &q : project_->get_sinks())
+////  for (auto &q : project_->get_consumers())
 ////    DBG << "\n" << q.first << "=" << q.second->debug();
 
 //  FormDaqSettings *DaqInfo = new FormDaqSettings(project_, this);

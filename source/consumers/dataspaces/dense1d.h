@@ -22,9 +22,6 @@ class Dense1D : public Dataspace
 
     void save(std::ostream& os) override;
 
-    void save(hdf5::node::Group&) const override;
-    void load(hdf5::node::Group&) override;
-
   protected:
     // data
     std::vector<PreciseFloat> spectrum_;
@@ -32,6 +29,8 @@ class Dense1D : public Dataspace
     size_t maxchan_ {0};
 
     std::string data_debug(const std::string& prepend) const override;
+    void data_save(hdf5::node::Group) const override;
+    void data_load(hdf5::node::Group) override;
 };
 
 }

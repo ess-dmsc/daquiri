@@ -3,8 +3,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 1
-
 Prebinned1D::Prebinned1D()
   : Spectrum()
 {
@@ -30,48 +28,17 @@ void Prebinned1D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
   trace_name_ = metadata_.get_attribute("value_name").get_text();
-
   this->_recalc_axes();
 }
 
 void Prebinned1D::_init_from_file()
 {
+  domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
-}
-
-void Prebinned1D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void Prebinned1D::_recalc_axes()
 {
-//  Detector det;
-//  if (data_->dimensions() == metadata_.detectors.size())
-//    det = metadata_.detectors[0];
-
-//  auto calib = det.get_calibration({val_name_, det.id()}, {val_name_});
-//  data_->set_axis(0, DataAxis(calib, downsample_));
-
-//  data_->recalc_axes();
-
   CalibID id(trace_name_);
   DataAxis ax;
   ax.calibration = Calibration(id, id);

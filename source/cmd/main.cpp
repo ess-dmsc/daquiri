@@ -11,6 +11,8 @@
 
 #include "custom_timer.h"
 
+#include "h5json.h"
+
 using namespace DAQuiri;
 
 Setting get_profile();
@@ -20,6 +22,8 @@ void define_value(Engine& e, uint16_t num,
 
 int main(int argc, char **argv)
 {
+  hdf5::error::Singleton::instance().auto_print(false);
+
   producers_autoreg();
   consumers_autoreg();
 
@@ -35,10 +39,11 @@ int main(int argc, char **argv)
   auto& engine = Engine::singleton();
   engine.initialize(get_profile());
 
-  engine.set_setting(Setting::integer("MockProducer/ValueCount", 3), Match::id);
-  define_value(engine, 0, "energy", 50, 2500);
-  define_value(engine, 1, "x", 30, 2500);
-  define_value(engine, 2, "y", 70, 2500);
+  engine.set_setting(Setting::integer("MockProducer/ValueCount", 4), Match::id);
+  define_value(engine, 0, "x", 30, 2500);
+  define_value(engine, 1, "y", 50, 2500);
+  define_value(engine, 2, "z", 70, 2500);
+  define_value(engine, 3, "energy", 1, 3000);
 
   engine.boot();
 
@@ -60,9 +65,16 @@ int main(int argc, char **argv)
 
   DBG << "\n" << *project;
 
-  project->save_split("./test_split");
+  DBG << "============================";
+  DBG << "======testing file ops======";
+  DBG << "============================";
 
-  wait_ms(2000);
+  project->save_split("./test_split");
+  project->save_as("./results.h5");
+  ProjectPtr project2 = ProjectPtr( new Project() );
+  project2->open("./results.h5");
+
+  DBG << "\n" << *project2;
 
   return 0;
 }
@@ -74,7 +86,7 @@ Setting get_profile()
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
   settings.set_text("producer1");
   settings.set(Setting::text("MockProducer/StreamID", "exy"));
-  settings.set(Setting::floating("MockProducer/SpillInterval", 0.1));
+  settings.set(Setting::floating("MockProducer/SpillInterval", 0.2));
   settings.set(Setting::integer("MockProducer/Resolution", 16));
   settings.set(Setting::floating("MockProducer/CountRate", 50000));
   settings.set(Setting::floating("MockProducer/DeadTime", 5));
@@ -89,38 +101,87 @@ void define_value(Engine& e, uint16_t num,
   auto n = Setting::text("MockProducer/Value/Name", name);
   auto c = Setting::floating("MockProducer/Value/PeakCenter", center);
   auto s = Setting::floating("MockProducer/Value/PeakSpread", spread);
+  auto tl = Setting::integer("MockProducer/Value/TraceLength", 30);
   n.set_indices({num});
   c.set_indices({num});
   s.set_indices({num});
+  tl.set_indices({num});
   e.set_setting(n, Match::id | Match::indices);
   e.set_setting(c, Match::id | Match::indices);
   e.set_setting(s, Match::id | Match::indices);
+  e.set_setting(tl, Match::id | Match::indices);
 }
-
 
 Container<ConsumerMetadata> get_prototypes()
 {
   Container<ConsumerMetadata> prototypes;
 
   auto ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
-  ptype.set_attribute(Setting::integer("downsample", 9));
+  ptype.set_attribute(Setting::integer("downsample", 10));
   ptype.set_attribute(Setting::text("stream_id", "exy"));
-  ptype.set_attribute(Setting::text("value_name", "energy"));
+  ptype.set_attribute(Setting::text("value_name", "x"));
   prototypes.add(ptype);
 
+  auto pbtype = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
+  pbtype.set_attribute(Setting::text("stream_id", "exy"));
+  pbtype.set_attribute(Setting::text("value_name", "x"));
+  prototypes.add(pbtype);
+
+  auto toftype = ConsumerFactory::singleton().create_prototype("Time of Flight 1D");
+  toftype.set_attribute(Setting::text("stream_id", "exy"));
+  toftype.set_attribute(Setting::floating("time_resolution", 10));
+  toftype.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(toftype);
+
+  auto tdtype = ConsumerFactory::singleton().create_prototype("Time-Activity 1D");
+  tdtype.set_attribute(Setting::text("stream_id", "exy"));
+  tdtype.set_attribute(Setting::floating("time_resolution", 25));
+  tdtype.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(tdtype);
+
+
+
+
   auto itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
-  itype.set_attribute(Setting::integer("downsample", 10));
+  itype.set_attribute(Setting::integer("downsample", 11));
   itype.set_attribute(Setting::text("stream_id", "exy"));
   itype.set_attribute(Setting::text("x_name", "x"));
   itype.set_attribute(Setting::text("y_name", "y"));
   prototypes.add(itype);
 
+  auto imtype = ConsumerFactory::singleton().create_prototype("Image 2D");
+  imtype.set_attribute(Setting::integer("downsample", 11));
+  imtype.set_attribute(Setting::text("stream_id", "exy"));
+  imtype.set_attribute(Setting::text("x_name", "x"));
+  imtype.set_attribute(Setting::text("y_name", "y"));
+  imtype.set_attribute(Setting::text("val_name", "energy"));
+  prototypes.add(imtype);
+
+  auto tof2type = ConsumerFactory::singleton().create_prototype("Time of Flight 2D");
+  tof2type.set_attribute(Setting::text("stream_id", "exy"));
+  tof2type.set_attribute(Setting::integer("downsample", 10));
+  tof2type.set_attribute(Setting::text("value_name", "x"));
+  tof2type.set_attribute(Setting::floating("time_resolution", 10));
+  tof2type.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(tof2type);
+
+  auto tstype = ConsumerFactory::singleton().create_prototype("TimeSpectrum 2D");
+  tstype.set_attribute(Setting::text("stream_id", "exy"));
+  tstype.set_attribute(Setting::text("value_name", "x"));
+  tstype.set_attribute(Setting::integer("downsample", 11));
+  tstype.set_attribute(Setting::floating("time_resolution", 25));
+  tstype.set_attribute(Setting::integer("time_units", 6));
+  prototypes.add(tstype);
+
+
+
+
   auto vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
-  vtype.set_attribute(Setting::integer("downsample", 11));
+  vtype.set_attribute(Setting::integer("downsample", 12));
   vtype.set_attribute(Setting::text("stream_id", "exy"));
   vtype.set_attribute(Setting::text("x_name", "x"));
   vtype.set_attribute(Setting::text("y_name", "y"));
-  vtype.set_attribute(Setting::text("z_name", "energy"));
+  vtype.set_attribute(Setting::text("z_name", "z"));
   prototypes.add(vtype);
 
   return prototypes;

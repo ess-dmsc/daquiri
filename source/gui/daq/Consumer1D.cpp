@@ -59,7 +59,14 @@ void Consumer1D::update()
   if (data)
   {
     axis = data->axis(0);
-    spectrum_data = data->range({axis.bounds()});
+    auto bounds = axis.bounds();
+    if (md.get_attribute("trim").get_bool() &&
+        ((bounds.second - bounds.first) > 1))
+    {
+      bounds.second--;
+    }
+
+    spectrum_data = data->range({bounds});
   }
 
   QPlot::HistMap1D hist;

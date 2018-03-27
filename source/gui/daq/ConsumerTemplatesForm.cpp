@@ -325,7 +325,7 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
   {
     return;
   }
-  templates_ = from_json_file(root_dir_.toStdString() + "/default_sinks.tem");
+  templates_ = from_json_file(root_dir_.toStdString() + "/default_consumers.tem");
 
   selection_model_.reset();
   table_model_.update();
@@ -334,7 +334,7 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 
 void ConsumerTemplatesForm::save_default()
 {
-  to_json_file(templates_, root_dir_.toStdString() + "/default_sinks.tem");
+  to_json_file(templates_, root_dir_.toStdString() + "/default_consumers.tem");
 }
 
 void ConsumerTemplatesForm::on_pushClear_clicked()

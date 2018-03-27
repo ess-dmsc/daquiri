@@ -3,8 +3,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 2
-
 TimeSpectrum::TimeSpectrum()
 {
   data_ = std::make_shared<SparseMatrix2D>(); //use dense 2d
@@ -65,43 +63,13 @@ void TimeSpectrum::_apply_attributes()
   filters_.settings(metadata_.get_attribute("filters"));
   metadata_.replace_attribute(filters_.settings());
 
-//  DBG << "Time resolution " << metadata_.get_attribute("time_resolution").get_number()
-//      << " " << units_name_;
-//  DBG << "Units multiplier = ns / 10^" << unit
-//      << "  =  ns / " << units_multiplier_
-//      << "  =  ns * " << time_resolution_;
-
-//  DBG << "One bin = " << 1.0 / time_resolution_ / units_multiplier_;
-
   this->_recalc_axes();
 }
 
 void TimeSpectrum::_init_from_file()
 {
-  metadata_.set_attribute(Setting::integer("value_downsample", downsample_));
+  domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
-}
-
-void TimeSpectrum::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
-
-  this->_recalc_axes();
 }
 
 void TimeSpectrum::_recalc_axes()

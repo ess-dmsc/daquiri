@@ -3,8 +3,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 1
-
 Histogram1D::Histogram1D()
   : Spectrum()
 {
@@ -42,34 +40,6 @@ void Histogram1D::_apply_attributes()
 
   filters_.settings(metadata_.get_attribute("filters"));
   metadata_.replace_attribute(filters_.settings());
-
-  this->_recalc_axes();
-}
-
-void Histogram1D::_init_from_file()
-{
-  metadata_.set_attribute(Setting::integer("downsample", downsample_));
-  Spectrum::_init_from_file();
-}
-
-void Histogram1D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(kDimensions, Detector());
-
-  if (dets.size() == kDimensions)
-    metadata_.detectors = dets;
-
-  if (dets.size() >= kDimensions)
-  {
-    for (size_t i=0; i < dets.size(); ++i)
-    {
-      if (metadata_.chan_relevant(i))
-      {
-        metadata_.detectors[0] = dets[i];
-        break;
-      }
-    }
-  }
 
   this->_recalc_axes();
 }

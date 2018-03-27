@@ -3,6 +3,7 @@
 
 #include <codecvt>
 #include <locale>
+#include "h5json.h"
 
 namespace DAQuiri {
 
@@ -62,10 +63,27 @@ std::string DataAxis::debug() const
     ss << " [" << domain[0]
        << "-" << domain[domain.size()-1]
        << "]";
-  if (calibration.valid())
-    ss << " " << calibration.debug();
+  if (resample_shift_)
+    ss << " [resample_shift=" << resample_shift_ << "]";
+  ss << " " << calibration.debug();
   return ss.str();
 }
+
+void to_json(json& j, const DataAxis &da)
+{
+  j["calibration"] = da.calibration;
+  j["resample_shift"] = da.resample_shift_;
+//  j["domain"] = da.domain;
+}
+
+void from_json(const json& j, DataAxis &da)
+{
+  da.calibration = j["calibration"];
+  da.resample_shift_ = j["resample_shift"];
+//  da.domain = j["domain"].get<std::vector<double>>();
+}
+
+
 
 
 Dataspace::Dataspace()
@@ -108,6 +126,54 @@ void Dataspace::set_axis(size_t dim, const DataAxis& ax)
 uint16_t Dataspace::dimensions() const
 {
   return dimensions_;
+}
+
+void Dataspace::load(hdf5::node::Group &g)
+{
+  using namespace hdf5;
+
+  auto dgroup = g.get_group("dataspace");
+  axes_.clear();
+  if (dgroup.has_group("axes"))
+  {
+    for (auto n : dgroup.get_group("axes").nodes)
+    {
+      auto ssg = node::Group(n);
+      json jj;
+      hdf5::to_json(jj, ssg);
+      DataAxis ax = jj;
+      auto domainds = ssg.get_dataset("domain");
+      auto shape = dataspace::Simple(domainds.dataspace()).current_dimensions();
+      ax.domain.resize(shape[0]);
+      domainds.read(ax.domain);
+      axes_.push_back(ax);
+    }
+  }
+
+  this->data_load(node::Group(dgroup["data"]));
+}
+
+void Dataspace::save(hdf5::node::Group &g) const
+{
+  using namespace hdf5;
+
+  auto dgroup = g.create_group("dataspace");
+  if (axes_.size())
+  {
+    auto axes_group = dgroup.create_group("axes");
+    for (size_t i=0; i < axes_.size(); ++i)
+    {
+      auto ssg = axes_group.create_group(vector_idx_minlen(i, axes_.size() - 1));
+      hdf5::from_json(json(axes_[i]), ssg);
+      auto& data = axes_[i].domain;
+      auto dtype = datatype::create<double>();
+      auto dspace = hdf5::dataspace::Simple({data.size()});
+      auto domainds = ssg.create_dataset("domain", dtype, dspace);
+      domainds.write(data);
+    }
+  }
+
+  this->data_save(dgroup.create_group("data"));
 }
 
 std::string Dataspace::debug(std::string prepend) const

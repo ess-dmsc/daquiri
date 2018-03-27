@@ -18,7 +18,7 @@ protected:
   int64_t current_index_ {0};
 
   //data
-  std::map<int64_t, ConsumerPtr> sinks_;
+  std::map<int64_t, ConsumerPtr> consumers_;
   std::list<Spill> spills_;
 
   //saveability
@@ -35,8 +35,8 @@ public:
 
   //populate one of these ways
   void set_prototypes(const Container<ConsumerMetadata>&);
-  int64_t add_sink(ConsumerPtr sink);
-  int64_t add_sink(ConsumerMetadata prototype);
+  int64_t add_consumer(ConsumerPtr consumer);
+  int64_t add_consumer(ConsumerMetadata prototype);
 
   void save();
   void save_as(std::string file_name);
@@ -44,12 +44,12 @@ public:
   void save_split(std::string file_name);
 
   void open(std::string file_name,
-            bool with_sinks = true,
-            bool with_full_sinks = true);
+            bool with_consumers = true,
+            bool with_full_consumers = true);
 
-  void delete_sink(int64_t idx);
+  void delete_consumer(int64_t idx);
 
-  //acquisition feeds events to all sinks
+  //acquisition feeds events to all consumers
   void add_spill(SpillPtr one_spill);
   void flush();
 
@@ -67,10 +67,10 @@ public:
 
   std::list<Spill> spills() const;
   
-  //get sinks
-  ConsumerPtr get_sink(int64_t idx);
-  std::map<int64_t, ConsumerPtr> get_sinks(int32_t dimensions = -1);
-  std::map<int64_t, ConsumerPtr> get_sinks(std::string type);
+  //get consumers
+  ConsumerPtr get_consumer(int64_t idx);
+  std::map<int64_t, ConsumerPtr> get_consumers(int32_t dimensions = -1);
+  std::map<int64_t, ConsumerPtr> get_consumers(std::string type);
 
   friend std::ostream &operator<<(std::ostream &stream,
                                   const Project &project);

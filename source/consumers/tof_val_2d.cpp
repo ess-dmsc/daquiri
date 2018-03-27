@@ -3,8 +3,6 @@
 
 #include "custom_logger.h"
 
-#define kDimensions 2
-
 TOFVal2D::TOFVal2D()
   : Spectrum()
 {
@@ -54,7 +52,7 @@ void TOFVal2D::_apply_attributes()
   Spectrum::_apply_attributes();
   time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   val_name_ = metadata_.get_attribute("value_name").get_text();
-  downsample_ = metadata_.get_attribute("value_downsample").get_number();
+  downsample_ = metadata_.get_attribute("downsample").get_number();
 
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
@@ -70,20 +68,8 @@ void TOFVal2D::_apply_attributes()
 
 void TOFVal2D::_init_from_file()
 {
-//  metadata_.set_attribute(Setting::integer("resolution", bits_));
-
-  metadata_.set_attribute(Setting::integer("value_downsample", downsample_));
+  domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
-}
-
-void TOFVal2D::_set_detectors(const std::vector<Detector>& dets)
-{
-  metadata_.detectors.resize(1, Detector());
-
-  if (dets.size() == 1)
-    metadata_.detectors = dets;
-
-  this->_recalc_axes();
 }
 
 void TOFVal2D::_recalc_axes()

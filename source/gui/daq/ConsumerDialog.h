@@ -21,7 +21,7 @@ public:
                             std::vector<DAQuiri::Detector> current_detectors,
                             Container<DAQuiri::Detector>& detDB,
                             DAQuiri::StreamManifest stream_manifest,
-                            bool has_sink_parent,
+                            bool has_consumer_parent,
                             bool allow_edit_type,
                             QWidget *parent = 0);
     ~ConsumerDialog();
@@ -64,7 +64,7 @@ private:
 //    QItemSelectionModel det_selection_model_;
 
     bool changed_;
-    bool has_sink_parent_;
+    bool has_consumer_parent_;
 
     void updateData();
     void open_close_locks();

@@ -96,7 +96,7 @@ void ProjectView::selectorItemToggled(SelectorItem item)
 void ProjectView::enforce_item(SelectorItem item)
 {
   int64_t id = item.data.toLongLong();
-  ConsumerPtr consumer = project_->get_sink(id);
+  ConsumerPtr consumer = project_->get_consumer(id);
   if (!consumer)
     return;
   consumer->set_attribute(Setting::boolean("visible", item.visible));
@@ -135,7 +135,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
 {
   SelectorItem itm = selector_->selected();
 
-  ConsumerPtr consumer = project_->get_sink(itm.data.toLongLong());
+  ConsumerPtr consumer = project_->get_consumer(itm.data.toLongLong());
 
   if (!consumer)
   {
@@ -186,7 +186,7 @@ void ProjectView::updateUI()
   SelectorItem chosen = selector_->selected();
   QVector<SelectorItem> items;
 
-  for (auto &q : project_->get_sinks())
+  for (auto &q : project_->get_consumers())
   {
     if (!q.second)
       continue;
@@ -242,7 +242,7 @@ void ProjectView::update_plots()
 
 void ProjectView::on_pushFullInfo_clicked()
 {  
-  ConsumerPtr consumer = project_->get_sink(selector_->selected().data.toLongLong());
+  ConsumerPtr consumer = project_->get_consumer(selector_->selected().data.toLongLong());
   if (!consumer)
     return;
 
@@ -266,7 +266,7 @@ void ProjectView::on_pushFullInfo_clicked()
 void ProjectView::showAll()
 {
   selector_->show_all();
-  for (auto &q : project_->get_sinks())
+  for (auto &q : project_->get_consumers())
     if (q.second)
       q.second->set_attribute(Setting::boolean("visible", true));
   updateUI();
@@ -277,7 +277,7 @@ void ProjectView::showAll()
 void ProjectView::hideAll()
 {
   selector_->hide_all();
-  for (auto &q : project_->get_sinks())
+  for (auto &q : project_->get_consumers())
     if (q.second)
       q.second->set_attribute(Setting::boolean("visible", false));
   updateUI();
@@ -287,7 +287,7 @@ void ProjectView::hideAll()
 
 void ProjectView::randAll()
 {
-  for (auto &q : project_->get_sinks())
+  for (auto &q : project_->get_consumers())
     if (q.second)
     {
       Setting appearance = q.second->metadata().get_attribute("appearance");
@@ -303,7 +303,7 @@ void ProjectView::randAll()
 
 void ProjectView::deleteSelected()
 {
-  project_->delete_sink(selector_->selected().data.toLongLong());
+  project_->delete_consumer(selector_->selected().data.toLongLong());
   updateUI();
   enforce_all();
   update();
@@ -313,7 +313,7 @@ void ProjectView::deleteShown()
 {
   for (auto &q : selector_->items())
     if (q.visible)
-      project_->delete_sink(q.data.toLongLong());
+      project_->delete_consumer(q.data.toLongLong());
   updateUI();
   enforce_all();
   update();
@@ -323,7 +323,7 @@ void ProjectView::deleteHidden()
 {
   for (auto &q : selector_->items())
     if (!q.visible)
-      project_->delete_sink(q.data.toLongLong());
+      project_->delete_consumer(q.data.toLongLong());
   updateUI();
   enforce_all();
   update();
@@ -420,7 +420,7 @@ void ProjectView::consumerWidgetDestroyed(QObject* o)
   for (auto it = consumers_.begin(); it != consumers_.end();)
     if (it.value() == o)
     {
-      auto c = project_->get_sink(it.key());
+      auto c = project_->get_consumer(it.key());
       if (c)
         c->set_attribute(Setting::boolean("visible", false));
       consumers_.erase(it++);

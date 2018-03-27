@@ -21,11 +21,6 @@ class SparseMap3D : public Dataspace
 
     void save(std::ostream& os) override;
 
-    void save(hdf5::node::Group&) const override;
-    void load(hdf5::node::Group&) override;
-
-    std::string data_debug(const std::string& prepend) const override;
-
   protected:
     using tripple = std::tuple<uint16_t,uint16_t,uint16_t>;
     using SpectrumMap3D = std::map<tripple, PreciseFloat>;
@@ -62,6 +57,11 @@ class SparseMap3D : public Dataspace
                    size_t min0, size_t max0,
                    size_t min1, size_t max1,
                    size_t min2, size_t max2) const;
+
+    void data_save(hdf5::node::Group) const override;
+    void data_load(hdf5::node::Group) override;
+
+    std::string data_debug(const std::string& prepend) const override;
 };
 
 }

@@ -14,8 +14,6 @@ protected:
   std::string my_type() const override {return "Image 2D";}
 
   void _apply_attributes() override;
-  void _init_from_file() override;
-  void _set_detectors(const std::vector<Detector>& dets) override;
   void _recalc_axes() override;
 
   void _push_event(const Event&) override;

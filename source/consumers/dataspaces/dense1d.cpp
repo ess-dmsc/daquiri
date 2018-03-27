@@ -85,37 +85,28 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   return result;
 }
 
-void Dense1D::save(hdf5::node::Group& g) const
+void Dense1D::data_save(hdf5::node::Group g) const
 {
-  std::vector<double> d(maxchan_);
+  if (!spectrum_.size())
+    return;
+
+  std::vector<double> d(maxchan_ + 1);
   for (uint32_t i = 0; i <= maxchan_; i++)
     d[i] = static_cast<double>(spectrum_[i]);
 
   auto dtype = hdf5::datatype::create<double>();
-  auto dspace = hdf5::dataspace::Simple({maxchan_});
-
-//  auto dset = g.create_dataset("data", dtype, dspace);
-//  auto dset = g.create_dataset("data",
-//                               hdf5::datatype::create<double>(),
-//                               dspace);
-
-//  auto dset = g.create_dataset("data",
-//                               hdf5::datatype::create<double>(),
-//                               hdf5::dataspace::Simple({maxchan_}, {maxchan_}));
-
-//  auto dset = g.require_dataset<double>("data", {maxchan_});
-//  dset.write(d);
+  auto dspace = hdf5::dataspace::Simple({d.size()});
+  auto dset = g.create_dataset("counts", dtype, dspace);
+  dset.write(d);
 }
 
-void Dense1D::load(hdf5::node::Group& g)
+void Dense1D::data_load(hdf5::node::Group g)
 {
-  if (!hdf5::has_dataset(g, "data"))
-    return;
-  auto dset = hdf5::node::Dataset(g["data"]);
-  auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
-  if (shape.size() != 1)
+  if (!g.has_dataset("counts"))
     return;
 
+  auto dset = hdf5::node::Dataset(g["counts"]);
+  auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
   std::vector<double> rdata(shape[0]);
   dset.read(rdata);
 
@@ -126,8 +117,10 @@ void Dense1D::load(hdf5::node::Group& g)
   }
 
   maxchan_ = 0;
+  total_count_ = 0;
   for (size_t i = 0; i < rdata.size(); i++)
   {
+    total_count_ += rdata[i];
     spectrum_[i] = PreciseFloat(rdata[i]);
     if (rdata[i])
       maxchan_ = i;

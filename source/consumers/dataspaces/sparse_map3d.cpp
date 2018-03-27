@@ -2,6 +2,8 @@
 #include "ascii_tree.h"
 #include "h5json.h"
 
+#include "custom_logger.h"
+
 namespace DAQuiri
 {
 
@@ -105,28 +107,17 @@ void SparseMap3D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap3D::save(hdf5::node::Group& g) const
+void SparseMap3D::data_save(hdf5::node::Group g) const
 {
-  auto dgroup = hdf5::require_group(g, "data");
-
-  hdf5::property::LinkCreationList lcpl;
-  hdf5::property::DatasetCreationList dcpl;
-  dcpl.layout(hdf5::property::DatasetLayout::CHUNKED);
-
-  hdf5::dataspace::Simple i_space({spectrum_.size(),3});
-  dcpl.chunk({128,3});
-  auto didx = dgroup.create_dataset("indices", hdf5::datatype::create<uint16_t>(), i_space, lcpl, dcpl);
-
-  hdf5::dataspace::Simple c_space({spectrum_.size()});
-  dcpl.chunk({128});
-  auto dcts = dgroup.create_dataset("counts", hdf5::datatype::create<double>(), c_space, lcpl, dcpl);
+  if (!spectrum_.size())
+    return;
 
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
   std::vector<uint16_t> dz(spectrum_.size());
   std::vector<double> dc(spectrum_.size());
   size_t i = 0;
-  
+
   for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
   {
     dx[i] = std::get<0>(it->first);
@@ -136,62 +127,70 @@ void SparseMap3D::save(hdf5::node::Group& g) const
     i++;
   }
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({spectrum_.size(), 1});
+  using namespace hdf5;
 
-  slab.offset({0,0});
+  property::LinkCreationList lcpl;
+  property::DatasetCreationList dcpl;
+  dcpl.layout(property::DatasetLayout::CHUNKED);
+
+  size_t chunksize = spectrum_.size();
+  if (chunksize > 128)
+    chunksize = 128;
+
+  dataspace::Simple i_space({spectrum_.size(), 3});
+  dcpl.chunk({chunksize, 3});
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+
+  dataspace::Simple c_space({spectrum_.size()});
+  dcpl.chunk({chunksize});
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
+
+  slab.offset({0, 0});
   didx.write(dx, slab);
 
-  slab.offset({0,1});
+  slab.offset({0, 1});
   didx.write(dy, slab);
 
-  slab.offset({0,2});
+  slab.offset({0, 2});
   didx.write(dz, slab);
 
   dcts.write(dc);
 }
 
-void SparseMap3D::load(hdf5::node::Group& g)
+void SparseMap3D::data_load(hdf5::node::Group g)
 {
-  if (!hdf5::has_group(g, "data"))
-    return;
-  auto dgroup = hdf5::node::Group(g.nodes["data"]);
+  using namespace hdf5;
 
-  if (!hdf5::has_dataset(dgroup, "indices") ||
-      !hdf5::has_dataset(dgroup, "counts"))
+  if (!g.has_dataset("indices") ||
+      !g.has_dataset("counts"))
     return;
 
-  auto didx = hdf5::node::Dataset(dgroup.nodes["indices"]);
-  auto dcts = hdf5::node::Dataset(dgroup.nodes["counts"]);
+  auto didx = g.get_dataset("indices");
+  auto dcts = g.get_dataset("counts");
 
-  auto didx_ds = hdf5::dataspace::Simple(didx.dataspace());
-  auto dcts_ds = hdf5::dataspace::Simple(dcts.dataspace());
-  if ((didx_ds.current_dimensions().size() != 3) ||
-      (dcts_ds.current_dimensions().size() != 1) ||
-      (didx_ds.current_dimensions()[0] !=
-          dcts_ds.current_dimensions()[0]))
-    return;
+  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  std::vector<uint16_t> dx(didx_ds.current_dimensions()[0]);
-  std::vector<uint16_t> dy(didx_ds.current_dimensions()[0]);
-  std::vector<uint16_t> dz(didx_ds.current_dimensions()[0]);
-  std::vector<double> dc(didx_ds.current_dimensions()[0]);
+  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  hdf5::dataspace::Hyperslab slab;
-  slab.block({dx.size(), 1});
-
-  slab.offset(0,0);
+  std::vector<uint16_t> dx(didx_ds[0], 0);
+  slab.offset({0, 0});
   didx.read(dx, slab);
 
-  slab.offset(0,1);
+  std::vector<uint16_t> dy(didx_ds[0], 0);
+  slab.offset({0, 1});
   didx.read(dy, slab);
 
-  slab.offset(0,2);
+  std::vector<uint16_t> dz(didx_ds[0], 0);
+  slab.offset({0, 2});
   didx.read(dz, slab);
 
+  std::vector<double> dc(dcts_ds[0], 0.0);
   dcts.read(dc);
 
-  for (size_t i=0; i < dx.size(); ++i)
+  for (size_t i = 0; i < dx.size(); ++i)
     bin_pair(dx[i], dy[i], dz[i], dc[i]);
 }
 

@@ -33,6 +33,32 @@ void Consumer::_init_from_file()
   this->_flush();
 }
 
+void Consumer::_set_detectors(const std::vector<Detector>& dets)
+{
+  if (!data_)
+    return;
+  auto dims = data_->dimensions();
+
+  metadata_.detectors.resize(dims, Detector());
+
+  if (dets.size() == dims)
+    metadata_.detectors = dets;
+
+  if (dets.size() >= dims)
+  {
+    for (size_t i=0; i < dets.size(); ++i)
+    {
+      if (metadata_.chan_relevant(i))
+      {
+        metadata_.detectors[0] = dets[i];
+        break;
+      }
+    }
+  }
+
+  this->_recalc_axes();
+}
+
 void Consumer::from_prototype(const ConsumerMetadata& newtemplate)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
@@ -192,7 +218,8 @@ void Consumer::load(hdf5::node::Group& g, bool withdata)
   if (withdata && data_)
     data_->load(g);
 
-  this->_recalc_axes();
+  this->_init_from_file();
+//  this->_recalc_axes();
 }
 
 void Consumer::save(hdf5::node::Group& g) const
@@ -203,7 +230,6 @@ void Consumer::save(hdf5::node::Group& g) const
 //  g.write_attribute("type", this->my_type());
 
   auto mdg = hdf5::require_group(g, "metadata");
-
   hdf5::from_json(json(metadata_), mdg);
 
   if (data_)

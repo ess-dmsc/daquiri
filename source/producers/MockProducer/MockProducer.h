@@ -16,7 +16,7 @@ struct ValueDefinition
   double spread{100};
   std::normal_distribution<double> dist;
 
-  uint32_t trace_size{500};
+  uint32_t trace_size{100};
   uint32_t trace_baseline{0};
   double trace_onset{0.1};
   double trace_risetime{0.2};
