@@ -61,7 +61,7 @@ void Consumer1D::update()
     axis = data->axis(0);
     auto bounds = axis.bounds();
     if (md.get_attribute("trim").get_bool() &&
-        ((bounds.second - bounds.first) > 2))
+        ((bounds.second - bounds.first) > 1))
     {
       bounds.second--;
     }

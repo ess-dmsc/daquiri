@@ -92,6 +92,14 @@
        ],
        "type": "floating",
        "value": 1000.0
+      },
+      {
+       "id": "MockProducer/Value/TraceLength",
+       "indices": [
+        0
+       ],
+       "type": "integer",
+       "value": 250
       }
      ],
      "id": "MockProducer/Value",
@@ -125,6 +133,14 @@
        ],
        "type": "floating",
        "value": 3000.0
+      },
+      {
+       "id": "MockProducer/Value/TraceLength",
+       "indices": [
+        1
+       ],
+       "type": "integer",
+       "value": 250
       }
      ],
      "id": "MockProducer/Value",
@@ -158,6 +174,14 @@
        ],
        "type": "floating",
        "value": 3000.0
+      },
+      {
+       "id": "MockProducer/Value/TraceLength",
+       "indices": [
+        2
+       ],
+       "type": "integer",
+       "value": 250
       }
      ],
      "id": "MockProducer/Value",
@@ -191,6 +215,14 @@
        ],
        "type": "floating",
        "value": 3000.0
+      },
+      {
+       "id": "MockProducer/Value/TraceLength",
+       "indices": [
+        3
+       ],
+       "type": "integer",
+       "value": 250
       }
      ],
      "id": "MockProducer/Value",

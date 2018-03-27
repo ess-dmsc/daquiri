@@ -101,14 +101,16 @@ void define_value(Engine& e, uint16_t num,
   auto n = Setting::text("MockProducer/Value/Name", name);
   auto c = Setting::floating("MockProducer/Value/PeakCenter", center);
   auto s = Setting::floating("MockProducer/Value/PeakSpread", spread);
+  auto tl = Setting::integer("MockProducer/Value/TraceLength", 30);
   n.set_indices({num});
   c.set_indices({num});
   s.set_indices({num});
+  tl.set_indices({num});
   e.set_setting(n, Match::id | Match::indices);
   e.set_setting(c, Match::id | Match::indices);
   e.set_setting(s, Match::id | Match::indices);
+  e.set_setting(tl, Match::id | Match::indices);
 }
-
 
 Container<ConsumerMetadata> get_prototypes()
 {

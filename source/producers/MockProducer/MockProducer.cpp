@@ -10,10 +10,6 @@ void ValueDefinition::define(EventModel &def)
 
   if (trace_size)
     def.add_trace(name, {trace_size});
-
-  DBG << "Adding " << name
-      << " at center=" << center
-      << " spread=" << spread;
 }
 
 void ValueDefinition::generate(size_t index, Event &event, std::default_random_engine &gen)
@@ -131,10 +127,17 @@ MockProducer::MockProducer()
   ps.set_val("step", 0.01);
   add_definition(ps);
 
+  SettingMeta ptl(mp + "Value/TraceLength", SettingType::integer, "Trace length");
+  ptl.set_flag("preset");
+  ptl.set_val("min", 0);
+  ptl.set_val("step", 1);
+  add_definition(ptl);
+
   SettingMeta val(mp + "Value", SettingType::stem);
   val.set_enum(0, mp + "Value/Name");
   val.set_enum(1, mp + "Value/PeakCenter");
   val.set_enum(2, mp + "Value/PeakSpread");
+  val.set_enum(3, mp + "Value/TraceLength");
   add_definition(val);
 
   SettingMeta root("MockProducer", SettingType::stem);
@@ -221,6 +224,7 @@ void MockProducer::read_settings_bulk(Setting &set) const
     v.set(Setting::text("MockProducer/Value/Name", val_defs_[i].name));
     v.set(Setting::floating("MockProducer/Value/PeakCenter", val_defs_[i].center * 100));
     v.set(Setting::floating("MockProducer/Value/PeakSpread", val_defs_[i].spread));
+    v.set(Setting::integer("MockProducer/Value/TraceLength", val_defs_[i].trace_size));
     for (auto &vv : v.branches)
       vv.set_indices({i});
     set.branches.add_a(v);
@@ -259,6 +263,7 @@ void MockProducer::write_settings_bulk(const Setting &settings)
       continue;
     val_defs_[idx].center = v.find({"MockProducer/Value/PeakCenter"}).get_number() * 0.01;
     val_defs_[idx].spread = v.find({"MockProducer/Value/PeakSpread"}).get_number();
+    val_defs_[idx].trace_size = v.find({"MockProducer/Value/TraceLength"}).get_number();
     val_defs_[idx].name = v.find({"MockProducer/Value/Name"}).get_text();
     val_defs_[idx].max = resolution;
   }
