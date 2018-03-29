@@ -14,6 +14,7 @@ Supported platforms:
 - Fedora 25
 
 You definitely need these:
+- git
 - Recent C++ compiler
 - CMake 3.0
 - Qt5 (on Ubuntu systems, the `qt5-default` package)
