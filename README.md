@@ -15,7 +15,7 @@ Supported platforms:
 
 You definitely need these:
 - git
-- Recent C++ compiler
+- recent C++ compiler
 - CMake 3.0
 - Qt5 (on Ubuntu systems, the `qt5-default` package)
 - conan 1.0 (via pip)
@@ -28,7 +28,7 @@ conan remote add conan-transit https://api.bintray.com/conan/conan/conan-transit
 conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
 ```
 If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
-If said file does not exists, you are likely yet to run `conan` for the frist time. Do the following:
+If said file does not exists, you are likely yet to run `conan` for the frist time. Do the following to generate the above-mentioned file:
 ```
 conan profile new --detect default
 ```
@@ -55,7 +55,7 @@ source ./activate_run.sh
 
 ## Dependencies in custom locations
 
-If your package manager did not provide Qt5 and you used Qt's web installer instead, you may need to set:
+If your package manager did not provide Qt5 and you used Qt's web installer, you may need to set:
 ```
 CMAKE_PREFIX_PATH=/somepath/Qt/5.5/gcc_64
 ```
