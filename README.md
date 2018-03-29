@@ -27,7 +27,7 @@ conan remote add conan-transit https://api.bintray.com/conan/conan/conan-transit
 conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
 ```
 If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
-If said file does not exists, you are likely yest to run conan for the frist time. Do the following:
+If said file does not exists, you are likely yet to run `conan` for the frist time. Do the following:
 ```
 conan profile new --detect default
 ```
@@ -44,7 +44,7 @@ make -j
 
 ## Running
 
-The binary you want to run will be found in `./build/bin/daquiri`.
+The binary you want to run is `./bin/daquiri` relative to your build directory.
 Every time you run it, you need to activate the `conan`-generated virtual environment by sourcing `activate_run.sh`. Thus, if you are inside your build directory, do the following:
 
 ```
