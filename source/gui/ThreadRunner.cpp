@@ -226,7 +226,7 @@ void ThreadRunner::run()
     if (action_ == kAcquire)
     {
       engine_.get_all_settings();
-      emit settingsUpdated(engine_.pull_settings(),
+      emit settingsUpdated(engine_.settings(),
                            status_before_run(),
                            engine_.stream_manifest());
       interruptor_->store(false);
@@ -237,7 +237,7 @@ void ThreadRunner::run()
     else if (action_ == kList)
     {
       interruptor_->store(false);
-      emit settingsUpdated(engine_.pull_settings(),
+      emit settingsUpdated(engine_.settings(),
                            status_before_run(),
                            engine_.stream_manifest());
       ListData newListRun
@@ -258,7 +258,7 @@ void ThreadRunner::run()
     else if (action_ == kAddProducer)
     {
       engine_.get_all_settings();
-      auto tree = engine_.pull_settings();
+      auto tree = engine_.settings();
       tree.branches.add_a(one_setting_);
       engine_.initialize(tree);
       action_ = kSettingsRefresh;
@@ -266,7 +266,7 @@ void ThreadRunner::run()
     else if (action_ == kRemoveProducer)
     {
       engine_.get_all_settings();
-      auto tree = engine_.pull_settings();
+      auto tree = engine_.settings();
       tree.erase(one_setting_, Match::id | Match::value);
       engine_.initialize(tree);
       action_ = kSettingsRefresh;
@@ -284,7 +284,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kPushSettings)
     {
-      engine_.push_settings(tree_);
+      engine_.settings(tree_);
       action_ = kSettingsRefresh;
     }
     else if (action_ == kSetSetting)
@@ -303,7 +303,7 @@ void ThreadRunner::run()
     {
       engine_.get_all_settings();
       action_ = kNone;
-      emit settingsUpdated(engine_.pull_settings(),
+      emit settingsUpdated(engine_.settings(),
                            engine_.status(),
                            engine_.stream_manifest());
     }
@@ -334,7 +334,7 @@ void ThreadRunner::save_profile()
 {
   engine_.die();
   engine_.get_all_settings();
-  auto dev_settings = engine_.pull_settings();
+  auto dev_settings = engine_.settings();
   dev_settings.condense();
   dev_settings.strip_metadata();
   if (dev_settings)

@@ -2,26 +2,28 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 DummyDevice::DummyDevice()
 {
-  std::string mp {"DummyDevice/"};
+  std::string r{plugin_name()};
 
   add_dummy_settings();
 
-  SettingMeta root("DummyDevice", SettingType::stem);
+  SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
 
-  root.set_enum(1000, mp + "DummySettings");
+  root.set_enum(1000, r + "/DummySettings");
   add_definition(root);
 
   manifest_["Stream1"].add_value("val1", 1000);
   manifest_["Stream1"].add_value("val2", 2000);
 
   manifest_["Stream2"].add_value("val_a", 500);
-  manifest_["Stream2"].add_trace("trc_a", {2,3,4});
+  manifest_["Stream2"].add_trace("trc_a", {2, 3, 4});
 
   manifest_["Stream3"].add_trace("trc1", {5000});
-  manifest_["Stream3"].add_trace("trc2", {200,300});
+  manifest_["Stream3"].add_trace("trc2", {200, 300});
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
@@ -32,19 +34,27 @@ DummyDevice::~DummyDevice()
   die();
 }
 
-void DummyDevice::read_settings_bulk(Setting &set) const
+Setting DummyDevice::settings() const
 {
-  set = enrich_and_toggle_presets(set);
-  set.set(Setting::indicator("DummyDevice/DummySettings/Indicator", dummy_selection_));
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
+
+  set.set(Setting::boolean(r + "/DummySettings/Enabled", !read_only_));
+  set.set(Setting::integer(r + "/DummySettings/Menu", dummy_selection_));
+  set.set(Setting::indicator(r + "/DummySettings/Indicator", dummy_selection_));
   set.enable_if_flag(!read_only_, "");
   set.enable_if_flag(true, "master");
+
+  return set;
 }
 
-void DummyDevice::write_settings_bulk(const Setting& settings)
+void DummyDevice::settings(const Setting& settings)
 {
+  std::string r{plugin_name()};
+
   auto set = enrich_and_toggle_presets(settings);
-  dummy_selection_ = set.find({"DummyDevice/DummySettings/Menu"}).selection();
-  read_only_ = !set.find({"DummyDevice/DummySettings/Enabled"}).triggered();
+  dummy_selection_ = set.find({r + "/DummySettings/Menu"}).selection();
+  read_only_ = !set.find({r + "/DummySettings/Enabled"}).triggered();
 }
 
 StreamManifest DummyDevice::stream_manifest() const
@@ -72,7 +82,7 @@ void DummyDevice::die()
 
 void DummyDevice::add_dummy_settings()
 {
-  std::string r {"DummyDevice/DummySettings"};
+  std::string r{plugin_name() + "/DummySettings"};
 
   SettingMeta a0(r + "/Enabled", SettingType::boolean);
   a0.set_flag("master");
@@ -94,8 +104,6 @@ void DummyDevice::add_dummy_settings()
   a4.set_val("max", 4);
   add_definition(a4);
 
-
-
   SettingMeta a5(r + "/FloatUnbounded", SettingType::floating);
   a5.set_val("step", 0.05);
   add_definition(a5);
@@ -115,8 +123,6 @@ void DummyDevice::add_dummy_settings()
   a8.set_val("max", 4);
   a8.set_val("step", 0.1);
   add_definition(a8);
-
-
 
   SettingMeta a9(r + "/PreciseUnbounded", SettingType::precise);
   a9.set_val("step", 0.05);
@@ -138,7 +144,6 @@ void DummyDevice::add_dummy_settings()
   a12.set_val("step", 0.1);
   add_definition(a12);
 
-
   SettingMeta a13(r + "/Time", SettingType::time);
   add_definition(a13);
 
@@ -148,8 +153,6 @@ void DummyDevice::add_dummy_settings()
   SettingMeta a15(r + "/Pattern", SettingType::pattern);
   a15.set_val("chans", 6);
   add_definition(a15);
-
-
 
   SettingMeta a16(r + "/Boolean", SettingType::boolean);
   add_definition(a16);
@@ -182,7 +185,6 @@ void DummyDevice::add_dummy_settings()
   a23.set_enum(1, "b");
   a23.set_enum(2, "c");
   add_definition(a23);
-
 
   SettingMeta a24(r + "/Binary", SettingType::binary);
   a24.set_val("bits", 16);
@@ -256,4 +258,6 @@ void DummyDevice::add_dummy_settings()
   root.set_enum(29, a29.id());
 
   add_definition(root);
+}
+
 }

@@ -7,35 +7,35 @@
 
 ESSStream::ESSStream()
 {
-  std::string mp {"ESSStream/"};
+  std::string r{plugin_name()};
 
-  SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka broker URL");
+  SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL");
   broker.set_flag("preset");
   add_definition(broker);
 
-  SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka topic");
+  SettingMeta topic(r + "/KafkaTopic", SettingType::text, "Kafka topic");
   topic.set_flag("preset");
   add_definition(topic);
 
-  SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka consume timeout");
+  SettingMeta pi(r + "/KafkaTimeout", SettingType::integer, "Kafka consume timeout");
   pi.set_val("min", 1);
   pi.set_val("units", "ms");
   add_definition(pi);
 
-  SettingMeta ti(mp + "KafkaDecomission", SettingType::integer, "Kafka termination timeout");
+  SettingMeta ti(r + "/KafkaDecomission", SettingType::integer, "Kafka termination timeout");
   ti.set_val("min", 1);
   ti.set_val("units", "ms");
   add_definition(ti);
 
-  SettingMeta drop {mp + "KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
+  SettingMeta drop {r + "/KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
   add_definition(drop);
 
-  SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
+  SettingMeta mb(r + "/KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
   mb.set_val("min", 1);
   mb.set_val("units", "buffers");
   add_definition(mb);
 
-  SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
+  SettingMeta pars(r + "/Parser", SettingType::menu, "Flatbuffer parser");
   pars.set_enum(0, "none");
   pars.set_enum(1, "ev42_events");
   pars.set_enum(2, "mo01_nmx");
@@ -44,13 +44,13 @@ ESSStream::ESSStream()
 
   SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, mp + "KafkaBroker");
-  root.set_enum(1, mp + "KafkaTopic");
-  root.set_enum(2, mp + "KafkaTimeout");
-  root.set_enum(3, mp + "KafkaDecomission");
-  root.set_enum(4, mp + "KafkaFF");
-  root.set_enum(5, mp + "KafkaMaxBacklog");
-  root.set_enum(7, mp + "Parser");
+  root.set_enum(0, r + "/KafkaBroker");
+  root.set_enum(1, r + "/KafkaTopic");
+  root.set_enum(2, r + "/KafkaTimeout");
+  root.set_enum(3, r + "/KafkaDecomission");
+  root.set_enum(4, r + "/KafkaFF");
+  root.set_enum(5, r + "/KafkaMaxBacklog");
+  root.set_enum(7, r + "/Parser");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -97,16 +97,17 @@ StreamManifest ESSStream::stream_manifest() const
   return StreamManifest();
 }
 
-void ESSStream::read_settings_bulk(Setting &set) const
+Setting ESSStream::settings() const
 {
-  set = enrich_and_toggle_presets(set);
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
 
-  set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
-  set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
-  set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
-  set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
-  set.set(Setting::boolean("ESSStream/KafkaFF", kafka_ff_));
-  set.set(Setting::integer("ESSStream/KafkaMaxBacklog", kafka_max_backlog_));
+  set.set(Setting::text(r + "/KafkaBroker", kafka_broker_name_));
+  set.set(Setting::text(r + "/KafkaTopic", kafka_topic_name_));
+  set.set(Setting::integer(r + "/KafkaTimeout", kafka_timeout_));
+  set.set(Setting::integer(r + "/KafkaDecomission", kafka_decomission_wait_));
+  set.set(Setting::boolean(r + "/KafkaFF", kafka_ff_));
+  set.set(Setting::integer(r + "/KafkaMaxBacklog", kafka_max_backlog_));
 
   while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
     set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
@@ -118,31 +119,31 @@ void ESSStream::read_settings_bulk(Setting &set) const
     set.branches.remove_a(Setting({"ChopperTDC", SettingType::stem}));
 
   if (parser_)
-  {
-    auto s = Setting({parser_->plugin_name(), SettingType::stem});
-    parser_->read_settings_bulk(s);
-    set.branches.add_a(s);
-  }
+    set.branches.add_a(parser_->settings());
+
+  set.enable_if_flag(!(status_ & booted), "preset");
+  return set;
 }
 
-
-void ESSStream::write_settings_bulk(const Setting& settings)
+void ESSStream::settings(const Setting& settings)
 {
+  std::string r{plugin_name()};
+
   auto set = enrich_and_toggle_presets(settings);
 
-  kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
-  kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
-  kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
-  kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
-  kafka_ff_ = set.find({"ESSStream/KafkaFF"}).get_bool();
-  kafka_max_backlog_ = set.find({"ESSStream/KafkaMaxBacklog"}).get_number();
+  kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();
+  kafka_topic_name_ = set.find({r + "/KafkaTopic"}).get_text();
+  kafka_timeout_ = set.find({r + "/KafkaTimeout"}).get_int();
+  kafka_decomission_wait_ = set.find({r + "/KafkaDecomission"}).get_int();
+  kafka_ff_ = set.find({r + "/KafkaFF"}).get_bool();
+  kafka_max_backlog_ = set.find({r + "/KafkaMaxBacklog"}).get_int();
 
-  auto parser_set = set.find({"ESSStream/Parser"});
+  auto parser_set = set.find({r + "/Parser"});
   auto parser = parser_set.metadata().enum_name(parser_set.selection());
 
   select_parser(parser);
   if (parser_ && (parser_->plugin_name() == parser))
-    parser_->write_settings_bulk(set.find({parser}));
+    parser_->settings(set.find({parser}));
 }
 
 void ESSStream::select_parser(std::string t)

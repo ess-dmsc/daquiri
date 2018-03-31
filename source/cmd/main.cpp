@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
   engine.boot();
 
-  DBG << "\n" << engine.pull_settings().debug("   ", false);
+  DBG << "\n" << engine.settings().debug("   ", false);
 
   if (0 == (engine.status() & ProducerStatus::can_run))
   {

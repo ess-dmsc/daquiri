@@ -62,7 +62,7 @@ void Engine::initialize(const json &profile)
     producers_[name] = device;
   }
 
-  _push_settings(tree);
+  _set_settings(tree);
   _get_all_settings();
 
   std::string descr = tree.find(Setting("ProfileDescr")).get_text();
@@ -106,7 +106,7 @@ ProducerStatus Engine::status() const
   return aggregate_status_;
 }
 
-Setting Engine::pull_settings() const
+Setting Engine::settings() const
 {
   SHARED_LOCK_ST
   return settings_;
@@ -127,22 +127,16 @@ StreamManifest Engine::stream_manifest() const
   return ret;
 }
 
-void Engine::push_settings(const Setting& newsettings)
+void Engine::settings(const Setting& newsettings)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
-  _push_settings(newsettings);
+  _set_settings(newsettings);
 }
 
-void Engine::_push_settings(const Setting& newsettings)
+void Engine::_set_settings(const Setting& newsettings)
 {
   settings_ = newsettings;
   _write_settings_bulk();
-}
-
-void Engine::read_settings_bulk()
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  _read_settings_bulk();
 }
 
 void Engine::_read_settings_bulk()
@@ -164,15 +158,12 @@ void Engine::_read_settings_bulk()
     {
       std::string name = set.get_text();
       if (producers_.count(name))
-        producers_[name]->read_settings_bulk(set);
+      {
+        set = producers_[name]->settings();
+        set.set_text(name);
+      }
     }
   }
-}
-
-void Engine::write_settings_bulk()
-{
-  UNIQUE_LOCK_EVENTUALLY_ST
-  _write_settings_bulk();
 }
 
 void Engine::_write_settings_bulk()
@@ -191,7 +182,7 @@ void Engine::_write_settings_bulk()
     {
       std::string name = set.get_text();
       if (producers_.count(name))
-        producers_[name]->write_settings_bulk(set);
+        producers_[name]->settings(set);
     }
   }
 }

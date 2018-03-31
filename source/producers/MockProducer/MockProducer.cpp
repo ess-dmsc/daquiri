@@ -3,7 +3,7 @@
 
 #include "custom_logger.h"
 
-void ValueDefinition::define(EventModel &def)
+void ValueDefinition::define(EventModel& def)
 {
   dist = std::normal_distribution<double>(center * max, spread);
   def.add_value(name, max);
@@ -12,7 +12,7 @@ void ValueDefinition::define(EventModel &def)
     def.add_trace(name, {trace_size});
 }
 
-void ValueDefinition::generate(size_t index, Event &event, std::default_random_engine &gen)
+void ValueDefinition::generate(size_t index, Event& event, std::default_random_engine& gen)
 {
   auto val = generate(gen);
   event.set_value(index, val);
@@ -20,14 +20,14 @@ void ValueDefinition::generate(size_t index, Event &event, std::default_random_e
     make_trace(index, event, val);
 }
 
-uint32_t ValueDefinition::generate(std::default_random_engine &gen)
+uint32_t ValueDefinition::generate(std::default_random_engine& gen)
 {
   return std::round(std::max(std::min(dist(gen), double(max)), 0.0));
 }
 
-void ValueDefinition::make_trace(size_t index, Event &e, uint32_t val)
+void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
 {
-  auto &trc = e.trace(index);
+  auto& trc = e.trace(index);
 
   size_t onset = double(trc.size()) * trace_onset;
   size_t peak = double(trc.size()) * (trace_onset + trace_risetime);
@@ -198,9 +198,10 @@ bool MockProducer::daq_running()
   return (running_.load());
 }
 
-void MockProducer::read_settings_bulk(Setting &set) const
+Setting MockProducer::settings() const
 {
-  set = enrich_and_toggle_presets(set);
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
 
   set.set(Setting::text("MockProducer/StreamID", stream_id_));
   set.set(Setting::floating("MockProducer/SpillInterval", spill_interval_));
@@ -225,13 +226,16 @@ void MockProducer::read_settings_bulk(Setting &set) const
     v.set(Setting::floating("MockProducer/Value/PeakCenter", val_defs_[i].center * 100));
     v.set(Setting::floating("MockProducer/Value/PeakSpread", val_defs_[i].spread));
     v.set(Setting::integer("MockProducer/Value/TraceLength", val_defs_[i].trace_size));
-    for (auto &vv : v.branches)
+    for (auto& vv : v.branches)
       vv.set_indices({i});
     set.branches.add_a(v);
   }
+
+  set.enable_if_flag(!(status_ & booted), "preset");
+  return set;
 }
 
-void MockProducer::write_settings_bulk(const Setting &settings)
+void MockProducer::settings(const Setting& settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
@@ -324,9 +328,9 @@ void MockProducer::worker_run(SpillQueue spill_queue)
   spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
 }
 
-void MockProducer::add_hit(Spill &spill, uint64_t time)
+void MockProducer::add_hit(Spill& spill, uint64_t time)
 {
-  auto &e = spill.events.last();
+  auto& e = spill.events.last();
   e.set_time(time);
   for (size_t i = 0; i < val_defs_.size(); ++i)
     val_defs_[i].generate(i, e, gen_);
@@ -349,7 +353,7 @@ SpillPtr MockProducer::get_spill(StatusType t, double seconds)
   return spill;
 }
 
-void MockProducer::fill_events(SpillPtr &spill, double seconds)
+void MockProducer::fill_events(SpillPtr& spill, double seconds)
 {
   double rate = count_rate_;
   if (lambda_)
@@ -359,7 +363,7 @@ void MockProducer::fill_events(SpillPtr &spill, double seconds)
   double event_interval = event_definition_.timebase.to_native(spill_interval_ * pow(10, 9)) / total_events;
 
   spill->events.reserve(total_events, event_definition_);
-  double time_bonus {0};
+  double time_bonus{0};
   for (uint32_t i = 0; i < total_events; i++)
   {
     if ((spill_lambda_ >= 100) || eval_spill_lambda(i, total_events))
@@ -376,7 +380,7 @@ bool MockProducer::eval_spill_lambda(uint32_t i, uint32_t total)
   return (event_chance_(gen_) < diff);
 }
 
-void MockProducer::fill_stats(Spill &spill) const
+void MockProducer::fill_stats(Spill& spill) const
 {
   spill.event_model = event_definition_;
 

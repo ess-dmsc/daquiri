@@ -4,8 +4,7 @@
 
 DetectorIndex::DetectorIndex()
 {
-  add_setting_defs();
-
+  define_settings();
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
@@ -15,19 +14,35 @@ DetectorIndex::~DetectorIndex()
   die();
 }
 
-void DetectorIndex::read_settings_bulk(Setting &set) const
+void DetectorIndex::define_settings()
 {
-  set = enrich_and_toggle_presets(set);
-  std::string r {"Detectors"};
+  std::string r{plugin_name()};
+
+  SettingMeta det_count(r + "/DetectorCount", SettingType::integer, "Detector count");
+  det_count.set_val("min", 1);
+  add_definition(det_count);
+
+  SettingMeta det(r + "/Detector", SettingType::text, "Detector");
+  det.set_flag("detector");
+  add_definition(det);
+
+  SettingMeta root(r, SettingType::stem);
+  root.set_flag("producer");
+  add_definition(root);
+}
+
+Setting DetectorIndex::settings() const
+{
+  std::string r{plugin_name()};
+
+  auto set = get_rich_setting(r);
 
   Setting total_det_num = get_rich_setting(r + "/DetectorCount");
   total_det_num.set_number(detectors_.size());
-
-  set.branches.clear();
-  set.branches.replace(total_det_num);
+  set.branches.add_a(total_det_num);
 
   SettingMeta m = setting_definitions_.at(r + "/Detector");
-  for (size_t i=0; i < detectors_.size(); ++i)
+  for (size_t i = 0; i < detectors_.size(); ++i)
   {
     m.set_val("name", "Detector " + std::to_string(i));
     Setting det(m);
@@ -35,13 +50,17 @@ void DetectorIndex::read_settings_bulk(Setting &set) const
     det.set_indices({int32_t(i)});
     set.branches.add_a(det);
   }
+
+  set.enable_if_flag(!(status_ & booted), "preset");
+
+  return set;
 }
 
-void DetectorIndex::write_settings_bulk(const Setting& settings)
+void DetectorIndex::settings(const Setting& settings)
 {
   auto set = enrich_and_toggle_presets(settings);
 
-  std::string r {"Detectors"};
+  std::string r{plugin_name()};
 
   Setting totaldets = set.find(Setting::integer(r + "/DetectorCount", 0));
   int oldtotal = detectors_.size();
@@ -54,7 +73,7 @@ void DetectorIndex::write_settings_bulk(const Setting& settings)
 
   for (auto b : set.branches)
   {
-    if (b.id() != "Detector")
+    if (b.id() != (r + "/Detector"))
       continue;
 
     auto indices = b.indices();
@@ -76,32 +95,11 @@ void DetectorIndex::boot()
     WARN << "<DetectorIndex> Cannot boot DetectorIndex. Failed flag check (!can_boot)";
     return;
   }
-
-  INFO << "<DetectorIndex> Booting";
   status_ = ProducerStatus::loaded | ProducerStatus::booted;
 }
 
 void DetectorIndex::die()
 {
-  INFO << "<DetectorIndex> Shutting down";
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void DetectorIndex::add_setting_defs()
-{
-  std::string r {"Detectors"};
-
-  SettingMeta det_count(r + "/DetectorCount", SettingType::integer, "Detector count");
-  det_count.set_val("min", 1);
-  add_definition(det_count);
-
-  SettingMeta det(r + "/Detector", SettingType::text, "Detector");
-  det.set_flag("detector");
-  add_definition(det);
-
-  SettingMeta root(r, SettingType::stem);
-  root.set_flag("producer");
-  root.set_enum(0, det_count.id());
-  root.set_enum(1, det.id());
-  add_definition(root);
-}

@@ -21,11 +21,11 @@ struct ValueDefinition
   double trace_onset{0.1};
   double trace_risetime{0.2};
 
-  void define(EventModel &def);
-  void generate(size_t index, Event &event, std::default_random_engine &gen);
+  void define(EventModel& def);
+  void generate(size_t index, Event& event, std::default_random_engine& gen);
 
-  uint32_t generate(std::default_random_engine &gen);
-  void make_trace(size_t index, Event &e, uint32_t val);
+  uint32_t generate(std::default_random_engine& gen);
+  void make_trace(size_t index, Event& e, uint32_t val);
 };
 
 class MockProducer : public Producer
@@ -36,8 +36,9 @@ class MockProducer : public Producer
 
     std::string plugin_name() const override { return "MockProducer"; }
 
-    void write_settings_bulk(const Setting &) override;
-    void read_settings_bulk(Setting &) const override;
+    void settings(const Setting&) override;
+    Setting settings() const override;
+
     void boot() override;
     void die() override;
 
@@ -49,8 +50,8 @@ class MockProducer : public Producer
 
   private:
     //no copying
-    void operator=(MockProducer const &);
-    MockProducer(const MockProducer &);
+    void operator=(MockProducer const&);
+    MockProducer(const MockProducer&);
 
     //Acquisition threads, use as static functors
     void worker_run(SpillQueue spill_queue);
@@ -75,14 +76,14 @@ class MockProducer : public Producer
 
     // runtime
     std::default_random_engine gen_;
-    std::uniform_real_distribution<> event_chance_ {0, 1};
+    std::uniform_real_distribution<> event_chance_{0, 1};
 
     uint64_t clock_{0};
     uint64_t recent_pulse_time_{0};
 
     SpillPtr get_spill(StatusType t, double seconds);
-    void fill_events(SpillPtr &spill, double seconds);
-    void fill_stats(Spill &spill) const;
+    void fill_events(SpillPtr& spill, double seconds);
+    void fill_stats(Spill& spill) const;
     bool eval_spill_lambda(uint32_t i, uint32_t total);
-    void add_hit(Spill &, uint64_t time);
+    void add_hit(Spill&, uint64_t time);
 };

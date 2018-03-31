@@ -6,7 +6,8 @@
 
 namespace DAQuiri {
 
-class ProducerFactory {
+class ProducerFactory
+{
   public:
     static ProducerFactory& singleton()
     {
@@ -15,28 +16,30 @@ class ProducerFactory {
     }
 
     void register_type(std::string name,
-                       std::function<Producer*(void)> constructor);
+                       std::function<Producer * (void)> constructor);
 
     std::vector<std::string> types() const;
     ProducerPtr create_type(std::string type) const;
     Setting default_settings(std::string type) const;
 
   private:
-    std::map<std::string, std::function<Producer*(void)>> constructors_;
+    std::map<std::string, std::function<Producer * (void)>> constructors_;
 
     //singleton assurance
     ProducerFactory() {}
+
     ProducerFactory(ProducerFactory const&);
     void operator=(ProducerFactory const&);
 };
 
 template<class T>
-class ProducerRegistrar {
+class ProducerRegistrar
+{
   public:
     ProducerRegistrar()
     {
       ProducerFactory::singleton().register_type(T().plugin_name(),
-                                                 [](void) -> Producer * { return new T();});
+                                                 [](void) -> Producer* { return new T(); });
     }
 };
 
