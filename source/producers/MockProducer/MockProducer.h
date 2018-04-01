@@ -1,32 +1,12 @@
 #pragma once
 
 #include "producer.h"
-#include <random>
+#include "ValueDefinition.h"
 
 #include <atomic>
 #include <thread>
 
 using namespace DAQuiri;
-
-struct ValueDefinition
-{
-  std::string name;
-  uint32_t max{0};
-  double center{0.5};
-  double spread{100};
-  std::normal_distribution<double> dist;
-
-  uint32_t trace_size{100};
-  uint32_t trace_baseline{0};
-  double trace_onset{0.1};
-  double trace_risetime{0.2};
-
-  void define(EventModel& def);
-  void generate(size_t index, Event& event, std::default_random_engine& gen);
-
-  uint32_t generate(std::default_random_engine& gen);
-  void make_trace(size_t index, Event& e, uint32_t val);
-};
 
 class MockProducer : public Producer
 {
@@ -63,7 +43,6 @@ class MockProducer : public Producer
 
     // cached params
     std::string stream_id_;
-    uint16_t bits_{6};
     double spill_interval_{1};  // seconds between spills
     double count_rate_{10};     // events per second
     double lambda_{0};          // total decay constant

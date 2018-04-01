@@ -87,9 +87,11 @@ Setting get_profile()
   settings.set_text("producer1");
   settings.set(Setting::text("MockProducer/StreamID", "exy"));
   settings.set(Setting::floating("MockProducer/SpillInterval", 0.2));
-  settings.set(Setting::integer("MockProducer/Resolution", 16));
   settings.set(Setting::floating("MockProducer/CountRate", 50000));
   settings.set(Setting::floating("MockProducer/DeadTime", 5));
+
+  settings.set(Setting::integer("TimeBase/multiplier", 1));
+  settings.set(Setting::integer("TimeBase/divider", 3));
   profile.branches.add(settings);
 
   return profile;
@@ -98,18 +100,21 @@ Setting get_profile()
 void define_value(Engine& e, uint16_t num,
                   std::string name, double center, double spread)
 {
-  auto n = Setting::text("MockProducer/Value/Name", name);
-  auto c = Setting::floating("MockProducer/Value/PeakCenter", center);
-  auto s = Setting::floating("MockProducer/Value/PeakSpread", spread);
-  auto tl = Setting::integer("MockProducer/Value/TraceLength", 30);
+  auto n = Setting::text("Value/Name", name);
+  auto c = Setting::floating("Value/PeakCenter", center);
+  auto s = Setting::floating("Value/PeakSpread", spread);
+  auto tl = Setting::integer("Value/TraceLength", 30);
+  auto res = Setting::integer("Value/Resolution", 16);
   n.set_indices({num});
   c.set_indices({num});
   s.set_indices({num});
   tl.set_indices({num});
+  res.set_indices({num});
   e.set_setting(n, Match::id | Match::indices);
   e.set_setting(c, Match::id | Match::indices);
   e.set_setting(s, Match::id | Match::indices);
   e.set_setting(tl, Match::id | Match::indices);
+  e.set_setting(res, Match::id | Match::indices);
 }
 
 Container<ConsumerMetadata> get_prototypes()

@@ -11,7 +11,7 @@ namespace DAQuiri {
 struct EventModel
 {
 public:
-  TimeBase                      timebase;
+  TimeBase                      timebase {1,1};
 
   std::vector<uint32_t>         values;
   std::vector<uint32_t>         maximum;
