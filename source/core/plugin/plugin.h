@@ -17,9 +17,8 @@ class Plugin
 
     virtual std::string plugin_name() const = 0;
 
-    virtual void settings(const Setting&) {}
-
-    virtual Setting settings() const { return Setting(); }
+    virtual void settings(const Setting&) = 0;
+    virtual Setting settings() const = 0;
 
   protected:
     Setting get_rich_setting(const std::string& id) const;

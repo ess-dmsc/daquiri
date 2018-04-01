@@ -23,9 +23,9 @@ void ProducerFactory::register_type(std::string name,
                                     std::function<Producer*(void)> constructor)
 {
   if (name.empty())
-    INFO << "<ProducerFactory> attempting to register nameless type";
+    WARN << "<ProducerFactory> failed to register nameless type";
   else if (constructors_.count(name))
-    INFO << "<ProducerFactory> type '" << name << "' already registered";
+    WARN << "<ProducerFactory> type '" << name << "' already registered";
   else
   {
     constructors_[name] = constructor;

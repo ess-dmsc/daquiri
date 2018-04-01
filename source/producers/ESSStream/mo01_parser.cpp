@@ -66,7 +66,6 @@ Setting mo01_nmx::settings() const
   std::string r{plugin_name()};
   auto set = get_rich_setting(r);
 
-  set = enrich_and_toggle_presets(set);
   set.set(Setting::text(r + "/HistsStream", hists_stream_id_));
   set.set(Setting::text(r + "/XStream", x_stream_id_));
   set.set(Setting::text(r + "/YStream", y_stream_id_));

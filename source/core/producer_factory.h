@@ -27,7 +27,6 @@ class ProducerFactory
 
     //singleton assurance
     ProducerFactory() {}
-
     ProducerFactory(ProducerFactory const&);
     void operator=(ProducerFactory const&);
 };
