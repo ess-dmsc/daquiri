@@ -20,17 +20,17 @@ class ValueDefinition : public DAQuiri::Plugin
     void generate(size_t index, Event& event);
 
   private:
-    std::string name;
-    uint32_t max{0};
-    double center{0.5};
-    double spread{100};
-    uint16_t bits_{6};
+    std::string name_;
+    uint32_t max_ {0};
+    double center_ {0.5};
+    double spread_ {1000};
+    uint16_t bits_ {16};
+    uint32_t trace_length_ {100};
     std::normal_distribution<double> dist;
 
-    uint32_t trace_size{100};
-    uint32_t trace_baseline{0};
-    double trace_onset{0.1};
-    double trace_risetime{0.2};
+    uint32_t trace_baseline_ {0};
+    double trace_onset_ {0.1};
+    double trace_risetime_ {0.2};
 
     std::default_random_engine gen_;
 

@@ -1,9 +1,11 @@
 #include "ValueDefinition.h"
-
-#include "custom_logger.h"
+#include <chrono>
 
 ValueDefinition::ValueDefinition()
 {
+  typedef std::chrono::high_resolution_clock myclock;
+  myclock::time_point beginning = myclock::now();
+
   std::string r{plugin_name()};
 
   SettingMeta valname(r + "/Name", SettingType::text, "Value name");
@@ -43,8 +45,10 @@ ValueDefinition::ValueDefinition()
   val.set_enum(i++, r + "/PeakSpread");
   val.set_enum(i++, r + "/TraceLength");
   val.set_enum(i++, r + "/Resolution");
-
   add_definition(val);
+
+  myclock::duration d = myclock::now() - beginning;
+  gen_.seed(d.count());
 }
 
 Setting ValueDefinition::settings() const
@@ -52,10 +56,10 @@ Setting ValueDefinition::settings() const
   std::string r{plugin_name()};
   auto set = get_rich_setting(r);
 
-  set.set(Setting::text(r + "/Name", name));
-  set.set(Setting::floating(r + "/PeakCenter", center * 100));
-  set.set(Setting::floating(r + "/PeakSpread", spread));
-  set.set(Setting::integer(r + "/TraceLength", trace_size));
+  set.set(Setting::text(r + "/Name", name_));
+  set.set(Setting::floating(r + "/PeakCenter", center_ * 100));
+  set.set(Setting::floating(r + "/PeakSpread", spread_));
+  set.set(Setting::integer(r + "/TraceLength", trace_length_));
   set.set(Setting::integer(r + "/Resolution", bits_));
 
   return set;
@@ -65,42 +69,42 @@ void ValueDefinition::settings(const Setting& v)
 {
   std::string r{plugin_name()};
 
-  center = v.find({r + "/PeakCenter"}).get_number() * 0.01;
-  spread = v.find({r + "/PeakSpread"}).get_number();
-  trace_size = v.find({r + "/TraceLength"}).get_int();
-  name = v.find({r + "/Name"}).get_text();
+  center_ = v.find({r + "/PeakCenter"}).get_number() * 0.01;
+  spread_ = v.find({r + "/PeakSpread"}).get_number();
+  trace_length_ = v.find({r + "/TraceLength"}).get_int();
+  name_ = v.find({r + "/Name"}).get_text();
   bits_ = v.find({r + "/Resolution"}).get_int();
-  max = pow(2, uint32_t(bits_));
+  max_ = pow(2, uint32_t(bits_));
 }
 
 void ValueDefinition::define(EventModel& def)
 {
-  dist = std::normal_distribution<double>(center * max, spread);
-  def.add_value(name, max);
+  dist = std::normal_distribution<double>(center_ * max_, spread_);
+  def.add_value(name_, max_);
 
-  if (trace_size)
-    def.add_trace(name, {trace_size});
+  if (trace_length_)
+    def.add_trace(name_, {trace_length_});
 }
 
 void ValueDefinition::generate(size_t index, Event& event)
 {
   auto val = generate_val();
   event.set_value(index, val);
-  if (trace_size)
+  if (trace_length_)
     make_trace(index, event, val);
 }
 
 uint32_t ValueDefinition::generate_val()
 {
-  return std::round(std::max(std::min(dist(gen_), double(max)), 0.0));
+  return std::round(std::max(std::min(dist(gen_), double(max_)), 0.0));
 }
 
 void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
 {
   auto& trc = e.trace(index);
 
-  size_t onset = double(trc.size()) * trace_onset;
-  size_t peak = double(trc.size()) * (trace_onset + trace_risetime);
+  size_t onset = double(trc.size()) * trace_onset_;
+  size_t peak = double(trc.size()) * (trace_onset_ + trace_risetime_);
 
   //rise
   double slope_up = double(val) / double(peak - onset);
@@ -114,7 +118,7 @@ void ValueDefinition::make_trace(size_t index, Event& e, uint32_t val)
 
   // add baseline & noise
   for (size_t i = 0; i < trc.size(); ++i)
-    trc[i] += trace_baseline
-                  + trace_baseline ? ((rand() % trace_baseline) / 5
-        - trace_baseline / 10) : 0;
+    trc[i] += trace_baseline_
+                  + trace_baseline_ ? ((rand() % trace_baseline_) / 5
+        - trace_baseline_ / 10) : 0;
 }
