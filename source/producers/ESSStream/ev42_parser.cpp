@@ -52,7 +52,7 @@ ev42_events::ev42_events()
 Setting ev42_events::settings() const
 {
   std::string r{plugin_name()};
-  auto set = get_rich_setting(r);
+  auto set = fb_parser::settings();
 
   set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
   set.set(Setting::text(r + "/SourceName", source_name_));
@@ -70,8 +70,8 @@ Setting ev42_events::settings() const
 
 void ev42_events::settings(const Setting& settings)
 {
+  fb_parser::settings(settings);
   std::string r{plugin_name()};
-
   auto set = enrich_and_toggle_presets(settings);
 
   filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
@@ -123,7 +123,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if (filter_source_name_ && (source_name_ != source_name))
   {
-    stats.time_spent = timer.s();
+    stats.time_spent += timer.s();
     return 0;
   }
 
@@ -134,7 +134,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
          << debug(em);
     if (ordering_ == 2)
     {
-      stats.time_spent = timer.s();
+      stats.time_spent += timer.s();
       return 0;
     }
   }
@@ -199,7 +199,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     pushed_spills++;
   }
 
-  stats.time_spent = timer.s();
+  stats.time_spent += timer.s();
   return pushed_spills;
 }
 

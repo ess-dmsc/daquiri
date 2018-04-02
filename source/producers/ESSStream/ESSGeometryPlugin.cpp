@@ -21,7 +21,7 @@ ESSGeometryPlugin::ESSGeometryPlugin()
   add_definition(ep);
 
   int32_t i{0};
-  SettingMeta root(r, SettingType::stem);
+  SettingMeta root(r, SettingType::stem, "Logical geometry");
   root.set_enum(i++, r + "/extent_x");
   root.set_enum(i++, r + "/extent_y");
   root.set_enum(i++, r + "/extent_z");

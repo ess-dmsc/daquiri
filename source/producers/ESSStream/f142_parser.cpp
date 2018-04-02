@@ -33,7 +33,7 @@ StreamManifest ChopperTDC::stream_manifest() const
 Setting ChopperTDC::settings() const
 {
   std::string r{plugin_name()};
-  auto set = get_rich_setting(r);
+  auto set = fb_parser::settings();
 
   set.set(Setting::text(r + "/EventsStream", stream_id_));
   
@@ -45,10 +45,11 @@ Setting ChopperTDC::settings() const
 
 void ChopperTDC::settings(const Setting& settings)
 {
+  fb_parser::settings(settings);
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
-  stream_id_ = set.find({r + "/EventsStream"}).get_text();
 
+  stream_id_ = set.find({r + "/EventsStream"}).get_text();
   TimeBasePlugin tbs;
   tbs.settings(set.find({tbs.plugin_name()}));
   event_model_.timebase = tbs.timebase();

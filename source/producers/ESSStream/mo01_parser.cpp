@@ -53,7 +53,7 @@ mo01_nmx::mo01_nmx()
 Setting mo01_nmx::settings() const
 {
   std::string r{plugin_name()};
-  auto set = get_rich_setting(r);
+  auto set = fb_parser::settings();
 
   set.set(Setting::text(r + "/HistsStream", hists_stream_id_));
   set.set(Setting::text(r + "/XStream", x_stream_id_));
@@ -68,9 +68,10 @@ Setting mo01_nmx::settings() const
 
 void mo01_nmx::settings(const Setting& settings)
 {
+  fb_parser::settings(settings);
   std::string r{plugin_name()};
-
   auto set = enrich_and_toggle_presets(settings);
+
   hists_stream_id_ = set.find({r + "/HistsStream"}).get_text();
   x_stream_id_ = set.find({r + "/XStream"}).get_text();
   y_stream_id_ = set.find({r + "/YStream"}).get_text();

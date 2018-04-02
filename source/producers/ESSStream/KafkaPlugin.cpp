@@ -1,6 +1,55 @@
 #include "KafkaPlugin.h"
 #include "custom_logger.h"
 
+namespace Kafka {
+
+std::string Message::print_data() const
+{
+  return std::string(static_cast<const char*>(low_level->payload()),
+                     low_level->len());
+}
+
+MessagePtr Consumer::consume(uint16_t timeout_ms)
+{
+  return std::make_shared<Message>(low_level->consume(timeout_ms));
+}
+
+Offsets Consumer::get_watermark_offsets(const std::string& topic, int32_t partition)
+{
+  Offsets ret;
+  low_level->get_watermark_offsets(topic, partition, &ret.lo, &ret.hi);
+  return ret;
+}
+
+Offsets Consumer::get_watermark_offsets(MessagePtr msg)
+{
+  return get_watermark_offsets(msg->low_level->topic_name(), msg->low_level->partition());
+}
+
+void Consumer::seek(const std::string& topic, int32_t partition,
+          int64_t offset, int timeout_ms)
+{
+  auto topicPartition = RdKafka::TopicPartition::create(topic, partition);
+  topicPartition->set_offset(offset);
+  auto error = low_level->seek(*topicPartition, timeout_ms);
+  if (error)
+  {
+    std::ostringstream os;
+    os << "Offset seek failed with error: '" << err2str(error) << "'";
+    throw std::runtime_error(os.str());
+  }
+}
+
+void Consumer::seek(MessagePtr msg, int64_t offset, int timeout_ms)
+{
+  seek(msg->low_level->topic_name(), msg->low_level->partition(),
+       offset, timeout_ms);
+}
+
+
+}
+
+
 using namespace DAQuiri;
 
 KafkaConfigPlugin::KafkaConfigPlugin()
@@ -22,7 +71,7 @@ KafkaConfigPlugin::KafkaConfigPlugin()
   add_definition(ti);
 
   int32_t i {0};
-  SettingMeta root(r, SettingType::stem);
+  SettingMeta root(r, SettingType::stem, "Kafka broker configuration");
   root.set_enum(i++, r + "/KafkaBroker");
   root.set_enum(i++, r + "/KafkaTimeout");
   root.set_enum(i++, r + "/KafkaDecomission");
@@ -47,7 +96,7 @@ void KafkaConfigPlugin::settings(const Setting& set)
   kafka_decomission_wait_ = set.find({r + "/KafkaDecomission"}).get_int();
 }
 
-std::shared_ptr<RdKafka::KafkaConsumer> KafkaConfigPlugin::subscribe_topic(std::string topic) const
+Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
 {
   auto conf = std::unique_ptr<RdKafka::Conf>(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL));
 
@@ -71,21 +120,21 @@ std::shared_ptr<RdKafka::KafkaConsumer> KafkaConfigPlugin::subscribe_topic(std::
   //  conf->set("session.timeout.ms", "10000", error_str);
   //  conf->set("api.version.request", "true", error_str);
 
-  auto ret = std::shared_ptr<RdKafka::KafkaConsumer>(
-      RdKafka::KafkaConsumer::create(conf.get(), error_str));
-  if (!ret.get())
+  auto ret = std::make_shared<Kafka::Consumer>
+      (RdKafka::KafkaConsumer::create(conf.get(), error_str));
+  if (!ret->low_level.get())
   {
     ERR << "<KafkaConfigPlugin> Failed to create consumer:" << error_str;
     return nullptr;
   }
 
   // Start consumer for topic+partition at start offset
-  RdKafka::ErrorCode resp = ret->subscribe({topic});
+  RdKafka::ErrorCode resp = ret->low_level->subscribe({topic});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
     ERR << "<KafkaConfigPlugin> "
         << "Failed to subscribe consumer to '" << topic << "': " << err2str(resp);
-    ret->close();
+    ret->low_level->close();
     decomission();
     ret.reset();
   }
@@ -100,27 +149,6 @@ void KafkaConfigPlugin::decomission() const
   RdKafka::wait_destroyed(kafka_decomission_wait_);
 
   // deal with return value?
-}
-
-/**
- * Seek to given offset on specified topic and partition
- *
- * @param topic : topic name
- * @param partition : partition number
- * @param offset : offset to seek to
- */
-void KafkaConfigPlugin::seek(std::shared_ptr<RdKafka::KafkaConsumer> consumer,
-                             const std::string& topic, uint32_t partition, int64_t offset) const
-{
-  auto topicPartition = RdKafka::TopicPartition::create(topic, partition);
-  topicPartition->set_offset(offset);
-  auto error = consumer->seek(*topicPartition, 2000);
-  if (error)
-  {
-    std::ostringstream os;
-    os << "Offset seek failed with error: '" << err2str(error) << "'";
-    throw std::runtime_error(os.str());
-  }
 }
 
 std::vector<RdKafka::TopicPartition*> KafkaConfigPlugin::get_partitions(std::shared_ptr<RdKafka::KafkaConsumer> consumer, std::string topic)
@@ -167,10 +195,4 @@ std::unique_ptr<RdKafka::Metadata> KafkaConfigPlugin::get_kafka_metadata(std::sh
     throw std::runtime_error("Failed to query metadata from broker");
   }
   return metadata;
-}
-
-std::string KafkaConfigPlugin::debug(std::shared_ptr<RdKafka::Message> kmessage)
-{
-  return std::string(static_cast<const char*>(kmessage->payload()),
-                              kmessage->len());
 }

@@ -18,21 +18,6 @@
   {
    "branches": [
     {
-     "id": "ESSStream/KafkaTopic",
-     "type": "text",
-     "value": "C-SPEC_detector"
-    },
-    {
-     "id": "ESSStream/KafkaFF",
-     "type": "boolean",
-     "value": false
-    },
-    {
-     "id": "ESSStream/KafkaMaxBacklog",
-     "type": "integer",
-     "value": 3
-    },
-    {
      "branches": [
       {
        "id": "KafkaConfig/KafkaBroker",
@@ -93,6 +78,27 @@
       {
        "branches": [
         {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "C-SPEC_detector"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 3
+        }
+       ],
+       "id": "KafkaTopicConfig",
+       "type": "stem"
+      },
+      {
+       "branches": [
+        {
          "id": "ESSGeometry/extent_x",
          "type": "integer",
          "value": 4
@@ -144,21 +150,6 @@
   {
    "branches": [
     {
-     "id": "ESSStream/KafkaTopic",
-     "type": "text",
-     "value": "C-SPEC_monitor"
-    },
-    {
-     "id": "ESSStream/KafkaFF",
-     "type": "boolean",
-     "value": false
-    },
-    {
-     "id": "ESSStream/KafkaMaxBacklog",
-     "type": "integer",
-     "value": 1
-    },
-    {
      "branches": [
       {
        "id": "KafkaConfig/KafkaBroker",
@@ -205,6 +196,27 @@
        "id": "mo01_nmx/HitsStream",
        "type": "text",
        "value": "hits"
+      },
+      {
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "C-SPEC_monitor"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "KafkaTopicConfig",
+       "type": "stem"
       },
       {
        "branches": [
