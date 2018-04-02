@@ -38,6 +38,11 @@
      "value": 2000
     },
     {
+     "id": "ESSStream/KafkaFF",
+     "type": "boolean",
+     "value": false
+    },
+    {
      "id": "ESSStream/KafkaMaxBacklog",
      "type": "integer",
      "value": 3
@@ -75,16 +80,6 @@
        "value": 1
       },
       {
-       "id": "ev42_events/TimebaseMult",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "ev42_events/TimebaseDiv",
-       "type": "integer",
-       "value": 1
-      },
-      {
        "id": "ev42_events/SpoofClock",
        "type": "menu",
        "value": 2
@@ -108,6 +103,22 @@
        "id": "ev42_events/MessageOrdering",
        "type": "menu",
        "value": 0
+      },
+      {
+       "branches": [
+        {
+         "id": "TimeBase/multiplier",
+         "type": "integer",
+         "value": 1
+        },
+        {
+         "id": "TimeBase/divider",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "TimeBase",
+       "type": "stem"
       }
      ],
      "id": "ev42_events",
@@ -139,6 +150,11 @@
      "id": "ESSStream/KafkaDecomission",
      "type": "integer",
      "value": 2000
+    },
+    {
+     "id": "ESSStream/KafkaFF",
+     "type": "boolean",
+     "value": false
     },
     {
      "id": "ESSStream/KafkaMaxBacklog",
@@ -173,14 +189,20 @@
        "value": "hits"
       },
       {
-       "id": "mo01_nmx/TimebaseMult",
-       "type": "integer",
-       "value": 1
-      },
-      {
-       "id": "mo01_nmx/TimebaseDiv",
-       "type": "integer",
-       "value": 1
+       "branches": [
+        {
+         "id": "TimeBase/multiplier",
+         "type": "integer",
+         "value": 1
+        },
+        {
+         "id": "TimeBase/divider",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "TimeBase",
+       "type": "stem"
       }
      ],
      "id": "mo01_nmx",

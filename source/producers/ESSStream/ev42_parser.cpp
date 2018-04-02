@@ -29,16 +29,6 @@ ev42_events::ev42_events()
   add_definition(ep);
 
 
-  SettingMeta tm(r + "/TimebaseMult", SettingType::integer, "Timebase multiplier");
-  tm.set_val("min", 1);
-  tm.set_val("units", "ns");
-  add_definition(tm);
-
-  SettingMeta td(r + "/TimebaseDiv", SettingType::integer, "Timebase divider");
-  td.set_val("min", 1);
-  td.set_val("units", "1/ns");
-  add_definition(td);
-
   SettingMeta spoof(r + "/SpoofClock", SettingType::menu, "Spoof pulse time");
   spoof.set_enum(0, "no");
   spoof.set_enum(1, "monotonous high-time");
@@ -63,21 +53,20 @@ ev42_events::ev42_events()
   oor.set_enum(2, "reject");
   add_definition(oor);
 
+  int32_t i{0};
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(2, r + "/StreamID");
-  root.set_enum(3, r + "/extent_x");
-  root.set_enum(4, r + "/extent_y");
-  root.set_enum(5, r + "/extent_z");
-  root.set_enum(6, r + "/panels");
-  root.set_enum(7, r + "/TimebaseMult");
-  root.set_enum(8, r + "/TimebaseDiv");
-  root.set_enum(9, r + "/SpoofClock");
-  root.set_enum(10, r + "/Heartbeat");
+  root.set_enum(i++, r + "/StreamID");
+  root.set_enum(i++, r + "/extent_x");
+  root.set_enum(i++, r + "/extent_y");
+  root.set_enum(i++, r + "/extent_z");
+  root.set_enum(i++, r + "/panels");
+  root.set_enum(i++, r + "/SpoofClock");
+  root.set_enum(i++, r + "/Heartbeat");
 
-  root.set_enum(20, r + "/FilterSourceName");
-  root.set_enum(21, r + "/SourceName");
-  root.set_enum(22, r + "/MessageOrdering");
+  root.set_enum(i++, r + "/FilterSourceName");
+  root.set_enum(i++, r + "/SourceName");
+  root.set_enum(i++, r + "/MessageOrdering");
 
   add_definition(root);
 }
@@ -97,14 +86,12 @@ Setting ev42_events::settings() const
   set.set(Setting::integer(r + "/extent_z", integer_t(geometry_.nz())));
   set.set(Setting::integer(r + "/panels", integer_t(geometry_.np())));
 
-  set.set(Setting::integer(r + "/TimebaseMult",
-                           event_definition_.timebase.multiplier()));
-  set.set(Setting::integer(r + "/TimebaseDiv",
-                           event_definition_.timebase.divider()));
   set.set(Setting::integer(r + "/SpoofClock", spoof_clock_));
   set.set(Setting::boolean(r + "/Heartbeat", heartbeat_));
 
   set.set(Setting::integer(r + "/MessageOrdering", ordering_));
+
+  set.branches.add_a(TimeBasePlugin(event_definition_.timebase).settings());
 
   set.enable_if_flag(!(status_ & booted), "preset");
   return set;
@@ -132,9 +119,10 @@ void ev42_events::settings(const Setting& settings)
 
   event_definition_ = EventModel();
 
-  uint32_t mult = set.find({r + "/TimebaseMult"}).get_number();
-  uint32_t div = set.find({r + "/TimebaseDiv"}).get_number();
-  event_definition_.timebase = TimeBase(mult ? mult : 1, div ? div : 1);
+  TimeBasePlugin tbs;
+  tbs.settings(set.find({tbs.plugin_name()}));
+  event_definition_ = EventModel();
+  event_definition_.timebase = tbs.timebase();
 
   event_definition_.add_value("x", geometry_.nx());
   event_definition_.add_value("y", geometry_.ny());

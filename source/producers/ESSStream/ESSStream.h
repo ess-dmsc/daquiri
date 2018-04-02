@@ -41,6 +41,8 @@ class ESSStream : public Producer
     void worker_run(SpillQueue spill_queue);
 
   private:
+    std::map<std::string, int32_t> parser_names_;
+
     std::atomic<bool> terminate_{false};
     std::atomic<bool> running_{false};
     std::thread runner_;

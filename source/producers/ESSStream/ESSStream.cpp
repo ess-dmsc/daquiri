@@ -7,6 +7,11 @@
 
 ESSStream::ESSStream()
 {
+  parser_names_["none"] = 0;
+  parser_names_["ev42_events"] = 1;
+  parser_names_["mo01_nmx"] = 2;
+  parser_names_["ChopperTDC"] = 3;
+
   std::string r{plugin_name()};
 
   SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL");
@@ -36,21 +41,19 @@ ESSStream::ESSStream()
   add_definition(mb);
 
   SettingMeta pars(r + "/Parser", SettingType::menu, "Flatbuffer parser");
-  pars.set_enum(0, "none");
-  pars.set_enum(1, "ev42_events");
-  pars.set_enum(2, "mo01_nmx");
-  pars.set_enum(3, "ChopperTDC");
+  for (auto k : parser_names_)
+  pars.set_enum(k.second, k.first);
   add_definition(pars);
 
+  int32_t i{0};
   SettingMeta root("ESSStream", SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, r + "/KafkaBroker");
-  root.set_enum(1, r + "/KafkaTopic");
-  root.set_enum(2, r + "/KafkaTimeout");
-  root.set_enum(3, r + "/KafkaDecomission");
-  root.set_enum(4, r + "/KafkaFF");
-  root.set_enum(5, r + "/KafkaMaxBacklog");
-  root.set_enum(7, r + "/Parser");
+  root.set_enum(i++, r + "/KafkaBroker");
+  root.set_enum(i++, r + "/KafkaTopic");
+  root.set_enum(i++, r + "/KafkaTimeout");
+  root.set_enum(i++, r + "/KafkaDecomission");
+  root.set_enum(i++, r + "/KafkaFF");
+  root.set_enum(i++, r + "/KafkaMaxBacklog");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -109,17 +112,14 @@ Setting ESSStream::settings() const
   set.set(Setting::boolean(r + "/KafkaFF", kafka_ff_));
   set.set(Setting::integer(r + "/KafkaMaxBacklog", kafka_max_backlog_));
 
-  while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
-    set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
-
-  while (set.branches.has_a(Setting({"mo01_nmx", SettingType::stem})))
-    set.branches.remove_a(Setting({"mo01_nmx", SettingType::stem}));
-
-  while (set.branches.has_a(Setting({"ChopperTDC", SettingType::stem})))
-    set.branches.remove_a(Setting({"ChopperTDC", SettingType::stem}));
+  auto parser_set = get_rich_setting(r + "/Parser");
 
   if (parser_)
+  {
+    parser_set.select(parser_names_.at(parser_->plugin_name()));
+    set.branches.add_a(parser_set);
     set.branches.add_a(parser_->settings());
+  }
 
   set.enable_if_flag(!(status_ & booted), "preset");
   return set;

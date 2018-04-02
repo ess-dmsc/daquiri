@@ -24,24 +24,13 @@ mo01_nmx::mo01_nmx()
   hitstreamid.set_flag("preset");
   add_definition(hitstreamid);
 
-  SettingMeta tm(r + "/TimebaseMult", SettingType::integer, "Timebase multiplier");
-  tm.set_val("min", 1);
-  tm.set_val("units", "ns");
-  add_definition(tm);
-
-  SettingMeta td(r + "/TimebaseDiv", SettingType::integer, "Timebase divider");
-  td.set_val("min", 1);
-  td.set_val("units", "1/ns");
-  add_definition(td);
-
+  int32_t i{0};
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, r + "/HistsStream");
-  root.set_enum(1, r + "/XStream");
-  root.set_enum(2, r + "/YStream");
-  root.set_enum(3, r + "/HitsStream");
-  root.set_enum(4, r + "/TimebaseMult");
-  root.set_enum(5, r + "/TimebaseDiv");
+  root.set_enum(i++, r + "/HistsStream");
+  root.set_enum(i++, r + "/XStream");
+  root.set_enum(i++, r + "/YStream");
+  root.set_enum(i++, r + "/HitsStream");
   add_definition(root);
 
   hists_model_.add_trace("strips_x", {UINT16_MAX+1});
@@ -71,10 +60,7 @@ Setting mo01_nmx::settings() const
   set.set(Setting::text(r + "/YStream", y_stream_id_));
   set.set(Setting::text(r + "/HitsStream", hit_stream_id_));
 
-  set.set(Setting::integer(r + "/TimebaseMult",
-                           hists_model_.timebase.multiplier()));
-  set.set(Setting::integer(r + "/TimebaseDiv",
-                           hists_model_.timebase.divider()));
+  set.branches.add_a(TimeBasePlugin(hists_model_.timebase).settings());
 
   set.enable_if_flag(!(status_ & booted), "preset");
   return set;
@@ -90,11 +76,9 @@ void mo01_nmx::settings(const Setting& settings)
   y_stream_id_ = set.find({r + "/YStream"}).get_text();
   hit_stream_id_ = set.find({r + "/HitsStream"}).get_text();
 
-  uint32_t mult = set.find({r + "/TimebaseMult"}).get_number();
-  uint32_t div = set.find({r + "/TimebaseDiv"}).get_number();
-
-  hists_model_.timebase = track_model_.timebase =
-      TimeBase(mult ? mult : 1, div ? div : 1);
+  TimeBasePlugin tbs;
+  tbs.settings(set.find({tbs.plugin_name()}));
+  hists_model_.timebase = tbs.timebase();
 }
 
 StreamManifest mo01_nmx::stream_manifest() const

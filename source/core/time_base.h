@@ -170,7 +170,7 @@ class TimeBasePlugin : public Plugin
       std::string r{plugin_name()};
       uint32_t mult = setting.find({r + "/multiplier"}).get_int();
       uint32_t div = setting.find({r + "/divider"}).get_int();
-      timebase_ = TimeBase(std::max(uint32_t(1), mult), std::max(uint32_t(1), div));
+      timebase_ = TimeBase(mult ? mult : 1, div ? div : 1);
     }
 
     Setting settings() const override
