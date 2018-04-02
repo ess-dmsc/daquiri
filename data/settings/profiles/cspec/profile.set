@@ -18,24 +18,9 @@
   {
    "branches": [
     {
-     "id": "ESSStream/KafkaBroker",
-     "type": "text",
-     "value": "localhost:9092"
-    },
-    {
      "id": "ESSStream/KafkaTopic",
      "type": "text",
      "value": "C-SPEC_detector"
-    },
-    {
-     "id": "ESSStream/KafkaTimeout",
-     "type": "integer",
-     "value": 1000
-    },
-    {
-     "id": "ESSStream/KafkaDecomission",
-     "type": "integer",
-     "value": 2000
     },
     {
      "id": "ESSStream/KafkaFF",
@@ -46,6 +31,27 @@
      "id": "ESSStream/KafkaMaxBacklog",
      "type": "integer",
      "value": 3
+    },
+    {
+     "branches": [
+      {
+       "id": "KafkaConfig/KafkaBroker",
+       "type": "text",
+       "value": "localhost:9092"
+      },
+      {
+       "id": "KafkaConfig/KafkaTimeout",
+       "type": "integer",
+       "value": 1000
+      },
+      {
+       "id": "KafkaConfig/KafkaDecomission",
+       "type": "integer",
+       "value": 3000
+      }
+     ],
+     "id": "KafkaConfig",
+     "type": "stem"
     },
     {
      "id": "ESSStream/Parser",
@@ -138,24 +144,9 @@
   {
    "branches": [
     {
-     "id": "ESSStream/KafkaBroker",
-     "type": "text",
-     "value": "localhost:9092"
-    },
-    {
      "id": "ESSStream/KafkaTopic",
      "type": "text",
      "value": "C-SPEC_monitor"
-    },
-    {
-     "id": "ESSStream/KafkaTimeout",
-     "type": "integer",
-     "value": 1000
-    },
-    {
-     "id": "ESSStream/KafkaDecomission",
-     "type": "integer",
-     "value": 2000
     },
     {
      "id": "ESSStream/KafkaFF",
@@ -166,6 +157,27 @@
      "id": "ESSStream/KafkaMaxBacklog",
      "type": "integer",
      "value": 1
+    },
+    {
+     "branches": [
+      {
+       "id": "KafkaConfig/KafkaBroker",
+       "type": "text",
+       "value": "localhost:9092"
+      },
+      {
+       "id": "KafkaConfig/KafkaTimeout",
+       "type": "integer",
+       "value": 1000
+      },
+      {
+       "id": "KafkaConfig/KafkaDecomission",
+       "type": "integer",
+       "value": 3000
+      }
+     ],
+     "id": "KafkaConfig",
+     "type": "stem"
     },
     {
      "id": "ESSStream/Parser",

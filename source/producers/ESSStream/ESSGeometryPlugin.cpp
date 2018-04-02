@@ -2,7 +2,7 @@
 
 ESSGeometryPlugin::ESSGeometryPlugin()
 {
-  std::__cxx11::string r{plugin_name()};
+  std::string r{plugin_name()};
 
   SettingMeta ex(r + "/extent_x", SettingType::integer, "Extent X");
   ex.set_val("min", 1);
@@ -31,7 +31,7 @@ ESSGeometryPlugin::ESSGeometryPlugin()
 
 Setting ESSGeometryPlugin::settings() const
 {
-  std::__cxx11::string r{plugin_name()};
+  std::string r{plugin_name()};
   auto set = get_rich_setting(r);
   set.set(Setting::integer(r + "/extent_x", integer_t(geometry_.nx())));
   set.set(Setting::integer(r + "/extent_y", integer_t(geometry_.ny())));
@@ -42,7 +42,7 @@ Setting ESSGeometryPlugin::settings() const
 
 void ESSGeometryPlugin::settings(const Setting& settings)
 {
-  std::__cxx11::string r{plugin_name()};
+  std::string r{plugin_name()};
   geometry_.nx(settings.find({r + "/extent_x"}).get_number());
   geometry_.ny(settings.find({r + "/extent_y"}).get_number());
   geometry_.nz(settings.find({r + "/extent_z"}).get_number());

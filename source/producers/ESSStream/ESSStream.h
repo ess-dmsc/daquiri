@@ -3,8 +3,8 @@
 #include "producer.h"
 #include <atomic>
 #include <thread>
-#include <librdkafka/rdkafkacpp.h>
 #include "fb_parser.h"
+#include "KafkaPlugin.h"
 
 using namespace DAQuiri;
 
@@ -44,19 +44,14 @@ class ESSStream : public Producer
     std::thread runner_;
 
     // cached params
-    // broker-level
-    std::string kafka_broker_name_;
-    uint16_t kafka_timeout_{1000};
-    uint16_t kafka_decomission_wait_{5000};
-
-    // cached params
     // topic-level
+    KafkaConfigPlugin kafka_config_;
     std::string kafka_topic_name_;
     bool kafka_ff_{false};
     int32_t kafka_max_backlog_{3};
 
     // Kafka
-    std::unique_ptr<RdKafka::KafkaConsumer> stream_;
+    std::shared_ptr<RdKafka::KafkaConsumer> stream_;
 
     // Flatbuffer parser
     std::shared_ptr<fb_parser> parser_;
@@ -66,13 +61,7 @@ class ESSStream : public Producer
     double time_spent_{0};
 
     uint64_t get_message(SpillQueue);
-//  SpillPtr get_message();
-    std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
     void select_parser(std::string);
 
-    std::vector<RdKafka::TopicPartition *> get_partitions();
-    std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
-
     void ff_stream(std::shared_ptr<RdKafka::Message> message);
-    void seek(const std::string &topic, uint32_t partition, int64_t offset) const;
 };

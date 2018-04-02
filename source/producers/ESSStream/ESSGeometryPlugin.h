@@ -11,7 +11,7 @@ class ESSGeometryPlugin : public Plugin
   public:
     ESSGeometryPlugin();
 
-    std::__cxx11::string plugin_name() const override { return "ESSGeometry"; }
+    std::string plugin_name() const override { return "ESSGeometry"; }
     Setting settings() const override;
     void settings(const Setting&) override;
 
