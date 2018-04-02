@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fb_parser.h"
-#include <logical_geometry/ESSGeometry.h>
+#include "ESSGeometryPlugin.h"
 
 using namespace DAQuiri;
 
@@ -28,7 +28,7 @@ class ev42_events : public fb_parser
     // cached params
 
     std::string stream_id_;
-    ESSGeometry geometry_{1, 1, 1, 1};
+    ESSGeometryPlugin geometry_;
     EventModel event_definition_;
     int spoof_clock_{0};
     bool heartbeat_{false};

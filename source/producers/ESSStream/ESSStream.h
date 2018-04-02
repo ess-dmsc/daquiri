@@ -8,10 +8,6 @@
 
 using namespace DAQuiri;
 
-class EventMessage;
-class GEMHist;
-class GEMTrack;
-
 class ESSStream : public Producer
 {
   public:

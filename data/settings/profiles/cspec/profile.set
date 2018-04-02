@@ -60,26 +60,6 @@
        "value": "cspec"
       },
       {
-       "id": "ev42_events/extent_x",
-       "type": "integer",
-       "value": 4
-      },
-      {
-       "id": "ev42_events/extent_y",
-       "type": "integer",
-       "value": 48
-      },
-      {
-       "id": "ev42_events/extent_z",
-       "type": "integer",
-       "value": 20
-      },
-      {
-       "id": "ev42_events/panels",
-       "type": "integer",
-       "value": 1
-      },
-      {
        "id": "ev42_events/SpoofClock",
        "type": "menu",
        "value": 2
@@ -103,6 +83,32 @@
        "id": "ev42_events/MessageOrdering",
        "type": "menu",
        "value": 0
+      },
+      {
+       "branches": [
+        {
+         "id": "ESSGeometry/extent_x",
+         "type": "integer",
+         "value": 4
+        },
+        {
+         "id": "ESSGeometry/extent_y",
+         "type": "integer",
+         "value": 48
+        },
+        {
+         "id": "ESSGeometry/extent_z",
+         "type": "integer",
+         "value": 20
+        },
+        {
+         "id": "ESSGeometry/panels",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "ESSGeometry",
+       "type": "stem"
       },
       {
        "branches": [

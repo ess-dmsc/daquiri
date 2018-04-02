@@ -12,23 +12,6 @@ ev42_events::ev42_events()
   streamid.set_flag("preset");
   add_definition(streamid);
 
-  SettingMeta ex(r + "/extent_x", SettingType::integer, "Extent X");
-  ex.set_val("min", 1);
-  add_definition(ex);
-
-  SettingMeta ey(r + "/extent_y", SettingType::integer, "Extent Y");
-  ey.set_val("min", 1);
-  add_definition(ey);
-
-  SettingMeta ez(r + "/extent_z", SettingType::integer, "Extent Z");
-  ez.set_val("min", 1);
-  add_definition(ez);
-
-  SettingMeta ep(r + "/panels", SettingType::integer, "Panel count");
-  ep.set_val("min", 1);
-  add_definition(ep);
-
-
   SettingMeta spoof(r + "/SpoofClock", SettingType::menu, "Spoof pulse time");
   spoof.set_enum(0, "no");
   spoof.set_enum(1, "monotonous high-time");
@@ -57,13 +40,8 @@ ev42_events::ev42_events()
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
   root.set_enum(i++, r + "/StreamID");
-  root.set_enum(i++, r + "/extent_x");
-  root.set_enum(i++, r + "/extent_y");
-  root.set_enum(i++, r + "/extent_z");
-  root.set_enum(i++, r + "/panels");
   root.set_enum(i++, r + "/SpoofClock");
   root.set_enum(i++, r + "/Heartbeat");
-
   root.set_enum(i++, r + "/FilterSourceName");
   root.set_enum(i++, r + "/SourceName");
   root.set_enum(i++, r + "/MessageOrdering");
@@ -78,19 +56,12 @@ Setting ev42_events::settings() const
 
   set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
   set.set(Setting::text(r + "/SourceName", source_name_));
-
   set.set(Setting::text(r + "/StreamID", stream_id_));
-
-  set.set(Setting::integer(r + "/extent_x", integer_t(geometry_.nx())));
-  set.set(Setting::integer(r + "/extent_y", integer_t(geometry_.ny())));
-  set.set(Setting::integer(r + "/extent_z", integer_t(geometry_.nz())));
-  set.set(Setting::integer(r + "/panels", integer_t(geometry_.np())));
-
   set.set(Setting::integer(r + "/SpoofClock", spoof_clock_));
   set.set(Setting::boolean(r + "/Heartbeat", heartbeat_));
-
   set.set(Setting::integer(r + "/MessageOrdering", ordering_));
 
+  set.branches.add_a(geometry_.settings());
   set.branches.add_a(TimeBasePlugin(event_definition_.timebase).settings());
 
   set.enable_if_flag(!(status_ & booted), "preset");
@@ -105,16 +76,9 @@ void ev42_events::settings(const Setting& settings)
 
   filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
   source_name_ = set.find({r + "/SourceName"}).get_text();
-
   stream_id_ = set.find({r + "/StreamID"}).get_text();
-  geometry_.nx(set.find({r + "/extent_x"}).get_number());
-  geometry_.ny(set.find({r + "/extent_y"}).get_number());
-  geometry_.nz(set.find({r + "/extent_z"}).get_number());
-  geometry_.np(set.find({r + "/panels"}).get_number());
-
   spoof_clock_ = set.find({r + "/SpoofClock"}).get_number();
   heartbeat_ = set.find({r + "/Heartbeat"}).triggered();
-
   ordering_ = set.find({r + "/MessageOrdering"}).get_number();
 
   event_definition_ = EventModel();
@@ -123,11 +87,8 @@ void ev42_events::settings(const Setting& settings)
   tbs.settings(set.find({tbs.plugin_name()}));
   event_definition_ = EventModel();
   event_definition_.timebase = tbs.timebase();
-
-  event_definition_.add_value("x", geometry_.nx());
-  event_definition_.add_value("y", geometry_.ny());
-  event_definition_.add_value("z", geometry_.nz());
-  event_definition_.add_value("panel", geometry_.np());
+  geometry_.settings(set.find({geometry_.plugin_name()}));
+  geometry_.define(event_definition_);
 }
 
 StreamManifest ev42_events::stream_manifest() const
@@ -200,14 +161,9 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
 
-    const auto& id = em->detector_id()->Get(i);
-    if (geometry_.valid_id(id)) //must be non0?
+    auto& evt = run_spill->events.last();
+    if (geometry_.fill(evt, em->detector_id()->Get(i)))
     {
-      auto& evt = run_spill->events.last();
-      evt.set_value(0, geometry_.x(id));
-      evt.set_value(1, geometry_.y(id));
-      evt.set_value(2, geometry_.z(id));
-      evt.set_value(3, geometry_.p(id));
       evt.set_time(time);
       ++ run_spill->events;
     }
