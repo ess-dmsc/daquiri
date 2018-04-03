@@ -48,8 +48,8 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   if (running_.load())
     daq_stop();
 
-  terminate_.store(false);
   running_.store(true);
+  terminate_.store(false);
 
   size_t total = 0;
   for (auto& s : streams_)
@@ -66,7 +66,9 @@ bool ESSStream::daq_start(SpillQueue out_queue)
       continue;
     }
 
-    s.runner = std::thread(&ESSStream::worker_run, this, out_queue, s.consumer, s.parser);
+    s.runner = std::thread(&ESSStream::Stream::worker_run, &s, out_queue,
+                           kafka_config_.kafka_timeout_,
+                           &terminate_);
     total++;
   }
 
@@ -119,6 +121,8 @@ Setting ESSStream::settings() const
   {
     auto topic = get_rich_setting(r + "/Topic");
 
+    topic.branches.add_a(s.config.settings());
+
     auto parser_set = get_rich_setting(r + "/Parser");
     parser_set.select(0);
     if (s.parser)
@@ -159,6 +163,8 @@ void ESSStream::settings(const Setting& settings)
 
     auto parser_set = enrich_and_toggle_presets(v.find({r + "/Parser"}));
     auto parser = parser_set.metadata().enum_name(parser_set.selection());
+
+    streams_[i].config.settings(v.find(streams_[i].config.plugin_name()));
 
     select_parser(i, parser);
     if (streams_[i].parser && (streams_[i].parser->plugin_name() == parser))
@@ -205,16 +211,16 @@ void ESSStream::boot()
 
     status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-    s.consumer = kafka_config_.subscribe_topic(s.parser->kafka_config.kafka_topic_name_);
+    s.consumer = kafka_config_.subscribe_topic(s.config.kafka_topic_name_);
 
     if (!s.consumer)
     {
-      ERR << "<ESSStream:" << s.parser->kafka_config.kafka_topic_name_ << "> "
+      ERR << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
           << "Failed to start consumer.";
       continue;
     }
 
-    INFO << "<ESSStream:" << s.parser->kafka_config.kafka_topic_name_ << "> "
+    INFO << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
          << " booted with consumer " << s.consumer->low_level->name();
     total_valid++;
   }
@@ -246,34 +252,35 @@ void ESSStream::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::worker_run(SpillQueue spill_queue,
-                           Kafka::ConsumerPtr stream, FBParserPtr parser)
+void ESSStream::Stream::worker_run(SpillQueue spill_queue,
+                                   uint16_t consume_timeout,
+                                   std::atomic<bool>* terminate)
 {
-  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
       << "Starting run"; //more info!!!
 
   uint64_t spills {0};
 
-  while (!terminate_.load())
+  while (!terminate->load())
   {
-    auto message = stream->consume(kafka_config_.kafka_timeout_);
+    auto message = consumer->consume(consume_timeout);
 
     if (!good(message))
       continue;
 
     spills += parser->process_payload(spill_queue, message->low_level->payload());
-    if (parser->kafka_config.kafka_ff_)
+    if (config.kafka_ff_)
         parser->stats.dropped_buffers +=
-            ff_stream(stream, message, parser->kafka_config.kafka_max_backlog_);
+            ff_stream(message, config.kafka_max_backlog_);
   }
 
   spills += parser->stop(spill_queue);
 
-  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
       << "Finished run"
       << "  spills=" << spills;
 
-  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
       << "  time=" << parser->stats.time_spent
       << "  secs/spill=" << parser->stats.time_spent / double(spills)
       << "  skipped buffers=" << parser->stats.dropped_buffers;
@@ -332,8 +339,8 @@ bool ESSStream::good(Kafka::MessagePtr message)
   }
 }
 
-uint64_t ESSStream::ff_stream(Kafka::ConsumerPtr consumer, Kafka::MessagePtr message,
-                              int64_t kafka_max_backlog)
+uint64_t ESSStream::Stream::ff_stream(Kafka::MessagePtr message,
+                                      int64_t kafka_max_backlog)
 {
   auto offsets = consumer->get_watermark_offsets(message);
 

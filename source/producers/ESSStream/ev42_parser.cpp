@@ -52,7 +52,7 @@ ev42_events::ev42_events()
 Setting ev42_events::settings() const
 {
   std::string r{plugin_name()};
-  auto set = fb_parser::settings();
+  auto set = get_rich_setting(r);
 
   set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
   set.set(Setting::text(r + "/SourceName", source_name_));
@@ -70,7 +70,6 @@ Setting ev42_events::settings() const
 
 void ev42_events::settings(const Setting& settings)
 {
-  fb_parser::settings(settings);
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
 

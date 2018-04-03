@@ -33,21 +33,25 @@ class ESSStream : public Producer
     void operator=(ESSStream const &);
     ESSStream(const ESSStream &);
 
-    void worker_run(SpillQueue spill_queue, Kafka::ConsumerPtr stream, FBParserPtr parser);
-
   private:
     std::map<std::string, int32_t> parser_names_;
 
-    std::atomic<bool> terminate_{false};
     std::atomic<bool> running_{false};
+    std::atomic<bool> terminate_{false};
 
     KafkaConfigPlugin kafka_config_;
 
     struct Stream
     {
+      KafkaStreamConfig config;
       Kafka::ConsumerPtr consumer;
       FBParserPtr parser;
       std::thread runner;
+
+      void worker_run(SpillQueue spill_queue, uint16_t consume_timeout,
+                      std::atomic<bool>* terminate);
+
+      uint64_t ff_stream(Kafka::MessagePtr message, int64_t kafka_max_backlog);
     };
 
     std::vector<Stream> streams_;
@@ -55,7 +59,5 @@ class ESSStream : public Producer
     void select_parser(size_t, std::string);
 
     static bool good(Kafka::MessagePtr message);
-    static uint64_t ff_stream(Kafka::ConsumerPtr consumer,
-                              Kafka::MessagePtr message,
-                              int64_t kafka_max_backlog);
+
 };

@@ -196,3 +196,46 @@ std::unique_ptr<RdKafka::Metadata> KafkaConfigPlugin::get_kafka_metadata(std::sh
   }
   return metadata;
 }
+
+
+KafkaStreamConfig::KafkaStreamConfig()
+{
+  std::string r {plugin_name()};
+
+  SettingMeta topic(r + "/KafkaTopic", SettingType::text, "Kafka topic");
+  topic.set_flag("preset");
+  add_definition(topic);
+
+  SettingMeta drop {r + "/KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
+  add_definition(drop);
+
+  SettingMeta mb(r + "/KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
+  mb.set_val("min", 1);
+  mb.set_val("units", "buffers");
+  add_definition(mb);
+
+  int32_t i {0};
+  SettingMeta root(r, SettingType::stem, "Kafka topic configuration");
+  root.set_enum(i++, r + "/KafkaTopic");
+  root.set_enum(i++, r + "/KafkaFF");
+  root.set_enum(i++, r + "/KafkaMaxBacklog");
+  add_definition(root);
+}
+
+Setting KafkaStreamConfig::settings() const
+{
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
+  set.set(Setting::text(r + "/KafkaTopic", kafka_topic_name_));
+  set.set(Setting::boolean(r + "/KafkaFF", kafka_ff_));
+  set.set(Setting::integer(r + "/KafkaMaxBacklog", kafka_max_backlog_));
+  return set;
+}
+
+void KafkaStreamConfig::settings(const Setting& set)
+{
+  std::string r{plugin_name()};
+  kafka_topic_name_ = set.find({r + "/KafkaTopic"}).get_text();
+  kafka_ff_ = set.find({r + "/KafkaFF"}).get_bool();
+  kafka_max_backlog_ = set.find({r + "/KafkaMaxBacklog"}).get_int();
+}

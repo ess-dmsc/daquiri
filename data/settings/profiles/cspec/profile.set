@@ -46,6 +46,27 @@
     {
      "branches": [
       {
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "C-SPEC_detector"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 3
+        }
+       ],
+       "id": "KafkaTopicConfig",
+       "type": "stem"
+      },
+      {
        "id": "ESSStream/Parser",
        "type": "menu",
        "value": 1
@@ -81,27 +102,6 @@
          "id": "ev42_events/MessageOrdering",
          "type": "menu",
          "value": 0
-        },
-        {
-         "branches": [
-          {
-           "id": "KafkaTopicConfig/KafkaTopic",
-           "type": "text",
-           "value": "C-SPEC_detector"
-          },
-          {
-           "id": "KafkaTopicConfig/KafkaFF",
-           "type": "boolean",
-           "value": false
-          },
-          {
-           "id": "KafkaTopicConfig/KafkaMaxBacklog",
-           "type": "integer",
-           "value": 3
-          }
-         ],
-         "id": "KafkaTopicConfig",
-         "type": "stem"
         },
         {
          "branches": [
@@ -156,6 +156,27 @@
     {
      "branches": [
       {
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "C-SPEC_monitor"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "KafkaTopicConfig",
+       "type": "stem"
+      },
+      {
        "id": "ESSStream/Parser",
        "type": "menu",
        "value": 2
@@ -181,27 +202,6 @@
          "id": "mo01_nmx/HitsStream",
          "type": "text",
          "value": "hits"
-        },
-        {
-         "branches": [
-          {
-           "id": "KafkaTopicConfig/KafkaTopic",
-           "type": "text",
-           "value": "C-SPEC_monitor"
-          },
-          {
-           "id": "KafkaTopicConfig/KafkaFF",
-           "type": "boolean",
-           "value": false
-          },
-          {
-           "id": "KafkaTopicConfig/KafkaMaxBacklog",
-           "type": "integer",
-           "value": 1
-          }
-         ],
-         "id": "KafkaTopicConfig",
-         "type": "stem"
         },
         {
          "branches": [

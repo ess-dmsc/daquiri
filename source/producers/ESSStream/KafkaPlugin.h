@@ -64,3 +64,19 @@ class KafkaConfigPlugin : public DAQuiri::Plugin
     uint16_t kafka_timeout_{1000};
     uint16_t kafka_decomission_wait_{5000};
 };
+
+
+class KafkaStreamConfig : public DAQuiri::Plugin
+{
+  public:
+    KafkaStreamConfig();
+
+    std::string plugin_name() const override { return "KafkaTopicConfig"; }
+    DAQuiri::Setting settings() const override;
+    void settings(const DAQuiri::Setting&) override;
+
+    // topic-level params
+    std::string kafka_topic_name_;
+    bool kafka_ff_{false};
+    int64_t kafka_max_backlog_{3};
+};
