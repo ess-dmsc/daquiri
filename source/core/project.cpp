@@ -13,11 +13,10 @@ Project::Project(const Project &other)
   ready_ = true;
   changed_ = true;
   identity_ = other.identity_;
-  current_index_ = other.current_index_;
   consumers_ = other.consumers_;
   spills_ = other.spills_;
   for (auto consumer : other.consumers_)
-    consumers_[consumer.first] = ConsumerFactory::singleton().create_copy(consumer.second);
+    consumers_.add_a(ConsumerFactory::singleton().create_copy(consumer));
   DBG << "<Project> deep copy performed";
 }
 
@@ -50,7 +49,6 @@ void Project::clear_helper()
 
   consumers_.clear();
 //  spills_.clear();
-  current_index_ = 0;
 }
 
 void Project::flush()
@@ -62,7 +60,7 @@ void Project::flush()
     for (auto &q: consumers_)
     {
       //DBG << "closing " << q->name();
-      q.second->flush();
+      q->flush();
     }
   }
 }
@@ -87,7 +85,7 @@ bool Project::changed() const
 {
   UNIQUE_LOCK_EVENTUALLY
   for (auto &q : consumers_)
-    if (q.second->changed())
+    if (q->changed())
       changed_ = true;
 
   return changed_;
@@ -105,27 +103,45 @@ bool Project::empty() const
   return consumers_.empty();
 }
 
+void Project::up(size_t i)
+{
+  UNIQUE_LOCK_EVENTUALLY
+  consumers_.up(i);
+  changed_ = true;
+  ready_ = true;
+  // cond_.notify_one();
+}
+
+void Project::down(size_t i)
+{
+  UNIQUE_LOCK_EVENTUALLY
+  consumers_.down(i);
+  changed_ = true;
+  ready_ = true;
+  // cond_.notify_one();
+}
+
 std::vector<std::string> Project::types() const
 {
   UNIQUE_LOCK_EVENTUALLY
   std::set<std::string> my_types;
   for (auto &q: consumers_)
-    my_types.insert(q.second->type());
+    my_types.insert(q->type());
   std::vector<std::string> output(my_types.begin(), my_types.end());
   return output;
 }
 
-ConsumerPtr Project::get_consumer(int64_t idx)
+ConsumerPtr Project::get_consumer(size_t idx)
 {
   UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as consumer implemented as thread-safe
-  if (consumers_.count(idx))
-    return consumers_.at(idx);
+  if (idx < consumers_.size())
+    return consumers_.get(idx);
   else
     return nullptr;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_consumers(int32_t dimensions)
+Container<ConsumerPtr> Project::get_consumers(int32_t dimensions)
 {
   UNIQUE_LOCK_EVENTUALLY
   //threadsafe so long as consumer implemented as thread-safe
@@ -133,56 +149,69 @@ std::map<int64_t, ConsumerPtr> Project::get_consumers(int32_t dimensions)
   if (dimensions == -1)
     return consumers_;
 
-  std::map<int64_t, ConsumerPtr> ret;
+  Container<ConsumerPtr> ret;
   for (auto &q: consumers_)
-    if (q.second->dimensions() == dimensions)
-      ret.insert(q);
+    if (q->dimensions() == dimensions)
+      ret.add_a(q);
   return ret;
 }
 
 //client should activate replot after loading all files, as loading multiple
 // consumer might create a long queue of plot update signals
-int64_t Project::add_consumer(ConsumerPtr consumer)
+size_t Project::add_consumer(ConsumerPtr consumer)
 {
   if (!consumer)
     return 0;
   UNIQUE_LOCK_EVENTUALLY
 
-  consumers_[++current_index_] = consumer;
+  consumers_.add_a(consumer);
   changed_ = true;
   ready_ = true;
   // cond_.notify_one();
-  return current_index_;
+  return consumers_.size() - 1;
 }
 
-int64_t Project::add_consumer(ConsumerMetadata prototype)
+size_t Project::add_consumer(ConsumerMetadata prototype)
 {
   UNIQUE_LOCK_EVENTUALLY
 
   ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(prototype);
   if (!consumer)
     return 0;
-  consumers_[++current_index_] = consumer;
+  consumers_.add_a(consumer);
   changed_ = true;
   ready_ = true;
   // cond_.notify_one();
-  return current_index_;
+  return consumers_.size() - 1;
 }
 
-void Project::delete_consumer(int64_t idx)
+void Project::replace(size_t idx, ConsumerMetadata prototype)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  if (!consumers_.count(idx))
+  ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(prototype);
+  if (!consumer)
+    return;
+  consumers_.replace(idx, consumer);
+
+  changed_ = true;
+  ready_ = true;
+
+  // cond_.notify_one();
+}
+
+
+void Project::delete_consumer(size_t idx)
+{
+  UNIQUE_LOCK_EVENTUALLY
+
+  if (idx >= consumers_.size())
     return;
 
-  consumers_.erase(idx);
+  consumers_.remove(idx);
   changed_ = true;
   ready_ = true;
   // cond_.notify_one();
-
-  if (consumers_.empty())
-    current_index_ = 0;
 }
 
 void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
@@ -198,7 +227,7 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
     ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(definition);
     if (consumer)
     {
-      consumers_[++current_index_] = consumer;
+      consumers_.add_a(consumer);
 //      DBG << "Added consumer " << consumer->debug();
     }
   }
@@ -214,7 +243,7 @@ Container<ConsumerMetadata> Project::get_prototypes() const
 
   Container<ConsumerMetadata> ret;
   for (auto &q : consumers_)
-    ret.add_a(q.second->metadata().prototype());
+    ret.add_a(q->metadata().prototype());
   return ret;
 }
 
@@ -224,7 +253,7 @@ void Project::add_spill(SpillPtr one_spill)
   UNIQUE_LOCK_EVENTUALLY
 
   for (auto &q: consumers_)
-    q.second->push_spill(*one_spill);
+    q->push_spill(*one_spill);
 
 //  if (!one_spill->detectors.empty()
 //      || !one_spill->state.branches.empty())
@@ -279,8 +308,7 @@ void Project::save_as(std::string file_name)
       for (auto &q : consumers_)
       {
         auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, consumers_.size() - 1));
-        ssg.attributes.create<int64_t>("index").write(q.first);
-        q.second->save(ssg);
+        q->save(ssg);
       }
     }
 
@@ -288,7 +316,7 @@ void Project::save_as(std::string file_name)
     ready_ = true;
 
     for (auto &q : consumers_)
-      q.second->reset_changed();
+      q->reset_changed();
 
     unique_lock lock(mutex_);
     identity_ = file_name;
@@ -342,22 +370,12 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
           continue;
         auto sg = hdf5::node::Group(n);
 
-        if (sg.attributes.exists("index"))
-          sg.attributes["index"].read(current_index_);
-        else
-        {
-          WARN << "<Project> Consumer has no index";
-          continue;
-        }
-
         ConsumerPtr consumer = ConsumerFactory::singleton().create_from_h5(sg, with_full_consumers);
         if (!consumer)
           WARN << "<Project> Could not parse consumer";
         else
-          consumers_[current_index_] = consumer;
+          consumers_.add_a(consumer);
       }
-
-    current_index_++;
 
     changed_ = false;
     ready_ = true;
@@ -384,8 +402,7 @@ void Project::save_metadata(std::string file_name)
 
   for (auto &q : consumers_)
   {
-    auto jmeta = json(q.second->metadata());
-    jmeta["consumer_index"] = q.first;
+    auto jmeta = json(q->metadata());
     proj_json["consumers"].push_back(jmeta);
   }
 
@@ -398,11 +415,12 @@ void Project::save_metadata(std::string file_name)
 void Project::save_split(std::string base_name)
 {
   save_metadata(base_name + "_metadata.json");
+  size_t i=0;
   for (auto &q : consumers_)
   {
-    std::ofstream ofs(base_name + "_" + vector_idx_minlen(q.first, consumers_.rbegin()->first) + ".csv",
+    std::ofstream ofs(base_name + "_" + vector_idx_minlen(i++, consumers_.size()-1) + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
-    q.second->data()->save(ofs);
+    q->data()->save(ofs);
     ofs.close();
   }
 }
@@ -412,11 +430,10 @@ std::ostream &operator<<(std::ostream &stream, const Project &project)
   stream << "Project \"" << project.identity_ << "\"\n";
   stream << "        " << (project.changed_ ? "CHANGED" : "NOT-CHANGED");
   stream << " " << (project.ready_ ? "READY" : " NOT-READY");
-  stream << "        " << "next index = " << project.current_index_ << "\n";
   for (const auto &s : project.spills_)
     stream << s.to_string() << "\n";
   for (const auto &s : project.consumers_)
-    stream << "Consumer[" << s.first << "] " << s.second->debug("", false) << "\n";
+    stream << "Consumer " << s->debug("", false) << "\n";
   return stream;
 }
 

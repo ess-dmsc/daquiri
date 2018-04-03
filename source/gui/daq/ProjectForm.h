@@ -74,7 +74,6 @@ class ProjectForm : public QWidget
 
     QString data_directory_;    //data directory
 
-    Container<DAQuiri::ConsumerMetadata>  spectra_templates_;
     ThreadPlotSignal                plot_thread_;
 
     QMenu  menuLoad;

@@ -118,10 +118,8 @@ void ProjectForm::loadSettings()
   settings.endGroup();
 
 
-  DAQuiri::Project p;
-  p.set_prototypes(from_json_file(Profiles::current_profile_dir().toStdString()
+  project_->set_prototypes(from_json_file(Profiles::current_profile_dir().toStdString()
                                       + "/default_consumers.tem"));
-  spectra_templates_ = p.get_prototypes();
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
@@ -151,8 +149,7 @@ void ProjectForm::saveSettings()
   if (settings.value("autosave_daq", true).toBool()
       && !project_->empty())
   {
-    spectra_templates_ = project_->get_prototypes();
-    to_json_file(spectra_templates_,
+    to_json_file(project_->get_prototypes(),
                  Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
   }
 }
@@ -172,6 +169,8 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
   ui->toolSave->setEnabled(enable && nonempty && !my_run_);
   ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
   ui->projectView->set_manifest(manifest);
+
+  ui->pushEditSpectra->setVisible(enable && !my_run_);
 
   if (close_me_)
     emit requestClose(this);
@@ -209,8 +208,6 @@ void ProjectForm::update_plots()
     this->setWindowTitle(name);
     emit toggleIO(true);
   }
-
-  ui->pushEditSpectra->setVisible(project_->empty());
 
   if (ui->projectView->isVisible())
     ui->projectView->update_plots();
@@ -271,12 +268,14 @@ void ProjectForm::projectSaveSplit()
 void ProjectForm::on_pushEditSpectra_clicked()
 {
   ConsumerTemplatesForm* newDialog =
-      new ConsumerTemplatesForm(spectra_templates_,
+      new ConsumerTemplatesForm(project_,
                                 current_dets_,
                                 stream_manifest_,
                                 Profiles::current_profile_dir(),
                                 this);
   newDialog->exec();
+  ui->projectView->setSpectra(project_);
+  update_plots();
 }
 
 void ProjectForm::on_pushStart_clicked()
@@ -298,7 +297,7 @@ void ProjectForm::on_pushStart_clicked()
     if (settings.value("confirm_templates", true).toBool())
     {
       ConsumerTemplatesForm* newDialog =
-          new ConsumerTemplatesForm(spectra_templates_,
+          new ConsumerTemplatesForm(project_,
                                     current_dets_,
                                     stream_manifest_,
                                     Profiles::current_profile_dir(),
@@ -313,7 +312,7 @@ void ProjectForm::on_pushStart_clicked()
 
 void ProjectForm::start_DAQ()
 {
-  if (project_->empty() && spectra_templates_.empty())
+  if (project_->empty())
     return;
 
   emit toggleIO(false);
@@ -322,7 +321,6 @@ void ProjectForm::start_DAQ()
   if (project_->empty())
   {
     clearGraphs();
-    project_->set_prototypes(spectra_templates_);
     newProject();
   }
 //  project_->activate();

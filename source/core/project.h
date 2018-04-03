@@ -16,10 +16,9 @@ class Project
     mutable mutex mutex_;
     condition_variable cond_;
     mutable bool ready_ {false};
-    int64_t current_index_ {0};
 
     //data
-    std::map<int64_t, ConsumerPtr> consumers_;
+    Container<ConsumerPtr> consumers_;
     std::list<Spill> spills_;
 
     //saveability
@@ -35,22 +34,24 @@ class Project
     void clear();
     void activate();    //force release of cond var
 
-    //populate one of these ways
+    // populate one of these ways
     void set_prototypes(const Container<ConsumerMetadata>&);
     Container<ConsumerMetadata> get_prototypes() const;
-    int64_t add_consumer(ConsumerPtr consumer);
-    int64_t add_consumer(ConsumerMetadata prototype);
+    size_t add_consumer(ConsumerPtr consumer);
+    size_t add_consumer(ConsumerMetadata prototype);
+    void replace(size_t idx, ConsumerMetadata prototype);
+    void delete_consumer(size_t idx);
+    void up(size_t);
+    void down(size_t);
 
+    // File ops
     void save();
     void save_as(std::string file_name);
     void save_split(std::string base_name);
     void save_metadata(std::string file_name);
-
     void open(std::string file_name,
               bool with_consumers = true,
               bool with_full_consumers = true);
-
-    void delete_consumer(int64_t idx);
 
     //acquisition feeds events to all consumers
     void add_spill(SpillPtr one_spill);
@@ -70,8 +71,8 @@ class Project
     std::list<Spill> spills() const;
 
     //get consumers
-    ConsumerPtr get_consumer(int64_t idx);
-    std::map<int64_t, ConsumerPtr> get_consumers(int32_t dimensions = -1);
+    ConsumerPtr get_consumer(size_t idx);
+    Container<ConsumerPtr> get_consumers(int32_t dimensions = -1);
 
     friend std::ostream& operator<<(std::ostream& stream,
                                     const Project& project);

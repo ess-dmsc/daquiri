@@ -26,7 +26,7 @@ public:
                             QWidget *parent = 0);
     ~ConsumerDialog();
 
-    DAQuiri::ConsumerMetadata product();
+    DAQuiri::ConsumerPtr product();
 
 private slots:
     void on_buttonBox_accepted();
