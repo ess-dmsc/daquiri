@@ -3,7 +3,7 @@
   {
    "id": "ProfileDescr",
    "type": "text",
-   "value": "Mock producer"
+   "value": "C-SPEC"
   },
   {
    "id": "DropPackets",
@@ -18,190 +18,218 @@
   {
    "branches": [
     {
-     "id": "MockProducer/StreamID",
-     "type": "text",
-     "value": "xyze"
+     "branches": [
+      {
+       "id": "KafkaConfig/KafkaBroker",
+       "type": "text",
+       "value": "localhost:9092"
+      },
+      {
+       "id": "KafkaConfig/KafkaTimeout",
+       "type": "integer",
+       "value": 1000
+      },
+      {
+       "id": "KafkaConfig/KafkaDecomission",
+       "type": "integer",
+       "value": 3000
+      }
+     ],
+     "id": "KafkaConfig",
+     "type": "stem"
     },
     {
-     "id": "MockProducer/SpillInterval",
-     "type": "floating",
-     "value": 0.01
-    },
-    {
-     "id": "MockProducer/Resolution",
+     "id": "ESSStream/TopicCount",
      "type": "integer",
-     "value": 16
-    },
-    {
-     "id": "MockProducer/CountRate",
-     "type": "floating",
-     "value": 100000.0
-    },
-    {
-     "id": "MockProducer/DeadTime",
-     "type": "floating",
-     "value": 5.0
-    },
-    {
-     "id": "MockProducer/TimebaseMult",
-     "type": "integer",
-     "value": 1
-    },
-    {
-     "id": "MockProducer/TimebaseDiv",
-     "type": "integer",
-     "value": 1
-    },
-    {
-     "id": "MockProducer/Lambda",
-     "type": "floating",
-     "value": 0.01
-    },
-    {
-     "id": "MockProducer/SpillLambda",
-     "type": "floating",
-     "value": 0.1
-    },
-    {
-     "id": "MockProducer/ValueCount",
-     "type": "integer",
-     "value": 4
+     "value": 2
     },
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
-       "indices": [
-        0
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "NMX_detector"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 3
+        }
        ],
-       "type": "text",
-       "value": "x"
+       "id": "KafkaTopicConfig",
+       "type": "stem"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
-       "indices": [
-        0
-       ],
-       "type": "floating",
-       "value": 10.0
+       "id": "ESSStream/Parser",
+       "type": "menu",
+       "value": 1
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
-       "indices": [
-        0
+       "branches": [
+        {
+         "id": "ev42_events/StreamID",
+         "type": "text",
+         "value": "detector"
+        },
+        {
+         "id": "ev42_events/SpoofClock",
+         "type": "menu",
+         "value": 2
+        },
+        {
+         "id": "ev42_events/Heartbeat",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "ev42_events/FilterSourceName",
+         "type": "boolean",
+         "value": false
+        },
+        {
+         "id": "ev42_events/SourceName",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "ev42_events/MessageOrdering",
+         "type": "menu",
+         "value": 0
+        },
+        {
+         "branches": [
+          {
+           "id": "ESSGeometry/extent_x",
+           "type": "integer",
+           "value": 256
+          },
+          {
+           "id": "ESSGeometry/extent_y",
+           "type": "integer",
+           "value": 256
+          },
+          {
+           "id": "ESSGeometry/extent_z",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "ESSGeometry/panels",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "ESSGeometry",
+         "type": "stem"
+        },
+        {
+         "branches": [
+          {
+           "id": "TimeBase/multiplier",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "TimeBase/divider",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "TimeBase",
+         "type": "stem"
+        }
        ],
-       "type": "floating",
-       "value": 1000.0
+       "id": "ev42_events",
+       "type": "stem"
       }
      ],
-     "id": "MockProducer/Value",
-     "indices": [
-      0
-     ],
+     "id": "ESSStream/Topic",
      "type": "stem"
     },
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
-       "indices": [
-        1
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "NMX_monitor"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 1
+        }
        ],
-       "type": "text",
-       "value": "y"
+       "id": "KafkaTopicConfig",
+       "type": "stem"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
-       "indices": [
-        1
-       ],
-       "type": "floating",
-       "value": 40.0
+       "id": "ESSStream/Parser",
+       "type": "menu",
+       "value": 2
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
-       "indices": [
-        1
+       "branches": [
+        {
+         "id": "mo01_nmx/HistsStream",
+         "type": "text",
+         "value": "hists"
+        },
+        {
+         "id": "mo01_nmx/XStream",
+         "type": "text",
+         "value": "trackx"
+        },
+        {
+         "id": "mo01_nmx/YStream",
+         "type": "text",
+         "value": "tracky"
+        },
+        {
+         "id": "mo01_nmx/HitsStream",
+         "type": "text",
+         "value": "hits"
+        },
+        {
+         "branches": [
+          {
+           "id": "TimeBase/multiplier",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "TimeBase/divider",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "TimeBase",
+         "type": "stem"
+        }
        ],
-       "type": "floating",
-       "value": 3000.0
+       "id": "mo01_nmx",
+       "type": "stem"
       }
      ],
-     "id": "MockProducer/Value",
-     "indices": [
-      1
-     ],
-     "type": "stem"
-    },
-    {
-     "branches": [
-      {
-       "id": "MockProducer/Value/Name",
-       "indices": [
-        2
-       ],
-       "type": "text",
-       "value": "energy"
-      },
-      {
-       "id": "MockProducer/Value/PeakCenter",
-       "indices": [
-        2
-       ],
-       "type": "floating",
-       "value": 60.0
-      },
-      {
-       "id": "MockProducer/Value/PeakSpread",
-       "indices": [
-        2
-       ],
-       "type": "floating",
-       "value": 3000.0
-      }
-     ],
-     "id": "MockProducer/Value",
-     "indices": [
-      2
-     ],
-     "type": "stem"
-    },
-    {
-     "branches": [
-      {
-       "id": "MockProducer/Value/Name",
-       "indices": [
-        3
-       ],
-       "type": "text",
-       "value": "z"
-      },
-      {
-       "id": "MockProducer/Value/PeakCenter",
-       "indices": [
-        3
-       ],
-       "type": "floating",
-       "value": 10.0
-      },
-      {
-       "id": "MockProducer/Value/PeakSpread",
-       "indices": [
-        3
-       ],
-       "type": "floating",
-       "value": 3000.0
-      }
-     ],
-     "id": "MockProducer/Value",
-     "indices": [
-      3
-     ],
+     "id": "ESSStream/Topic",
      "type": "stem"
     }
    ],
-   "id": "MockProducer",
-   "reference": "producer1",
+   "id": "ESSStream",
+   "reference": "NMX",
    "type": "stem"
   }
  ],
