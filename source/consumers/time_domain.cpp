@@ -95,7 +95,7 @@ bool TimeDomain::_accept_spill(const Spill& spill)
   return (Spectrum::_accept_spill(spill));
 }
 
-bool TimeDomain::_accept_events(const Spill &spill)
+bool TimeDomain::_accept_events(const Spill& /*spill*/)
 {
   return (0 != time_resolution_);
 }

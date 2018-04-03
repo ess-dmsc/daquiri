@@ -53,7 +53,7 @@ bool Prebinned1D::_accept_spill(const Spill& spill)
           spill.event_model.name_to_trace.count(trace_name_));
 }
 
-bool Prebinned1D::_accept_events(const Spill &spill)
+bool Prebinned1D::_accept_events(const Spill& /*spill*/)
 {
   return (trace_idx_ >= 0);
 }

@@ -140,7 +140,7 @@ bool Histogram3D::_accept_spill(const Spill& spill)
           );
 }
 
-bool Histogram3D::_accept_events(const Spill &spill)
+bool Histogram3D::_accept_events(const Spill& /*spill*/)
 {
   return (x_idx_ >= 0) && (y_idx_ >= 0) && (z_idx_ >= 0);
 }

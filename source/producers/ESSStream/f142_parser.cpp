@@ -5,26 +5,17 @@
 
 ChopperTDC::ChopperTDC()
 : fb_parser()
-{  
-  SettingMeta chopperTDCStreamid(SettingsPrefix_ + "/EventsStream", SettingType::text, "DAQuiri stream ID for Chopper TDC time stamps");
+{
+  std::string r{plugin_name()};
+
+  SettingMeta chopperTDCStreamid(r + "/EventsStream", SettingType::text, "DAQuiri stream ID for Chopper TDC time stamps");
   chopperTDCStreamid.set_flag("preset");
   add_definition(chopperTDCStreamid);
-  
-  SettingMeta tm(SettingsPrefix_ + "/TimebaseMult", SettingType::integer, "Timebase multiplier");
-  tm.set_val("min", 1);
-  tm.set_val("units", "ns");
-  add_definition(tm);
-  
-  SettingMeta td(SettingsPrefix_ + "/TimebaseDiv", SettingType::integer, "Timebase divider");
-  td.set_val("min", 1);
-  td.set_val("units", "1/ns");
-  add_definition(td);
-  
-  SettingMeta root(SettingsPrefix_, SettingType::stem);
+
+  int32_t i{0};
+  SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(0, SettingsPrefix_ + "/EventsStream");
-  root.set_enum(1, SettingsPrefix_ + "/TimebaseMult");
-  root.set_enum(2, SettingsPrefix_ + "/TimebaseDiv");
+  root.set_enum(i++, r + "/EventsStream");
   add_definition(root);
   
   event_model_.add_value("chopper", 0);
@@ -39,28 +30,28 @@ StreamManifest ChopperTDC::stream_manifest() const
   return ret;
 }
 
-void ChopperTDC::read_settings_bulk(Setting &set) const
+Setting ChopperTDC::settings() const
 {
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
+
+  set.set(Setting::text(r + "/EventsStream", stream_id_));
   
-  set = enrich_and_toggle_presets(set);
-  set.set(Setting::text(SettingsPrefix_ + "/EventsStream", stream_id_));
-  
-  set.set(Setting::integer(SettingsPrefix_ + "/TimebaseMult",
-                           event_model_.timebase.multiplier()));
-  set.set(Setting::integer(SettingsPrefix_ + "/TimebaseDiv",
-                           event_model_.timebase.divider()));
+  set.branches.add_a(TimeBasePlugin(event_model_.timebase).settings());
+
+  set.enable_if_flag(!(status_ & booted), "preset");
+  return set;
 }
 
-void ChopperTDC::write_settings_bulk(const Setting& settings)
+void ChopperTDC::settings(const Setting& settings)
 {
-  
+  std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
-  stream_id_ = set.find({SettingsPrefix_ + "/EventsStream"}).get_text();
-  
-  uint32_t mult = set.find({SettingsPrefix_ + "/TimebaseMult"}).get_number();
-  uint32_t div = set.find({SettingsPrefix_ + "/TimebaseDiv"}).get_number();
-  
-  event_model_.timebase = TimeBase(mult ? mult : 1, div ? div : 1);
+  stream_id_ = set.find({r + "/EventsStream"}).get_text();
+
+  TimeBasePlugin tbs;
+  tbs.settings(set.find({tbs.plugin_name()}));
+  event_model_.timebase = tbs.timebase();
 }
 
 uint64_t ChopperTDC::stop(SpillQueue spill_queue)

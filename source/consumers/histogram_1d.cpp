@@ -63,7 +63,7 @@ bool Histogram1D::_accept_spill(const Spill& spill)
           spill.event_model.name_to_val.count(val_name_));
 }
 
-bool Histogram1D::_accept_events(const Spill &spill)
+bool Histogram1D::_accept_events(const Spill& /*spill*/)
 {
   return (value_idx_ >= 0);
 }

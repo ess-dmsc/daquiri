@@ -3,73 +3,61 @@
 #include "producer.h"
 #include <atomic>
 #include <thread>
-#include <librdkafka/rdkafkacpp.h>
 #include "fb_parser.h"
+#include "KafkaPlugin.h"
 
 using namespace DAQuiri;
 
-class EventMessage;
-class GEMHist;
-class GEMTrack;
-
 class ESSStream : public Producer
 {
-public:
-  ESSStream();
-  ~ESSStream();
+  public:
+    ESSStream();
+    ~ESSStream();
 
-  std::string plugin_name() const override {return "ESSStream";}
+    std::string plugin_name() const override { return "ESSStream"; }
 
-  void write_settings_bulk(const Setting&) override;
-  void read_settings_bulk(Setting&) const override;
-  void boot() override;
-  void die() override;
+    void settings(const Setting&) override;
+    Setting settings() const override;
 
-  StreamManifest stream_manifest() const override;
+    void boot() override;
+    void die() override;
 
-  bool daq_start(SpillQueue out_queue) override;
-  bool daq_stop() override;
-  bool daq_running() override;
+    StreamManifest stream_manifest() const override;
 
-private:
-  //no copying
-  void operator=(ESSStream const&);
-  ESSStream(const ESSStream&);
+    bool daq_start(SpillQueue out_queue) override;
+    bool daq_stop() override;
+    bool daq_running() override;
 
-  //Acquisition threads, use as static functors
-  void worker_run(SpillQueue spill_queue);
+  private:
+    //no copying
+    void operator=(ESSStream const &);
+    ESSStream(const ESSStream &);
 
-private:
-  std::atomic<bool> terminate_ {false};
-  std::atomic<bool> running_ {false};
-  std::thread runner_;
+  private:
+    std::map<std::string, int32_t> parser_names_;
 
-  //Kafka
-  std::unique_ptr<RdKafka::KafkaConsumer> stream_;
+    std::atomic<bool> running_{false};
+    std::atomic<bool> terminate_{false};
 
-  // cached params
-  std::string kafka_broker_name_;
-  std::string kafka_topic_name_;
-  uint16_t kafka_timeout_ {1000};
-  uint16_t kafka_decomission_wait_ {5000};
+    KafkaConfigPlugin kafka_config_;
 
-  bool kafka_ff_ {false};
-  int32_t kafka_max_backlog_ {3};
+    struct Stream
+    {
+      KafkaStreamConfig config;
+      Kafka::ConsumerPtr consumer;
+      FBParserPtr parser;
+      std::thread runner;
 
-  std::shared_ptr<fb_parser> parser_;
+      void worker_run(SpillQueue spill_queue, uint16_t consume_timeout,
+                      std::atomic<bool>* terminate);
 
-  uint64_t dropped_buffers_ {0};
-  uint64_t clock_ {0};
-  double time_spent_ {0};
+      uint64_t ff_stream(Kafka::MessagePtr message, int64_t kafka_max_backlog);
+    };
 
-  uint64_t get_message(SpillQueue);
-//  SpillPtr get_message();
-  std::string debug(std::shared_ptr<RdKafka::Message> kmessage);
-  void select_parser(std::string);
+    std::vector<Stream> streams_;
 
-  std::vector<RdKafka::TopicPartition*> get_partitions();
-  std::unique_ptr<RdKafka::Metadata> get_kafka_metadata() const;
+    void select_parser(size_t, std::string);
 
-  void ff_stream(std::shared_ptr<RdKafka::Message> message);
-  void seek(const std::string &topic, uint32_t partition, int64_t offset) const;
+    static bool good(Kafka::MessagePtr message);
+
 };

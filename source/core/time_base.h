@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include "precise_float.h"
+#include "plugin.h"
 
 #include "json.hpp"
 using namespace nlohmann;
@@ -126,5 +127,63 @@ inline void from_json(const json& j, TimeBase& t)
 {
   t = TimeBase(j["multiplier"], j["divider"]);
 }
+
+
+class TimeBasePlugin : public Plugin
+{
+  public:
+    TimeBasePlugin()
+    {
+      std::string r{plugin_name()};
+
+      SettingMeta tm(r + "/multiplier", SettingType::integer, "Timebase multiplier");
+      tm.set_val("min", 1);
+      tm.set_val("units", "ns");
+      add_definition(tm);
+
+      SettingMeta td(r + "/divider", SettingType::integer, "Timebase divider");
+      td.set_val("min", 1);
+      td.set_val("units", "1/ns");
+      add_definition(td);
+
+      SettingMeta root(r, SettingType::stem, "Timebase");
+      root.set_enum(0, r + "/multiplier");
+      root.set_enum(1, r + "/divider");
+      add_definition(root);
+    }
+
+    TimeBasePlugin(TimeBase tb)
+        : TimeBasePlugin()
+    {
+      timebase_ = tb;
+    }
+
+    TimeBase timebase() const
+    {
+      return timebase_;
+    }
+
+    std::string plugin_name() const override { return "TimeBase"; }
+
+    void settings(const Setting& setting) override
+    {
+      std::string r{plugin_name()};
+      uint32_t mult = setting.find({r + "/multiplier"}).get_int();
+      uint32_t div = setting.find({r + "/divider"}).get_int();
+      timebase_ = TimeBase(mult ? mult : 1, div ? div : 1);
+    }
+
+    Setting settings() const override
+    {
+      std::string r{plugin_name()};
+      auto set = get_rich_setting(r);
+      set.set(Setting::integer(r + "/multiplier", timebase_.multiplier()));
+      set.set(Setting::integer(r + "/divider", timebase_.divider()));
+      return set;
+    }
+
+  private:
+    TimeBase timebase_;
+};
 
 }

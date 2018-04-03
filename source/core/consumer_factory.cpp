@@ -19,7 +19,6 @@ ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other) const
 
 ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) const
 {
-//  DBG << "<ConsumerFactory> creating " << tem.type();
   ConsumerPtr instance = create_type(tem.type());
   if (instance)
   {
@@ -34,11 +33,8 @@ ConsumerPtr ConsumerFactory::create_from_h5(hdf5::node::Group &group, bool withd
   if (!group.attributes.exists("type"))
     return ConsumerPtr();
 
-//  DBG << "<ConsumerFactory> making " << root.attribute("type").value();
-
   std::string type;
   group.attributes["type"].read(type);
-//  auto type = group.read_attribute<std::string>("type");
   ConsumerPtr instance = create_type(type);
   if (instance)
   {
@@ -63,9 +59,9 @@ void ConsumerFactory::register_type(ConsumerMetadata tt,
 {
   auto name = tt.type();
   if (name.empty())
-    INFO << "<ConsumerFactory> attempting to register nameless type";
+    WARN << "<ConsumerFactory> failed to register nameless type";
   else if (constructors_.count(tt.type()))
-    INFO << "<ConsumerFactory> type '" << tt.type() << "' already registered";
+    WARN << "<ConsumerFactory> type '" << tt.type() << "' already registered";
   else
   {
     constructors_[tt.type()] = constructor;

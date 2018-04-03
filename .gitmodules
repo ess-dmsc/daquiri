@@ -6,6 +6,3 @@
 	path = source/gui/qplot
 	url = https://github.com/ess-dmsc/qplot.git
         ignore = dirty
-[submodule "source/producers/ESSStream/logical-geometry"]
-	path = source/producers/ESSStream/logical-geometry
-	url = https://github.com/ess-dmsc/logical-geometry.git

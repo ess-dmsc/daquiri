@@ -126,7 +126,7 @@ void SparseMatrix2D::data_save(hdf5::node::Group g) const
   property::DatasetCreationList dcpl;
   dcpl.layout(property::DatasetLayout::CHUNKED);
 
-  size_t chunksize = spectrum_.outerSize();
+  size_t chunksize = dc.size();
   if (chunksize > 128)
     chunksize = 128;
 

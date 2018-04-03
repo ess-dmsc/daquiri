@@ -6,139 +6,88 @@
 
 ev42_events::ev42_events()
 {
-  std::string mp {"ev42_events/"};
+  std::string r{plugin_name()};
 
-  SettingMeta streamid(mp + "StreamID", SettingType::text, "DAQuiri stream ID");
+  SettingMeta streamid(r + "/StreamID", SettingType::text, "DAQuiri stream ID");
   streamid.set_flag("preset");
   add_definition(streamid);
 
-  SettingMeta ex(mp + "extent_x", SettingType::integer, "Extent X");
-  ex.set_val("min", 1);
-  add_definition(ex);
-
-  SettingMeta ey(mp + "extent_y", SettingType::integer, "Extent Y");
-  ey.set_val("min", 1);
-  add_definition(ey);
-
-  SettingMeta ez(mp + "extent_z", SettingType::integer, "Extent Z");
-  ez.set_val("min", 1);
-  add_definition(ez);
-
-  SettingMeta ep(mp + "panels", SettingType::integer, "Panel count");
-  ep.set_val("min", 1);
-  add_definition(ep);
-
-
-  SettingMeta tm(mp + "TimebaseMult", SettingType::integer, "Timebase multiplier");
-  tm.set_val("min", 1);
-  tm.set_val("units", "ns");
-  add_definition(tm);
-
-  SettingMeta td(mp + "TimebaseDiv", SettingType::integer, "Timebase divider");
-  td.set_val("min", 1);
-  td.set_val("units", "1/ns");
-  add_definition(td);
-
-  SettingMeta spoof(mp + "SpoofClock", SettingType::menu, "Spoof pulse time");
+  SettingMeta spoof(r + "/SpoofClock", SettingType::menu, "Spoof pulse time");
   spoof.set_enum(0, "no");
   spoof.set_enum(1, "monotonous high-time");
   spoof.set_enum(2, "use earliest event in buffer");
   add_definition(spoof);
 
-  SettingMeta hb(mp + "Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
+  SettingMeta hb(r + "/Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
   add_definition(hb);
 
 
-  SettingMeta fsname(mp + "FilterSourceName", SettingType::boolean, "Filter on source name");
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
   fsname.set_flag("preset");
   add_definition(fsname);
 
-  SettingMeta sname(mp + "SourceName", SettingType::text, "Source name");
+  SettingMeta sname(r + "/SourceName", SettingType::text, "Source name");
   sname.set_flag("preset");
   add_definition(sname);
 
-  SettingMeta oor(mp + "MessageOrdering", SettingType::menu, "If message_id out of order");
+  SettingMeta oor(r + "/MessageOrdering", SettingType::menu, "If message_id out of order");
   oor.set_enum(0, "ignore");
   oor.set_enum(1, "warn");
   oor.set_enum(2, "reject");
   add_definition(oor);
 
-  SettingMeta root("ev42_events", SettingType::stem);
+  int32_t i{0};
+  SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(2, mp + "StreamID");
-  root.set_enum(3, mp + "extent_x");
-  root.set_enum(4, mp + "extent_y");
-  root.set_enum(5, mp + "extent_z");
-  root.set_enum(6, mp + "panels");
-  root.set_enum(7, mp + "TimebaseMult");
-  root.set_enum(8, mp + "TimebaseDiv");
-  root.set_enum(9, mp + "SpoofClock");
-  root.set_enum(10, mp + "Heartbeat");
-
-  root.set_enum(20, mp + "FilterSourceName");
-  root.set_enum(21, mp + "SourceName");
-  root.set_enum(22, mp + "MessageOrdering");
+  root.set_enum(i++, r + "/StreamID");
+  root.set_enum(i++, r + "/SpoofClock");
+  root.set_enum(i++, r + "/Heartbeat");
+  root.set_enum(i++, r + "/FilterSourceName");
+  root.set_enum(i++, r + "/SourceName");
+  root.set_enum(i++, r + "/MessageOrdering");
 
   add_definition(root);
 }
 
-void ev42_events::read_settings_bulk(Setting &set) const
+Setting ev42_events::settings() const
 {
-  set = enrich_and_toggle_presets(set);
+  std::string r{plugin_name()};
+  auto set = get_rich_setting(r);
 
-  std::string mp {"ev42_events/"};
+  set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
+  set.set(Setting::text(r + "/SourceName", source_name_));
+  set.set(Setting::text(r + "/StreamID", stream_id_));
+  set.set(Setting::integer(r + "/SpoofClock", spoof_clock_));
+  set.set(Setting::boolean(r + "/Heartbeat", heartbeat_));
+  set.set(Setting::integer(r + "/MessageOrdering", ordering_));
 
-  set.set(Setting::boolean(mp + "FilterSourceName", filter_source_name_));
-  set.set(Setting::text(mp + "SourceName", source_name_));
+  set.branches.add_a(geometry_.settings());
+  set.branches.add_a(TimeBasePlugin(event_definition_.timebase).settings());
 
-  set.set(Setting::text(mp + "StreamID", stream_id_));
-
-  set.set(Setting::integer(mp + "extent_x", integer_t(geometry_.nx())));
-  set.set(Setting::integer(mp + "extent_y", integer_t(geometry_.ny())));
-  set.set(Setting::integer(mp + "extent_z", integer_t(geometry_.nz())));
-  set.set(Setting::integer(mp + "panels", integer_t(geometry_.np())));
-
-  set.set(Setting::integer(mp + "TimebaseMult",
-                           event_definition_.timebase.multiplier()));
-  set.set(Setting::integer(mp + "TimebaseDiv",
-                           event_definition_.timebase.divider()));
-  set.set(Setting::integer(mp + "SpoofClock", spoof_clock_));
-  set.set(Setting::boolean(mp + "Heartbeat", heartbeat_));
-
-  set.set(Setting::integer(mp + "MessageOrdering", ordering_));
+  set.enable_if_flag(!(status_ & booted), "preset");
+  return set;
 }
 
-
-void ev42_events::write_settings_bulk(const Setting& settings)
+void ev42_events::settings(const Setting& settings)
 {
+  std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
 
-  std::string mp {"ev42_events/"};
-
-  filter_source_name_ = set.find({mp + "FilterSourceName"}).triggered();
-  source_name_ = set.find({mp + "SourceName"}).get_text();
-
-  stream_id_ = set.find({mp + "StreamID"}).get_text();
-  geometry_.nx(set.find({mp + "extent_x"}).get_number());
-  geometry_.ny(set.find({mp + "extent_y"}).get_number());
-  geometry_.nz(set.find({mp + "extent_z"}).get_number());
-  geometry_.np(set.find({mp + "panels"}).get_number());
-
-  spoof_clock_ = set.find({mp + "SpoofClock"}).get_number();
-  heartbeat_ = set.find({mp + "Heartbeat"}).triggered();
-
-  ordering_ = set.find({mp + "MessageOrdering"}).get_number();
+  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
+  source_name_ = set.find({r + "/SourceName"}).get_text();
+  stream_id_ = set.find({r + "/StreamID"}).get_text();
+  spoof_clock_ = set.find({r + "/SpoofClock"}).get_number();
+  heartbeat_ = set.find({r + "/Heartbeat"}).triggered();
+  ordering_ = set.find({r + "/MessageOrdering"}).get_number();
 
   event_definition_ = EventModel();
 
-  uint32_t mult = set.find({mp + "TimebaseMult"}).get_number();
-  uint32_t div = set.find({mp + "TimebaseDiv"}).get_number();
-  event_definition_.timebase = TimeBase(mult ? mult : 1, div ? div : 1);
-
-  event_definition_.add_value("x", geometry_.nx());
-  event_definition_.add_value("y", geometry_.ny());
-  event_definition_.add_value("z", geometry_.nz());
-  event_definition_.add_value("panel", geometry_.np());
+  TimeBasePlugin tbs;
+  tbs.settings(set.find({tbs.plugin_name()}));
+  event_definition_ = EventModel();
+  event_definition_.timebase = tbs.timebase();
+  geometry_.settings(set.find({geometry_.plugin_name()}));
+  geometry_.define(event_definition_);
 }
 
 StreamManifest ev42_events::stream_manifest() const
@@ -173,7 +122,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if (filter_source_name_ && (source_name_ != source_name))
   {
-    stats.time_spent = timer.s();
+    stats.time_spent += timer.s();
     return 0;
   }
 
@@ -184,7 +133,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
          << debug(em);
     if (ordering_ == 2)
     {
-      stats.time_spent = timer.s();
+      stats.time_spent += timer.s();
       return 0;
     }
   }
@@ -211,14 +160,9 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
 
-    const auto& id = em->detector_id()->Get(i);
-    if (geometry_.valid_id(id)) //must be non0?
+    auto& evt = run_spill->events.last();
+    if (geometry_.fill(evt, em->detector_id()->Get(i)))
     {
-      auto& evt = run_spill->events.last();
-      evt.set_value(0, geometry_.x(id));
-      evt.set_value(1, geometry_.y(id));
-      evt.set_value(2, geometry_.z(id));
-      evt.set_value(3, geometry_.p(id));
       evt.set_time(time);
       ++ run_spill->events;
     }
@@ -254,7 +198,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     pushed_spills++;
   }
 
-  stats.time_spent = timer.s();
+  stats.time_spent += timer.s();
   return pushed_spills;
 }
 

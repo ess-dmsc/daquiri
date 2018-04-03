@@ -93,7 +93,7 @@ bool TOFVal2D::_accept_spill(const Spill& spill)
           && spill.event_model.name_to_val.count(val_name_));
 }
 
-bool TOFVal2D::_accept_events(const Spill &spill)
+bool TOFVal2D::_accept_events(const Spill& /*spill*/)
 {
   return (value_idx_ >= 0) &&
       (0 != time_resolution_) &&

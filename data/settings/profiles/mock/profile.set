@@ -28,11 +28,6 @@
      "value": 0.1
     },
     {
-     "id": "MockProducer/Resolution",
-     "type": "integer",
-     "value": 16
-    },
-    {
      "id": "MockProducer/CountRate",
      "type": "floating",
      "value": 100000.0
@@ -41,16 +36,6 @@
      "id": "MockProducer/DeadTime",
      "type": "floating",
      "value": 5.0
-    },
-    {
-     "id": "MockProducer/TimebaseMult",
-     "type": "integer",
-     "value": 1
-    },
-    {
-     "id": "MockProducer/TimebaseDiv",
-     "type": "integer",
-     "value": 1
     },
     {
      "id": "MockProducer/Lambda",
@@ -70,7 +55,23 @@
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
+       "id": "TimeBase/multiplier",
+       "type": "integer",
+       "value": 1
+      },
+      {
+       "id": "TimeBase/divider",
+       "type": "integer",
+       "value": 1
+      }
+     ],
+     "id": "TimeBase",
+     "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "id": "Value/Name",
        "indices": [
         0
        ],
@@ -78,7 +79,7 @@
        "value": "x"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
+       "id": "Value/PeakCenter",
        "indices": [
         0
        ],
@@ -86,7 +87,7 @@
        "value": 10.0
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
+       "id": "Value/PeakSpread",
        "indices": [
         0
        ],
@@ -94,15 +95,23 @@
        "value": 1000.0
       },
       {
-       "id": "MockProducer/Value/TraceLength",
+       "id": "Value/TraceLength",
        "indices": [
         0
        ],
        "type": "integer",
-       "value": 250
+       "value": 100
+      },
+      {
+       "id": "Value/Resolution",
+       "indices": [
+        0
+       ],
+       "type": "integer",
+       "value": 16
       }
      ],
-     "id": "MockProducer/Value",
+     "id": "Value",
      "indices": [
       0
      ],
@@ -111,7 +120,7 @@
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
+       "id": "Value/Name",
        "indices": [
         1
        ],
@@ -119,7 +128,7 @@
        "value": "y"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
+       "id": "Value/PeakCenter",
        "indices": [
         1
        ],
@@ -127,7 +136,7 @@
        "value": 40.0
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
+       "id": "Value/PeakSpread",
        "indices": [
         1
        ],
@@ -135,15 +144,23 @@
        "value": 3000.0
       },
       {
-       "id": "MockProducer/Value/TraceLength",
+       "id": "Value/TraceLength",
        "indices": [
         1
        ],
        "type": "integer",
-       "value": 250
+       "value": 100
+      },
+      {
+       "id": "Value/Resolution",
+       "indices": [
+        1
+       ],
+       "type": "integer",
+       "value": 16
       }
      ],
-     "id": "MockProducer/Value",
+     "id": "Value",
      "indices": [
       1
      ],
@@ -152,23 +169,23 @@
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
+       "id": "Value/Name",
        "indices": [
         2
        ],
        "type": "text",
-       "value": "energy"
+       "value": "z"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
+       "id": "Value/PeakCenter",
        "indices": [
         2
        ],
        "type": "floating",
-       "value": 60.0
+       "value": 10.0
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
+       "id": "Value/PeakSpread",
        "indices": [
         2
        ],
@@ -176,15 +193,23 @@
        "value": 3000.0
       },
       {
-       "id": "MockProducer/Value/TraceLength",
+       "id": "Value/TraceLength",
        "indices": [
         2
        ],
        "type": "integer",
-       "value": 250
+       "value": 100
+      },
+      {
+       "id": "Value/Resolution",
+       "indices": [
+        2
+       ],
+       "type": "integer",
+       "value": 16
       }
      ],
-     "id": "MockProducer/Value",
+     "id": "Value",
      "indices": [
       2
      ],
@@ -193,23 +218,23 @@
     {
      "branches": [
       {
-       "id": "MockProducer/Value/Name",
+       "id": "Value/Name",
        "indices": [
         3
        ],
        "type": "text",
-       "value": "z"
+       "value": "energy"
       },
       {
-       "id": "MockProducer/Value/PeakCenter",
+       "id": "Value/PeakCenter",
        "indices": [
         3
        ],
        "type": "floating",
-       "value": 10.0
+       "value": 60.0
       },
       {
-       "id": "MockProducer/Value/PeakSpread",
+       "id": "Value/PeakSpread",
        "indices": [
         3
        ],
@@ -217,15 +242,23 @@
        "value": 3000.0
       },
       {
-       "id": "MockProducer/Value/TraceLength",
+       "id": "Value/TraceLength",
        "indices": [
         3
        ],
        "type": "integer",
-       "value": 250
+       "value": 100
+      },
+      {
+       "id": "Value/Resolution",
+       "indices": [
+        3
+       ],
+       "type": "integer",
+       "value": 16
       }
      ],
-     "id": "MockProducer/Value",
+     "id": "Value",
      "indices": [
       3
      ],

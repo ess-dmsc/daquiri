@@ -1,7 +1,7 @@
 set(this_target ${PROJECT_NAME}_core)
 
-file(GLOB ${this_target}_SOURCES *.cpp util/*.cpp)
-file(GLOB ${this_target}_HEADERS *.h util/*.h)
+file(GLOB ${this_target}_SOURCES *.cpp util/*.cpp plugin/*.cpp calibration/*.cpp)
+file(GLOB ${this_target}_HEADERS *.h util/*.h plugin/*.h calibration/*.h)
 dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(

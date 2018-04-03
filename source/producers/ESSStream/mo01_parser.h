@@ -19,8 +19,8 @@ class mo01_nmx : public fb_parser
 
     std::string plugin_name() const override {return "mo01_nmx";}
 
-    void write_settings_bulk(const Setting&) override;
-    void read_settings_bulk(Setting&) const override;
+    void settings(const Setting&) override;
+    Setting settings() const override;
 
     uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
     uint64_t stop(SpillQueue spill_queue) override;

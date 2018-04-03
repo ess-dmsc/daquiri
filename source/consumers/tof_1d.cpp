@@ -62,7 +62,7 @@ bool TOF1D::_accept_spill(const Spill& spill)
   return (Spectrum::_accept_spill(spill));
 }
 
-bool TOF1D::_accept_events(const Spill &spill)
+bool TOF1D::_accept_events(const Spill& /*spill*/)
 {
   return ((pulse_time_ >= 0) && (0 != time_resolution_));
 }

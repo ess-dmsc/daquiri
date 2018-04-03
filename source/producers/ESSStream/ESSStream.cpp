@@ -7,50 +7,31 @@
 
 ESSStream::ESSStream()
 {
-  std::string mp {"ESSStream/"};
+  parser_names_["none"] = 0;
+  parser_names_["ev42_events"] = 1;
+  parser_names_["mo01_nmx"] = 2;
+  parser_names_["ChopperTDC"] = 3;
 
-  SettingMeta broker(mp + "KafkaBroker", SettingType::text, "Kafka broker URL");
-  broker.set_flag("preset");
-  add_definition(broker);
+  std::string r {plugin_name()};
 
-  SettingMeta topic(mp + "KafkaTopic", SettingType::text, "Kafka topic");
-  topic.set_flag("preset");
-  add_definition(topic);
-
-  SettingMeta pi(mp + "KafkaTimeout", SettingType::integer, "Kafka consume timeout");
-  pi.set_val("min", 1);
-  pi.set_val("units", "ms");
-  add_definition(pi);
-
-  SettingMeta ti(mp + "KafkaDecomission", SettingType::integer, "Kafka termination timeout");
-  ti.set_val("min", 1);
-  ti.set_val("units", "ms");
-  add_definition(ti);
-
-  SettingMeta drop {mp + "KafkaFF", SettingType::boolean, "Fast-forward to recent packets"};
-  add_definition(drop);
-
-  SettingMeta mb(mp + "KafkaMaxBacklog", SettingType::integer, "Kafka maximum backlog");
-  mb.set_val("min", 1);
-  mb.set_val("units", "buffers");
-  add_definition(mb);
-
-  SettingMeta pars(mp + "Parser", SettingType::menu, "Flatbuffer parser");
-  pars.set_enum(0, "none");
-  pars.set_enum(1, "ev42_events");
-  pars.set_enum(2, "mo01_nmx");
-  pars.set_enum(3, "ChopperTDC");
+  SettingMeta pars(r + "/Parser", SettingType::menu, "Flatbuffer parser");
+  for (auto k : parser_names_)
+    pars.set_enum(k.second, k.first);
   add_definition(pars);
 
-  SettingMeta root("ESSStream", SettingType::stem);
+  SettingMeta vc(r + "/TopicCount", SettingType::integer, "Topic count");
+  vc.set_flag("preset");
+  vc.set_val("min", 1);
+  vc.set_val("max", 16);
+  add_definition(vc);
+
+  SettingMeta st(r + "/Topic", SettingType::stem, "Kafka topic");
+  add_definition(st);
+
+  int32_t i {0};
+  SettingMeta root(r, SettingType::stem, "ESS Stream");
   root.set_flag("producer");
-  root.set_enum(0, mp + "KafkaBroker");
-  root.set_enum(1, mp + "KafkaTopic");
-  root.set_enum(2, mp + "KafkaTimeout");
-  root.set_enum(3, mp + "KafkaDecomission");
-  root.set_enum(4, mp + "KafkaFF");
-  root.set_enum(5, mp + "KafkaMaxBacklog");
-  root.set_enum(7, mp + "Parser");
+  root.set_enum(i++, r + "/dummy");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -67,19 +48,41 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   if (running_.load())
     daq_stop();
 
-  terminate_.store(false);
   running_.store(true);
-  runner_ = std::thread(&ESSStream::worker_run, this, out_queue);
+  terminate_.store(false);
 
-  return true;
+  size_t total = 0;
+  for (auto& s : streams_)
+  {
+    if (!s.parser)
+    {
+      WARN << "<ESSStream> Could not start worker cuz bad parser";
+      continue;
+    }
+
+    if (!s.consumer)
+    {
+      WARN << "<ESSStream> Could not start worker cuz bad kafka stream";
+      continue;
+    }
+
+    s.runner = std::thread(&ESSStream::Stream::worker_run, &s, out_queue,
+                           kafka_config_.kafka_timeout_,
+                           &terminate_);
+    total++;
+  }
+
+  return total;
 }
 
 bool ESSStream::daq_stop()
 {
   terminate_.store(true);
 
-  if (runner_.joinable())
-    runner_.join();
+  for (auto& s : streams_)
+    if (s.runner.joinable())
+      s.runner.join();
+
   running_.store(false);
 
   return true;
@@ -92,132 +95,142 @@ bool ESSStream::daq_running()
 
 StreamManifest ESSStream::stream_manifest() const
 {
-  if (parser_)
-    return parser_->stream_manifest();
-  return StreamManifest();
+  StreamManifest ret;
+  for (auto& s : streams_)
+  {
+    if (!s.parser)
+      continue;
+    for (auto m : s.parser->stream_manifest())
+      ret[m.first] = m.second;
+  }
+  return ret;
 }
 
-void ESSStream::read_settings_bulk(Setting &set) const
+Setting ESSStream::settings() const
 {
-  set = enrich_and_toggle_presets(set);
+  std::string r {plugin_name()};
+  auto set = get_rich_setting(r);
 
-  set.set(Setting::text("ESSStream/KafkaBroker", kafka_broker_name_));
-  set.set(Setting::text("ESSStream/KafkaTopic", kafka_topic_name_));
-  set.set(Setting::integer("ESSStream/KafkaTimeout", kafka_timeout_));
-  set.set(Setting::integer("ESSStream/KafkaDecomission", kafka_decomission_wait_));
-  set.set(Setting::boolean("ESSStream/KafkaFF", kafka_ff_));
-  set.set(Setting::integer("ESSStream/KafkaMaxBacklog", kafka_max_backlog_));
+  set.branches.add_a(kafka_config_.settings());
 
-  while (set.branches.has_a(Setting({"ev42_events", SettingType::stem})))
-    set.branches.remove_a(Setting({"ev42_events", SettingType::stem}));
+  auto tc = get_rich_setting(r + "/TopicCount");
+  tc.set_int(streams_.size());
+  set.branches.add_a(tc);
 
-  while (set.branches.has_a(Setting({"mo01_nmx", SettingType::stem})))
-    set.branches.remove_a(Setting({"mo01_nmx", SettingType::stem}));
-
-  while (set.branches.has_a(Setting({"ChopperTDC", SettingType::stem})))
-    set.branches.remove_a(Setting({"ChopperTDC", SettingType::stem}));
-
-  if (parser_)
+  for (auto& s : streams_)
   {
-    auto s = Setting({parser_->plugin_name(), SettingType::stem});
-    parser_->read_settings_bulk(s);
-    set.branches.add_a(s);
+    auto topic = get_rich_setting(r + "/Topic");
+
+    topic.branches.add_a(s.config.settings());
+
+    auto parser_set = get_rich_setting(r + "/Parser");
+    parser_set.select(0);
+    if (s.parser)
+    {
+      parser_set.select(parser_names_.at(s.parser->plugin_name()));
+      topic.branches.add_a(parser_set);
+      topic.branches.add_a(s.parser->settings());
+    } else
+      topic.branches.add_a(parser_set);
+
+    set.branches.add_a(topic);
+  }
+
+  set.enable_if_flag(!(status_ & booted), "preset");
+  return set;
+}
+
+void ESSStream::settings(const Setting& settings)
+{
+  std::string r {plugin_name()};
+  auto set = enrich_and_toggle_presets(settings);
+
+  kafka_config_.settings(set.find({kafka_config_.plugin_name()}));
+
+  size_t total = set.find({r + "/TopicCount"}).get_int();
+  if (!total)
+    total = 1;
+
+  streams_.resize(total);
+
+  size_t i = 0;
+  for (Setting v : set.branches)
+  {
+    if (i >= streams_.size())
+      break;
+    if (v.id() != (r + "/Topic"))
+      continue;
+
+    auto parser_set = enrich_and_toggle_presets(v.find({r + "/Parser"}));
+    auto parser = parser_set.metadata().enum_name(parser_set.selection());
+
+    streams_[i].config.settings(v.find(streams_[i].config.plugin_name()));
+
+    select_parser(i, parser);
+    if (streams_[i].parser && (streams_[i].parser->plugin_name() == parser))
+      streams_[i].parser->settings(v.find({parser}));
+    i++;
   }
 }
 
-
-void ESSStream::write_settings_bulk(const Setting& settings)
-{
-  auto set = enrich_and_toggle_presets(settings);
-
-  kafka_broker_name_ = set.find({"ESSStream/KafkaBroker"}).get_text();
-  kafka_topic_name_ = set.find({"ESSStream/KafkaTopic"}).get_text();
-  kafka_timeout_ = set.find({"ESSStream/KafkaTimeout"}).get_number();
-  kafka_decomission_wait_ = set.find({"ESSStream/KafkaDecomission"}).get_number();
-  kafka_ff_ = set.find({"ESSStream/KafkaFF"}).get_bool();
-  kafka_max_backlog_ = set.find({"ESSStream/KafkaMaxBacklog"}).get_number();
-
-  auto parser_set = set.find({"ESSStream/Parser"});
-  auto parser = parser_set.metadata().enum_name(parser_set.selection());
-
-  select_parser(parser);
-  if (parser_ && (parser_->plugin_name() == parser))
-    parser_->write_settings_bulk(set.find({parser}));
-}
-
-void ESSStream::select_parser(std::string t)
+void ESSStream::select_parser(size_t i, std::string t)
 {
   if (
-      (t.empty() && !parser_) ||
-      (parser_ && (t == parser_->plugin_name()))
+      (t.empty() && !streams_[i].parser) ||
+          (streams_[i].parser && (t == streams_[i].parser->plugin_name()))
       )
     return;
   if (t.empty())
-    parser_.reset();
+    streams_[i].parser.reset();
   else if (t == "ev42_events")
-    parser_ = std::make_shared<ev42_events>();
+    streams_[i].parser = std::make_shared<ev42_events>();
   else if (t == "mo01_nmx")
-    parser_ = std::make_shared<mo01_nmx>();
+    streams_[i].parser = std::make_shared<mo01_nmx>();
   else if (t == "ChopperTDC")
-    parser_ = std::make_shared<ChopperTDC>();
+    streams_[i].parser = std::make_shared<ChopperTDC>();
 }
 
 void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
+    WARN << "<ESSStream> "
          << "Cannot boot ESSStream. Failed flag check (can_boot == 0)";
     return;
   }
 
-  status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
-
-  auto conf = std::unique_ptr<RdKafka::Conf>(
-        RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL));
-
-  if (!conf.get())
+  size_t total_valid = 0;
+  for (auto& s : streams_)
   {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Unable to created global Conf object";
+    if (!s.parser)
+    {
+      WARN << "<ESSStream> "
+           << "Cannot boot ESSStream. No flat buffer parser specified.";
+      continue;
+    }
+
+    status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
+
+    s.consumer = kafka_config_.subscribe_topic(s.config.kafka_topic_name_);
+
+    if (!s.consumer)
+    {
+      ERR << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
+          << "Failed to start consumer.";
+      continue;
+    }
+
+    INFO << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
+         << " booted with consumer " << s.consumer->low_level->name();
+    total_valid++;
+  }
+
+  if (!total_valid)
+  {
+    ERR << "<ESSStream> Failed to start at least one consumers";
     die();
     return;
   }
-
-  std::string error_str;
-
-  conf->set("metadata.broker.list", kafka_broker_name_, error_str);
-  conf->set("message.max.bytes", "10000000", error_str);
-  conf->set("fetch.message.max.bytes", "10000000", error_str);
-//  conf->set("replica.fetch.max.bytes", "10000000", error_str);
-  conf->set("group.id", "group0", error_str);
-  //  conf->set("enable.auto.commit", "false", error_str);
-  //  conf->set("enable.auto.offset.store", "false", error_str);
-  //  conf->set("offset.store.method", "none", error_str);
-  //  conf->set("auto.offset.reset", "largest", error_str);
-
-  stream_ = std::unique_ptr<RdKafka::KafkaConsumer>(
-        RdKafka::KafkaConsumer::create(conf.get(), error_str));
-  if (!stream_.get())
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Failed to create consumer: " << error_str;
-    die();
-    return;
-  }
-
-  // Start consumer for topic+partition at start offset
-  RdKafka::ErrorCode resp = stream_->subscribe({kafka_topic_name_});
-  if (resp != RdKafka::ERR_NO_ERROR)
-  {
-    ERR << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Failed to start consumer: " << RdKafka::err2str(resp);
-    die();
-    return;
-  }
-
-  INFO << "<ESSStream:" << kafka_topic_name_ << "> "
-       << " booted with consumer " << stream_->name();
 
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
@@ -226,211 +239,120 @@ void ESSStream::boot()
 void ESSStream::die()
 {
 //  INFO << "<ESSStream> Shutting down";
-  if (stream_)
-  {
-    stream_->close();
-    // Wait for RdKafka to decommission, avoids complaints of memory leak from
-    // valgrind etc.
-    RdKafka::wait_destroyed(kafka_decomission_wait_);
-    stream_.reset();
-  }
-  clock_ = 0;
+  for (auto& s : streams_)
+    if (s.consumer)
+      s.consumer->low_level->close();
+
+  kafka_config_.decomission();
+
+  for (auto& s : streams_)
+    if (s.consumer)
+      s.consumer.reset();
+
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::worker_run(SpillQueue spill_queue)
+void ESSStream::Stream::worker_run(SpillQueue spill_queue,
+                                   uint16_t consume_timeout,
+                                   std::atomic<bool>* terminate)
 {
-  DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
       << "Starting run"; //more info!!!
 
   uint64_t spills {0};
 
-  time_spent_ = 0;
-  dropped_buffers_ = 0;
+  while (!terminate->load())
+  {
+    auto message = consumer->consume(consume_timeout);
 
-  while (!terminate_.load())
-    spills += get_message(spill_queue);
+    if (!good(message))
+      continue;
 
-  if (parser_)
-    spills += parser_->stop(spill_queue);
+    spills += parser->process_payload(spill_queue, message->low_level->payload());
+    if (config.kafka_ff_)
+        parser->stats.dropped_buffers +=
+            ff_stream(message, config.kafka_max_backlog_);
+  }
 
-  DBG << "<ESSStream:" << kafka_topic_name_ << "> "
+  spills += parser->stop(spill_queue);
+
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
       << "Finished run"
-      << "  spills=" << spills
-      << "  time=" << time_spent_
-      << "  secs/spill=" << time_spent_ / double(spills)
-      << "  skipped buffers=" << dropped_buffers_
-         ;
+      << "  spills=" << spills;
+
+  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
+      << "  time=" << parser->stats.time_spent
+      << "  secs/spill=" << parser->stats.time_spent / double(spills)
+      << "  skipped buffers=" << parser->stats.dropped_buffers;
 }
 
-
-uint64_t ESSStream::get_message(SpillQueue spill_queue)
+bool ESSStream::good(Kafka::MessagePtr message)
 {
-  std::shared_ptr<RdKafka::Message> message
-  {stream_->consume(kafka_timeout_)};
-
-  switch (message->err())
+  switch (message->low_level->err())
   {
-  case RdKafka::ERR__UNKNOWN_TOPIC:
-    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-         << "Unknown topic: " << message->errstr();
-    return 0;
+    case RdKafka::ERR__UNKNOWN_TOPIC:
+      WARN << "<ESSStream> Unknown topic! Err=" << message->low_level->errstr();
+      return false;
 
-  case RdKafka::ERR__UNKNOWN_PARTITION:
-    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-         << "Unknown partition: " << message->errstr();
-    return 0;
+    case RdKafka::ERR__UNKNOWN_PARTITION:
+      WARN << "<ESSStream> topic:" << message->low_level->topic_name()
+           << "  Unknown partition! Err=" << message->low_level->errstr();
+      return false;
 
-  case RdKafka::ERR__TIMED_OUT:
+    case RdKafka::ERR__TIMED_OUT:
 //    return 0;
 
-  case RdKafka::ERR__PARTITION_EOF:
-    /* Last message */
-    //    if (exit_eof && ++eof_cnt == partition_cnt)
-    //      WARN << "%% EOF reached for all " << partition_cnt <<
-    //                   " partition(s)";
-    //    WARN << "Partition EOF error: " << message->errstr();
+    case RdKafka::ERR__PARTITION_EOF:
+      /* Last message */
+      //    if (exit_eof && ++eof_cnt == partition_cnt)
+      //      WARN << "%% EOF reached for all " << partition_cnt <<
+      //                   " partition(s)";
+      //    WARN << "Partition EOF error: " << message->errstr();
 //    return 0;
 
-  case RdKafka::ERR_NO_ERROR:
-    //    msg_cnt++;
-    //    msg_bytes += message->len();
-    //    DBG << "Read msg at offset " << message->offset();
-    RdKafka::MessageTimestamp ts;
-    ts = message->timestamp();
-    if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
-    {
-      std::string tsname = "?";
-      if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_CREATE_TIME)
-        tsname = "create time";
-      else if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_LOG_APPEND_TIME)
-        tsname = "log append time";
+    case RdKafka::ERR_NO_ERROR:
+      //    msg_cnt++;
+      //    msg_bytes += message->len();
+      //    DBG << "Read msg at offset " << message->offset();
+      RdKafka::MessageTimestamp ts;
+      ts = message->low_level->timestamp();
+      if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
+      {
+        std::string tsname = "?";
+        if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_CREATE_TIME)
+          tsname = "create time";
+        else if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_LOG_APPEND_TIME)
+          tsname = "log append time";
 //      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
-    }
+      }
 
 
-    //    DBG << "Received Kafka message " << debug(message);
+      //    DBG << "Received Kafka message " << debug(message);
 
-    if (parser_)
-    {
-      if (!message->len())
-        return 0;
+      return (message->low_level->len() > 0);
 
-      if (kafka_ff_)
-        ff_stream(message);
-
-      uint64_t num_produced = parser_->process_payload(spill_queue, message->payload());
-
-      time_spent_ += parser_->stats.time_spent;
-      return num_produced;
-    }
-    else
-    {
-      WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-           << "Consume failed. No parser to interpret buffer.";
-      return 0;
-    }
-
-  default:
-    WARN << "<ESSStream:" << kafka_topic_name_ << "> "
-         << "Consume failed: " << message->errstr();
-    return 0;
+    default:
+      WARN << "<ESSStream> " << message->low_level->topic_name()
+           << ":" << message->low_level->partition()
+           << " Consume failed! Err=" << message->low_level->errstr();
+      return false;
   }
+}
 
+uint64_t ESSStream::Stream::ff_stream(Kafka::MessagePtr message,
+                                      int64_t kafka_max_backlog)
+{
+  auto offsets = consumer->get_watermark_offsets(message);
+
+  if ((offsets.hi - message->low_level->offset()) > kafka_max_backlog)
+  {
+    DBG << "<ESSStream> topic:" << message->low_level->topic_name() << " "
+        << " partition: " << message->low_level->partition()
+        << " Backlog exceeded with offset=" << message->low_level->offset()
+        << "  hi=" << offsets.hi;
+
+    consumer->seek(message, offsets.hi, 2000);
+    return (offsets.hi - message->low_level->offset());
+  }
   return 0;
-}
-
-void ESSStream::ff_stream(std::shared_ptr<RdKafka::Message> message)
-{
-  int64_t hi_o {0}, lo_o {0};
-  stream_->get_watermark_offsets(kafka_topic_name_,
-                                 message->partition(),
-                                 &lo_o, &hi_o);
-
-  if ((hi_o - message->offset()) > kafka_max_backlog_)
-  {
-    DBG << "<ESSStream:" << kafka_topic_name_ << "> "
-        << "Backlog exceeded on partition " << message->partition()
-        << " offset=" << message->offset() << "  hi=" << hi_o;
-
-    seek(kafka_topic_name_, message->partition(), hi_o);
-
-    dropped_buffers_ += (hi_o - message->offset());
-  }
-}
-
-
-/**
- * Seek to given offset on specified topic and partition
- *
- * @param topic : topic name
- * @param partition : partition number
- * @param offset : offset to seek to
- */
-void ESSStream::seek(const std::string &topic, uint32_t partition, int64_t offset) const
-{
-  auto topicPartition = RdKafka::TopicPartition::create(topic, partition);
-  topicPartition->set_offset(offset);
-  auto error = stream_->seek(*topicPartition, 2000);
-  if (error)
-  {
-    std::ostringstream os;
-    os << "Offset seek failed with error: '" << error << "'";
-    throw std::runtime_error(os.str());
-  }
-  INFO << "<ESSStream:" << kafka_topic_name_ << "> "
-       << "Successful seek of topic: " << topic
-       << ", partition: " << partition << " to offset: " << offset;
-}
-
-std::vector<RdKafka::TopicPartition*> ESSStream::get_partitions()
-{
-  std::vector<RdKafka::TopicPartition*> partitions;
-  auto metadata = get_kafka_metadata();
-  auto topics = metadata->topics();
-  if (topics->empty())
-    return partitions;
-
-  const RdKafka::TopicMetadata* tmet {nullptr};
-  for (auto t : *topics)
-  {
-    if (t->topic() == kafka_topic_name_)
-      tmet = t;
-  }
-
-  if (!tmet)
-    return partitions;
-
-  auto partitionMetadata = tmet->partitions();
-  // Create a TopicPartition for each partition in the topic
-  for (size_t partitionNumber = 0;
-       partitionNumber < partitionMetadata->size();
-       ++partitionNumber)
-  {
-    auto topicPartition =
-        RdKafka::TopicPartition::create(kafka_topic_name_, static_cast<int>(partitionNumber));
-    partitions.push_back(topicPartition);
-  }
-  return partitions;
-}
-
-std::unique_ptr<RdKafka::Metadata> ESSStream::get_kafka_metadata() const
-{
-  RdKafka::Metadata* metadataRawPtr(nullptr);
-  // API requires address of a pointer to the struct but compiler won't allow
-  // &metadata.get() as it is an rvalue
-  stream_->metadata(true, nullptr, &metadataRawPtr, kafka_timeout_);
-  // Capture the pointer in an owning struct to take care of deletion
-  std::unique_ptr<RdKafka::Metadata> metadata(std::move(metadataRawPtr));
-  if (!metadata)
-  {
-    throw std::runtime_error("Failed to query metadata from broker");
-  }
-  return metadata;
-}
-
-std::string ESSStream::debug(std::shared_ptr<RdKafka::Message> kmessage)
-{
-  return std::string(static_cast<const char*>(kmessage->payload()),
-                     kmessage->len());
 }

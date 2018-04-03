@@ -1,6 +1,10 @@
 #include "fb_parser.h"
-
 #include "custom_logger.h"
+
+fb_parser::fb_parser()
+    : Producer()
+{
+}
 
 void fb_parser::boot()
 {
