@@ -11,7 +11,6 @@ namespace DAQuiri {
 Project::Project(const Project &other)
 {
   ready_ = true;
-  newdata_ = true;
   changed_ = true;
   identity_ = other.identity_;
   current_index_ = other.current_index_;
@@ -84,14 +83,6 @@ bool Project::wait_ready()
   return true;
 }
 
-bool Project::new_data()
-{
-  UNIQUE_LOCK_EVENTUALLY
-  bool ret = newdata_;
-  newdata_ = false;
-  return ret;
-}
-
 bool Project::changed() const
 {
   UNIQUE_LOCK_EVENTUALLY
@@ -149,18 +140,6 @@ std::map<int64_t, ConsumerPtr> Project::get_consumers(int32_t dimensions)
   return ret;
 }
 
-std::map<int64_t, ConsumerPtr> Project::get_consumers(std::string type)
-{
-  UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as consumer implemented as thread-safe
-
-  std::map<int64_t, ConsumerPtr> ret;
-  for (auto &q: consumers_)
-    if (q.second->type() == type)
-      ret.insert(q);
-  return ret;
-}
-
 //client should activate replot after loading all files, as loading multiple
 // consumer might create a long queue of plot update signals
 int64_t Project::add_consumer(ConsumerPtr consumer)
@@ -172,7 +151,6 @@ int64_t Project::add_consumer(ConsumerPtr consumer)
   consumers_[++current_index_] = consumer;
   changed_ = true;
   ready_ = true;
-  newdata_ = true;
   // cond_.notify_one();
   return current_index_;
 }
@@ -187,7 +165,6 @@ int64_t Project::add_consumer(ConsumerMetadata prototype)
   consumers_[++current_index_] = consumer;
   changed_ = true;
   ready_ = true;
-  newdata_ = false;
   // cond_.notify_one();
   return current_index_;
 }
@@ -202,7 +179,6 @@ void Project::delete_consumer(int64_t idx)
   consumers_.erase(idx);
   changed_ = true;
   ready_ = true;
-  newdata_ = false;
   // cond_.notify_one();
 
   if (consumers_.empty())
@@ -229,9 +205,19 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
 
   changed_ = true;
   ready_ = true;
-  newdata_ = false;
   cond_.notify_all();
 }
+
+Container<ConsumerMetadata> Project::get_prototypes() const
+{
+  UNIQUE_LOCK_EVENTUALLY
+
+  Container<ConsumerMetadata> ret;
+  for (auto &q : consumers_)
+    ret.add_a(q.second->metadata().prototype());
+  return ret;
+}
+
 
 void Project::add_spill(SpillPtr one_spill)
 {
@@ -248,7 +234,6 @@ void Project::add_spill(SpillPtr one_spill)
     changed_ = true;
 
   ready_ = true;
-  newdata_ = true;
   cond_.notify_all();
 }
 
@@ -301,7 +286,6 @@ void Project::save_as(std::string file_name)
 
     changed_ = false;
     ready_ = true;
-    newdata_ = true;
 
     for (auto &q : consumers_)
       q.second->reset_changed();
@@ -377,7 +361,6 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
     changed_ = false;
     ready_ = true;
-    newdata_ = true;
 
     identity_ = file_name;
     cond_.notify_all();
@@ -391,7 +374,7 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 //  }
 }
 
-void Project::save_split(std::string file_name)
+void Project::save_metadata(std::string file_name)
 {
   json proj_json;
   proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
@@ -401,19 +384,27 @@ void Project::save_split(std::string file_name)
 
   for (auto &q : consumers_)
   {
-    std::ofstream ofs(file_name + "_" + vector_idx_minlen(q.first, consumers_.rbegin()->first) + ".csv",
-                      std::ofstream::out | std::ofstream::trunc);
-    q.second->data()->save(ofs);
-    ofs.close();
-
     auto jmeta = json(q.second->metadata());
     jmeta["consumer_index"] = q.first;
     proj_json["consumers"].push_back(jmeta);
   }
 
-  std::ofstream jfs(file_name + "_metadata.json", std::ofstream::out | std::ofstream::trunc);
-  jfs << proj_json.dump(2);
+  std::ofstream jfs(file_name, std::ofstream::out | std::ofstream::trunc);
+  jfs << proj_json.dump(1);
   jfs.close();
+}
+
+
+void Project::save_split(std::string base_name)
+{
+  save_metadata(base_name + "_metadata.json");
+  for (auto &q : consumers_)
+  {
+    std::ofstream ofs(base_name + "_" + vector_idx_minlen(q.first, consumers_.rbegin()->first) + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    q.second->data()->save(ofs);
+    ofs.close();
+  }
 }
 
 std::ostream &operator<<(std::ostream &stream, const Project &project)
@@ -421,7 +412,6 @@ std::ostream &operator<<(std::ostream &stream, const Project &project)
   stream << "Project \"" << project.identity_ << "\"\n";
   stream << "        " << (project.changed_ ? "CHANGED" : "NOT-CHANGED");
   stream << " " << (project.ready_ ? "READY" : " NOT-READY");
-  stream << " " << (project.newdata_ ? "NEWDATA" : " NOT-NEWDATA") << "\n";
   stream << "        " << "next index = " << project.current_index_ << "\n";
   for (const auto &s : project.spills_)
     stream << s.to_string() << "\n";

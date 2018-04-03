@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include<QSettings>
+#include <project.h>
 #include "json_file.h"
 
 #include "QFileExtensions.h"
@@ -210,7 +211,9 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   if (validateFile(this, fileName, false))
   {
     INFO << "Reading templates from file " << fileName.toStdString();
-    templates_.join(from_json_file(fileName.toStdString()));
+    DAQuiri::Project p;
+    p.set_prototypes(from_json_file(fileName.toStdString()));
+    templates_.join(p.get_prototypes());
 
     selection_model_.reset();
     table_model_.update();
@@ -228,7 +231,9 @@ void ConsumerTemplatesForm::on_pushExport_clicked()
   if (validateFile(this, fileName, true))
   {
     INFO << "Writing templates to file " << fileName.toStdString();
-    to_json_file(templates_, fileName.toStdString());
+    DAQuiri::Project p;
+    p.set_prototypes(templates_);
+    to_json_file(p.get_prototypes(), fileName.toStdString());
   }
 }
 
@@ -325,7 +330,9 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
   {
     return;
   }
-  templates_ = from_json_file(root_dir_.toStdString() + "/default_consumers.tem");
+  DAQuiri::Project p;
+  p.set_prototypes(from_json_file(root_dir_.toStdString() + "/default_consumers.tem"));
+  templates_ = p.get_prototypes();
 
   selection_model_.reset();
   table_model_.update();
@@ -334,7 +341,9 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 
 void ConsumerTemplatesForm::save_default()
 {
-  to_json_file(templates_, root_dir_.toStdString() + "/default_consumers.tem");
+  DAQuiri::Project p;
+  p.set_prototypes(templates_);
+  to_json_file(p.get_prototypes(), root_dir_.toStdString() + "/default_consumers.tem");
 }
 
 void ConsumerTemplatesForm::on_pushClear_clicked()

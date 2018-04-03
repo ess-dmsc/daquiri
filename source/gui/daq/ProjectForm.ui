@@ -135,7 +135,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Open</string>
+          <string>Save</string>
          </property>
          <property name="text">
           <string>...</string>
@@ -188,7 +188,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>View acquisition settings</string>
+          <string>Project metadata</string>
          </property>
          <property name="text">
           <string/>
@@ -262,7 +262,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Spectra definitions...</string>
+          <string>Histogram setup</string>
          </property>
          <property name="text">
           <string/>

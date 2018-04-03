@@ -117,8 +117,11 @@ void ProjectForm::loadSettings()
   data_directory_ = settings.value("save_directory", QDir::currentPath()).toString();
   settings.endGroup();
 
-  spectra_templates_ =
-      from_json_file(Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
+
+  DAQuiri::Project p;
+  p.set_prototypes(from_json_file(Profiles::current_profile_dir().toStdString()
+                                      + "/default_consumers.tem"));
+  spectra_templates_ = p.get_prototypes();
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
@@ -148,9 +151,7 @@ void ProjectForm::saveSettings()
   if (settings.value("autosave_daq", true).toBool()
       && !project_->empty())
   {
-    spectra_templates_.clear();
-    for (auto &q : project_->get_consumers())
-      spectra_templates_.add_a(q.second->metadata().prototype());
+    spectra_templates_ = project_->get_prototypes();
     to_json_file(spectra_templates_,
                  Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
   }
