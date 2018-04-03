@@ -39,208 +39,197 @@
      "type": "stem"
     },
     {
-     "id": "ESSStream/Parser",
-     "type": "menu",
-     "value": 1
-    },
-    {
-     "branches": [
-      {
-       "id": "ev42_events/StreamID",
-       "type": "text",
-       "value": "cspec"
-      },
-      {
-       "id": "ev42_events/SpoofClock",
-       "type": "menu",
-       "value": 2
-      },
-      {
-       "id": "ev42_events/Heartbeat",
-       "type": "boolean",
-       "value": true
-      },
-      {
-       "id": "ev42_events/FilterSourceName",
-       "type": "boolean",
-       "value": false
-      },
-      {
-       "id": "ev42_events/SourceName",
-       "type": "text",
-       "value": ""
-      },
-      {
-       "id": "ev42_events/MessageOrdering",
-       "type": "menu",
-       "value": 0
-      },
-      {
-       "branches": [
-        {
-         "id": "KafkaTopicConfig/KafkaTopic",
-         "type": "text",
-         "value": "C-SPEC_detector"
-        },
-        {
-         "id": "KafkaTopicConfig/KafkaFF",
-         "type": "boolean",
-         "value": false
-        },
-        {
-         "id": "KafkaTopicConfig/KafkaMaxBacklog",
-         "type": "integer",
-         "value": 3
-        }
-       ],
-       "id": "KafkaTopicConfig",
-       "type": "stem"
-      },
-      {
-       "branches": [
-        {
-         "id": "ESSGeometry/extent_x",
-         "type": "integer",
-         "value": 4
-        },
-        {
-         "id": "ESSGeometry/extent_y",
-         "type": "integer",
-         "value": 48
-        },
-        {
-         "id": "ESSGeometry/extent_z",
-         "type": "integer",
-         "value": 20
-        },
-        {
-         "id": "ESSGeometry/panels",
-         "type": "integer",
-         "value": 1
-        }
-       ],
-       "id": "ESSGeometry",
-       "type": "stem"
-      },
-      {
-       "branches": [
-        {
-         "id": "TimeBase/multiplier",
-         "type": "integer",
-         "value": 1
-        },
-        {
-         "id": "TimeBase/divider",
-         "type": "integer",
-         "value": 1
-        }
-       ],
-       "id": "TimeBase",
-       "type": "stem"
-      }
-     ],
-     "id": "ev42_events",
-     "type": "stem"
-    }
-   ],
-   "id": "ESSStream",
-   "reference": "cspec",
-   "type": "stem"
-  },
-  {
-   "branches": [
-    {
-     "branches": [
-      {
-       "id": "KafkaConfig/KafkaBroker",
-       "type": "text",
-       "value": "localhost:9092"
-      },
-      {
-       "id": "KafkaConfig/KafkaTimeout",
-       "type": "integer",
-       "value": 1000
-      },
-      {
-       "id": "KafkaConfig/KafkaDecomission",
-       "type": "integer",
-       "value": 3000
-      }
-     ],
-     "id": "KafkaConfig",
-     "type": "stem"
-    },
-    {
-     "id": "ESSStream/Parser",
-     "type": "menu",
+     "id": "ESSStream/TopicCount",
+     "type": "integer",
      "value": 2
     },
     {
      "branches": [
       {
-       "id": "mo01_nmx/HistsStream",
-       "type": "text",
-       "value": "hists"
-      },
-      {
-       "id": "mo01_nmx/XStream",
-       "type": "text",
-       "value": ""
-      },
-      {
-       "id": "mo01_nmx/YStream",
-       "type": "text",
-       "value": ""
-      },
-      {
-       "id": "mo01_nmx/HitsStream",
-       "type": "text",
-       "value": "hits"
+       "id": "ESSStream/Parser",
+       "type": "menu",
+       "value": 1
       },
       {
        "branches": [
         {
-         "id": "KafkaTopicConfig/KafkaTopic",
+         "id": "ev42_events/StreamID",
          "type": "text",
-         "value": "C-SPEC_monitor"
+         "value": "cspec"
         },
         {
-         "id": "KafkaTopicConfig/KafkaFF",
+         "id": "ev42_events/SpoofClock",
+         "type": "menu",
+         "value": 2
+        },
+        {
+         "id": "ev42_events/Heartbeat",
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "ev42_events/FilterSourceName",
          "type": "boolean",
          "value": false
         },
         {
-         "id": "KafkaTopicConfig/KafkaMaxBacklog",
-         "type": "integer",
-         "value": 1
+         "id": "ev42_events/SourceName",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "ev42_events/MessageOrdering",
+         "type": "menu",
+         "value": 0
+        },
+        {
+         "branches": [
+          {
+           "id": "KafkaTopicConfig/KafkaTopic",
+           "type": "text",
+           "value": "C-SPEC_detector"
+          },
+          {
+           "id": "KafkaTopicConfig/KafkaFF",
+           "type": "boolean",
+           "value": false
+          },
+          {
+           "id": "KafkaTopicConfig/KafkaMaxBacklog",
+           "type": "integer",
+           "value": 3
+          }
+         ],
+         "id": "KafkaTopicConfig",
+         "type": "stem"
+        },
+        {
+         "branches": [
+          {
+           "id": "ESSGeometry/extent_x",
+           "type": "integer",
+           "value": 4
+          },
+          {
+           "id": "ESSGeometry/extent_y",
+           "type": "integer",
+           "value": 48
+          },
+          {
+           "id": "ESSGeometry/extent_z",
+           "type": "integer",
+           "value": 20
+          },
+          {
+           "id": "ESSGeometry/panels",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "ESSGeometry",
+         "type": "stem"
+        },
+        {
+         "branches": [
+          {
+           "id": "TimeBase/multiplier",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "TimeBase/divider",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "TimeBase",
+         "type": "stem"
         }
        ],
-       "id": "KafkaTopicConfig",
+       "id": "ev42_events",
        "type": "stem"
+      }
+     ],
+     "id": "ESSStream/Topic",
+     "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "id": "ESSStream/Parser",
+       "type": "menu",
+       "value": 2
       },
       {
        "branches": [
         {
-         "id": "TimeBase/multiplier",
-         "type": "integer",
-         "value": 1
+         "id": "mo01_nmx/HistsStream",
+         "type": "text",
+         "value": "hists"
         },
         {
-         "id": "TimeBase/divider",
-         "type": "integer",
-         "value": 1
+         "id": "mo01_nmx/XStream",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "mo01_nmx/YStream",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "mo01_nmx/HitsStream",
+         "type": "text",
+         "value": "hits"
+        },
+        {
+         "branches": [
+          {
+           "id": "KafkaTopicConfig/KafkaTopic",
+           "type": "text",
+           "value": "C-SPEC_monitor"
+          },
+          {
+           "id": "KafkaTopicConfig/KafkaFF",
+           "type": "boolean",
+           "value": false
+          },
+          {
+           "id": "KafkaTopicConfig/KafkaMaxBacklog",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "KafkaTopicConfig",
+         "type": "stem"
+        },
+        {
+         "branches": [
+          {
+           "id": "TimeBase/multiplier",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "TimeBase/divider",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "TimeBase",
+         "type": "stem"
         }
        ],
-       "id": "TimeBase",
+       "id": "mo01_nmx",
        "type": "stem"
       }
      ],
-     "id": "mo01_nmx",
+     "id": "ESSStream/Topic",
      "type": "stem"
     }
    ],
    "id": "ESSStream",
-   "reference": "monitor",
+   "reference": "cspec",
    "type": "stem"
   }
  ],

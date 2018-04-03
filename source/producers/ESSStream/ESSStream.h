@@ -33,23 +33,26 @@ class ESSStream : public Producer
     void operator=(ESSStream const &);
     ESSStream(const ESSStream &);
 
-    //Acquisition threads, use as static functors
-    void worker_run(SpillQueue spill_queue);
+    void worker_run(SpillQueue spill_queue, Kafka::ConsumerPtr stream, FBParserPtr parser);
 
   private:
     std::map<std::string, int32_t> parser_names_;
 
     std::atomic<bool> terminate_{false};
     std::atomic<bool> running_{false};
-    std::thread runner_;
 
     KafkaConfigPlugin kafka_config_;
 
-    Kafka::ConsumerPtr stream_;
-    std::shared_ptr<fb_parser> parser_;
+    struct Stream
+    {
+      Kafka::ConsumerPtr consumer;
+      FBParserPtr parser;
+      std::thread runner;
+    };
 
-    uint64_t get_message(SpillQueue);
-    void select_parser(std::string);
+    std::vector<Stream> streams_;
+
+    void select_parser(size_t, std::string);
 
     static bool good(Kafka::MessagePtr message);
     static uint64_t ff_stream(Kafka::ConsumerPtr consumer,

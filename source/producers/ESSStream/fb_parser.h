@@ -48,3 +48,5 @@ class fb_parser : public Producer
     virtual uint64_t process_payload(SpillQueue spill_queue, void* msg) = 0;
     virtual uint64_t stop(SpillQueue spill_queue) = 0;
 };
+
+using FBParserPtr = std::shared_ptr<fb_parser>;

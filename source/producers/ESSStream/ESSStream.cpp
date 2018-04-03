@@ -19,6 +19,15 @@ ESSStream::ESSStream()
     pars.set_enum(k.second, k.first);
   add_definition(pars);
 
+  SettingMeta vc(r + "/TopicCount", SettingType::integer, "Topic count");
+  vc.set_flag("preset");
+  vc.set_val("min", 1);
+  vc.set_val("max", 16);
+  add_definition(vc);
+
+  SettingMeta st(r + "/Topic", SettingType::stem, "Kafka topic");
+  add_definition(st);
+
   int32_t i {0};
   SettingMeta root(r, SettingType::stem, "ESS Stream");
   root.set_flag("producer");
@@ -41,17 +50,37 @@ bool ESSStream::daq_start(SpillQueue out_queue)
 
   terminate_.store(false);
   running_.store(true);
-  runner_ = std::thread(&ESSStream::worker_run, this, out_queue);
 
-  return true;
+  size_t total = 0;
+  for (auto& s : streams_)
+  {
+    if (!s.parser)
+    {
+      WARN << "<ESSStream> Could not start worker cuz bad parser";
+      continue;
+    }
+
+    if (!s.consumer)
+    {
+      WARN << "<ESSStream> Could not start worker cuz bad kafka stream";
+      continue;
+    }
+
+    s.runner = std::thread(&ESSStream::worker_run, this, out_queue, s.consumer, s.parser);
+    total++;
+  }
+
+  return total;
 }
 
 bool ESSStream::daq_stop()
 {
   terminate_.store(true);
 
-  if (runner_.joinable())
-    runner_.join();
+  for (auto& s : streams_)
+    if (s.runner.joinable())
+      s.runner.join();
+
   running_.store(false);
 
   return true;
@@ -64,9 +93,15 @@ bool ESSStream::daq_running()
 
 StreamManifest ESSStream::stream_manifest() const
 {
-  if (parser_)
-    return parser_->stream_manifest();
-  return StreamManifest();
+  StreamManifest ret;
+  for (auto& s : streams_)
+  {
+    if (!s.parser)
+      continue;
+    for (auto m : s.parser->stream_manifest())
+      ret[m.first] = m.second;
+  }
+  return ret;
 }
 
 Setting ESSStream::settings() const
@@ -76,17 +111,26 @@ Setting ESSStream::settings() const
 
   set.branches.add_a(kafka_config_.settings());
 
-  auto parser_set = get_rich_setting(r + "/Parser");
-  parser_set.select(0);
+  auto tc = get_rich_setting(r + "/TopicCount");
+  tc.set_int(streams_.size());
+  set.branches.add_a(tc);
 
-  if (parser_)
+  for (auto& s : streams_)
   {
-    parser_set.select(parser_names_.at(parser_->plugin_name()));
-    set.branches.add_a(parser_set);
-    set.branches.add_a(parser_->settings());
+    auto topic = get_rich_setting(r + "/Topic");
+
+    auto parser_set = get_rich_setting(r + "/Parser");
+    parser_set.select(0);
+    if (s.parser)
+    {
+      parser_set.select(parser_names_.at(s.parser->plugin_name()));
+      topic.branches.add_a(parser_set);
+      topic.branches.add_a(s.parser->settings());
+    } else
+      topic.branches.add_a(parser_set);
+
+    set.branches.add_a(topic);
   }
-  else
-    set.branches.add_a(parser_set);
 
   set.enable_if_flag(!(status_ & booted), "preset");
   return set;
@@ -99,29 +143,45 @@ void ESSStream::settings(const Setting& settings)
 
   kafka_config_.settings(set.find({kafka_config_.plugin_name()}));
 
-  auto parser_set = set.find({r + "/Parser"});
-  auto parser = parser_set.metadata().enum_name(parser_set.selection());
+  size_t total = set.find({r + "/TopicCount"}).get_int();
+  if (!total)
+    total = 1;
 
-  select_parser(parser);
-  if (parser_ && (parser_->plugin_name() == parser))
-    parser_->settings(set.find({parser}));
+  streams_.resize(total);
+
+  size_t i = 0;
+  for (Setting v : set.branches)
+  {
+    if (i >= streams_.size())
+      break;
+    if (v.id() != (r + "/Topic"))
+      continue;
+
+    auto parser_set = enrich_and_toggle_presets(v.find({r + "/Parser"}));
+    auto parser = parser_set.metadata().enum_name(parser_set.selection());
+
+    select_parser(i, parser);
+    if (streams_[i].parser && (streams_[i].parser->plugin_name() == parser))
+      streams_[i].parser->settings(v.find({parser}));
+    i++;
+  }
 }
 
-void ESSStream::select_parser(std::string t)
+void ESSStream::select_parser(size_t i, std::string t)
 {
   if (
-      (t.empty() && !parser_) ||
-          (parser_ && (t == parser_->plugin_name()))
+      (t.empty() && !streams_[i].parser) ||
+          (streams_[i].parser && (t == streams_[i].parser->plugin_name()))
       )
     return;
   if (t.empty())
-    parser_.reset();
+    streams_[i].parser.reset();
   else if (t == "ev42_events")
-    parser_ = std::make_shared<ev42_events>();
+    streams_[i].parser = std::make_shared<ev42_events>();
   else if (t == "mo01_nmx")
-    parser_ = std::make_shared<mo01_nmx>();
+    streams_[i].parser = std::make_shared<mo01_nmx>();
   else if (t == "ChopperTDC")
-    parser_ = std::make_shared<ChopperTDC>();
+    streams_[i].parser = std::make_shared<ChopperTDC>();
 }
 
 void ESSStream::boot()
@@ -133,27 +193,38 @@ void ESSStream::boot()
     return;
   }
 
-  if (!parser_)
+  size_t total_valid = 0;
+  for (auto& s : streams_)
   {
-    WARN << "<ESSStream> "
-         << "Cannot boot ESSStream. No flat buffer parser specified.";
-    return;
+    if (!s.parser)
+    {
+      WARN << "<ESSStream> "
+           << "Cannot boot ESSStream. No flat buffer parser specified.";
+      continue;
+    }
+
+    status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
+
+    s.consumer = kafka_config_.subscribe_topic(s.parser->kafka_config.kafka_topic_name_);
+
+    if (!s.consumer)
+    {
+      ERR << "<ESSStream:" << s.parser->kafka_config.kafka_topic_name_ << "> "
+          << "Failed to start consumer.";
+      continue;
+    }
+
+    INFO << "<ESSStream:" << s.parser->kafka_config.kafka_topic_name_ << "> "
+         << " booted with consumer " << s.consumer->low_level->name();
+    total_valid++;
   }
 
-  status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
-
-  stream_ = kafka_config_.subscribe_topic(parser_->kafka_config.kafka_topic_name_);
-
-  if (!stream_)
+  if (!total_valid)
   {
-    ERR << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
-        << "Failed to start consumer.";
+    ERR << "<ESSStream> Failed to start at least one consumers";
     die();
     return;
   }
-
-  INFO << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
-       << " booted with consumer " << stream_->low_level->name();
 
   status_ = ProducerStatus::loaded |
       ProducerStatus::booted | ProducerStatus::can_run;
@@ -162,37 +233,50 @@ void ESSStream::boot()
 void ESSStream::die()
 {
 //  INFO << "<ESSStream> Shutting down";
-  if (stream_)
-  {
-    stream_->low_level->close();
-    kafka_config_.decomission();
-    stream_.reset();
-  }
+  for (auto& s : streams_)
+    if (s.consumer)
+      s.consumer->low_level->close();
+
+  kafka_config_.decomission();
+
+  for (auto& s : streams_)
+    if (s.consumer)
+      s.consumer.reset();
+
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::worker_run(SpillQueue spill_queue)
+void ESSStream::worker_run(SpillQueue spill_queue,
+                           Kafka::ConsumerPtr stream, FBParserPtr parser)
 {
-  DBG << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
+  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
       << "Starting run"; //more info!!!
 
   uint64_t spills {0};
 
   while (!terminate_.load())
-    spills += get_message(spill_queue);
+  {
+    auto message = stream->consume(kafka_config_.kafka_timeout_);
 
-  if (parser_)
-    spills += parser_->stop(spill_queue);
+    if (!good(message))
+      continue;
 
-  DBG << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
+    spills += parser->process_payload(spill_queue, message->low_level->payload());
+    if (parser->kafka_config.kafka_ff_)
+        parser->stats.dropped_buffers +=
+            ff_stream(stream, message, parser->kafka_config.kafka_max_backlog_);
+  }
+
+  spills += parser->stop(spill_queue);
+
+  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
       << "Finished run"
       << "  spills=" << spills;
 
-  if (parser_)
-    DBG << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
-        << "  time=" << parser_->stats.time_spent
-        << "  secs/spill=" << parser_->stats.time_spent / double(spills)
-        << "  skipped buffers=" << parser_->stats.dropped_buffers;
+  DBG << "<ESSStream:" << parser->kafka_config.kafka_topic_name_ << "> "
+      << "  time=" << parser->stats.time_spent
+      << "  secs/spill=" << parser->stats.time_spent / double(spills)
+      << "  skipped buffers=" << parser->stats.dropped_buffers;
 }
 
 bool ESSStream::good(Kafka::MessagePtr message)
@@ -246,28 +330,6 @@ bool ESSStream::good(Kafka::MessagePtr message)
            << " Consume failed! Err=" << message->low_level->errstr();
       return false;
   }
-}
-
-uint64_t ESSStream::get_message(SpillQueue spill_queue)
-{
-  auto message = stream_->consume(kafka_config_.kafka_timeout_);
-
-  if (!good(message))
-    return 0;
-
-  uint64_t num_produced {0};
-
-  if (parser_)
-  {
-    num_produced = parser_->process_payload(spill_queue, message->low_level->payload());
-    if (parser_->kafka_config.kafka_ff_)
-      parser_->stats.dropped_buffers += ff_stream(stream_, message, parser_->kafka_config.kafka_max_backlog_);
-  }
-  else
-    WARN << "<ESSStream:" << parser_->kafka_config.kafka_topic_name_ << "> "
-         << "Consume failed. No parser to interpret buffer.";
-
-  return num_produced;
 }
 
 uint64_t ESSStream::ff_stream(Kafka::ConsumerPtr consumer, Kafka::MessagePtr message,
