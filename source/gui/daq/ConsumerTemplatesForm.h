@@ -18,7 +18,7 @@ class ConsumerTemplatesTableModel : public QAbstractTableModel
 {
   Q_OBJECT
   private:
-    Container<DAQuiri::ConsumerMetadata> prototypes_;
+    Container<ConsumerPtr> consumers_;
 
   public:
     ConsumerTemplatesTableModel(QObject* parent = 0);

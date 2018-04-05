@@ -19,7 +19,7 @@ ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(QObject *parent)
 
 int ConsumerTemplatesTableModel::rowCount(const QModelIndex & /*parent*/) const
 {
-  return prototypes_.size();
+  return consumers_.size();
 }
 
 int ConsumerTemplatesTableModel::columnCount(const QModelIndex & /*parent*/) const
@@ -64,17 +64,17 @@ QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) c
     switch (col)
     {
     case 0:
-      return QVariant::fromValue(prototypes_.get(row).get_attribute("name"));
+      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("name"));
     case 1:
-      return QVariant::fromValue(prototypes_.get(row).get_attribute("visible"));
+      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("visible"));
     case 2:
-      return QString::fromStdString(prototypes_.get(row).type());
+      return QString::fromStdString(consumers_.get(row)->metadata().type());
     case 3:
-      return QVariant::fromValue(prototypes_.get(row).get_attribute("stream_id"));
+      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("stream_id"));
     case 4:
-      return QVariant::fromValue(prototypes_.get(row).get_attribute("appearance"));
+      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("appearance"));
     case 5:
-      return QVariant::fromValue(prototypes_.get(row).get_attribute("preferred_scale"));
+      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("preferred_scale"));
     }
   }
   return QVariant();
@@ -82,9 +82,9 @@ QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) c
 
 void ConsumerTemplatesTableModel::update(DAQuiri::ProjectPtr &project)
 {
-  prototypes_ = project->get_prototypes();
+  consumers_ = project->get_consumers();
   QModelIndex start_ix = createIndex( 0, 0 );
-  QModelIndex end_ix = createIndex(prototypes_.size(), columnCount());
+  QModelIndex end_ix = createIndex(consumers_.size(), columnCount());
   emit dataChanged( start_ix, end_ix );
   emit layoutChanged();
 }

@@ -43,12 +43,12 @@ void Project::clear_helper()
 {
   //private, no lock needed
   if (!consumers_.empty()
-      )
-//      || !spills_.empty())
+      || !spills_.empty())
     changed_ = true;
 
   consumers_.clear();
-//  spills_.clear();
+  spills_.clear();
+  has_data_ = false;
 }
 
 void Project::flush()
@@ -101,6 +101,30 @@ bool Project::empty() const
 {
   UNIQUE_LOCK_EVENTUALLY
   return consumers_.empty();
+}
+
+bool Project::has_data() const
+{
+  return has_data_;
+}
+
+void Project::reset()
+{
+  UNIQUE_LOCK_EVENTUALLY
+
+  if (consumers_.empty()
+      && spills_.empty())
+    return;
+
+  for (auto &q : consumers_)
+    q = ConsumerFactory::singleton().create_from_prototype(q->metadata().prototype());
+
+  spills_.clear();
+
+  changed_ = true;
+  ready_ = true;
+  has_data_ = false;
+  cond_.notify_all();
 }
 
 void Project::up(size_t i)
@@ -234,6 +258,7 @@ void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
 
   changed_ = true;
   ready_ = true;
+  has_data_ = false;
   cond_.notify_all();
 }
 
@@ -259,9 +284,8 @@ void Project::add_spill(SpillPtr one_spill)
 //      || !one_spill->state.branches.empty())
 //    spills_.push_back(*one_spill);
 
-  if (!one_spill->empty())
-    changed_ = true;
-
+  changed_ = true;
+  has_data_ = true;
   ready_ = true;
   cond_.notify_all();
 }

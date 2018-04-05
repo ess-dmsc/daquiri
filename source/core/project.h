@@ -11,20 +11,6 @@ using ProjectPtr = std::shared_ptr<Project>;
 
 class Project
 {
-  protected:
-    //control
-    mutable mutex mutex_;
-    condition_variable cond_;
-    mutable bool ready_ {false};
-
-    //data
-    Container<ConsumerPtr> consumers_;
-    std::list<Spill> spills_;
-
-    //saveability
-    std::string identity_ {"New project"};
-    mutable bool changed_ {false};
-
   public:
     Project() {}
 
@@ -36,7 +22,9 @@ class Project
 
     // general info
     bool empty() const;
+    bool has_data() const;
     void clear();
+    void reset();
 
     bool changed() const;
     void mark_changed();
@@ -68,7 +56,7 @@ class Project
               bool with_full_consumers = true);
 
 
-    //report on contents
+    // report on contents
     std::vector<std::string> types() const;
     std::string identity() const;
 
@@ -78,7 +66,22 @@ class Project
     friend std::ostream& operator<<(std::ostream& stream,
                                     const Project& project);
 
-  private:
+  protected:
+    // control
+    mutable mutex mutex_;
+    condition_variable cond_;
+    mutable bool ready_ {false};
+
+    // data
+    Container<ConsumerPtr> consumers_;
+    std::list<Spill> spills_;
+
+    // saveability
+    std::string identity_ {"New project"};
+    mutable bool changed_ {false};
+    bool has_data_ {false};
+
+    // helpers
     void clear_helper();
 };
 
