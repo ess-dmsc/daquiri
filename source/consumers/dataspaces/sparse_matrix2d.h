@@ -19,6 +19,7 @@ class SparseMatrix2D : public Dataspace
     SparseMatrix2D* clone() const override
     { return new SparseMatrix2D(*this); }
 
+    bool empty() const override;
     void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;

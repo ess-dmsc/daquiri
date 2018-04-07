@@ -72,6 +72,7 @@ class Dataspace
 
     //retrieve axis-values for given dimension (can be precalculated energies)
     uint16_t dimensions() const;
+    virtual bool empty() const = 0;
     virtual DataAxis axis(uint16_t dimension) const;
     virtual void set_axis(size_t dim, const DataAxis &ax);
 

@@ -118,8 +118,15 @@ void ProjectForm::loadSettings()
   settings.endGroup();
 
 
-  project_->set_prototypes(from_json_file(Profiles::current_profile_dir().toStdString()
-                                      + "/default_consumers.tem"));
+  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+  try
+  {
+    project_->open(fname.toStdString());
+  }
+  catch (...)
+  {
+    DBG << "Could not load default prototypes from " << fname.toStdString();
+  }
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
@@ -146,11 +153,18 @@ void ProjectForm::saveSettings()
   settings.endGroup();
 
   settings.beginGroup("DAQ_behavior");
-  if (settings.value("autosave_daq", true).toBool()
-      && !project_->empty())
+  if (settings.value("autosave_daq", true).toBool())
   {
-    to_json_file(project_->get_prototypes(),
-                 Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
+    project_->reset();
+    auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+    try
+    {
+      project_->save_as(fname.toStdString());
+    }
+    catch (...)
+    {
+      DBG << "Could not save default prototypes to " << fname.toStdString();
+    }
   }
 }
 
@@ -280,7 +294,7 @@ void ProjectForm::on_pushEditSpectra_clicked()
 
 void ProjectForm::on_pushStart_clicked()
 {
-  if (!project_->empty())
+  if (project_->has_data())
   {
     int reply = QMessageBox::warning(this, "Continue?",
                                      "Non-empty spectra in project. Acquire and append to existing data?",
@@ -318,13 +332,6 @@ void ProjectForm::start_DAQ()
   emit toggleIO(false);
   ui->pushStop->setEnabled(true);
 
-  if (project_->empty())
-  {
-    clearGraphs();
-    newProject();
-  }
-//  project_->activate();
-
   my_run_ = true;
   ui->projectView->setSpectra(project_);
   uint64_t duration = ui->timeDuration->total_seconds();
@@ -346,7 +353,7 @@ void ProjectForm::projectOpen()
   data_directory_ = path_of_file(fileName);
 
   //save first?
-  if (!project_->empty()) {
+  if (project_->has_data()) {
     int reply = QMessageBox::warning(this, "Clear existing?",
                                      "Spectra already open. Clear existing before opening?",
                                      QMessageBox::Yes|QMessageBox::Cancel);

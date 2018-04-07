@@ -11,6 +11,11 @@ SparseMatrix2D::SparseMatrix2D()
   : Dataspace(2)
 {}
 
+bool SparseMatrix2D::empty() const
+{
+  return (total_count_ == 0);
+}
+
 void SparseMatrix2D::reserve(const Coords& limits)
 {
   if (limits.size() != dimensions())

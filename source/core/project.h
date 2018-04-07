@@ -29,11 +29,7 @@ class Project
     bool changed() const;
     void mark_changed();
 
-    // populate one of these ways
-    void set_prototypes(const Container<ConsumerMetadata>&);
-    Container<ConsumerMetadata> get_prototypes() const;
-    size_t add_consumer(ConsumerMetadata prototype);
-
+    // consumers access
     size_t add_consumer(ConsumerPtr consumer);
     void replace(size_t idx, ConsumerMetadata prototype);
     void delete_consumer(size_t idx);

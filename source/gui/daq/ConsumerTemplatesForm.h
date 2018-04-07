@@ -57,7 +57,6 @@ class ConsumerTemplatesForm : public QDialog
 
   private slots:
     void on_pushImport_clicked();
-    void on_pushExport_clicked();
     void on_pushNew_clicked();
     void on_pushEdit_clicked();
     void on_pushDelete_clicked();

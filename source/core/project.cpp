@@ -189,20 +189,9 @@ size_t Project::add_consumer(ConsumerPtr consumer)
   UNIQUE_LOCK_EVENTUALLY
 
   consumers_.add_a(consumer);
-  changed_ = true;
-  ready_ = true;
-  // cond_.notify_one();
-  return consumers_.size() - 1;
-}
+  if (!consumer->data()->empty())
+    has_data_ = true;
 
-size_t Project::add_consumer(ConsumerMetadata prototype)
-{
-  UNIQUE_LOCK_EVENTUALLY
-
-  ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(prototype);
-  if (!consumer)
-    return 0;
-  consumers_.add_a(consumer);
   changed_ = true;
   ready_ = true;
   // cond_.notify_one();
@@ -237,41 +226,6 @@ void Project::delete_consumer(size_t idx)
   ready_ = true;
   // cond_.notify_one();
 }
-
-void Project::set_prototypes(const Container<ConsumerMetadata> &prototypes)
-{
-  UNIQUE_LOCK_EVENTUALLY
-
-  clear_helper();
-
-  for (const auto &definition : prototypes)
-  {
-//    DBG << "Creating consumer " << prototypes.get(i).debug();
-
-    ConsumerPtr consumer = ConsumerFactory::singleton().create_from_prototype(definition);
-    if (consumer)
-    {
-      consumers_.add_a(consumer);
-//      DBG << "Added consumer " << consumer->debug();
-    }
-  }
-
-  changed_ = true;
-  ready_ = true;
-  has_data_ = false;
-  cond_.notify_all();
-}
-
-Container<ConsumerMetadata> Project::get_prototypes() const
-{
-  UNIQUE_LOCK_EVENTUALLY
-
-  Container<ConsumerMetadata> ret;
-  for (auto &q : consumers_)
-    ret.add_a(q->metadata().prototype());
-  return ret;
-}
-
 
 void Project::add_spill(SpillPtr one_spill)
 {

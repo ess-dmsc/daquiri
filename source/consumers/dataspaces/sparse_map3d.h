@@ -12,6 +12,7 @@ class SparseMap3D : public Dataspace
     SparseMap3D* clone() const override
     { return new SparseMap3D(*this); }
 
+    bool empty() const override;
     void clear() override;
     void add(const Entry&) override;
     void add_one(const Coords&) override;

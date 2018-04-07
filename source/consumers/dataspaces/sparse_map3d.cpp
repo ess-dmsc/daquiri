@@ -11,6 +11,11 @@ SparseMap3D::SparseMap3D()
   : Dataspace(3)
 {}
 
+bool SparseMap3D::empty() const
+{
+  return spectrum_.empty();
+}
+
 void SparseMap3D::clear()
 {
   total_count_ = 0;

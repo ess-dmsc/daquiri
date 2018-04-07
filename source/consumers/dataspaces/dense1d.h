@@ -12,6 +12,7 @@ class Dense1D : public Dataspace
     Dense1D* clone() const override
     { return new Dense1D(*this); }
 
+    bool empty() const override;
     void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;

@@ -9,6 +9,7 @@
 
 #include "QFileExtensions.h"
 #include "consumer_factory.h"
+#include "Profiles.h"
 
 using namespace DAQuiri;
 
@@ -195,12 +196,6 @@ void ConsumerTemplatesForm::toggle_push()
     else
       ui->pushDown->setEnabled(false);
   }
-
-  if (project_->empty())
-    ui->pushExport->setEnabled(false);
-  else
-    ui->pushExport->setEnabled(true);
-
 }
 
 void ConsumerTemplatesForm::on_pushImport_clicked()
@@ -212,7 +207,7 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   {
     INFO << "Reading templates from file " << fileName.toStdString();
     for (auto p : from_json_file(fileName.toStdString()))
-      project_->add_consumer(ConsumerMetadata(p));
+      project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(ConsumerMetadata(p)));
 
     selection_model_.reset();
     table_model_.update(project_);
@@ -220,17 +215,6 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
 
     ui->spectraSetupView->horizontalHeader()->setStretchLastSection(true);
     ui->spectraSetupView->resizeColumnsToContents();
-  }
-}
-
-void ConsumerTemplatesForm::on_pushExport_clicked()
-{
-  QString fileName = CustomSaveFileDialog(this, "Save template spectra",
-                                          root_dir_, "Template set (*.tem)");
-  if (validateFile(this, fileName, true))
-  {
-    INFO << "Writing templates to file " << fileName.toStdString();
-    to_json_file(project_->get_prototypes(), fileName.toStdString());
   }
 }
 
@@ -276,7 +260,7 @@ void ConsumerTemplatesForm::on_pushClone_clicked()
     return;
   int i = ixl.front().row();
 
-  project_->add_consumer(project_->get_consumer(i)->metadata().prototype());
+  project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(project_->get_consumer(i)->metadata().prototype()));
   table_model_.update(project_);
   toggle_push();
 }
@@ -321,13 +305,22 @@ void ConsumerTemplatesForm::on_pushSetDefault_clicked()
 void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 {
   int reply = QMessageBox::warning(this, "Reset to defaults?",
-                                   "Reset to default templete configuration?",
+                                   "Reset to default prototype configuration?",
                                    QMessageBox::Yes|QMessageBox::Cancel);
   if (reply != QMessageBox::Yes)
   {
     return;
   }
-  project_->set_prototypes(from_json_file(root_dir_.toStdString() + "/default_consumers.tem"));
+
+  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+  try
+  {
+    project_->open(fname.toStdString());
+  }
+  catch (...)
+  {
+    DBG << "Could not load default prototypes from " << fname.toStdString();
+  }
 
   selection_model_.reset();
   table_model_.update(project_);
@@ -336,7 +329,28 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 
 void ConsumerTemplatesForm::save_default()
 {
-  to_json_file(project_->get_prototypes(), root_dir_.toStdString() + "/default_consumers.tem");
+  int reply = QMessageBox::warning(this, "Save as default",
+                                   "Save as default prototype configuration?",
+                                   QMessageBox::Yes|QMessageBox::Cancel);
+  if (reply != QMessageBox::Yes)
+  {
+    return;
+  }
+  
+  ProjectPtr project = ProjectPtr(new Project());
+  for (auto cons : project_->get_consumers())
+    project->add_consumer(ConsumerFactory::singleton().create_from_prototype(cons->metadata().prototype()));
+
+  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+  try
+  {
+    project->save_as(fname.toStdString());
+  }
+  catch (...)
+  {
+    DBG << "Could not save default prototypes to " << fname.toStdString();
+  }
+
 }
 
 void ConsumerTemplatesForm::on_pushClear_clicked()

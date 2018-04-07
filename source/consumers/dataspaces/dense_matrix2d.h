@@ -19,6 +19,7 @@ class DenseMatrix2D : public Dataspace
     DenseMatrix2D* clone() const override
     { return new DenseMatrix2D(*this); }
 
+    bool empty() const override;
     void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
