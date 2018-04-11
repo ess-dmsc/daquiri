@@ -34,8 +34,8 @@ class Project
     void flush();
 
     // consumers access
-    size_t add_consumer(ConsumerPtr consumer);
-    void replace(size_t idx, ConsumerMetadata prototype);
+    void add_consumer(ConsumerPtr consumer);
+    void replace(size_t idx, ConsumerPtr consumer);
     void delete_consumer(size_t idx);
     void up(size_t);
     void down(size_t);
@@ -74,7 +74,7 @@ class Project
     // helpers
     void _clear();
     void _save_metadata(std::string file_name);
-
+    void _add_consumer(ConsumerPtr consumer);
 };
 
 }

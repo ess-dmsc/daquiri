@@ -244,8 +244,11 @@ std::string Calibration::debug() const
     result += "[" + from_.debug() + "]";
   if (to_.valid())
     result += "->[" + to_.debug() + "]";
-  result += " eqn=" + fancy_equation(true);
-  result += " date=" + to_iso_string(calib_date_);
+  if (valid())
+  {
+    result += " eqn=" + fancy_equation(true);
+    result += " date=" + to_iso_string(calib_date_);
+  }
   return result;
 }
 

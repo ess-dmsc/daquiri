@@ -1,13 +1,13 @@
 #include "spill.h"
 #include "time_extensions.h"
+#include "ascii_tree.h"
 
 #include "custom_logger.h"
 
 namespace DAQuiri {
 
 Spill::Spill(std::string id, StatusType t)
-  : stream_id (id)
-  , type (t)
+    : stream_id(id), type(t)
 {
   if (t != StatusType::daq_status)
     state = Setting::stem("stats");
@@ -16,31 +16,42 @@ Spill::Spill(std::string id, StatusType t)
 bool Spill::empty()
 {
   return (
-          raw.empty() &&
+      raw.empty() &&
           events.empty() &&
           state.branches.empty()
-          );
+  );
 }
 
-std::string Spill::to_string() const
+std::string Spill::debug(std::string prepend) const
 {
-  std::string info = type_to_str(type) + " "
-      + stream_id + " " + boost::posix_time::to_iso_extended_string(time);
+  std::stringstream ss;
+  ss << "SPILL [" << type_to_str(type) + "]";
+  if (stream_id.size())
+    ss << " '" << stream_id << "' ";
+  ss << " @ " << boost::posix_time::to_iso_extended_string(time) << "\n";
+
+  ss << prepend << k_branch_mid_B << "event model: "
+     << event_model.debug() << "\n";
+
   if (events.size())
-  {
-    info += " " + event_model.debug();
-    info += " event_count=" + std::to_string(events.size());
-  }
+    ss << prepend << k_branch_mid_B << "event_count=" << events.size() << "\n";
   if (raw.size())
-    info += " RAW=" + std::to_string(raw.size() * sizeof(char));
-  return info;
+    ss << prepend << k_branch_mid_B << "raw_size=" << (raw.size() * sizeof(char)) << "\n";
+
+  ss << prepend << k_branch_end_B
+     << state.debug(prepend + "  ", false);
+
+  return ss.str();
 }
 
 void to_json(json& j, const Spill& s)
 {
+  j["type"] = type_to_str(s.type);
+  j["stream_id"] = s.stream_id;
   j["time"] = boost::posix_time::to_iso_extended_string(s.time);
 //  j["bytes_raw_data"] = data.size() * sizeof(char);
 //  j["number_of_events"] = events.size();
+  j["event_model"] = s.event_model;
 
   if (!s.state.branches.empty())
     j["state"] = s.state;
@@ -48,11 +59,13 @@ void to_json(json& j, const Spill& s)
 
 void from_json(const json& j, Spill& s)
 {
+  s.type = type_from_str(j["type"]);
+  s.stream_id = j["stream_id"];
   s.time = from_iso_extended(j["time"].get<std::string>());
+  s.event_model = j["event_model"];
 
   if (j.count("state"))
     s.state = j["state"];
 }
-
 
 }

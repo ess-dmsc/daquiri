@@ -64,18 +64,36 @@ int main(int argc, char** argv)
   engine.acquire(project, interruptor, duration);
   engine.die();
 
-  DBG << "\n" << *project;
-
   DBG << "============================";
   DBG << "======testing file ops======";
   DBG << "============================";
 
   project->save_split("./results_split");
   project->save("./results.h5");
+
   ProjectPtr project2 = ProjectPtr(new Project());
   project2->open("./results.h5");
 
-  DBG << "\n" << *project2;
+  std::stringstream ss1, ss2;
+  ss1 << *project;
+  ss2 << *project2;
+
+  DBG << "\n" << ss1.str();
+
+  DBG << "============================";
+  DBG << "============================";
+  DBG << "============================";
+
+  DBG << "\n" << ss2.str();
+
+  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
+  ofs1 << ss1.str();
+
+  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
+  ofs2 << ss2.str();
+
+  if (ss1.str() == ss2.str())
+    DBG << "OUTPUT IDENTICAL";
 
   return 0;
 }

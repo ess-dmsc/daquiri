@@ -44,14 +44,22 @@ public:
     auto tb = timebase.debug();
     if (!tb.empty())
       ss << "timebase=" << tb << " ";
-    for (auto &n : name_to_val)
-      ss << n.first << "(<=" << int(maximum[n.second]) << ") ";
-    for (auto &n : name_to_trace)
+    if (name_to_val.size())
     {
-      ss << n.first << "( ";
-      for (auto t : traces[n.second])
-        ss << t << " ";
-      ss << ") ";
+      ss << "VALS ";
+      for (auto& n : name_to_val)
+        ss << n.first << "(<=" << int(maximum[n.second]) << ") ";
+    }
+    if (name_to_trace.size())
+    {
+      ss << "TRACES ";
+      for (auto& n : name_to_trace)
+      {
+        ss << n.first << "( ";
+        for (auto t : traces[n.second])
+          ss << t << " ";
+        ss << ") ";
+      }
     }
     return ss.str();
   }
@@ -85,7 +93,13 @@ inline void from_json(const json& j, EventModel& t)
       t.add_value(it["name"], it["max"].get<uint32_t>());
   if (j.count("traces"))
     for (auto it : j["traces"])
-      t.add_trace(it["name"], it["dims"].get<std::vector<size_t>>());
+    {
+      auto nm = it["name"];
+      std::vector<size_t> dims;
+      for (auto d : it["dims"])
+        dims.push_back(d.get<size_t>());
+      t.add_trace(nm, dims);
+    }
 }
 
 
