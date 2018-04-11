@@ -78,7 +78,11 @@ class Dataspace
 
     std::string debug(std::string prepend = "") const;
 
+    PreciseFloat total_count() const;
+
   protected:
+
+    PreciseFloat total_count_ {0};
 
     virtual std::string data_debug(const std::string &prepend) const;
     virtual void data_load(hdf5::node::Group) = 0;

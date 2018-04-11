@@ -80,22 +80,19 @@ int main(int argc, char** argv)
 
   DBG << "\n" << ss1.str();
 
-  DBG << "============================";
-  DBG << "============================";
-  DBG << "============================";
+//  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs1 << ss1.str();
+//
+//  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs2 << ss2.str();
 
-  DBG << "\n" << ss2.str();
+  if (ss1.str() != ss2.str())
+  {
+    DBG << "Saved project not identical to original!";
+    return EXIT_FAILURE;
+  }
 
-  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
-  ofs1 << ss1.str();
-
-  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
-  ofs2 << ss2.str();
-
-  if (ss1.str() == ss2.str())
-    DBG << "OUTPUT IDENTICAL";
-
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 Setting get_profile()

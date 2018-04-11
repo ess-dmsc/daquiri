@@ -89,6 +89,5 @@ void Histogram1D::_push_event(const Event& event)
     coords_[0] = event.value(value_idx_);
 
   data_->add_one(coords_);
-  total_count_++;
   recent_count_++;
 }

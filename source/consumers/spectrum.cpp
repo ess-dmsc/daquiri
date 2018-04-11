@@ -205,7 +205,7 @@ void Spectrum::_push_stats_post(const Spill& spill)
 
   }
 
-  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
+  metadata_.set_attribute(Setting::precise("total_count", data_->total_count()), false);
 
   double* recent_time = &recent_producer_wall_time_;
   if (clear_reference_timer_ == 1)
@@ -239,7 +239,6 @@ void Spectrum::_push_stats_pre(const Spill &spill)
   if (clear_next_spill_)
   {
     data_->clear();
-    total_count_ = 0;
     recent_count_ = 0;
     clear_next_spill_ = false;
   }
@@ -247,5 +246,5 @@ void Spectrum::_push_stats_pre(const Spill &spill)
 
 void Spectrum::_flush()
 {
-  metadata_.set_attribute(Setting::precise("total_count", total_count_), false);
+  metadata_.set_attribute(Setting::precise("total_count", data_->total_count()), false);
 }

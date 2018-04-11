@@ -35,7 +35,6 @@ class SparseMatrix2D : public Dataspace
 
     //the data itself
     data_type_t spectrum_;
-    uint64_t total_count_ {0};
 
     Coords limits_ {0,0};
 

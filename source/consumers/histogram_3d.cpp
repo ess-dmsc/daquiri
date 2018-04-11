@@ -59,16 +59,6 @@ void Histogram3D::_apply_attributes()
   metadata_.replace_attribute(filters_.settings());
 }
 
-void Histogram3D::_init_from_file()
-{
-  metadata_.set_attribute(Setting::integer("downsample", downsample_));
-  metadata_.set_attribute(Setting::text("x_name", "value1"));
-  metadata_.set_attribute(Setting::text("y_name", "value2"));
-  metadata_.set_attribute(Setting::text("z_name", "value3"));
-
-  Spectrum::_init_from_file();
-}
-
 void Histogram3D::_recalc_axes()
 {
   Detector det0, det1, det2;
@@ -127,7 +117,6 @@ void Histogram3D::_push_event(const Event& event)
   }
 
   data_->add_one(coords_);
-  total_count_++;
   recent_count_++;
 }
 

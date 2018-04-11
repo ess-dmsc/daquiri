@@ -27,7 +27,6 @@ class SparseMap2D : public Dataspace
 
     //the data itself
     SpectrumMap2D spectrum_;
-    PreciseFloat total_count_ {0};
     uint16_t max0_ {0};
     uint16_t max1_ {0};
 

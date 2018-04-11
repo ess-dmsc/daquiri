@@ -232,7 +232,6 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
     {
       ss << prepend << "x=" << i << "\n";
       ss << ss2.str();
-      ss << "\n";
     }
   }
 

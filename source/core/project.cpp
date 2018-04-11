@@ -160,7 +160,6 @@ void Project::add_consumer(ConsumerPtr consumer)
   UNIQUE_LOCK_EVENTUALLY
 
   _add_consumer(consumer);
-  consumers_.add_a(consumer);
 
   ready_ = true;
   // cond_.notify_one();
@@ -279,8 +278,8 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
   if (!hdf5::file::is_hdf5_file(file_name))
     return;
-//  try
-//  {
+  try
+  {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
     auto f = file.root();
     auto group = f.get_group("project");
@@ -328,13 +327,13 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
     ready_ = true;
     cond_.notify_all();
-//  }
-//  catch (...)
-//  {
-//    std::stringstream ss;
-//    ss << "DAQuiri::Project failed to open file '" << file_name << "'";
-//    std::throw_with_nested(std::runtime_error(ss.str()));
-//  }
+  }
+  catch (...)
+  {
+    std::stringstream ss;
+    ss << "DAQuiri::Project failed to open file '" << file_name << "'";
+    std::throw_with_nested(std::runtime_error(ss.str()));
+  }
 }
 
 void Project::_save_metadata(std::string file_name)
@@ -405,8 +404,6 @@ std::ostream& operator<<(std::ostream& stream, const Project& project)
       else
         stream << k_branch_end_B << s->debug("  ", false);
     }
-//    for (const auto& s : consumers)
-//      stream << "Consumer " << s->debug("", false) << "\n";
   }
   return stream;
 }

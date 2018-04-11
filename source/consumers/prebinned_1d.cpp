@@ -87,6 +87,5 @@ void Prebinned1D::_push_event(const Event& event)
     data_->add(entry_);
   }
 
-  total_count_++;
   recent_count_++;
 }

@@ -33,7 +33,7 @@ class Spectrum : public Consumer
     double clear_at_ {0};
 
     // cached results:
-    PreciseFloat total_count_ {0};
+//    PreciseFloat total_count_ {0};
 
     // instantaneous rate:
     PreciseFloat recent_count_ {0};
