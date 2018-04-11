@@ -14,7 +14,7 @@ TEST(EventModel, AddValue)
   ASSERT_EQ(0, h.values[0]);
   ASSERT_EQ(2, h.maximum[0]);
   ASSERT_EQ("a", h.value_names.at(0));
-  EXPECT_EQ("a(<=2) ", h.debug());
+  EXPECT_EQ("VALS a(<=2) ", h.debug());
 
   h.add_value("b", 7);
   ASSERT_EQ(2, h.values.size());
@@ -24,7 +24,7 @@ TEST(EventModel, AddValue)
   ASSERT_EQ(0, h.values[1]);
   ASSERT_EQ(7, h.maximum[1]);
   ASSERT_EQ("b", h.value_names.at(1));
-  EXPECT_EQ("a(<=2) b(<=7) ", h.debug());
+  EXPECT_EQ("VALS a(<=2) b(<=7) ", h.debug());
 }
 
 TEST(EventModel, AddTrace)
@@ -40,7 +40,7 @@ TEST(EventModel, AddTrace)
   ASSERT_EQ(2, h.traces.at(0).size());
   ASSERT_EQ(std::vector<size_t>({2,3}), h.traces.at(0));
   ASSERT_EQ("x", h.trace_names.at(0));
-  EXPECT_EQ("x( 2 3 ) ", h.debug());
+  EXPECT_EQ("TRACES x( 2 3 ) ", h.debug());
 
   h.add_trace("y", {2,5,7});
   ASSERT_EQ(2, h.traces.size());
@@ -50,5 +50,5 @@ TEST(EventModel, AddTrace)
   ASSERT_EQ(3, h.traces.at(1).size());
   ASSERT_EQ(std::vector<size_t>({2,5,7}), h.traces.at(1));
   ASSERT_EQ("y", h.trace_names.at(1));
-  EXPECT_EQ("x( 2 3 ) y( 2 5 7 ) ", h.debug());
+  EXPECT_EQ("TRACES x( 2 3 ) y( 2 5 7 ) ", h.debug());
 }
