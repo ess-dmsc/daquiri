@@ -52,7 +52,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"), "Save as json + csv", this, SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
 
-  this->setWindowTitle(QString::fromStdString(project_->identity()));
+  this->setWindowTitle("New project");
 
   ui->timeDuration->set_us_enabled(false);
 
@@ -159,7 +159,7 @@ void ProjectForm::saveSettings()
     auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
     try
     {
-      project_->save_as(fname.toStdString());
+      project_->save(fname.toStdString());
     }
     catch (...)
     {
@@ -204,8 +204,12 @@ void ProjectForm::update_plots()
 
   CustomTimer guiside(true);
 
-  QString name = QString::fromStdString(project_->identity());
-  if (name != "New project")
+  QString name = project_identity_;
+  if (name.isEmpty())
+  {
+    name = "New project";
+  }
+  else
   {
     QStringList slist = name.split("/");
     if (!slist.empty())
@@ -233,14 +237,15 @@ void ProjectForm::update_plots()
 
 void ProjectForm::projectSave()
 {
-  if (project_->changed() && (project_->identity() != "New project"))
+  if (!project_identity_.isEmpty())
   {
     int reply = QMessageBox::warning(this, "Save?",
-                                     "Save changes to existing project: " + QString::fromStdString(project_->identity()),
+                                     "Save changes to existing project: "
+                                     + project_identity_,
                                      QMessageBox::Yes|QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
-      project_->save();
+      project_->save(project_identity_.toStdString());
       update_plots();
     }
   } else
@@ -255,8 +260,8 @@ void ProjectForm::projectSaveAs()
                                           data_directory_, formats);
   if (validateFile(this, fileName, true))
   {
-    INFO << "Writing project to " << fileName.toStdString();
-    project_->save_as(fileName.toStdString());
+    project_->save(fileName.toStdString());
+    project_identity_ = fileName;
     update_plots();
   }
 
@@ -370,6 +375,8 @@ void ProjectForm::projectOpen()
   project_->open(fileName.toStdString());
 
   newProject();
+
+  project_identity_ = fileName;
   project_->activate();
 
   emit toggleIO(true);

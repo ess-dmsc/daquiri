@@ -344,7 +344,7 @@ void ConsumerTemplatesForm::save_default()
   auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
   try
   {
-    project->save_as(fname.toStdString());
+    project->save(fname.toStdString());
   }
   catch (...)
   {

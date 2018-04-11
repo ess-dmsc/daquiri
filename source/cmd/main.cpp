@@ -70,8 +70,8 @@ int main(int argc, char** argv)
   DBG << "======testing file ops======";
   DBG << "============================";
 
-  project->save_split("./test_split");
-  project->save_as("./results.h5");
+  project->save_split("./results_split");
+  project->save("./results.h5");
   ProjectPtr project2 = ProjectPtr(new Project());
   project2->open("./results.h5");
 

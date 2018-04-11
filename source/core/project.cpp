@@ -12,18 +12,10 @@ Project::Project(const Project &other)
 {
   ready_ = true;
   changed_ = true;
-  identity_ = other.identity_;
   consumers_ = other.consumers_;
   spills_ = other.spills_;
   for (auto consumer : other.consumers_)
     consumers_.add_a(ConsumerFactory::singleton().create_copy(consumer));
-  DBG << "<Project> deep copy performed";
-}
-
-std::string Project::identity() const
-{
-  UNIQUE_LOCK_EVENTUALLY
-  return identity_;
 }
 
 std::list<Spill> Project::spills() const
@@ -35,11 +27,11 @@ std::list<Spill> Project::spills() const
 void Project::clear()
 {
   UNIQUE_LOCK_EVENTUALLY
-  clear_helper();
+  _clear();
   cond_.notify_all();
 }
 
-void Project::clear_helper()
+void Project::_clear()
 {
   //private, no lock needed
   if (!consumers_.empty()
@@ -145,30 +137,18 @@ void Project::down(size_t i)
   // cond_.notify_one();
 }
 
-std::vector<std::string> Project::types() const
-{
-  UNIQUE_LOCK_EVENTUALLY
-  std::set<std::string> my_types;
-  for (auto &q: consumers_)
-    my_types.insert(q->type());
-  std::vector<std::string> output(my_types.begin(), my_types.end());
-  return output;
-}
-
 ConsumerPtr Project::get_consumer(size_t idx)
 {
   UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as consumer implemented as thread-safe
   if (idx < consumers_.size())
     return consumers_.get(idx);
   else
     return nullptr;
 }
 
-Container<ConsumerPtr> Project::get_consumers(int32_t dimensions)
+Container<ConsumerPtr> Project::get_consumers(int32_t dimensions) const
 {
   UNIQUE_LOCK_EVENTUALLY
-  //threadsafe so long as consumer implemented as thread-safe
 
   if (dimensions == -1)
     return consumers_;
@@ -180,8 +160,6 @@ Container<ConsumerPtr> Project::get_consumers(int32_t dimensions)
   return ret;
 }
 
-//client should activate replot after loading all files, as loading multiple
-// consumer might create a long queue of plot update signals
 size_t Project::add_consumer(ConsumerPtr consumer)
 {
   if (!consumer)
@@ -244,23 +222,17 @@ void Project::add_spill(SpillPtr one_spill)
   cond_.notify_all();
 }
 
-void Project::save()
-{
-  UNIQUE_LOCK_EVENTUALLY
-
-  if (/*changed_ && */(identity_ != "New project"))
-    save_as(identity_);
-}
-
-void Project::save_as(std::string file_name)
+void Project::save(std::string file_name)
 {
   try
   {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
-    auto group = hdf5::require_group(f, "project");
+    auto group = f.create_group("project");
 
     group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
+
+    UNIQUE_LOCK_EVENTUALLY
 
 //  if (!spills_.empty()) {
 //    auto sg = hdf5::require_group(group, "spills");
@@ -280,12 +252,12 @@ void Project::save_as(std::string file_name)
 
     if (!consumers_.empty())
     {
-      auto sg = hdf5::require_group(group, "consumers");
+      auto sg = group.create_group("consumers");
 
       int i = 0;
       for (auto &q : consumers_)
       {
-        auto ssg = hdf5::require_group(sg, vector_idx_minlen(i++, consumers_.size() - 1));
+        auto ssg = sg.create_group(vector_idx_minlen(i++, consumers_.size() - 1));
         q->save(ssg);
       }
     }
@@ -296,31 +268,30 @@ void Project::save_as(std::string file_name)
     for (auto &q : consumers_)
       q->reset_changed();
 
-    unique_lock lock(mutex_);
-    identity_ = file_name;
     cond_.notify_all();
-
   }
-  catch (std::exception &e)
+  catch (...)
   {
-    ERR << "<Project> Failed to write '"
-        << file_name << "'\n"
-        << hdf5::error::print_nested(e);
+    std::stringstream ss;
+    ss << "DAQuiri::Project failed to save file '" << file_name << "'";
+    std::throw_with_nested(std::runtime_error(ss.str()));
   }
 }
 
 void Project::open(std::string file_name, bool with_consumers, bool with_full_consumers)
 {
+
   if (!hdf5::file::is_hdf5_file(file_name))
     return;
-//  try
-//  {
+  try
+  {
     auto file = hdf5::file::open(file_name, hdf5::file::AccessFlags::READONLY);
     auto f = file.root();
-    auto group = hdf5::node::Group(f["project"]);
+    auto group = f.get_group("project");
 
-    UNIQUE_LOCK_EVENTUALLY
-    clear_helper();
+  UNIQUE_LOCK_EVENTUALLY
+
+  _clear();
 
 //  if (hdf5::has_group(group, "spills"))
 //  {
@@ -341,8 +312,8 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
     if (!with_consumers)
       return;
 
-    if (hdf5::has_group(group, "consumers"))
-      for (auto n : hdf5::node::Group(group["consumers"]).nodes)
+    if (group.has_group("consumers"))
+      for (auto n : group.get_group("consumers").nodes)
       {
         if (n.type() != hdf5::node::Type::GROUP)
           continue;
@@ -358,20 +329,20 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
     changed_ = false;
     ready_ = true;
 
-    identity_ = file_name;
     cond_.notify_all();
-//  }
-//  catch (std::exception &e)
-//  {
-//    ERR << "<Project> Failed to read '"
-//        << file_name << "'\n"
-//        << hdf5::error::print_nested(e);
-//    ERR << "<Project> Failed to read h5 " << file_name;
-//  }
+  }
+  catch (...)
+  {
+    std::stringstream ss;
+    ss << "DAQuiri::Project failed to open file '" << file_name << "'";
+    std::throw_with_nested(std::runtime_error(ss.str()));
+  }
 }
 
-void Project::save_metadata(std::string file_name)
+void Project::_save_metadata(std::string file_name)
 {
+  //private, no lock needed
+
   json proj_json;
   proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
 
@@ -392,7 +363,9 @@ void Project::save_metadata(std::string file_name)
 
 void Project::save_split(std::string base_name)
 {
-  save_metadata(base_name + "_metadata.json");
+  UNIQUE_LOCK_EVENTUALLY
+
+  _save_metadata(base_name + "_metadata.json");
   size_t i=0;
   for (auto &q : consumers_)
   {
@@ -405,12 +378,13 @@ void Project::save_split(std::string base_name)
 
 std::ostream &operator<<(std::ostream &stream, const Project &project)
 {
-  stream << "Project \"" << project.identity_ << "\"\n";
-  stream << "        " << (project.changed_ ? "CHANGED" : "NOT-CHANGED");
-  stream << " " << (project.ready_ ? "READY" : " NOT-READY");
-  for (const auto &s : project.spills_)
+  stream << "---===DAQuiri Project===---\n";
+  stream << "        " << (project.changed() ? "CHANGED" : "NOT-CHANGED");
+  stream << " " << (project.has_data() ? "DATA" : " NO-DATA");
+//  stream << " " << (project.ready_ ? "READY" : " NOT-READY");
+  for (const auto &s : project.spills())
     stream << s.to_string() << "\n";
-  for (const auto &s : project.consumers_)
+  for (const auto &s : project.get_consumers())
     stream << "Consumer " << s->debug("", false) << "\n";
   return stream;
 }

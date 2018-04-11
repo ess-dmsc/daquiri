@@ -72,9 +72,10 @@ class ProjectForm : public QWidget
     std::vector<DAQuiri::Detector> &current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
 
+    QString project_identity_;
     QString data_directory_;    //data directory
 
-    ThreadPlotSignal                plot_thread_;
+    ThreadPlotSignal plot_thread_;
 
     QMenu  menuLoad;
     QMenu  menuSave;
