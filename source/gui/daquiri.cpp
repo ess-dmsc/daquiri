@@ -190,7 +190,6 @@ void daquiri::update_settings(Setting sets,
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::current_profile_name();
 
-//  current_dets_ = channels;
   toggleIO(true);
 
   if ((status & ProducerStatus::can_run) &&
@@ -303,9 +302,7 @@ void daquiri::open_new_proj()
 
 void daquiri::open_project(ProjectPtr proj, bool start)
 {
-  ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_,
-                                              current_dets_,
-                                              proj, this);
+  ProjectForm *newSpectraForm = new ProjectForm(runner_thread_, detectors_, proj, Profiles::current_profile_dir(), this);
   connect(newSpectraForm, SIGNAL(requestClose(QWidget*)),
           this, SLOT(close_tab_widget(QWidget*)));
 

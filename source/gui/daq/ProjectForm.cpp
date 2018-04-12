@@ -4,30 +4,27 @@
 #include "ConsumerTemplatesForm.h"
 #include "custom_logger.h"
 #include "custom_timer.h"
-//#include "form_daq_settings.h"
-//#include "qt_util.h"
 #include <QSettings>
-#include <boost/filesystem.hpp>
 #include <QMessageBox>
-#include "json_file.h"
 
 #include <QCloseEvent>
 
-#include "Profiles.h"
 #include "QFileExtensions.h"
 
 using namespace DAQuiri;
 
-ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
-                       std::vector<Detector>& current_dets,
-                       ProjectPtr proj, QWidget *parent)
+ProjectForm::ProjectForm(ThreadRunner &thread,
+                         Container<Detector>& detectors,
+                         ProjectPtr proj,
+                         QString profile_dir,
+                         QWidget *parent)
   : QWidget(parent)
   , ui(new Ui::ProjectForm)
   , runner_thread_(thread)
   , interruptor_(false)
   , project_(proj)
+  , profile_dir_(profile_dir)
   , detectors_(detectors)
-  , current_dets_(current_dets)
 {
   ui->setupUi(this);
 
@@ -65,6 +62,11 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
 ProjectForm::~ProjectForm()
 {
 //  delete ui;
+}
+
+QString ProjectForm::profile() const
+{
+  return profile_dir_;
 }
 
 void ProjectForm::closeEvent(QCloseEvent *event)
@@ -117,8 +119,6 @@ void ProjectForm::loadSettings()
   settings.beginGroup("Program");
   data_directory_ = settings.value("save_directory", QDir::currentPath()).toString();
   settings.endGroup();
-
-  profile_dir_ = Profiles::current_profile_dir();
 
   if (!profile_dir_.isEmpty())
   {
