@@ -4,7 +4,7 @@
 #include <list>
 #include <vector>
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 using namespace nlohmann;
 
 #define TT template<typename T>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QString>
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 namespace Profiles
 {
