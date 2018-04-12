@@ -3,13 +3,11 @@
 #include "ConsumerDialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
-#include<QSettings>
-#include <project.h>
-#include "json_file.h"
+#include <QSettings>
+#include "project.h"
 
 #include "QFileExtensions.h"
 #include "consumer_factory.h"
-#include "Profiles.h"
 
 using namespace DAQuiri;
 
@@ -103,13 +101,16 @@ Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
 
 
 ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr &project,
-                                               std::vector<Detector> current_dets, StreamManifest stream_manifest,
-                                               QString savedir, QWidget *parent)
+                                             std::vector<Detector> current_dets,
+                                             StreamManifest stream_manifest,
+                                             QString data_dir, QString profile_dir,
+                                             QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ConsumerTemplatesForm)
-    , project_(project)
+  , project_(project)
   , selection_model_(&table_model_)
-  , root_dir_(savedir)
+  , data_dir_(data_dir)
+  , profile_dir_(profile_dir)
   , current_dets_(current_dets)
   , stream_manifest_(stream_manifest)
 {
@@ -134,6 +135,9 @@ ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr &project,
   table_model_.update(project_);
   ui->spectraSetupView->resizeColumnsToContents();
   ui->spectraSetupView->resizeRowsToContents();
+
+  ui->pushSetDefault->setVisible(!profile_dir.isEmpty());
+  ui->pushUseDefault->setVisible(!profile_dir.isEmpty());
 
   loadSettings();
 }
@@ -176,7 +180,7 @@ void ConsumerTemplatesForm::toggle_push()
     ui->pushEdit->setEnabled(false);
     ui->pushDelete->setEnabled(false);
     ui->pushUp->setEnabled(false);
-    ui->pushDown->setEnabled(false);  
+    ui->pushDown->setEnabled(false);
     ui->pushClone->setEnabled(false);
   } else {
     ui->pushDelete->setEnabled(true);
@@ -202,20 +206,32 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
   QString fileName = QFileDialog::getOpenFileName(this, "Load template spectra",
-                                                  root_dir_, "Template set (*.tem)");
-  if (validateFile(this, fileName, false))
+                                                  data_dir_, "Template set (*.tem)");
+  if (!validateFile(this, fileName, false))
+    return;
+
+  try
   {
-    INFO << "Reading templates from file " << fileName.toStdString();
-    for (auto p : from_json_file(fileName.toStdString()))
-      project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(ConsumerMetadata(p)));
-
-    selection_model_.reset();
-    table_model_.update(project_);
-    toggle_push();
-
-    ui->spectraSetupView->horizontalHeader()->setStretchLastSection(true);
-    ui->spectraSetupView->resizeColumnsToContents();
+    ProjectPtr project2 = ProjectPtr(new Project());
+    project2->open(fileName.toStdString());
+    for (const auto &c : project2->get_consumers())
+    {
+      auto pr = c->metadata().prototype();
+      project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(pr));
+    }
   }
+  catch (...)
+  {
+    DBG << "Could not load default prototypes from " << fileName.toStdString();
+  }
+
+  selection_model_.reset();
+  table_model_.update(project_);
+  toggle_push();
+
+  ui->spectraSetupView->horizontalHeader()->setStretchLastSection(true);
+  ui->spectraSetupView->resizeColumnsToContents();
+
 }
 
 void ConsumerTemplatesForm::on_pushNew_clicked()
@@ -260,7 +276,8 @@ void ConsumerTemplatesForm::on_pushClone_clicked()
     return;
   int i = ixl.front().row();
 
-  project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(project_->get_consumer(i)->metadata().prototype()));
+  auto pr = project_->get_consumer(i)->metadata().prototype();
+  project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(pr));
   table_model_.update(project_);
   toggle_push();
 }
@@ -312,7 +329,7 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
     return;
   }
 
-  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+  auto fname = profile_dir_ + "/default_consumers.daq";
   try
   {
     project_->open(fname.toStdString());
@@ -336,12 +353,12 @@ void ConsumerTemplatesForm::save_default()
   {
     return;
   }
-  
+
   ProjectPtr project = ProjectPtr(new Project());
   for (auto cons : project_->get_consumers())
     project->add_consumer(ConsumerFactory::singleton().create_from_prototype(cons->metadata().prototype()));
 
-  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+  auto fname = profile_dir_ + "/default_consumers.daq";
   try
   {
     project->save(fname.toStdString());
@@ -390,7 +407,7 @@ void ConsumerTemplatesForm::on_pushDown_clicked()
 
 void ConsumerTemplatesForm::on_buttonBox_accepted()
 {
-  if (ui->checkAutosaveTemplates->isChecked())
+  if (ui->checkAutosaveTemplates->isChecked() && !profile_dir_.isEmpty())
   {
     save_default();
   }

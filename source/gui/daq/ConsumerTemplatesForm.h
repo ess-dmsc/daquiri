@@ -39,7 +39,7 @@ class ConsumerTemplatesForm : public QDialog
     explicit ConsumerTemplatesForm(DAQuiri::ProjectPtr& project,
                                    std::vector<DAQuiri::Detector> current_dets,
                                    DAQuiri::StreamManifest stream_manifest,
-                                   QString savedir, QWidget* parent = 0);
+                                   QString data_dir, QString profile_dir, QWidget* parent = 0);
     ~ConsumerTemplatesForm();
 
   private:
@@ -51,7 +51,8 @@ class ConsumerTemplatesForm : public QDialog
     ConsumerTemplatesTableModel table_model_;
     QItemSelectionModel selection_model_;
 
-    QString root_dir_;
+    QString data_dir_;
+    QString profile_dir_;
     std::vector<DAQuiri::Detector> current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
 

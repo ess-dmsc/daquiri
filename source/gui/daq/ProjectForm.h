@@ -73,7 +73,8 @@ class ProjectForm : public QWidget
     DAQuiri::StreamManifest stream_manifest_;
 
     QString project_identity_;
-    QString data_directory_;    //data directory
+    QString profile_dir_;
+    QString data_directory_;
 
     ThreadPlotSignal plot_thread_;
 

@@ -59,6 +59,7 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
   plot_thread_.monitor_source(project_);
 
   loadSettings();
+  update_plots();
 }
 
 ProjectForm::~ProjectForm()
@@ -117,15 +118,19 @@ void ProjectForm::loadSettings()
   data_directory_ = settings.value("save_directory", QDir::currentPath()).toString();
   settings.endGroup();
 
+  profile_dir_ = Profiles::current_profile_dir();
 
-  auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
-  try
+  if (!profile_dir_.isEmpty())
   {
-    project_->open(fname.toStdString());
-  }
-  catch (...)
-  {
-    DBG << "Could not load default prototypes from " << fname.toStdString();
+    auto fname = profile_dir_ + "/default_consumers.daq";
+    try
+    {
+      project_->open(fname.toStdString());
+    }
+    catch (...)
+    {
+      DBG << "Could not load default prototypes from " << fname.toStdString();
+    }
   }
 
   settings.beginGroup("Daq");
@@ -153,10 +158,10 @@ void ProjectForm::saveSettings()
   settings.endGroup();
 
   settings.beginGroup("DAQ_behavior");
-  if (settings.value("autosave_daq", true).toBool())
+  if (settings.value("autosave_daq", true).toBool() && !profile_dir_.isEmpty())
   {
     project_->reset();
-    auto fname = Profiles::current_profile_dir() + "/default_consumers.daq";
+    auto fname = profile_dir_ + "/default_consumers.daq";
     try
     {
       project_->save(fname.toStdString());
@@ -172,7 +177,7 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
 {
   stream_manifest_ = manifest;
   bool online = (status & ProducerStatus::can_run);
-  bool nonempty = !project_->empty();
+  bool has_data = project_->has_data();
 
   ui->pushStart->setEnabled(enable && online && !my_run_);
 
@@ -180,11 +185,11 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
   ui->toggleIndefiniteRun->setEnabled(enable && online);
 
   ui->toolOpen->setEnabled(enable && !my_run_);
-  ui->toolSave->setEnabled(enable && nonempty && !my_run_);
-  ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
+  ui->toolSave->setEnabled(enable && has_data && !my_run_);
+  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
   ui->projectView->set_manifest(manifest);
 
-  ui->pushEditSpectra->setVisible(enable && !my_run_);
+  ui->pushEditSpectra->setEnabled(enable && !my_run_);
 
   if (close_me_)
     emit requestClose(this);
@@ -290,7 +295,8 @@ void ProjectForm::on_pushEditSpectra_clicked()
       new ConsumerTemplatesForm(project_,
                                 current_dets_,
                                 stream_manifest_,
-                                Profiles::current_profile_dir(),
+                                data_directory_,
+                                profile_dir_,
                                 this);
   newDialog->exec();
   ui->projectView->setSpectra(project_);
@@ -301,13 +307,29 @@ void ProjectForm::on_pushStart_clicked()
 {
   if (project_->has_data())
   {
-    int reply = QMessageBox::warning(this, "Continue?",
-                                     "Non-empty spectra in project. Acquire and append to existing data?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
-    if (reply != QMessageBox::Yes)
-      return;
-    else
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText("Project has data. Append, restart, or abort?");
+    QPushButton *appendButton = msgBox.addButton(tr("Append"), QMessageBox::ActionRole);
+    QPushButton *restartButton = msgBox.addButton(tr("Restart"), QMessageBox::ActionRole);
+    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == restartButton)
+    {
+      project_->reset();
       start_DAQ();
+    }
+    else if (msgBox.clickedButton() == appendButton)
+    {
+      start_DAQ();
+    }
+    else if (msgBox.clickedButton() == abortButton)
+    {
+      return;
+    }
+
   }
   else
   {
@@ -319,7 +341,8 @@ void ProjectForm::on_pushStart_clicked()
           new ConsumerTemplatesForm(project_,
                                     current_dets_,
                                     stream_manifest_,
-                                    Profiles::current_profile_dir(),
+                                    data_directory_,
+                                    profile_dir_,
                                     this);
       connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
       newDialog->exec();
