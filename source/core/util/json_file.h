@@ -1,6 +1,6 @@
 #pragma once
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
 
 inline nlohmann::json from_json_file(std::string fname)

@@ -6,7 +6,7 @@
 #include <list>
 #include "precise_float.h"
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 using namespace nlohmann;
 
 #define TT template<typename T>

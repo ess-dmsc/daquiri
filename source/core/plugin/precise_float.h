@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 using namespace nlohmann;
 
 //#define PF_DOUBLE 1
