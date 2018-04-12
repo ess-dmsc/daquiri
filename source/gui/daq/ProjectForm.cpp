@@ -13,18 +13,18 @@
 
 using namespace DAQuiri;
 
-ProjectForm::ProjectForm(ThreadRunner &thread,
+ProjectForm::ProjectForm(ThreadRunner& thread,
                          Container<Detector>& detectors,
                          ProjectPtr proj,
                          QString profile_dir,
-                         QWidget *parent)
-  : QWidget(parent)
-  , ui(new Ui::ProjectForm)
-  , runner_thread_(thread)
-  , interruptor_(false)
-  , project_(proj)
-  , profile_dir_(profile_dir)
-  , detectors_(detectors)
+                         QWidget* parent)
+    : QWidget(parent),
+      ui(new Ui::ProjectForm),
+      runner_thread_(thread),
+      interruptor_(false),
+      project_(proj),
+      detectors_(detectors),
+      profile_dir_(profile_dir)
 {
   ui->setupUi(this);
 
@@ -46,7 +46,10 @@ ProjectForm::ProjectForm(ThreadRunner &thread,
 
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save.png"), "Save project", this, SLOT(projectSave()));
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save_as.png"), "Save project as...", this, SLOT(projectSaveAs()));
-  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"), "Save as json + csv", this, SLOT(projectSaveSplit()));
+  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"),
+                     "Save as json + csv",
+                     this,
+                     SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
 
   this->setWindowTitle("New project");
@@ -56,6 +59,8 @@ ProjectForm::ProjectForm(ThreadRunner &thread,
   plot_thread_.monitor_source(project_);
 
   loadSettings();
+
+  ui->projectView->setSpectra(project_);
   update_plots();
 }
 
@@ -69,13 +74,13 @@ QString ProjectForm::profile() const
   return profile_dir_;
 }
 
-void ProjectForm::closeEvent(QCloseEvent *event)
+void ProjectForm::closeEvent(QCloseEvent* event)
 {
   if (my_run_ && runner_thread_.running())
   {
     int reply = QMessageBox::warning(this, "Ongoing data acquisition",
                                      "Terminate?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
       close_me_ = true;
@@ -85,7 +90,8 @@ void ProjectForm::closeEvent(QCloseEvent *event)
 //      runner_thread_.wait();
 //      emit toggleIO(true);
       return;
-    } else {
+    } else
+    {
       event->ignore();
       return;
     }
@@ -99,7 +105,7 @@ void ProjectForm::closeEvent(QCloseEvent *event)
   {
     int reply = QMessageBox::warning(this, "Project contents changed",
                                      "Discard?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply != QMessageBox::Yes)
     {
       event->ignore();
@@ -178,21 +184,23 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
   stream_manifest_ = manifest;
   bool online = (status & ProducerStatus::can_run);
   bool has_data = project_->has_data();
+  bool empty = project_->empty();
 
-  ui->pushStart->setEnabled(enable && online && !my_run_);
+  ui->pushStart->setEnabled(enable && online && !my_run_ && !empty);
 
   ui->timeDuration->setEnabled(enable && online && !ui->toggleIndefiniteRun->isChecked());
   ui->toggleIndefiniteRun->setEnabled(enable && online);
 
   ui->toolOpen->setEnabled(enable && !my_run_);
   ui->toolSave->setEnabled(enable && has_data && !my_run_);
-  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
+  ui->pushDetails->setVisible(false);
+//  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
   ui->projectView->set_manifest(manifest);
 
   ui->pushEditSpectra->setEnabled(enable && !my_run_);
 
   if (close_me_)
-    emit requestClose(this);
+      emit requestClose(this);
 }
 
 void ProjectForm::clearGraphs() //rename this
@@ -213,8 +221,7 @@ void ProjectForm::update_plots()
   if (name.isEmpty())
   {
     name = "New project";
-  }
-  else
+  } else
   {
     QStringList slist = name.split("/");
     if (!slist.empty())
@@ -239,15 +246,14 @@ void ProjectForm::update_plots()
 //  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
 }
 
-
 void ProjectForm::projectSave()
 {
   if (!project_identity_.isEmpty())
   {
     int reply = QMessageBox::warning(this, "Save?",
                                      "Save changes to existing project: "
-                                     + project_identity_,
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                         + project_identity_,
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
       project_->save(project_identity_.toStdString());
@@ -279,7 +285,7 @@ void ProjectForm::projectSaveSplit()
 
   QString fileName = CustomSaveFileDialog(this, "Save split",
                                           data_directory_, formats);
-  if (validateFile(this, fileName+ "_metadata.json", true))
+  if (validateFile(this, fileName + "_metadata.json", true))
   {
     INFO << "Writing project to " << fileName.toStdString();
     project_->save_split(fileName.toStdString());
@@ -305,51 +311,33 @@ void ProjectForm::on_pushEditSpectra_clicked()
 
 void ProjectForm::on_pushStart_clicked()
 {
-  if (project_->has_data())
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  auto do_what = settings.value("on_restart", "ask").toString();
+
+  if (project_->has_data() && (do_what == "ask"))
   {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText("Project has data. Append, restart, or abort?");
-    QPushButton *appendButton = msgBox.addButton(tr("Append"), QMessageBox::ActionRole);
-    QPushButton *restartButton = msgBox.addButton(tr("Restart"), QMessageBox::ActionRole);
-    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+    QPushButton* appendButton = msgBox.addButton(tr("Append"), QMessageBox::ActionRole);
+    QPushButton* restartButton = msgBox.addButton(tr("Restart"), QMessageBox::ActionRole);
+    QPushButton* abortButton = msgBox.addButton(QMessageBox::Abort);
 
     msgBox.exec();
 
     if (msgBox.clickedButton() == restartButton)
-    {
-      project_->reset();
-      start_DAQ();
-    }
+      do_what = "restart";
     else if (msgBox.clickedButton() == appendButton)
-    {
-      start_DAQ();
-    }
+      do_what = "append";
     else if (msgBox.clickedButton() == abortButton)
-    {
       return;
-    }
+  }
 
-  }
-  else
-  {
-    QSettings settings;
-    settings.beginGroup("DAQ_behavior");
-    if (settings.value("confirm_templates", true).toBool())
-    {
-      ConsumerTemplatesForm* newDialog =
-          new ConsumerTemplatesForm(project_,
-                                    current_dets_,
-                                    stream_manifest_,
-                                    data_directory_,
-                                    profile_dir_,
-                                    this);
-      connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
-      newDialog->exec();
-    }
-    else
-      start_DAQ();
-  }
+  if (do_what == "restart")
+    project_->reset();
+
+  start_DAQ();
 }
 
 void ProjectForm::start_DAQ()
@@ -368,7 +356,6 @@ void ProjectForm::start_DAQ()
   runner_thread_.do_run(project_, interruptor_, duration);
 }
 
-
 void ProjectForm::projectOpen()
 {
   QString formats = "daquiri project file (*.daq)";
@@ -381,10 +368,11 @@ void ProjectForm::projectOpen()
   data_directory_ = path_of_file(fileName);
 
   //save first?
-  if (project_->has_data()) {
+  if (project_->has_data())
+  {
     int reply = QMessageBox::warning(this, "Clear existing?",
                                      "Spectra already open. Clear existing before opening?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
       project_->clear();
     else
@@ -419,7 +407,8 @@ void ProjectForm::on_pushStop_clicked()
 
 void ProjectForm::run_completed()
 {
-  if (my_run_) {
+  if (my_run_)
+  {
     //INFO << "ProjectForm received signal for run completed";
     ui->pushStop->setEnabled(false);
     my_run_ = false;
@@ -453,7 +442,7 @@ void ProjectForm::on_pushForceRefresh_clicked()
 
 void ProjectForm::on_toggleIndefiniteRun_clicked()
 {
-   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
+  ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 }
 
 void ProjectForm::on_doubleSpinMinPause_editingFinished()

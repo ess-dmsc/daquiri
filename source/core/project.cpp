@@ -330,7 +330,10 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
         if (!consumer)
           WARN << "<Project> Could not parse consumer";
         else
+        {
           _add_consumer(consumer);
+          consumer->reset_changed();
+        }
       }
 
 

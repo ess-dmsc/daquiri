@@ -99,7 +99,8 @@ void ProjectView::enforce_item(SelectorItem item)
   ConsumerPtr consumer = project_->get_consumer(id);
   if (!consumer)
     return;
-  consumer->set_attribute(Setting::boolean("visible", item.visible));
+  if (consumer->metadata().get_attribute("visible").get_bool() != item.visible)
+    consumer->set_attribute(Setting::boolean("visible", item.visible));
   if (consumers_.count(id) && !item.visible)
   {
     consumers_[id]->parentWidget()->close();

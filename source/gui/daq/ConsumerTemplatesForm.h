@@ -42,6 +42,9 @@ class ConsumerTemplatesForm : public QDialog
                                    QString data_dir, QString profile_dir, QWidget* parent = 0);
     ~ConsumerTemplatesForm();
 
+  protected:
+    void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
+
   private:
     Ui::ConsumerTemplatesForm* ui;
 
@@ -73,7 +76,6 @@ class ConsumerTemplatesForm : public QDialog
     void on_pushUp_clicked();
     void on_pushDown_clicked();
     void on_pushClone_clicked();
-    void on_buttonBox_accepted();
 
     void loadSettings();
     void saveSettings();

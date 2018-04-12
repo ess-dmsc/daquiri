@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QCloseEvent>
 #include "project.h"
 
 #include "QFileExtensions.h"
@@ -139,6 +140,10 @@ ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr &project,
   ui->pushSetDefault->setVisible(!profile_dir.isEmpty());
   ui->pushUseDefault->setVisible(!profile_dir.isEmpty());
 
+  ui->comboRestart->addItem("Ask every time", QString("ask"));
+  ui->comboRestart->addItem("Append to existing data", QString("append"));
+  ui->comboRestart->addItem("Clear project and restart", QString("restart"));
+
   loadSettings();
 }
 
@@ -147,14 +152,20 @@ ConsumerTemplatesForm::~ConsumerTemplatesForm()
   delete ui;
 }
 
+void ConsumerTemplatesForm::closeEvent(QCloseEvent* event)
+{
+  saveSettings();
+  event->accept();
+}
+
 void ConsumerTemplatesForm::loadSettings()
 {
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
-  ui->checkAutosaveTemplates->setChecked(settings.value("autosave_templates", true).toBool());
   ui->checkAutosaveDAQ->setChecked(settings.value("autosave_daq", true).toBool());
-  ui->checkConfirmTemplates->setChecked(settings.value("confirm_templates", true).toBool());
   ui->checkAskSaveProject->setChecked(settings.value("ask_save_project", true).toBool());
+  auto idx = ui->comboRestart->findData(settings.value("on_restart", "ask"));
+  ui->comboRestart->setCurrentIndex(idx);
   settings.endGroup();
 }
 
@@ -162,10 +173,9 @@ void ConsumerTemplatesForm::saveSettings()
 {
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
-  settings.setValue("autosave_templates", ui->checkAutosaveTemplates->isChecked());
   settings.setValue("autosave_daq", ui->checkAutosaveDAQ->isChecked());
-  settings.setValue("confirm_templates", ui->checkConfirmTemplates->isChecked());
   settings.setValue("ask_save_project", ui->checkAskSaveProject->isChecked());
+  settings.setValue("on_restart", ui->comboRestart->currentData());
   settings.endGroup();
 }
 
@@ -403,13 +413,4 @@ void ConsumerTemplatesForm::on_pushDown_clicked()
                                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   table_model_.update(project_);
   toggle_push();
-}
-
-void ConsumerTemplatesForm::on_buttonBox_accepted()
-{
-  if (ui->checkAutosaveTemplates->isChecked() && !profile_dir_.isEmpty())
-  {
-    save_default();
-  }
-  saveSettings();
 }
