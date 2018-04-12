@@ -40,9 +40,11 @@ class Project
     void up(size_t);
     void down(size_t);
     ConsumerPtr get_consumer(size_t idx);
-    Container<ConsumerPtr> get_consumers(int32_t dimensions = -1) const;
+    Container<ConsumerPtr> get_consumers() const;
 
     // spill access
+    void save_spills(bool);
+    bool save_spills() const;
     std::list<Spill> spills() const;
 
     // File ops
@@ -65,10 +67,13 @@ class Project
 
     // data
     Container<ConsumerPtr> consumers_;
-    std::list<Spill> spills_;
 
-    // saveability
-    mutable bool changed_ {false};
+    // spills
+    std::list<Spill> spills_;
+    bool save_spills_ {false};
+
+    // aggregate info
+    bool changed_ {false};
     bool has_data_ {false};
 
     // helpers

@@ -64,10 +64,6 @@ int main(int argc, char** argv)
   engine.acquire(project, interruptor, duration);
   engine.die();
 
-  DBG << "============================";
-  DBG << "======testing file ops======";
-  DBG << "============================";
-
   project->save_split("./results_split");
   project->save("./results.h5");
 

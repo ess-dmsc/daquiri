@@ -18,6 +18,19 @@ Project::Project(const Project& other)
     consumers_.add_a(ConsumerFactory::singleton().create_copy(consumer));
 }
 
+
+void Project::save_spills(bool ss)
+{
+  UNIQUE_LOCK_EVENTUALLY
+  save_spills_ = ss;
+}
+
+bool Project::save_spills() const
+{
+  UNIQUE_LOCK_EVENTUALLY
+  return save_spills_;
+}
+
 std::list<Spill> Project::spills() const
 {
   UNIQUE_LOCK_EVENTUALLY
@@ -71,11 +84,14 @@ bool Project::wait_ready()
 bool Project::changed() const
 {
   UNIQUE_LOCK_EVENTUALLY
+
+  auto ret = changed_;
+
   for (auto& q : consumers_)
     if (q->changed())
-      changed_ = true;
+      ret = true;
 
-  return changed_;
+  return ret;
 }
 
 void Project::mark_changed()
@@ -141,18 +157,10 @@ ConsumerPtr Project::get_consumer(size_t idx)
     return nullptr;
 }
 
-Container<ConsumerPtr> Project::get_consumers(int32_t dimensions) const
+Container<ConsumerPtr> Project::get_consumers() const
 {
   UNIQUE_LOCK_EVENTUALLY
-
-  if (dimensions == -1)
-    return consumers_;
-
-  Container<ConsumerPtr> ret;
-  for (auto& q: consumers_)
-    if (q->dimensions() == dimensions)
-      ret.add_a(q);
-  return ret;
+  return consumers_;
 }
 
 void Project::add_consumer(ConsumerPtr consumer)
@@ -213,9 +221,12 @@ void Project::add_spill(SpillPtr one_spill)
   for (auto& q: consumers_)
     q->push_spill(*one_spill);
 
-  one_spill->raw.clear();
-  one_spill->events = EventBuffer();
-  spills_.push_back(*one_spill);
+  if (save_spills_)
+  {
+    one_spill->raw.clear();
+    one_spill->events = EventBuffer();
+    spills_.push_back(*one_spill);
+  }
 
   changed_ = true;
   has_data_ = true;
@@ -374,11 +385,14 @@ void Project::save_split(std::string base_name)
 
 std::ostream& operator<<(std::ostream& stream, const Project& project)
 {
+  stream << "---------------------------\n";
+  stream << "---=====================---\n";
   stream << "---===DAQuiri Project===---\n";
-  stream << "      " << (project.changed() ? "CHANGED" : "UNCHANGED");
-  stream << " " << (project.has_data() ? "WITH-DATA" : " NO-DATA");
+  stream << "---===" << (project.changed() ? "====CHANGED====" : "===UNCHANGED===") << "===---\n";
+  stream << "---===" << (project.has_data() ? "===WITH DATA===" : "====NO DATA====") << "===---\n";
+  stream << "---=====================---\n";
+  stream << "---------------------------\n";
 //  stream << " " << (project.ready_ ? "READY" : " NOT-READY");
-  stream << "\n";
   auto spills = project.spills();
   if (spills.size())
   {
