@@ -95,11 +95,9 @@ ConsumerDialog::~ConsumerDialog()
   delete ui;
 }
 
-DAQuiri::ConsumerMetadata ConsumerDialog::product()
+DAQuiri::ConsumerPtr ConsumerDialog::product()
 {
-  if (consumer_)
-    return consumer_->metadata();
-  return ConsumerMetadata();
+  return consumer_;
 }
 
 void ConsumerDialog::det_selection_changed(QItemSelection, QItemSelection)

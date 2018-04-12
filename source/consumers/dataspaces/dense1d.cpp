@@ -8,6 +8,11 @@ Dense1D::Dense1D()
   : Dataspace(1)
 {}
 
+bool Dense1D::empty() const
+{
+  return spectrum_.empty();
+}
+
 void Dense1D::reserve(const Coords& limits)
 {
   if (limits.size() != dimensions())

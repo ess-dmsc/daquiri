@@ -99,7 +99,8 @@ void ProjectView::enforce_item(SelectorItem item)
   ConsumerPtr consumer = project_->get_consumer(id);
   if (!consumer)
     return;
-  consumer->set_attribute(Setting::boolean("visible", item.visible));
+  if (consumer->metadata().get_attribute("visible").get_bool() != item.visible)
+    consumer->set_attribute(Setting::boolean("visible", item.visible));
   if (consumers_.count(id) && !item.visible)
   {
     consumers_[id]->parentWidget()->close();
@@ -186,12 +187,13 @@ void ProjectView::updateUI()
   SelectorItem chosen = selector_->selected();
   QVector<SelectorItem> items;
 
+  size_t i = 0;
   for (auto &q : project_->get_consumers())
   {
-    if (!q.second)
+    if (!q)
       continue;
 
-    ConsumerMetadata md = q.second->metadata();
+    ConsumerMetadata md = q->metadata();
 
     Setting appearance = md.get_attribute("appearance");
     QColor color;
@@ -202,7 +204,7 @@ void ProjectView::updateUI()
 
     SelectorItem consumer_item;
     consumer_item.text = QString::fromStdString(md.get_attribute("name").get_text());
-    consumer_item.data = QVariant::fromValue(q.first);
+    consumer_item.data = QVariant::fromValue(i++);
     consumer_item.color = color;
     consumer_item.visible = md.get_attribute("visible").triggered();
 
@@ -254,7 +256,7 @@ void ProjectView::on_pushFullInfo_clicked()
 
   if (newSpecDia->exec() == QDialog::Accepted)
   {
-    ConsumerMetadata md = newSpecDia->product();
+    ConsumerMetadata md = newSpecDia->product()->metadata();
     consumer->set_detectors(md.detectors);
     consumer->set_attributes(md.attributes());
     updateUI();
@@ -267,8 +269,8 @@ void ProjectView::showAll()
 {
   selector_->show_all();
   for (auto &q : project_->get_consumers())
-    if (q.second)
-      q.second->set_attribute(Setting::boolean("visible", true));
+    if (q)
+      q->set_attribute(Setting::boolean("visible", true));
   updateUI();
   enforce_all();
   update();
@@ -278,8 +280,8 @@ void ProjectView::hideAll()
 {
   selector_->hide_all();
   for (auto &q : project_->get_consumers())
-    if (q.second)
-      q.second->set_attribute(Setting::boolean("visible", false));
+    if (q)
+      q->set_attribute(Setting::boolean("visible", false));
   updateUI();
   enforce_all();
   update();
@@ -288,13 +290,13 @@ void ProjectView::hideAll()
 void ProjectView::randAll()
 {
   for (auto &q : project_->get_consumers())
-    if (q.second)
+    if (q)
     {
-      Setting appearance = q.second->metadata().get_attribute("appearance");
+      Setting appearance = q->metadata().get_attribute("appearance");
       if (appearance.metadata().has_flag("color"))
       {
         appearance.set_text(generateColor().name(QColor::HexArgb).toStdString());
-        q.second->set_attribute(appearance);
+        q->set_attribute(appearance);
       }
     }
   updateUI();

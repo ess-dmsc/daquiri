@@ -160,7 +160,6 @@ bool TOF1DCorrelate::bin_events()
     }
 
     data_->add_one(coords_);
-    total_count_++;
     recent_count_++;
   }
 

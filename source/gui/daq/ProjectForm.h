@@ -15,13 +15,14 @@ class ProjectForm : public QWidget
     Q_OBJECT
 
   public:
-    explicit ProjectForm(ThreadRunner&,
-                         Container<DAQuiri::Detector>&,
-                         std::vector<DAQuiri::Detector>&,
-                         DAQuiri::ProjectPtr,
+    explicit ProjectForm(ThreadRunner &thread,
+                         Container<Detector>& detectors,
+                         ProjectPtr proj,
+                         QString profile_dir,
                          QWidget *parent = 0);
 
     //  void replot();
+    QString profile() const;
 
     ~ProjectForm();
 
@@ -69,13 +70,14 @@ class ProjectForm : public QWidget
     bool close_me_ {false};
 
     Container<DAQuiri::Detector> &detectors_;
-    std::vector<DAQuiri::Detector> &current_dets_;
+    std::vector<DAQuiri::Detector> current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
 
-    QString data_directory_;    //data directory
+    QString project_identity_;
+    QString profile_dir_;
+    QString data_directory_;
 
-    Container<DAQuiri::ConsumerMetadata>  spectra_templates_;
-    ThreadPlotSignal                plot_thread_;
+    ThreadPlotSignal plot_thread_;
 
     QMenu  menuLoad;
     QMenu  menuSave;

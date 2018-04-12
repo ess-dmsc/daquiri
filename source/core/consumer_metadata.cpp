@@ -43,16 +43,22 @@ bool ConsumerMetadata::operator== (const ConsumerMetadata& other) const
 std::string ConsumerMetadata::debug(std::string prepend, bool verbose) const
 {
   std::stringstream ss;
-  ss << type_ << "\n";
+  ss << "METADATA\n";
+  ss << prepend << k_branch_mid_B << "Type: " << type_ << "\n";
 //     << " (dim=" << dimensions_ << ")\n";
   //ss << " " << type_description_;
-  ss << prepend << k_branch_mid_B << "Detectors:\n";
-  for (size_t i=0; i < detectors.size(); ++i)
+  if (detectors.size())
   {
-    if ((i+1) == detectors.size())
-      ss << prepend << k_branch_pre_B << k_branch_end_B << i << ": " << detectors.at(i).debug(prepend + k_branch_pre_B + "  ");
-    else
-      ss << prepend << k_branch_pre_B << k_branch_mid_B << i << ": " << detectors.at(i).debug(prepend + k_branch_pre_B + k_branch_pre_B);
+    ss << prepend << k_branch_mid_B << "Detectors:\n";
+    for (size_t i = 0; i < detectors.size(); ++i)
+    {
+      if ((i + 1) == detectors.size())
+        ss << prepend << k_branch_pre_B << k_branch_end_B << i << ": "
+           << detectors.at(i).debug(prepend + k_branch_pre_B + "  ");
+      else
+        ss << prepend << k_branch_pre_B << k_branch_mid_B << i << ": "
+           << detectors.at(i).debug(prepend + k_branch_pre_B + k_branch_pre_B);
+    }
   }
   ss << prepend << k_branch_end_B << attributes_.debug(prepend + "  ", verbose);
   return ss.str();

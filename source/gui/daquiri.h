@@ -30,7 +30,6 @@ class daquiri : public QMainWindow
     LogStreamBuffer   text_buffer_;
 
     Container<DAQuiri::Detector>   detectors_;
-    std::vector<DAQuiri::Detector> current_dets_;
     ThreadRunner                   runner_thread_;
 
     DAQuiri::ProducerStatus engine_status_;

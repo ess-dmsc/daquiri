@@ -12,6 +12,7 @@ class Dense1D : public Dataspace
     Dense1D* clone() const override
     { return new Dense1D(*this); }
 
+    bool empty() const override;
     void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
@@ -25,7 +26,6 @@ class Dense1D : public Dataspace
   protected:
     // data
     std::vector<PreciseFloat> spectrum_;
-    PreciseFloat total_count_ {0};
     size_t maxchan_ {0};
 
     std::string data_debug(const std::string& prepend) const override;

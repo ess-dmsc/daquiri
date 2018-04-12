@@ -10,6 +10,11 @@ DenseMatrix2D::DenseMatrix2D()
   , spectrum_(100,100)
 {}
 
+bool DenseMatrix2D::empty() const
+{
+  return (total_count_ == 0);
+}
+
 void DenseMatrix2D::reserve(const Coords& limits)
 {
   if (limits.size() != dimensions())

@@ -20,7 +20,7 @@ Container<ConsumerMetadata> get_prototypes();
 void define_value(Engine& e, uint16_t num,
                   std::string name, double center, double spread);
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   int duration = 1;
   std::string durstr;
   if (argc > 1)
-    durstr = std::string (argv[1]);
+    durstr = std::string(argv[1]);
   if (is_number(durstr))
     duration = std::stoi(durstr);
   if (duration < 1)
@@ -55,34 +55,44 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  ProjectPtr project = ProjectPtr( new Project() );
+  ProjectPtr project = ProjectPtr(new Project());
 
-  project->set_prototypes(get_prototypes());
+  for (const auto& definition : get_prototypes())
+    project->add_consumer(ConsumerFactory::singleton().create_from_prototype(definition));
 
   Interruptor interruptor(false);
   engine.acquire(project, interruptor, duration);
   engine.die();
 
-  DBG << "\n" << *project;
+  project->save_split("./results_split");
+  project->save("./results.h5");
 
-  DBG << "============================";
-  DBG << "======testing file ops======";
-  DBG << "============================";
-
-  project->save_split("./test_split");
-  project->save_as("./results.h5");
-  ProjectPtr project2 = ProjectPtr( new Project() );
+  ProjectPtr project2 = ProjectPtr(new Project());
   project2->open("./results.h5");
 
-  DBG << "\n" << *project2;
+  std::stringstream ss1, ss2;
+  ss1 << *project;
+  ss2 << *project2;
 
-  return 0;
+  DBG << "\n" << ss1.str();
+
+//  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs1 << ss1.str();
+//
+//  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs2 << ss2.str();
+
+  if (ss1.str() != ss2.str())
+  {
+    DBG << "Saved project not identical to original!";
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }
 
 Setting get_profile()
 {
-  auto profile = Engine::default_settings();
-
   auto settings = ProducerFactory::singleton().default_settings("MockProducer");
   settings.set_text("producer1");
   settings.set(Setting::text("MockProducer/StreamID", "exy"));
@@ -92,8 +102,9 @@ Setting get_profile()
 
   settings.set(Setting::integer("TimeBase/multiplier", 1));
   settings.set(Setting::integer("TimeBase/divider", 3));
-  profile.branches.add(settings);
 
+  auto profile = Engine::default_settings();
+  profile.branches.add(settings);
   return profile;
 }
 
@@ -144,9 +155,6 @@ Container<ConsumerMetadata> get_prototypes()
   tdtype.set_attribute(Setting::integer("time_units", 6));
   prototypes.add(tdtype);
 
-
-
-
   auto itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
   itype.set_attribute(Setting::integer("downsample", 11));
   itype.set_attribute(Setting::text("stream_id", "exy"));
@@ -177,9 +185,6 @@ Container<ConsumerMetadata> get_prototypes()
   tstype.set_attribute(Setting::floating("time_resolution", 25));
   tstype.set_attribute(Setting::integer("time_units", 6));
   prototypes.add(tstype);
-
-
-
 
   auto vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
   vtype.set_attribute(Setting::integer("downsample", 12));

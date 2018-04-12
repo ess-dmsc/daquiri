@@ -19,6 +19,7 @@ class DenseMatrix2D : public Dataspace
     DenseMatrix2D* clone() const override
     { return new DenseMatrix2D(*this); }
 
+    bool empty() const override;
     void reserve(const Coords&) override;
     void clear() override;
     void add(const Entry&) override;
@@ -32,7 +33,6 @@ class DenseMatrix2D : public Dataspace
 
     //the data itself
     data_type_t spectrum_;
-    uint64_t total_count_ {0};
 
     Coords limits_ {0,0};
 

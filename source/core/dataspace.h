@@ -72,12 +72,17 @@ class Dataspace
 
     //retrieve axis-values for given dimension (can be precalculated energies)
     uint16_t dimensions() const;
+    virtual bool empty() const = 0;
     virtual DataAxis axis(uint16_t dimension) const;
     virtual void set_axis(size_t dim, const DataAxis &ax);
 
     std::string debug(std::string prepend = "") const;
 
+    PreciseFloat total_count() const;
+
   protected:
+
+    PreciseFloat total_count_ {0};
 
     virtual std::string data_debug(const std::string &prepend) const;
     virtual void data_load(hdf5::node::Group) = 0;

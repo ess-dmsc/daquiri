@@ -11,6 +11,11 @@ SparseMap3D::SparseMap3D()
   : Dataspace(3)
 {}
 
+bool SparseMap3D::empty() const
+{
+  return spectrum_.empty();
+}
+
 void SparseMap3D::clear()
 {
   total_count_ = 0;
@@ -227,7 +232,6 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
     {
       ss << prepend << "x=" << i << "\n";
       ss << ss2.str();
-      ss << "\n";
     }
   }
 

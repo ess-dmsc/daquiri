@@ -4,30 +4,27 @@
 #include "ConsumerTemplatesForm.h"
 #include "custom_logger.h"
 #include "custom_timer.h"
-//#include "form_daq_settings.h"
-//#include "qt_util.h"
 #include <QSettings>
-#include <boost/filesystem.hpp>
 #include <QMessageBox>
-#include "json_file.h"
 
 #include <QCloseEvent>
 
-#include "Profiles.h"
 #include "QFileExtensions.h"
 
 using namespace DAQuiri;
 
-ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
-                       std::vector<Detector>& current_dets,
-                       ProjectPtr proj, QWidget *parent)
-  : QWidget(parent)
-  , ui(new Ui::ProjectForm)
-  , runner_thread_(thread)
-  , interruptor_(false)
-  , project_(proj)
-  , detectors_(detectors)
-  , current_dets_(current_dets)
+ProjectForm::ProjectForm(ThreadRunner& thread,
+                         Container<Detector>& detectors,
+                         ProjectPtr proj,
+                         QString profile_dir,
+                         QWidget* parent)
+    : QWidget(parent),
+      ui(new Ui::ProjectForm),
+      runner_thread_(thread),
+      interruptor_(false),
+      project_(proj),
+      detectors_(detectors),
+      profile_dir_(profile_dir)
 {
   ui->setupUi(this);
 
@@ -49,16 +46,22 @@ ProjectForm::ProjectForm(ThreadRunner &thread, Container<Detector>& detectors,
 
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save.png"), "Save project", this, SLOT(projectSave()));
   menuSave.addAction(QIcon(":/icons/oxy/16/document_save_as.png"), "Save project as...", this, SLOT(projectSaveAs()));
-  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"), "Save as json + csv", this, SLOT(projectSaveSplit()));
+  menuSave.addAction(QIcon(":/icons/oxy/16/document_save_all.png"),
+                     "Save as json + csv",
+                     this,
+                     SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
 
-  this->setWindowTitle(QString::fromStdString(project_->identity()));
+  this->setWindowTitle("New project");
 
   ui->timeDuration->set_us_enabled(false);
 
   plot_thread_.monitor_source(project_);
 
   loadSettings();
+
+  ui->projectView->setSpectra(project_);
+  update_plots();
 }
 
 ProjectForm::~ProjectForm()
@@ -66,13 +69,18 @@ ProjectForm::~ProjectForm()
 //  delete ui;
 }
 
-void ProjectForm::closeEvent(QCloseEvent *event)
+QString ProjectForm::profile() const
+{
+  return profile_dir_;
+}
+
+void ProjectForm::closeEvent(QCloseEvent* event)
 {
   if (my_run_ && runner_thread_.running())
   {
     int reply = QMessageBox::warning(this, "Ongoing data acquisition",
                                      "Terminate?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
       close_me_ = true;
@@ -82,7 +90,8 @@ void ProjectForm::closeEvent(QCloseEvent *event)
 //      runner_thread_.wait();
 //      emit toggleIO(true);
       return;
-    } else {
+    } else
+    {
       event->ignore();
       return;
     }
@@ -96,7 +105,7 @@ void ProjectForm::closeEvent(QCloseEvent *event)
   {
     int reply = QMessageBox::warning(this, "Project contents changed",
                                      "Discard?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply != QMessageBox::Yes)
     {
       event->ignore();
@@ -117,8 +126,18 @@ void ProjectForm::loadSettings()
   data_directory_ = settings.value("save_directory", QDir::currentPath()).toString();
   settings.endGroup();
 
-  spectra_templates_ =
-      from_json_file(Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
+  if (!profile_dir_.isEmpty())
+  {
+    auto fname = profile_dir_ + "/default_consumers.daq";
+    try
+    {
+      project_->open(fname.toStdString());
+    }
+    catch (...)
+    {
+      DBG << "Could not load default prototypes from " << fname.toStdString();
+    }
+  }
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
@@ -145,14 +164,18 @@ void ProjectForm::saveSettings()
   settings.endGroup();
 
   settings.beginGroup("DAQ_behavior");
-  if (settings.value("autosave_daq", true).toBool()
-      && !project_->empty())
+  if (settings.value("autosave_daq", true).toBool() && !profile_dir_.isEmpty())
   {
-    spectra_templates_.clear();
-    for (auto &q : project_->get_consumers())
-      spectra_templates_.add_a(q.second->metadata().prototype());
-    to_json_file(spectra_templates_,
-                 Profiles::current_profile_dir().toStdString() + "/default_consumers.tem");
+    project_->reset();
+    auto fname = profile_dir_ + "/default_consumers.daq";
+    try
+    {
+      project_->save(fname.toStdString());
+    }
+    catch (...)
+    {
+      DBG << "Could not save default prototypes to " << fname.toStdString();
+    }
   }
 }
 
@@ -160,20 +183,24 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
 {
   stream_manifest_ = manifest;
   bool online = (status & ProducerStatus::can_run);
-  bool nonempty = !project_->empty();
+  bool has_data = project_->has_data();
+  bool empty = project_->empty();
 
-  ui->pushStart->setEnabled(enable && online && !my_run_);
+  ui->pushStart->setEnabled(enable && online && !my_run_ && !empty);
 
   ui->timeDuration->setEnabled(enable && online && !ui->toggleIndefiniteRun->isChecked());
   ui->toggleIndefiniteRun->setEnabled(enable && online);
 
   ui->toolOpen->setEnabled(enable && !my_run_);
-  ui->toolSave->setEnabled(enable && nonempty && !my_run_);
-  ui->pushDetails->setEnabled(enable && nonempty && !my_run_);
+  ui->toolSave->setEnabled(enable && has_data && !my_run_);
+  ui->pushDetails->setVisible(false);
+//  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
   ui->projectView->set_manifest(manifest);
 
+  ui->pushEditSpectra->setEnabled(enable && !my_run_);
+
   if (close_me_)
-    emit requestClose(this);
+      emit requestClose(this);
 }
 
 void ProjectForm::clearGraphs() //rename this
@@ -190,8 +217,11 @@ void ProjectForm::update_plots()
 
   CustomTimer guiside(true);
 
-  QString name = QString::fromStdString(project_->identity());
-  if (name != "New project")
+  QString name = project_identity_;
+  if (name.isEmpty())
+  {
+    name = "New project";
+  } else
   {
     QStringList slist = name.split("/");
     if (!slist.empty())
@@ -209,8 +239,6 @@ void ProjectForm::update_plots()
     emit toggleIO(true);
   }
 
-  ui->pushEditSpectra->setVisible(project_->empty());
-
   if (ui->projectView->isVisible())
     ui->projectView->update_plots();
 
@@ -218,17 +246,17 @@ void ProjectForm::update_plots()
 //  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
 }
 
-
 void ProjectForm::projectSave()
 {
-  if (project_->changed() && (project_->identity() != "New project"))
+  if (!project_identity_.isEmpty())
   {
     int reply = QMessageBox::warning(this, "Save?",
-                                     "Save changes to existing project: " + QString::fromStdString(project_->identity()),
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     "Save changes to existing project: "
+                                         + project_identity_,
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
-      project_->save();
+      project_->save(project_identity_.toStdString());
       update_plots();
     }
   } else
@@ -243,8 +271,8 @@ void ProjectForm::projectSaveAs()
                                           data_directory_, formats);
   if (validateFile(this, fileName, true))
   {
-    INFO << "Writing project to " << fileName.toStdString();
-    project_->save_as(fileName.toStdString());
+    project_->save(fileName.toStdString());
+    project_identity_ = fileName;
     update_plots();
   }
 
@@ -257,7 +285,7 @@ void ProjectForm::projectSaveSplit()
 
   QString fileName = CustomSaveFileDialog(this, "Save split",
                                           data_directory_, formats);
-  if (validateFile(this, fileName+ "_metadata.json", true))
+  if (validateFile(this, fileName + "_metadata.json", true))
   {
     INFO << "Writing project to " << fileName.toStdString();
     project_->save_split(fileName.toStdString());
@@ -270,61 +298,55 @@ void ProjectForm::projectSaveSplit()
 void ProjectForm::on_pushEditSpectra_clicked()
 {
   ConsumerTemplatesForm* newDialog =
-      new ConsumerTemplatesForm(spectra_templates_,
+      new ConsumerTemplatesForm(project_,
                                 current_dets_,
                                 stream_manifest_,
-                                Profiles::current_profile_dir(),
+                                data_directory_,
+                                profile_dir_,
                                 this);
   newDialog->exec();
+  ui->projectView->setSpectra(project_);
+  update_plots();
 }
 
 void ProjectForm::on_pushStart_clicked()
 {
-  if (!project_->empty())
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  auto do_what = settings.value("on_restart", "ask").toString();
+
+  if (project_->has_data() && (do_what == "ask"))
   {
-    int reply = QMessageBox::warning(this, "Continue?",
-                                     "Non-empty spectra in project. Acquire and append to existing data?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
-    if (reply != QMessageBox::Yes)
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText("Project has data. Append, restart, or abort?");
+    QPushButton* appendButton = msgBox.addButton(tr("Append"), QMessageBox::ActionRole);
+    QPushButton* restartButton = msgBox.addButton(tr("Restart"), QMessageBox::ActionRole);
+    QPushButton* abortButton = msgBox.addButton(QMessageBox::Abort);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == restartButton)
+      do_what = "restart";
+    else if (msgBox.clickedButton() == appendButton)
+      do_what = "append";
+    else if (msgBox.clickedButton() == abortButton)
       return;
-    else
-      start_DAQ();
   }
-  else
-  {
-    QSettings settings;
-    settings.beginGroup("DAQ_behavior");
-    if (settings.value("confirm_templates", true).toBool())
-    {
-      ConsumerTemplatesForm* newDialog =
-          new ConsumerTemplatesForm(spectra_templates_,
-                                    current_dets_,
-                                    stream_manifest_,
-                                    Profiles::current_profile_dir(),
-                                    this);
-      connect(newDialog, SIGNAL(accepted()), this, SLOT(start_DAQ()));
-      newDialog->exec();
-    }
-    else
-      start_DAQ();
-  }
+
+  if (do_what == "restart")
+    project_->reset();
+
+  start_DAQ();
 }
 
 void ProjectForm::start_DAQ()
 {
-  if (project_->empty() && spectra_templates_.empty())
+  if (project_->empty())
     return;
 
   emit toggleIO(false);
   ui->pushStop->setEnabled(true);
-
-  if (project_->empty())
-  {
-    clearGraphs();
-    project_->set_prototypes(spectra_templates_);
-    newProject();
-  }
-//  project_->activate();
 
   my_run_ = true;
   ui->projectView->setSpectra(project_);
@@ -333,7 +355,6 @@ void ProjectForm::start_DAQ()
     duration = 0;
   runner_thread_.do_run(project_, interruptor_, duration);
 }
-
 
 void ProjectForm::projectOpen()
 {
@@ -347,10 +368,11 @@ void ProjectForm::projectOpen()
   data_directory_ = path_of_file(fileName);
 
   //save first?
-  if (!project_->empty()) {
+  if (project_->has_data())
+  {
     int reply = QMessageBox::warning(this, "Clear existing?",
                                      "Spectra already open. Clear existing before opening?",
-                                     QMessageBox::Yes|QMessageBox::Cancel);
+                                     QMessageBox::Yes | QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
       project_->clear();
     else
@@ -364,6 +386,8 @@ void ProjectForm::projectOpen()
   project_->open(fileName.toStdString());
 
   newProject();
+
+  project_identity_ = fileName;
   project_->activate();
 
   emit toggleIO(true);
@@ -383,7 +407,8 @@ void ProjectForm::on_pushStop_clicked()
 
 void ProjectForm::run_completed()
 {
-  if (my_run_) {
+  if (my_run_)
+  {
     //INFO << "ProjectForm received signal for run completed";
     ui->pushStop->setEnabled(false);
     my_run_ = false;
@@ -417,7 +442,7 @@ void ProjectForm::on_pushForceRefresh_clicked()
 
 void ProjectForm::on_toggleIndefiniteRun_clicked()
 {
-   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
+  ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 }
 
 void ProjectForm::on_doubleSpinMinPause_editingFinished()

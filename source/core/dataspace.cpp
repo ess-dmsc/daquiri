@@ -204,4 +204,10 @@ std::string Dataspace::data_debug(const std::string&) const
   return std::string();
 }
 
+PreciseFloat Dataspace::total_count() const
+{
+  return total_count_;
+}
+
+
 }

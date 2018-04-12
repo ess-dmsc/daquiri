@@ -124,7 +124,6 @@ void TimeDomain::_push_event(const Event& event)
   {
     while (domain_.size() && (domain_[0] < (nsecs - window_)))
     {
-      total_count_ -= range_[0];
       domain_.erase(domain_.begin());
       range_.erase(range_.begin());
     }
@@ -146,7 +145,6 @@ void TimeDomain::_push_event(const Event& event)
   }
 
   range_[bin]++;
-  total_count_++;
   recent_count_++;
 }
 

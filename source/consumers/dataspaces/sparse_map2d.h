@@ -12,6 +12,7 @@ class SparseMap2D : public Dataspace
     SparseMap2D* clone() const override
     { return new SparseMap2D(*this); }
 
+    bool empty() const override;
     void clear() override;
     void add(const Entry&) override;
     void add_one(const Coords&) override;
@@ -26,7 +27,6 @@ class SparseMap2D : public Dataspace
 
     //the data itself
     SpectrumMap2D spectrum_;
-    PreciseFloat total_count_ {0};
     uint16_t max0_ {0};
     uint16_t max1_ {0};
 

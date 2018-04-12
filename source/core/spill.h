@@ -81,7 +81,7 @@ class Spill
 
   public:
     bool empty();
-    std::string to_string() const;
+    std::string debug(std::string prepend = "") const;
 };
 
 

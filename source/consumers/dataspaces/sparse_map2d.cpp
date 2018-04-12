@@ -9,6 +9,11 @@ SparseMap2D::SparseMap2D()
   : Dataspace(2)
 {}
 
+bool SparseMap2D::empty() const
+{
+  return spectrum_.empty();
+}
+
 void SparseMap2D::clear()
 {
   total_count_ = 0;

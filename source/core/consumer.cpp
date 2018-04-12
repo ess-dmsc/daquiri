@@ -165,7 +165,7 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
 {
   SHARED_LOCK_ST
   std::stringstream ss;
-  ss << prepend << my_type();
+  ss << "COMSUMER";
   if (changed_)
     ss << " (changed)";
   ss << "\n";
