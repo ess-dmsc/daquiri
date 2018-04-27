@@ -3,6 +3,6 @@
 	url = https://github.com/mbasaglia/Qt-Color-Widgets.git
         ignore = dirty
 [submodule "source/gui/qplot"]
-	path = source/gui/qplot
+	path = source/gui/widgets/qplot
 	url = https://github.com/ess-dmsc/qplot.git
         ignore = dirty
