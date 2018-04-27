@@ -5,7 +5,7 @@ file(GLOB ${this_target}_HEADERS *.h util/*.h plugin/*.h calibration/*.h)
 dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
-  ${this_target}
+  ${this_target} STATIC
   ${${this_target}_SOURCES}
   ${${this_target}_HEADERS}
 )

@@ -9,7 +9,7 @@ file(GLOB ${this_target}_HEADERS *.h ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/
 dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
 
 add_library(
-  ${this_target}
+  ${this_target} STATIC
   ${${this_target}_SOURCES}
   ${${this_target}_HEADERS}
 )

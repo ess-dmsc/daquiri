@@ -15,7 +15,7 @@
 #include <QPushButton>
 #include <QColorDialog>
 #include "TimeDurationWidget.h"
-#include "color_selector.hpp"
+#include "QtColorWidgets/color_selector.hpp"
 
 #include <QApplication>
 
