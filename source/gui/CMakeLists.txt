@@ -9,36 +9,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt5 COMPONENTS Widgets PrintSupport REQUIRED)
 
-file(GLOB ${this_target}_resources
-    resources/*.qrc
-    )
-
-file(GLOB ${this_target}_ui
-    *.ui
-    daq/*.ui
-    widgets/*.ui
-    )
-
-file(GLOB ${this_target}_sources
-    *.cpp
-    daq/*.cpp
-    widgets/*.cpp
-    )
-
-file(GLOB ${this_target}_headers
-    *.h
-    daq/*.h
-    widgets/*.h
-    ${PROJECT_BINARY_DIR}/*.h
-    )
-
+file(GLOB ${this_target}_resources resources/*.qrc)
+file(GLOB ${this_target}_ui *.ui daq/*.ui)
+file(GLOB ${this_target}_sources *.cpp daq/*.cpp)
+file(GLOB ${this_target}_headers *.h daq/*.h ${PROJECT_BINARY_DIR}/*.h)
 dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
 #OpenGL for plots
 add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
-add_subdirectory(qplot/source)
-add_subdirectory(widgets/ColorWidgets)
+add_subdirectory(widgets)
 
 add_executable(
     ${this_target}
@@ -59,8 +39,7 @@ target_link_libraries(
     ${PROJECT_NAME}_producers
     ${PROJECT_NAME}_consumers
     ${Boost_LIBRARIES}
-    qplot
-    QtColorWidgets
+    daquiri_widgets
     Qt5::Widgets
     Qt5::PrintSupport
 )
