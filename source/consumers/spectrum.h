@@ -32,9 +32,6 @@ class Spectrum : public Consumer
     int64_t clear_reference_timer_ {0};
     double clear_at_ {0};
 
-    // cached results:
-//    PreciseFloat total_count_ {0};
-
     // instantaneous rate:
     PreciseFloat recent_count_ {0};
     Status recent_start_, recent_end_;

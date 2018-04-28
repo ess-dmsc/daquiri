@@ -1,12 +1,10 @@
 #include "scalar.h"
 #include "h5json.h"
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
 Scalar::Scalar()
-  : Dataspace(0)
-{}
+    : Dataspace(0) {}
 
 bool Scalar::empty() const
 {
@@ -22,38 +20,48 @@ void Scalar::clear()
   total_count_ = 0;
   has_data_ = false;
   data_ = 0.0;
+  max_val_ = 0.0;
+  min_val_ = 0.0;
 }
 
 void Scalar::add(const Entry& e)
 {
   if ((e.first.size() != dimensions()) || !e.second)
     return;
-  const auto& bin = e.first[0];
-  if (bin >= spectrum_.size())
-    spectrum_.resize(bin+1, PreciseFloat(0));
 
-  spectrum_[bin] += e.second;
-  total_count_ += e.second;
-  maxchan_ = std::max(maxchan_, bin);
+  data_ = e.second;
+  total_count_++;
+  if (!has_data_)
+  {
+    max_val_ = data_;
+    min_val_ = data_;
+  }
+  max_val_ = std::max(max_val_, data_);
+  min_val_ = std::min(min_val_, data_);
+  has_data_ = true;
 }
-  
+
 void Scalar::add_one(const Coords& coords)
 {
   if (coords.size() != dimensions())
     return;
-  const auto& bin = coords[0];
-  if (bin >= spectrum_.size())
-    spectrum_.resize(bin+1, PreciseFloat(0));
-  
-  spectrum_[bin]++;
+
+  data_++;
   total_count_++;
-  maxchan_ = std::max(maxchan_, bin);
+  if (!has_data_)
+  {
+    max_val_ = data_;
+    min_val_ = data_;
+  }
+  max_val_ = std::max(max_val_, data_);
+  min_val_ = std::min(min_val_, data_);
+  has_data_ = true;
 }
 
 void Scalar::recalc_axes()
 {
   auto ax = axis(0);
-  ax.expand_domain(maxchan_);
+  ax.expand_domain(max_val_);
   set_axis(0, ax);
 }
 
@@ -61,109 +69,78 @@ PreciseFloat Scalar::get(const Coords& coords) const
 {
   if (coords.size() != dimensions())
     return 0;
-  const auto& bin =  *coords.begin();
-  if (bin < spectrum_.size())
-    return spectrum_.at(bin);
-  return 0;
+  return data_;
 }
 
 EntryList Scalar::range(std::vector<Pair> list) const
 {
-  size_t min {0};
-  size_t max {spectrum_.size() - 1};
-  if (list.size() == dimensions())
-  {
-    min = std::max(list.begin()->first, (long unsigned)(0));
-    max = std::min(list.begin()->second, spectrum_.size() - 1);
-  }
-
   EntryList result(new EntryList_t);
-  if (spectrum_.empty())
-    return result;
-
-  for (size_t i=min; i <= max; ++i)
-    result->push_back({{i}, spectrum_[i]});
-
+  if (has_data_)
+  {
+    result->push_back({{}, min_val_});
+    result->push_back({{}, data_});
+    result->push_back({{}, max_val_});
+  }
   return result;
 }
 
 void Scalar::data_save(hdf5::node::Group g) const
 {
-  if (!spectrum_.size())
+  if (!has_data_)
     return;
 
-  std::vector<double> d(maxchan_ + 1);
-  for (uint32_t i = 0; i <= maxchan_; i++)
-    d[i] = static_cast<double>(spectrum_[i]);
-
-  auto dtype = hdf5::datatype::create<double>();
-  auto dspace = hdf5::dataspace::Simple({d.size()});
-  auto dset = g.create_dataset("counts", dtype, dspace);
-  dset.write(d);
+  g.attributes.create<double>("value").write(double(data_));
+  g.attributes.create<double>("min").write(double(min_val_));
+  g.attributes.create<double>("max").write(double(max_val_));
+  g.attributes.create<double>("total_count").write(double(total_count_));
 }
 
 void Scalar::data_load(hdf5::node::Group g)
 {
-  if (!g.has_dataset("counts"))
+  has_data_ = false;
+  if (!g.attributes.exists("value")
+      || !g.attributes.exists("min")
+      || !g.attributes.exists("max")
+      || !g.attributes.exists("total_count"))
     return;
 
-  auto dset = hdf5::node::Dataset(g["counts"]);
-  auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
-  std::vector<double> rdata(shape[0]);
-  dset.read(rdata);
+  double val, min, max, tot;
+  g.attributes["value"].read(val);
+  g.attributes["min"].read(min);
+  g.attributes["max"].read(max);
+  g.attributes["total_count"].read(tot);
 
-  if (spectrum_.size() < rdata.size())
-  {
-    spectrum_.clear();
-    spectrum_.resize(rdata.size(), PreciseFloat(0));
-  }
-
-  maxchan_ = 0;
-  total_count_ = 0;
-  for (size_t i = 0; i < rdata.size(); i++)
-  {
-    total_count_ += rdata[i];
-    spectrum_[i] = PreciseFloat(rdata[i]);
-    if (rdata[i])
-      maxchan_ = i;
-  }
+  data_ = val;
+  min_val_ = min;
+  max_val_ = max;
+  total_count_ = tot;
+  has_data_ = true;
 }
 
-std::string Scalar::data_debug(const std::string &prepend) const
+std::string Scalar::data_debug(const std::string& prepend) const
 {
   std::stringstream ss;
-  if (!spectrum_.size())
+  if (!has_data_)
     return ss.str();
 
-  uint64_t total  = static_cast<uint64_t>(total_count_);
-  uint64_t nstars = static_cast<uint64_t>(maxchan_*3);
-  if (!nstars)
-    nstars = 100;
-
-  bool print {false};
-  for (uint32_t i = 0; i <= maxchan_; i++)
-  {
-    double val = static_cast<double>(spectrum_[i]);
-    if (val)
-      print = true;
-    if (print)
-      ss << prepend << i << ": " <<
-            std::string(val*nstars/total,'*') << "\n";
-  }
+  ss << prepend
+     << "current value = " << data_
+     << "   on interval (" << min_val_ << ", " << max_val_ << ")"
+     << "   out of total sample = "
+     << total_count_;
 
   return ss.str();
 }
 
 void Scalar::save(std::ostream& os)
 {
-  if (!spectrum_.size())
+  if (!has_data_)
     return;
 
-  for (uint32_t i = 0; i <= maxchan_; i++)
-  {
-    double val = static_cast<double>(spectrum_[i]);
-    os << val << ", ";
-  }
+  os << "current value = " << data_
+     << "   on interval (" << min_val_ << ", " << max_val_ << ")"
+     << "   out of total sample = "
+     << total_count_;
 }
 
 }

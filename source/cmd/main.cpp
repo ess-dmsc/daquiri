@@ -194,5 +194,9 @@ Container<ConsumerMetadata> get_prototypes()
   vtype.set_attribute(Setting::text("z_name", "z"));
   prototypes.add(vtype);
 
+  auto sstype = ConsumerFactory::singleton().create_prototype("Stats Scalar");
+  sstype.set_attribute(Setting::text("stream_id", "exy"));
+  prototypes.add(sstype);
+
   return prototypes;
 }

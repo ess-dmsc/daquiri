@@ -2,15 +2,14 @@
 
 #include "dataspace.h"
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
 class Scalar : public Dataspace
 {
   public:
     Scalar();
-    Scalar* clone() const override
-    { return new Scalar(*this); }
+
+    Scalar* clone() const override { return new Scalar(*this); }
 
     bool empty() const override;
     void reserve(const Coords&) override;
@@ -25,8 +24,11 @@ class Scalar : public Dataspace
 
   protected:
     // data
-    PreciseFloat data_;
+    PreciseFloat data_ {0};
     bool has_data_ {false};
+
+    PreciseFloat max_val_ {0};
+    PreciseFloat min_val_ {0};
 
     std::string data_debug(const std::string& prepend) const override;
     void data_save(hdf5::node::Group) const override;
