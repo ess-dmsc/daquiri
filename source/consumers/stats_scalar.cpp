@@ -4,7 +4,7 @@
 #include "custom_logger.h"
 
 StatsScalar::StatsScalar()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Scalar>();
 
@@ -15,12 +15,18 @@ StatsScalar::StatsScalar()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
+  SettingMeta swhat("what_stats", SettingType::menu, "What stats?");
+  swhat.set_enum(0, "events per spill");
+  swhat.set_enum(1, "% dead time");
+  base_options.branches.add(swhat);
+
   metadata_.overwrite_all_attributes(base_options);
 }
 
 void StatsScalar::_apply_attributes()
 {
   Spectrum::_apply_attributes();
+  what_ = metadata_.get_attribute("what_stats").selection();
   this->_recalc_axes();
 }
 
@@ -41,15 +47,38 @@ bool StatsScalar::_accept_events(const Spill& /*spill*/)
 
 void StatsScalar::_push_stats_pre(const Spill& spill)
 {
-  if (this->_accept_spill(spill))
+  if (!this->_accept_spill(spill))
+    return;
+
+  if (what_ == 0)
   {
     entry_.second = spill.events.size();
+    recent_count_++;
     data_->add(entry_);
-    Spectrum::_push_stats_pre(spill);
+  }
+  Spectrum::_push_stats_pre(spill);
+}
+
+void StatsScalar::_push_stats_post(const Spill& spill)
+{
+  if (!this->_accept_spill(spill))
+    return;
+
+  Spectrum::_push_stats_post(spill);
+
+  if (what_ == 1)
+  {
+    double real = metadata_.get_attribute("real_time").duration().total_milliseconds();
+    if (real > 0)
+    {
+      double live = metadata_.get_attribute("live_time").duration().total_milliseconds();
+      entry_.second = (real - live) / real * 100.0;
+      recent_count_++;
+      data_->add(entry_);
+    }
   }
 }
 
 void StatsScalar::_push_event(const Event& event)
 {
-  recent_count_++;
 }

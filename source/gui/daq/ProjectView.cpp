@@ -5,6 +5,7 @@
 #include "boost/algorithm/string.hpp"
 #include "QHist.h"
 //#include "qt_util.h"
+#include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
 #include <boost/range/adaptor/reversed.hpp>
@@ -109,7 +110,9 @@ void ProjectView::enforce_item(SelectorItem item)
   else if (!consumers_.count(id) && item.visible)
   {
     AbstractConsumerWidget* widget;
-    if (consumer->dimensions() == 1)
+    if (consumer->dimensions() == 0)
+      widget = new ConsumerScalar();
+    else if (consumer->dimensions() == 1)
       widget = new Consumer1D();
     else if (consumer->dimensions() == 2)
       widget = new Consumer2D();
