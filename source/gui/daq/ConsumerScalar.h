@@ -3,6 +3,7 @@
 #include "AbstractConsumerWidget.h"
 #include <QProgressBar>
 #include <QLabel>
+#include "abstractmeter.h"
 
 class ConsumerScalar : public AbstractConsumerWidget
 {
@@ -14,14 +15,8 @@ class ConsumerScalar : public AbstractConsumerWidget
     void update() override;
     void refresh() override;
 
-  private slots:
-    void mouseWheel (QWheelEvent *event);
-    void zoomedOut();
-    void scaleChanged(QString);
-
   private:
-    QProgressBar* plot_ {nullptr};
-    QLabel* label_ {nullptr};
-    bool initial_scale_ {false};
-    bool user_zoomed_ {false};
+//    ThermoMeter* meter_ {nullptr};
+//    ManoMeter* meter_ {nullptr};
+    AbstractMeter* meter_ {nullptr};
 };

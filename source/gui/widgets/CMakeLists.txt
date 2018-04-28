@@ -1,8 +1,10 @@
 set(this_target daquiri_widgets)
 
 file(GLOB ${this_target}_ui *.ui)
-file(GLOB ${this_target}_sources *.cpp)
-file(GLOB ${this_target}_headers *.h ${PROJECT_BINARY_DIR}/*.h)
+file(GLOB ${this_target}_sources *.cpp AnalogWidgets/*.cpp)
+file(GLOB ${this_target}_headers *.h
+    ${PROJECT_BINARY_DIR}/*.h
+    AnalogWidgets/*.h)
 
 dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
