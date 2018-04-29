@@ -10,8 +10,8 @@ using namespace DAQuiri;
 
 ConsumerScalar::ConsumerScalar(QWidget *parent)
   : AbstractConsumerWidget(parent)
-//  , meter_ (new ManoMeter())
-  , meter_ (new ThermoMeter())
+  , meter_ (new ManoMeter())
+//  , meter_ (new ThermoMeter())
 {
   QVBoxLayout* fl = new QVBoxLayout();
   fl->addWidget(meter_);

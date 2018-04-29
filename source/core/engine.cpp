@@ -438,6 +438,9 @@ void Engine::builder_naive(SpillQueue data_queue,
     if (spill != nullptr)
     {
       CustomTimer presort_timer(true);
+      spill->state.branches.add(Setting::integer("daquiri_queue_size", data_queue->size()));
+      spill->state.branches.add(Setting::integer("daquiri_queue_dropped_spills", data_queue->dropped_spills()));
+      spill->state.branches.add(Setting::integer("daquiri_queue_dropped_events", data_queue->dropped_events()));
       presort_cycles++;
       presort_events += spill->events.size();
       project->add_spill(spill);

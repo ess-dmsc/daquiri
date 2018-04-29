@@ -18,6 +18,9 @@ StatsScalar::StatsScalar()
   SettingMeta swhat("what_stats", SettingType::menu, "What stats?");
   swhat.set_enum(0, "events per spill");
   swhat.set_enum(1, "% dead time");
+  swhat.set_enum(2, "engine queue size");
+  swhat.set_enum(3, "engine dropped spills");
+  swhat.set_enum(4, "engine dropped events");
   base_options.branches.add(swhat);
 
   metadata_.overwrite_all_attributes(base_options);
@@ -53,6 +56,24 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
   if (what_ == 0)
   {
     entry_.second = spill.events.size();
+    recent_count_++;
+    data_->add(entry_);
+  }
+  else if (what_ == 2)
+  {
+    entry_.second =  spill.state.find(Setting("daquiri_queue_size")).get_int();
+    recent_count_++;
+    data_->add(entry_);
+  }
+  else if (what_ == 3)
+  {
+    entry_.second = spill.state.find(Setting("daquiri_queue_dropped_spills")).get_int();
+    recent_count_++;
+    data_->add(entry_);
+  }
+  else if (what_ == 4)
+  {
+    entry_.second = spill.state.find(Setting("daquiri_queue_dropped_events")).get_int();
     recent_count_++;
     data_->add(entry_);
   }
