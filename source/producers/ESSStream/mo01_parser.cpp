@@ -84,10 +84,21 @@ void mo01_nmx::settings(const Setting& settings)
 StreamManifest mo01_nmx::stream_manifest() const
 {
   StreamManifest ret;
-  ret[hists_stream_id_] = hists_model_;
-  ret[x_stream_id_] = track_model_;
-  ret[y_stream_id_] = track_model_;
-  ret[hit_stream_id_] = hits_model_;
+  ret[hists_stream_id_].event_model = hists_model_;
+  ret[hists_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[hists_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+
+  ret[x_stream_id_].event_model = track_model_;
+  ret[x_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[x_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+
+  ret[y_stream_id_].event_model = track_model_;
+  ret[y_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[y_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+
+  ret[hit_stream_id_].event_model = hits_model_;
+  ret[hit_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[hit_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
   return ret;
 }
 
@@ -97,18 +108,22 @@ uint64_t mo01_nmx::stop(SpillQueue spill_queue)
   {
     auto ret = std::make_shared<Spill>(hists_stream_id_, StatusType::stop);
     ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
 
     auto ret2 = std::make_shared<Spill>(x_stream_id_, StatusType::stop);
     ret2->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret2->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret2);
 
     auto ret3 = std::make_shared<Spill>(y_stream_id_, StatusType::stop);
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret3->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret3);
 
     auto ret4 = std::make_shared<Spill>(hit_stream_id_, StatusType::stop);
     ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret4->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret4);
 
     started_ = false;
@@ -131,18 +146,22 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
   {
     auto ret = std::make_shared<Spill>(hists_stream_id_, StatusType::start);
     ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
 
     auto ret2 = std::make_shared<Spill>(x_stream_id_, StatusType::start);
     ret2->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret2->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret2);
 
     auto ret3 = std::make_shared<Spill>(y_stream_id_, StatusType::start);
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret3->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret3);
 
     auto ret4 = std::make_shared<Spill>(hit_stream_id_, StatusType::start);
     ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
+    ret4->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret4);
 
     started_ = true;
@@ -172,6 +191,7 @@ uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
 
   auto ret = std::make_shared<Spill>(hists_stream_id_, StatusType::running);
   ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
+  ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = hists_model_;
   ret->events.reserve(1, hists_model_);
 
@@ -218,6 +238,7 @@ uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillQueue queue)
 {
   auto spill = std::make_shared<Spill>(hit_stream_id_, StatusType::running);
   spill->state.branches.add(Setting::precise("native_time", spoofed_time_));
+  spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   spill->event_model = hits_model_;
   spill->events.reserve(hits.plane()->Length(), hits_model_);
 
@@ -259,6 +280,7 @@ SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>
   auto ret = std::make_shared<Spill>(stream, StatusType::running);
 
   ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
+  ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = track_model_;
   ret->events.reserve(data->Length(), track_model_);
 

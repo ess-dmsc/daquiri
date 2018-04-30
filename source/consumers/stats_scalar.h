@@ -23,7 +23,7 @@ class StatsScalar : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     // cached parameters:
-    int64_t what_ {0};
+    std::string what_ {0};
 
     //reserve memory
     Entry entry_ {{}, {0}};

@@ -15,13 +15,10 @@ StatsScalar::StatsScalar()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
-  SettingMeta swhat("what_stats", SettingType::menu, "What stats?");
-  swhat.set_enum(0, "events per spill");
-  swhat.set_enum(1, "% dead time");
-  swhat.set_enum(2, "engine queue size");
-  swhat.set_enum(3, "engine dropped spills");
-  swhat.set_enum(4, "engine dropped events");
-  base_options.branches.add(swhat);
+  SettingMeta stat("what_stats", SettingType::text, "Stat of choice");
+  stat.set_flag("stat_value");
+  base_options.branches.add(Setting(stat));
+
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -29,7 +26,7 @@ StatsScalar::StatsScalar()
 void StatsScalar::_apply_attributes()
 {
   Spectrum::_apply_attributes();
-  what_ = metadata_.get_attribute("what_stats").selection();
+  what_ = metadata_.get_attribute("what_stats").get_text();
   this->_recalc_axes();
 }
 
@@ -53,27 +50,10 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
-  if (what_ == 0)
+  auto set = spill.state.find(Setting(what_));
+  if (set)
   {
-    entry_.second = spill.events.size();
-    recent_count_++;
-    data_->add(entry_);
-  }
-  else if (what_ == 2)
-  {
-    entry_.second =  spill.state.find(Setting("daquiri_queue_size")).get_int();
-    recent_count_++;
-    data_->add(entry_);
-  }
-  else if (what_ == 3)
-  {
-    entry_.second = spill.state.find(Setting("daquiri_queue_dropped_spills")).get_int();
-    recent_count_++;
-    data_->add(entry_);
-  }
-  else if (what_ == 4)
-  {
-    entry_.second = spill.state.find(Setting("daquiri_queue_dropped_events")).get_int();
+    entry_.second = set.get_number();
     recent_count_++;
     data_->add(entry_);
   }
@@ -87,17 +67,17 @@ void StatsScalar::_push_stats_post(const Spill& spill)
 
   Spectrum::_push_stats_post(spill);
 
-  if (what_ == 1)
-  {
-    double real = metadata_.get_attribute("real_time").duration().total_milliseconds();
-    if (real > 0)
-    {
-      double live = metadata_.get_attribute("live_time").duration().total_milliseconds();
-      entry_.second = (real - live) / real * 100.0;
-      recent_count_++;
-      data_->add(entry_);
-    }
-  }
+//  if (what_ == 1)
+//  {
+//    double real = metadata_.get_attribute("real_time").duration().total_milliseconds();
+//    if (real > 0)
+//    {
+//      double live = metadata_.get_attribute("live_time").duration().total_milliseconds();
+//      entry_.second = (real - live) / real * 100.0;
+//      recent_count_++;
+//      data_->add(entry_);
+//    }
+//  }
 }
 
 void StatsScalar::_push_event(const Event& event)

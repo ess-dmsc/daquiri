@@ -26,7 +26,9 @@ ChopperTDC::ChopperTDC()
 StreamManifest ChopperTDC::stream_manifest() const
 {
   StreamManifest ret;
-  ret[stream_id_] = event_model_;
+  ret[stream_id_].event_model = event_model_;
+  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
   return ret;
 }
 
@@ -60,6 +62,8 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
     {
     auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
+    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+
     spill_queue->enqueue(ret);
     
     started_ = false;
@@ -80,6 +84,7 @@ uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
   
   auto ret = std::make_shared<Spill>(stream_id_, StatusType::running);
   ret->state.branches.add(Setting::precise("native_time", ChopperTDCTimeStamp->timestamp()));
+  ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = event_model_;
   ret->events.reserve(1, event_model_);
   
@@ -101,6 +106,7 @@ uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
     auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
+    start_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(start_spill);
     started_ = true;
     pushed_spills++;
