@@ -21,7 +21,6 @@ public:
                             std::vector<DAQuiri::Detector> current_detectors,
                             Container<DAQuiri::Detector>& detDB,
                             DAQuiri::StreamManifest stream_manifest,
-                            bool has_consumer_parent,
                             bool allow_edit_type,
                             QWidget *parent = 0);
     ~ConsumerDialog();

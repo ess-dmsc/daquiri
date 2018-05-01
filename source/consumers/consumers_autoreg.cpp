@@ -1,6 +1,8 @@
 #include "consumer_factory.h"
 #include "consumers_autoreg.h"
 
+#include "stats_scalar.h"
+
 #include "histogram_1d.h"
 #include "prebinned_1d.h"
 #include "tof_1d.h"
@@ -16,6 +18,8 @@
 
 void consumers_autoreg()
 {
+  DAQUIRI_REGISTER_CONSUMER(StatsScalar)
+
   DAQUIRI_REGISTER_CONSUMER(Histogram1D)
   DAQUIRI_REGISTER_CONSUMER(Prebinned1D)
   DAQUIRI_REGISTER_CONSUMER(TOF1D)

@@ -123,6 +123,9 @@ StreamManifest Engine::stream_manifest() const
       continue;
     for (auto m : q.second->stream_manifest())
       ret[m.first] = m.second;
+    ret["engine"].stats.branches.add(SettingMeta("queue_size", SettingType::integer));
+    ret["engine"].stats.branches.add(SettingMeta("dropped_spills", SettingType::integer));
+    ret["engine"].stats.branches.add(SettingMeta("dropped_events", SettingType::integer));
   }
   return ret;
 }
@@ -432,20 +435,36 @@ void Engine::builder_naive(SpillQueue data_queue,
   uint64_t presort_events(0), presort_cycles(0);
 
   SpillPtr spill;
+  spill = std::make_shared<Spill>("engine", StatusType::start);
+  spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
+  spill->state.branches.add_a(Setting::integer("dropped_spills", data_queue->dropped_spills()));
+  spill->state.branches.add_a(Setting::integer("dropped_events", data_queue->dropped_events()));
+  project->add_spill(spill);
+
   while (true)
   {
     spill = data_queue->dequeue();
-    if (spill != nullptr)
-    {
-      CustomTimer presort_timer(true);
-      presort_cycles++;
-      presort_events += spill->events.size();
-      project->add_spill(spill);
-      time += presort_timer.s();
-    }
-    else
+    if (spill == nullptr)
       break;
+    CustomTimer presort_timer(true);
+    presort_cycles++;
+    presort_events += spill->events.size();
+    project->add_spill(spill);
+
+    spill = std::make_shared<Spill>("engine", StatusType::running);
+    spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
+    spill->state.branches.add_a(Setting::integer("dropped_spills", data_queue->dropped_spills()));
+    spill->state.branches.add_a(Setting::integer("dropped_events", data_queue->dropped_events()));
+    project->add_spill(spill);
+
+    time += presort_timer.s();
   }
+
+  spill = std::make_shared<Spill>("engine", StatusType::stop);
+  spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
+  spill->state.branches.add_a(Setting::integer("dropped_spills", data_queue->dropped_spills()));
+  spill->state.branches.add_a(Setting::integer("dropped_events", data_queue->dropped_events()));
+  project->add_spill(spill);
 
   CustomTimer presort_timer(true);
   project->flush();

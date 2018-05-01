@@ -269,6 +269,7 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
       continue;
 
     spills += parser->process_payload(spill_queue, message->low_level->payload());
+
     if (config.kafka_ff_)
         parser->stats.dropped_buffers +=
             ff_stream(message, config.kafka_max_backlog_);

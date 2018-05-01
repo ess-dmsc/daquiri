@@ -436,7 +436,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       {
         if (!valid_streams_.count(stream.first))
           continue;
-        for (auto val : stream.second.value_names)
+        for (auto val : stream.second.event_model.value_names)
         {
           QString name = QString::fromStdString(val);
           cb->addItem(name, name);
@@ -455,16 +455,35 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       {
         if (!valid_streams_.count(stream.first))
           continue;
-        for (size_t i=0; i < stream.second.traces.size(); ++i)
+        for (size_t i=0; i < stream.second.event_model.traces.size(); ++i)
         {
-          QString name = QString::fromStdString(stream.second.trace_names[i]);
+          QString name = QString::fromStdString(stream.second.event_model.trace_names[i]);
           QStringList ss;
-          for (auto d : stream.second.traces[i])
+          for (auto d : stream.second.event_model.traces[i])
             ss.push_back(QString::number(d));
           cb->addItem(name + " [" + ss.join(", ") + "]", name);
         }
       }
       int cbIndex = cb->findData(QString::fromStdString(set.get_text()));
+      if(cbIndex >= 0)
+        cb->setCurrentIndex(cbIndex);
+      return cb;
+    }
+    else if (set.metadata().has_flag("stat_value"))
+    {
+      auto cb = new QComboBox(parent);
+      cb->addItem("<none>", "");
+      for (auto stream : stream_manifest_)
+      {
+        if (!valid_streams_.count(stream.first))
+          continue;
+        for (const auto& set : stream.second.stats.branches)
+        {
+          QString name = QString::fromStdString(set.id());
+          cb->addItem(name, name);
+        }
+      }
+      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;

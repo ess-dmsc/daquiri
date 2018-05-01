@@ -16,14 +16,17 @@ DummyDevice::DummyDevice()
   root.set_enum(1000, r + "/DummySettings");
   add_definition(root);
 
-  manifest_["Stream1"].add_value("val1", 1000);
-  manifest_["Stream1"].add_value("val2", 2000);
+  manifest_["Stream1"].event_model.add_value("val1", 1000);
+  manifest_["Stream1"].event_model.add_value("val2", 2000);
+  manifest_["Stream1"].stats.branches.add(SettingMeta("float_val", SettingType::floating));
+  manifest_["Stream1"].stats.branches.add(SettingMeta("int_val", SettingType::integer));
+  manifest_["Stream1"].stats.branches.add(SettingMeta("precise_val", SettingType::precise));
 
-  manifest_["Stream2"].add_value("val_a", 500);
-  manifest_["Stream2"].add_trace("trc_a", {2, 3, 4});
+  manifest_["Stream2"].event_model.add_value("val_a", 500);
+  manifest_["Stream2"].event_model.add_trace("trc_a", {2, 3, 4});
 
-  manifest_["Stream3"].add_trace("trc1", {5000});
-  manifest_["Stream3"].add_trace("trc2", {200, 300});
+  manifest_["Stream3"].event_model.add_trace("trc1", {5000});
+  manifest_["Stream3"].event_model.add_trace("trc2", {200, 300});
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }

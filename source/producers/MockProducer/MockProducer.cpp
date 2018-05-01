@@ -72,7 +72,12 @@ MockProducer::~MockProducer()
 StreamManifest MockProducer::stream_manifest() const
 {
   StreamManifest ret;
-  ret[stream_id_] = event_definition_;
+  ret[stream_id_].event_model = event_definition_;
+  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::floating));
+  ret[stream_id_].stats.branches.add(SettingMeta("live_time", SettingType::floating));
+  ret[stream_id_].stats.branches.add(SettingMeta("live_trigger", SettingType::floating));
+  ret[stream_id_].stats.branches.add(SettingMeta("pulse_time", SettingType::floating));
+
   return ret;
 }
 

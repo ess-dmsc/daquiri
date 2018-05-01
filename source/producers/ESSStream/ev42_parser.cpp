@@ -93,7 +93,10 @@ void ev42_events::settings(const Setting& settings)
 StreamManifest ev42_events::stream_manifest() const
 {
   StreamManifest ret;
-  ret[stream_id_] = event_definition_;
+  ret[stream_id_].event_model = event_definition_;
+  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+  ret[stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[stream_id_].stats.branches.add(SettingMeta("pulse_time", SettingType::precise));
   return ret;
 }
 
@@ -103,6 +106,7 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
   {
     auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
+    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
     started_ = false;
     return 1;
@@ -171,6 +175,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   run_spill->events.finalize();
 
   run_spill->state.branches.add(Setting::precise("native_time", stats.time_end));
+  run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
 
   if (spoof_clock_ == 1)
     run_spill->state.branches.add(Setting::precise("pulse_time", time_high));

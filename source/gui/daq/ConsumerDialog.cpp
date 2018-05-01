@@ -17,7 +17,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
                                StreamManifest stream_manifest,
-                               bool has_consumer_parent,
                                bool allow_edit_type,
                                QWidget *parent)
   : QDialog(parent)
@@ -29,7 +28,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   , current_detectors_(current_detectors)
   , stream_manifest_(stream_manifest)
   , changed_(false)
-  , has_consumer_parent_(has_consumer_parent)
 {
   ui->setupUi(this);
 
@@ -47,7 +45,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   ui->labelWarning->setVisible(false);
   ui->treeAttribs->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-  ui->pushLock->setVisible(has_consumer_parent);
   ui->comboType->setEnabled(allow_edit_type);
   ui->widgetDetectors->setVisible(!allow_edit_type);
 
@@ -77,8 +74,9 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   attr_model_.set_show_address_(false);
 
   //this could be done better!!
-  attr_model_.set_show_read_only(has_consumer_parent_);
-//  attr_model_.set_show_read_only(true);
+  bool advanced = !consumer_->data()->empty();
+  attr_model_.set_show_read_only(advanced);
+  ui->pushLock->setVisible(advanced);
 
   if (!consumer_)
   {
@@ -109,7 +107,7 @@ void ConsumerDialog::open_close_locks()
 {
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
-  ui->spinDets->setEnabled(lockit || !has_consumer_parent_);
+  ui->spinDets->setEnabled(lockit);
 
   ui->treeAttribs->clearSelection();
 //  ui->tableDetectors->clearSelection();
@@ -187,8 +185,6 @@ void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
   tree2.enable_if_flag(true, "stream");
   tree2.cull_readonly();
   std::set<std::string> selected_streams;
-  std::set<std::string> values;
-  std::set<std::string> traces;
   for (auto s : tree2.branches)
   {
     if (!stream_manifest.count(s.get_text()))
@@ -200,10 +196,19 @@ void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
       tree.set(s);
     }
     selected_streams.insert(s.get_text());
-    for (auto v : stream_manifest[s.get_text()].value_names)
+  }
+
+  std::set<std::string> values;
+  std::set<std::string> traces;
+  std::set<std::string> stats;
+  for (auto s : selected_streams)
+  {
+    for (auto v : stream_manifest[s].event_model.value_names)
       values.insert(v);
-    for (auto v : stream_manifest[s.get_text()].trace_names)
+    for (auto v : stream_manifest[s].event_model.trace_names)
       traces.insert(v);
+    for (const auto& v : stream_manifest[s].stats.branches)
+      stats.insert(v.id());
   }
 
   tree2 = tree;
@@ -233,6 +238,22 @@ void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
       continue;
     if (traces.size())
       s.set_text(*traces.begin());
+    else
+      s.set_text("");
+    tree.set(s);
+  }
+
+  tree2 = tree;
+  tree2.enable_if_flag(false, "");
+  tree2.enable_if_flag(true, "stat_value");
+  tree2.cull_readonly();
+  for (auto& s : tree2.branches)
+  {
+    auto name = s.get_text();
+    if (stats.count(name))
+      continue;
+    if (stats.size())
+      s.set_text(*stats.begin());
     else
       s.set_text("");
     tree.set(s);

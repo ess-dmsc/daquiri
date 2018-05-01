@@ -36,7 +36,14 @@ class Spill;
 
 using SpillPtr = std::shared_ptr<Spill>;
 using ListData = std::vector<SpillPtr>;
-using StreamManifest = std::map<std::string, EventModel>;
+
+struct StreamInfo
+{
+  EventModel event_model;
+  Setting    stats {Setting::stem("stats")};
+};
+
+using StreamManifest = std::map<std::string, StreamInfo>;
 
 class EventBuffer
 {
