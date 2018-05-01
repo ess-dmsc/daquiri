@@ -17,7 +17,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
                                std::vector<Detector> current_detectors,
                                Container<Detector>& detDB,
                                StreamManifest stream_manifest,
-                               bool has_consumer_parent,
                                bool allow_edit_type,
                                QWidget *parent)
   : QDialog(parent)
@@ -29,7 +28,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   , current_detectors_(current_detectors)
   , stream_manifest_(stream_manifest)
   , changed_(false)
-  , has_consumer_parent_(has_consumer_parent)
 {
   ui->setupUi(this);
 
@@ -47,7 +45,6 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   ui->labelWarning->setVisible(false);
   ui->treeAttribs->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-  ui->pushLock->setVisible(has_consumer_parent);
   ui->comboType->setEnabled(allow_edit_type);
   ui->widgetDetectors->setVisible(!allow_edit_type);
 
@@ -77,8 +74,9 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   attr_model_.set_show_address_(false);
 
   //this could be done better!!
-  attr_model_.set_show_read_only(has_consumer_parent_);
-//  attr_model_.set_show_read_only(true);
+  bool advanced = !consumer_->data()->empty();
+  attr_model_.set_show_read_only(advanced);
+  ui->pushLock->setVisible(advanced);
 
   if (!consumer_)
   {
@@ -109,7 +107,7 @@ void ConsumerDialog::open_close_locks()
 {
   bool lockit = !ui->pushLock->isChecked();
   ui->labelWarning->setVisible(lockit);
-  ui->spinDets->setEnabled(lockit || !has_consumer_parent_);
+  ui->spinDets->setEnabled(lockit);
 
   ui->treeAttribs->clearSelection();
 //  ui->tableDetectors->clearSelection();

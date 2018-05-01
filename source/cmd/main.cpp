@@ -76,6 +76,8 @@ int main(int argc, char** argv)
 
   DBG << "\n" << ss1.str();
 
+//  DBG << "\n" << ss2.str();
+
 //  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
 //  ofs1 << ss1.str();
 //
@@ -195,8 +197,8 @@ Container<ConsumerMetadata> get_prototypes()
   prototypes.add(vtype);
 
   auto sstype = ConsumerFactory::singleton().create_prototype("Stats Scalar");
-  sstype.set_attribute(Setting::text("stream_id", "exy"));
-  sstype.set_attribute(Setting::integer("what_stats", 1));
+  sstype.set_attribute(Setting::text("stream_id", "engine"));
+  sstype.set_attribute(Setting::text("what_stats", "queue_size"));
   prototypes.add(sstype);
 
   return prototypes;

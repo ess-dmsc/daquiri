@@ -249,7 +249,7 @@ void ConsumerTemplatesForm::on_pushNew_clicked()
   Container<Detector> fakeDetDB;
   ConsumerDialog* newDialog =
       new ConsumerDialog(nullptr, current_dets_, fakeDetDB,
-                         stream_manifest_, false, true, this);
+                         stream_manifest_, true, this);
   if (newDialog->exec())
   {
     project_->add_consumer(newDialog->product());
@@ -270,7 +270,7 @@ void ConsumerTemplatesForm::on_pushEdit_clicked()
   ConsumerDialog* newDialog =
       new ConsumerDialog(project_->get_consumer(i),
                          current_dets_, fakeDetDB,
-                         stream_manifest_, true, false, this);
+                         stream_manifest_, false, this);
   if (newDialog->exec())
   {
     //project_->replace(i, newDialog->product());

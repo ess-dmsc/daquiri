@@ -26,7 +26,7 @@ void Scalar::clear()
 
 void Scalar::add(const Entry& e)
 {
-  if ((e.first.size() != dimensions()) || !e.second)
+  if ((e.first.size() != dimensions()))
     return;
 
   data_ = e.second;
@@ -67,8 +67,6 @@ void Scalar::recalc_axes()
 
 PreciseFloat Scalar::get(const Coords& coords) const
 {
-  if (coords.size() != dimensions())
-    return 0;
   return data_;
 }
 

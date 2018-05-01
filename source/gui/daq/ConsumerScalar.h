@@ -3,20 +3,21 @@
 #include "AbstractConsumerWidget.h"
 #include <QProgressBar>
 #include <QLabel>
-#include "abstractmeter.h"
+#include "thermometer.h"
+#include "manometer.h"
 
 class ConsumerScalar : public AbstractConsumerWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
   public:
-    ConsumerScalar(QWidget *parent = 0);
+    ConsumerScalar(QWidget* parent = 0);
 
     void update() override;
     void refresh() override;
 
   private:
-//    ThermoMeter* meter_ {nullptr};
-//    ManoMeter* meter_ {nullptr};
-    AbstractMeter* meter_ {nullptr};
+    ThermoMeter* thermometer_ {nullptr};
+    ManoMeter* manometer_ {nullptr};
+    QLabel* label_ {nullptr};
 };

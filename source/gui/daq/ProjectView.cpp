@@ -253,7 +253,7 @@ void ProjectView::on_pushFullInfo_clicked()
 
   ConsumerDialog* newSpecDia =
       new ConsumerDialog(consumer, std::vector<Detector>(),
-                         detectors_, stream_manifest_, true, false, this);
+                         detectors_, stream_manifest_, false, this);
 
   //DBG << "Consumer:\n" << consumer->debug() << "\n";
 
