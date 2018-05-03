@@ -77,7 +77,6 @@ def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
     def configure_script = """
         cd ${project}/build
-        . ./activate_run.sh
         cmake --version
         cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
@@ -94,7 +93,8 @@ def docker_build(image_key) {
         cd ${project}/build
         . ./activate_run.sh
         make --version
-        make VERBOSE=1
+        make -j4
+        make -j4 unit_tests
                   """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
 }
@@ -118,7 +118,7 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make VERBOSE=ON
+                make -j4 VERBOSE=ON
                 make coverage VERBOSE=ON
                 ./bin/systest
             \""""
@@ -213,8 +213,8 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "make VERBOSE=1"
-                        sh "make run_tests && make unit_tests"
+                        sh "make -j4"
+                        sh "make -j4 unit_tests"
                         sh "source ./activate_run.sh && ./bin/unit_tests"
                         sh "source ./activate_run.sh && ./bin/systest"
                     } catch (e) {
