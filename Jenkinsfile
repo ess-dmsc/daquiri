@@ -4,7 +4,7 @@ coverage_on = "ubuntu1710"
 images = [
         'centos7-gcc6': [
                 'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
-                'sh'  : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash && alias cmake="cmake3"'
+                'sh'  : 'alias cmake="cmake3" && /usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
         ],
         'fedora25'    : [
                 'name': 'essdmscdm/fedora25-build-node:1.0.0',
