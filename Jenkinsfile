@@ -69,7 +69,6 @@ def docker_dependencies(image_key) {
         conan remote add \\
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
-        conan install --build=outdated ..
                     """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
 }
@@ -80,7 +79,7 @@ def docker_cmake(image_key, xtra_flags) {
         cd ${project}/build
         . ./activate_run.sh
         cmake --version
-        cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
               -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
               ${xtra_flags} \
               ..
@@ -200,14 +199,14 @@ def get_macos_pipeline() {
                 }
 
                 dir("${project}/build") {
-                    try {
-                        sh "conan install --build=outdated ../code/conanfile.txt"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / getting dependencies failed')
-                    }
+//                    try {
+//                        sh "conan install --build=outdated ../code/conanfile.txt"
+//                    } catch (e) {
+//                        failure_function(e, 'MacOSX / getting dependencies failed')
+//                    }
 
                     try {
-                        sh "cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                             -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
