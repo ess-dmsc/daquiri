@@ -11,7 +11,6 @@ list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
 # ensure build type first
 #=============================================================================
 
-include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 include(${EXTRA_MODULES_DIR}/EnsureBuildType.cmake)
 
 #=============================================================================
@@ -39,6 +38,7 @@ elseif(NOT ${CONAN} MATCHES "DISABLE")
 endif()
 
 include(${EXTRA_MODULES_DIR}/OutputDirConfig.cmake)
+include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 
 add_subdirectory(source)
 
