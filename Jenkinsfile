@@ -2,21 +2,25 @@ project = "daquiri"
 coverage_on = "ubuntu1710"
 
 images = [
-//        'centos7-gcc6': [
-//                'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
-//                'sh'  : 'alias cmake="cmake3" && /usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
-//        ],
-        'fedora25'    : [
-                'name': 'essdmscdm/fedora25-build-node:1.0.0',
-                'sh'  : 'sh'
+        'centos7-gcc6': [
+                'name'  : 'essdmscdm/centos7-gcc6-build-node:2.1.0',
+                'sh'    : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash',
+                'cmake' : 'cmake3'
+        ],
+        'fedora25' : [
+                'name'  : 'essdmscdm/fedora25-build-node:1.0.0',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ],
         'ubuntu1604'  : [
-                'name': 'essdmscdm/ubuntu16.04-build-node:2.2.1',
-                'sh'  : 'sh'
+                'name'  : 'essdmscdm/ubuntu16.04-build-node:2.2.1',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ],
-        'ubuntu1710'  : [
-                'name': 'essdmscdm/ubuntu17.10-build-node:2.0.0',
-                'sh'  : 'sh'
+        'ubuntu1710' : [
+                'name'  : 'essdmscdm/ubuntu17.10-build-node:2.0.0',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ]
 ]
 
@@ -75,13 +79,14 @@ def docker_dependencies(image_key) {
 
 def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
+    def cmake = images[image_key]['cmake']
     def configure_script = """
         cd ${project}/build
-        cmake --version
-        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-              -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-              ${xtra_flags} \
-              ..
+        ${cmake} --version
+        ${cmake} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                 -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
+                 ${xtra_flags} \
+                 ..
         """
 
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${configure_script}\""
