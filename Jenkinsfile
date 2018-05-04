@@ -2,21 +2,25 @@ project = "daquiri"
 coverage_on = "ubuntu1710"
 
 images = [
-        'centos7-gcc6': [
-                'name': 'essdmscdm/centos7-gcc6-build-node:2.1.0',
-                'sh'  : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash'
-        ],
-        'fedora25'    : [
-                'name': 'essdmscdm/fedora25-build-node:1.0.0',
-                'sh'  : 'sh'
+//        'centos7-gcc6': [
+//                'name'  : 'essdmscdm/centos7-gcc6-build-node:2.1.0',
+//                'sh'    : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash',
+//                'cmake' : 'cmake3'
+//        ],
+        'fedora25' : [
+                'name'  : 'essdmscdm/fedora25-build-node:1.0.0',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ],
         'ubuntu1604'  : [
-                'name': 'essdmscdm/ubuntu16.04-build-node:2.1.0',
-                'sh'  : 'sh'
+                'name'  : 'essdmscdm/ubuntu16.04-build-node:2.2.1',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ],
-        'ubuntu1710'  : [
-                'name': 'essdmscdm/ubuntu17.10-build-node:2.0.0',
-                'sh'  : 'sh'
+        'ubuntu1710' : [
+                'name'  : 'essdmscdm/ubuntu17.10-build-node:2.0.0',
+                'sh'    : 'sh',
+                'cmake' : 'cmake'
         ]
 ]
 
@@ -69,21 +73,20 @@ def docker_dependencies(image_key) {
         conan remote add \\
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
-        conan install --build=outdated ..
                     """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
 }
 
 def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
+    def cmake = images[image_key]['cmake']
     def configure_script = """
         cd ${project}/build
-        . ./activate_run.sh
-        cmake --version
-        cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-              -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-              ${xtra_flags} \
-              ..
+        ${cmake} --version
+        ${cmake} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                 -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
+                 ${xtra_flags} \
+                 ..
         """
 
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${configure_script}\""
@@ -95,7 +98,8 @@ def docker_build(image_key) {
         cd ${project}/build
         . ./activate_run.sh
         make --version
-        make VERBOSE=1
+        make -j4
+        make -j4 unit_tests
                   """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
 }
@@ -119,7 +123,7 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make VERBOSE=ON
+                make -j4 VERBOSE=ON
                 make coverage VERBOSE=ON
                 ./bin/systest
             \""""
@@ -200,22 +204,22 @@ def get_macos_pipeline() {
                 }
 
                 dir("${project}/build") {
-                    try {
-                        sh "conan install --build=outdated ../code/conanfile.txt"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / getting dependencies failed')
-                    }
+//                    try {
+//                        sh "conan install --build=outdated ../code/conanfile.txt"
+//                    } catch (e) {
+//                        failure_function(e, 'MacOSX / getting dependencies failed')
+//                    }
 
                     try {
-                        sh "cmake -DCONAN=MANUAL -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                             -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
 
                     try {
-                        sh "make VERBOSE=1"
-                        sh "make run_tests && make unit_tests"
+                        sh "make -j4"
+                        sh "make -j4 unit_tests"
                         sh "source ./activate_run.sh && ./bin/unit_tests"
                         sh "source ./activate_run.sh && ./bin/systest"
                     } catch (e) {
