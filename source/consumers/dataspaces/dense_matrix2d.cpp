@@ -119,7 +119,6 @@ void DenseMatrix2D::data_save(hdf5::node::Group g) const
 
   using namespace hdf5;
 
-  property::LinkCreationList lcpl;
   property::DatasetCreationList dcpl;
   dcpl.layout(property::DatasetLayout::CHUNKED);
 
@@ -129,11 +128,11 @@ void DenseMatrix2D::data_save(hdf5::node::Group g) const
 
   auto i_space = dataspace::Simple({static_cast<size_t>(spectrum_.nonZeros()), 2});
   dcpl.chunk({chunksize, 2});
-  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
 
   dataspace::Simple c_space({static_cast<size_t>(spectrum_.nonZeros())});
   dcpl.chunk({chunksize});
-  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
 
   dataspace::Hyperslab slab(2);
   slab.block({static_cast<size_t>(spectrum_.nonZeros()), 1});

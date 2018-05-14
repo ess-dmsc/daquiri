@@ -134,7 +134,6 @@ void SparseMap3D::data_save(hdf5::node::Group g) const
 
   using namespace hdf5;
 
-  property::LinkCreationList lcpl;
   property::DatasetCreationList dcpl;
   dcpl.layout(property::DatasetLayout::CHUNKED);
 
@@ -144,11 +143,11 @@ void SparseMap3D::data_save(hdf5::node::Group g) const
 
   dataspace::Simple i_space({spectrum_.size(), 3});
   dcpl.chunk({chunksize, 3});
-  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, lcpl, dcpl);
+  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
 
   dataspace::Simple c_space({spectrum_.size()});
   dcpl.chunk({chunksize});
-  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, lcpl, dcpl);
+  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
 
   dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
 

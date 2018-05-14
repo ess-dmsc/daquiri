@@ -8,17 +8,17 @@ images = [
 //                'cmake' : 'cmake3'
 //        ],
         'fedora25' : [
-                'name'  : 'essdmscdm/fedora25-build-node:1.0.0',
+                'name'  : 'essdmscdm/fedora25-build-node:1.1.0',
                 'sh'    : 'sh',
                 'cmake' : 'cmake'
         ],
         'ubuntu1604'  : [
-                'name'  : 'essdmscdm/ubuntu16.04-build-node:2.2.1',
+                'name'  : 'essdmscdm/ubuntu16.04-build-node:2.4.0',
                 'sh'    : 'sh',
                 'cmake' : 'cmake'
         ],
         'ubuntu1710' : [
-                'name'  : 'essdmscdm/ubuntu17.10-build-node:2.0.0',
+                'name'  : 'essdmscdm/ubuntu17.10-build-node:2.1.1',
                 'sh'    : 'sh',
                 'cmake' : 'cmake'
         ]
