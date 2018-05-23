@@ -45,10 +45,8 @@ def get_macos_pipeline() {
 
                     try {
                         sh "make -j4 && \
-                            make -j4 unit_tests && \
                             source ./activate_run.sh && \
-                            ./bin/unit_tests && \
-                            ./bin/systest"
+                            make run_tests"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build+test failed')
                     }
@@ -113,9 +111,8 @@ def docker_cmake(image_key, xtra_flags) {
 def docker_build(image_key) {
     def build_script = """
         cd ${project}/build
-        . ./activate_run.sh
-        make -j4 && make -j4 unit_tests
-                  """
+        make -j4
+        """
     sh "docker exec ${container_name(image_key)} sh -c \"${build_script}\""
 }
 
@@ -123,8 +120,8 @@ def docker_tests(image_key) {
     def test_script = """
                 cd ${project}/build
                 . ./activate_run.sh
-                make run_tests && ./bin/systest
-                    """
+                make run_tests
+                """
     sh "docker exec ${container_name(image_key)} sh -c \"${test_script}\""
 }
 
@@ -135,7 +132,7 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} sh -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make -j4 && make coverage && ./bin/systest
+                make -j4 && make run_tests && make coverage
             \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
     } catch(e) {

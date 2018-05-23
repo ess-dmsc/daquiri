@@ -34,17 +34,23 @@ target_link_libraries(
 )
 
 enable_coverage(${this_target})
+set_target_properties(${this_target} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 
-add_custom_target(run_tests
-  COMMAND ${this_target} "--gtest_output=xml:${PROJECT_BINARY_DIR}/tests/test_results.xml"
-  DEPENDS ${this_target})
-add_test(NAME "RunGoogleTests" COMMAND run_tests)
+add_custom_target(run_unit_tests
+    COMMAND ${this_target} "--gtest_output=xml:${PROJECT_BINARY_DIR}/tests/test_results.xml"
+    DEPENDS ${this_target})
+add_test(NAME "RunGoogleTests" COMMAND run_unit_tests)
 
 create_coverage_targets(
   coverage
-  run_tests
-  ${PROJECT_BINARY_DIR}
+  run_unit_tests
+  ${PROJECT_BINARY_DIR}/tests
   ${CMAKE_SOURCE_DIR}/source/core
   ${PROJECT_BINARY_DIR}/tests/coverage
 )
 
+add_subdirectory(system_test)
+
+add_custom_target(run_tests
+    DEPENDS run_unit_tests run_system_test)
