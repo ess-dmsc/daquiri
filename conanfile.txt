@@ -7,6 +7,7 @@ streaming-data-types/3e85b23@ess-dmsc/stable
 jsonformoderncpp/3.1.0@vthiery/stable
 logical-geometry/09097f2@ess-dmsc/stable
 h5cpp/0.0.7@ess-dmsc/stable
+cli11/1.4-dm2@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
 
 [generators]

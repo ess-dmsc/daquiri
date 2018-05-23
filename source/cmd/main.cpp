@@ -1,3 +1,5 @@
+#include <CLI11.hpp>
+
 #include "engine.h"
 
 #include "custom_logger.h"
@@ -22,19 +24,22 @@ void define_value(Engine& e, uint16_t num,
 
 int main(int argc, char** argv)
 {
+  CLI::App app{"daqrun -- when having a GUI is just too much"};
+
+  uint64_t duration = 1;
+  app.add_option("-t,--time", duration, "How long shall we run?");
+
+  CLI11_PARSE(app, argc, argv);
+
+  if (duration < 1)
+    duration = 1;
+
+
   hdf5::error::Singleton::instance().auto_print(false);
 
   producers_autoreg();
   consumers_autoreg();
 
-  int duration = 1;
-  std::string durstr;
-  if (argc > 1)
-    durstr = std::string(argv[1]);
-  if (is_number(durstr))
-    duration = std::stoi(durstr);
-  if (duration < 1)
-    duration = 1;
 
   auto& engine = Engine::singleton();
   engine.initialize(get_profile());
