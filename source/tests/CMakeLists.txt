@@ -50,7 +50,35 @@ create_coverage_targets(
   ${PROJECT_BINARY_DIR}/tests/coverage
 )
 
-add_subdirectory(system_test)
+###############
+# SYSTEM TEST #
+###############
+
+add_executable(
+    system_test EXCLUDE_FROM_ALL
+    system_test/main.cpp
+)
+
+target_link_libraries(
+    system_test
+    PRIVATE ${PROJECT_NAME}_core
+    PRIVATE ${PROJECT_NAME}_producers
+    PRIVATE ${PROJECT_NAME}_consumers
+    PRIVATE ${Boost_LIBRARIES}
+)
+
+set_target_properties(system_test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+
+add_custom_target(run_system_test
+    COMMAND system_test
+    DEPENDS system_test)
+add_test(NAME "RunSystemTest" COMMAND run_system_test)
+
+
+#############
+# ALL TESTS #
+#############
 
 add_custom_target(all_tests
     DEPENDS unit_tests system_test)
