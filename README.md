@@ -8,10 +8,8 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 ### Requirements
 
 Supported platforms:
-- Ubuntu 16.04, 17.10
+- Ubuntu 18.04
 - macOS High Sierra
-- Centos7 w/ gcc6
-- Fedora 25
 
 You definitely need these:
 - git

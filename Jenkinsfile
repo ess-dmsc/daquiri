@@ -189,12 +189,6 @@ def get_macos_pipeline() {
                 }
 
                 dir("${project}/build") {
-//                    try {
-//                        sh "conan install --build=outdated ../code/conanfile.txt"
-//                    } catch (e) {
-//                        failure_function(e, 'MacOSX / getting dependencies failed')
-//                    }
-
                     try {
                         sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
                             -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
