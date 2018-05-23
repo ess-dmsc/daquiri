@@ -8,6 +8,4 @@ find_package(Boost 1.41 COMPONENTS
     system thread timer date_time log log_setup
     REQUIRED)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-  add_definitions(-DBOOST_ALL_DYN_LINK)
-endif ()
+add_definitions(-DBOOST_ALL_DYN_LINK)
