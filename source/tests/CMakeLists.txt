@@ -1,12 +1,12 @@
-set(this_target unit_tests)
-
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 include(${EXTRA_MODULES_DIR}/FindGTestFix.cmake)
-
 if (NOT GTest_FOUND)
   message(WARNING "GTest not found. No tests will be built.")
   return()
 endif ()
+
+set(this_target unit_tests)
+
+include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB ${this_target}_sources ${dir}/*.cpp)
