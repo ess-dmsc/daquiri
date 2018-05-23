@@ -1,24 +1,9 @@
 project = "daquiri"
-coverage_on = "ubuntu1710"
+coverage_on = "ubuntu18"
 
 images = [
-//        'centos7-gcc6': [
-//                'name'  : 'essdmscdm/centos7-gcc6-build-node:2.1.0',
-//                'sh'    : '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash',
-//                'cmake' : 'cmake3'
-//        ],
-        'fedora25' : [
-                'name'  : 'essdmscdm/fedora25-build-node:1.1.0',
-                'sh'    : 'sh',
-                'cmake' : 'cmake'
-        ],
-        'ubuntu1604'  : [
-                'name'  : 'essdmscdm/ubuntu16.04-build-node:2.4.0',
-                'sh'    : 'sh',
-                'cmake' : 'cmake'
-        ],
-        'ubuntu1710' : [
-                'name'  : 'essdmscdm/ubuntu17.10-build-node:2.1.1',
+        'ubuntu18' : [
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.0.0',
                 'sh'    : 'sh',
                 'cmake' : 'cmake'
         ]
@@ -123,8 +108,8 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make -j4 VERBOSE=ON
-                make coverage VERBOSE=ON
+                make -j4
+                make coverage
                 ./bin/systest
             \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
