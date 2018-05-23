@@ -17,8 +17,47 @@ def failure_function(exception_obj, failureMessage) {
             recipientProviders: toEmails,
             subject: '${DEFAULT_SUBJECT}'
     slackSend color: 'danger',
-            message: "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}: " + failureMessage
+            message: "${base_container_name}: " + failureMessage
     throw exception_obj
+}
+
+def get_macos_pipeline() {
+    return {
+        stage("macOS") {
+            node("macos") {
+                // Delete workspace when build is done
+                cleanWs()
+
+                dir("${project}/code") {
+                    try {
+                        checkout scm
+                        sh "git submodule update --init"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / Checkout failed')
+                    }
+                }
+
+                dir("${project}/build") {
+                    try {
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
+                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / CMake failed')
+                    }
+
+                    try {
+                        sh "make -j4"
+                        sh "make -j4 unit_tests"
+                        sh "source ./activate_run.sh && ./bin/unit_tests"
+                        sh "source ./activate_run.sh && ./bin/systest"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / build+test failed')
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 def Object container_name(image_key) {
@@ -83,8 +122,7 @@ def docker_build(image_key) {
         cd ${project}/build
         . ./activate_run.sh
         make --version
-        make -j4
-        make -j4 unit_tests
+        make -j4 && make -j4 unit_tests
                   """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
 }
@@ -94,8 +132,7 @@ def docker_tests(image_key) {
     def test_script = """
                 cd ${project}/build
                 . ./activate_run.sh
-                make run_tests
-                ./bin/systest
+                make run_tests && ./bin/systest
                     """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${test_script}\""
 }
@@ -108,9 +145,7 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make -j4
-                make coverage
-                ./bin/systest
+                make -j4 && make coverage && ./bin/systest
             \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
     } catch(e) {
@@ -167,45 +202,6 @@ def get_pipeline(image_key) {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
                 }
-            }
-        }
-    }
-}
-
-def get_macos_pipeline() {
-    return {
-        stage("macOS") {
-            node("macos") {
-                // Delete workspace when build is done
-                cleanWs()
-
-                dir("${project}/code") {
-                    try {
-                        checkout scm
-                        sh "git submodule update --init"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / Checkout failed')
-                    }
-                }
-
-                dir("${project}/build") {
-                    try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / CMake failed')
-                    }
-
-                    try {
-                        sh "make -j4"
-                        sh "make -j4 unit_tests"
-                        sh "source ./activate_run.sh && ./bin/unit_tests"
-                        sh "source ./activate_run.sh && ./bin/systest"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / build+test failed')
-                    }
-                }
-
             }
         }
     }
