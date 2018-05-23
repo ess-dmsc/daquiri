@@ -46,10 +46,11 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "make -j4"
-                        sh "make -j4 unit_tests"
-                        sh "source ./activate_run.sh && ./bin/unit_tests"
-                        sh "source ./activate_run.sh && ./bin/systest"
+                        sh "make -j4 && \
+                                 make -j4 unit_tests && \
+                                 source ./activate_run.sh && \
+                                 ./bin/unit_tests && \
+                                 ./bin/systest"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build+test failed')
                     }
@@ -106,7 +107,6 @@ def docker_cmake(image_key, xtra_flags) {
     def cmake = images[image_key]['cmake']
     def configure_script = """
         cd ${project}/build
-        ${cmake} --version
         ${cmake} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
                  -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
                  ${xtra_flags} \
@@ -121,7 +121,6 @@ def docker_build(image_key) {
     def build_script = """
         cd ${project}/build
         . ./activate_run.sh
-        make --version
         make -j4 && make -j4 unit_tests
                   """
     sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
