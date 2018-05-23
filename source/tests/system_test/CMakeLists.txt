@@ -1,6 +1,6 @@
 set(this_target system_test)
 
-#include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
+include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
 add_executable(
   ${this_target} EXCLUDE_FROM_ALL

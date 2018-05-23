@@ -52,5 +52,8 @@ create_coverage_targets(
 
 add_subdirectory(system_test)
 
+add_custom_target(all_tests
+    DEPENDS unit_tests system_test)
+
 add_custom_target(run_tests
     DEPENDS run_unit_tests run_system_test)
