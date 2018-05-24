@@ -3,17 +3,9 @@
 #include "engine.h"
 
 #include "custom_logger.h"
-#include "lexical_extensions.h"
 
 #include "consumers_autoreg.h"
 #include "producers_autoreg.h"
-
-#include "producer_factory.h"
-#include "consumer_factory.h"
-
-#include "custom_timer.h"
-
-#include "h5json.h"
 
 #include "json_file.h"
 
