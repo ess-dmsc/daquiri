@@ -13,7 +13,7 @@ include(${EXTRA_MODULES_DIR}/InstallConfig.cmake)
 include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
-find_package(h5cpp 0.0.5 REQUIRED)
+find_package(h5cpp 0.0.7 REQUIRED)
 find_package(Threads REQUIRED)
 
 add_subdirectory(core)

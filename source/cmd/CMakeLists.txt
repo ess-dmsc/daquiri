@@ -1,4 +1,4 @@
-set(this_target systest)
+set(this_target acquire)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 

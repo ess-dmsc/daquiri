@@ -3,9 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.0.0',
-                'sh'    : 'sh',
-                'cmake' : 'cmake'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.1.0'
         ]
 ]
 
@@ -17,8 +15,51 @@ def failure_function(exception_obj, failureMessage) {
             recipientProviders: toEmails,
             subject: '${DEFAULT_SUBJECT}'
     slackSend color: 'danger',
-            message: "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}: " + failureMessage
+            message: "${base_container_name}: " + failureMessage
     throw exception_obj
+}
+
+def get_macos_pipeline() {
+    return {
+        stage("macOS") {
+            node("macos") {
+                // Delete workspace when build is done
+                cleanWs()
+
+                dir("${project}/code") {
+                    try {
+                        checkout scm
+                        sh "git submodule update --init"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / Checkout failed')
+                    }
+                }
+
+                dir("${project}/build") {
+                    try {
+                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
+                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / CMake failed')
+                    }
+
+                    try {
+                        sh "make -j4 && make -j4 all_tests"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / build failed')
+                    }
+
+                    try {
+                        sh "source ./activate_run.sh && \
+                            tests/unit_tests && tests/system_test"
+                    } catch (e) {
+                        failure_function(e, 'MacOSX / tests failed')
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 def Object container_name(image_key) {
@@ -38,7 +79,6 @@ def create_container(image_key) {
 }
 
 def docker_clone(image_key) {
-    def custom_sh = images[image_key]['sh']
     def clone_script = """
         git clone \
             --branch ${env.BRANCH_NAME} \
@@ -46,11 +86,10 @@ def docker_clone(image_key) {
         cd ${project}
         git submodule update --init
         """
-    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${clone_script}\""
+    sh "docker exec ${container_name(image_key)} sh -c \"${clone_script}\""
 }
 
 def docker_dependencies(image_key) {
-    def custom_sh = images[image_key]['sh']
     def conan_remote = "ess-dmsc-local"
     def dependencies_script = """
         mkdir ${project}/build
@@ -59,58 +98,46 @@ def docker_dependencies(image_key) {
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
                     """
-    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${dependencies_script}\""
+    sh "docker exec ${container_name(image_key)} sh -c \"${dependencies_script}\""
 }
 
 def docker_cmake(image_key, xtra_flags) {
-    def custom_sh = images[image_key]['sh']
-    def cmake = images[image_key]['cmake']
     def configure_script = """
         cd ${project}/build
-        ${cmake} --version
-        ${cmake} -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                 -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-                 ${xtra_flags} \
-                 ..
+        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
+              -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
+              ${xtra_flags} \
+              ..
         """
 
-    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${configure_script}\""
+    sh "docker exec ${container_name(image_key)} sh -c \"${configure_script}\""
 }
 
 def docker_build(image_key) {
-    def custom_sh = images[image_key]['sh']
     def build_script = """
         cd ${project}/build
-        . ./activate_run.sh
-        make --version
-        make -j4
-        make -j4 unit_tests
-                  """
-    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${build_script}\""
+        make -j4 && make -j4 all_tests
+        """
+    sh "docker exec ${container_name(image_key)} sh -c \"${build_script}\""
 }
 
 def docker_tests(image_key) {
-    def custom_sh = images[image_key]['sh']
     def test_script = """
                 cd ${project}/build
                 . ./activate_run.sh
                 make run_tests
-                ./bin/systest
-                    """
-    sh "docker exec ${container_name(image_key)} ${custom_sh} -c \"${test_script}\""
+                """
+    sh "docker exec ${container_name(image_key)} sh -c \"${test_script}\""
 }
 
 def docker_tests_coverage(image_key) {
-    def custom_sh = images[image_key]['sh']
     abs_dir = pwd()
 
     try {
-        sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+        sh """docker exec ${container_name(image_key)} sh -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make -j4
-                make coverage
-                ./bin/systest
+                make run_tests && make coverage
             \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
     } catch(e) {
@@ -167,45 +194,6 @@ def get_pipeline(image_key) {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
                 }
-            }
-        }
-    }
-}
-
-def get_macos_pipeline() {
-    return {
-        stage("macOS") {
-            node("macos") {
-                // Delete workspace when build is done
-                cleanWs()
-
-                dir("${project}/code") {
-                    try {
-                        checkout scm
-                        sh "git submodule update --init"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / Checkout failed')
-                    }
-                }
-
-                dir("${project}/build") {
-                    try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=0 \
-                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / CMake failed')
-                    }
-
-                    try {
-                        sh "make -j4"
-                        sh "make -j4 unit_tests"
-                        sh "source ./activate_run.sh && ./bin/unit_tests"
-                        sh "source ./activate_run.sh && ./bin/systest"
-                    } catch (e) {
-                        failure_function(e, 'MacOSX / build+test failed')
-                    }
-                }
-
             }
         }
     }

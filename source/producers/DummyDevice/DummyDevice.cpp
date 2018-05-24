@@ -79,7 +79,6 @@ void DummyDevice::boot()
 
 void DummyDevice::die()
 {
-  INFO << "<DummyDevice> Shutting down";
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
