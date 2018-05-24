@@ -29,7 +29,7 @@ void ProducerFactory::register_type(std::string name,
   else
   {
     constructors_[name] = constructor;
-    INFO << "<ProducerFactory> registered '" << name << "'";
+    TRC << "<ProducerFactory> registered '" << name << "'";
   }
 }
 

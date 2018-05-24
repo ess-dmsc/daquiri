@@ -66,7 +66,7 @@ void ConsumerFactory::register_type(ConsumerMetadata tt,
   {
     constructors_[tt.type()] = constructor;
     prototypes_[tt.type()] = tt;
-    INFO << "<ConsumerFactory> registered '" << tt.type() << "'";
+    TRC << "<ConsumerFactory> registered '" << tt.type() << "'";
   }
 }
 
