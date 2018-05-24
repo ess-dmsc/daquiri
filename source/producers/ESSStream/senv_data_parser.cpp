@@ -78,20 +78,20 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
   uint64_t pushed_spills = 1;
   boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
   
-  auto SenvParserTimeStamp = GetLogData(msg);
+  auto SenvParser = GetSampleEnvironmentData(msg);
   
-  stats.time_start = stats.time_end = SenvParserTimeStamp->timestamp();
+  stats.time_start = stats.time_end = SenvParser->PacketTimestamp();
   
   auto ret = std::make_shared<Spill>(stream_id_, StatusType::running);
-  ret->state.branches.add(Setting::precise("native_time", SenvParserTimeStamp->timestamp()));
+  ret->state.branches.add(Setting::precise("native_time", SenvParser->PacketTimestamp()));
   ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = event_model_;
   ret->events.reserve(1, event_model_);
   
   auto& e = ret->events.last();
-  e.set_time(SenvParserTimeStamp->timestamp());
+  e.set_time(SenvParser->PacketTimestamp());
   
-  std::string TempName = SenvParserTimeStamp->source_name()->c_str();
+  std::string TempName = SenvParser->Name()->c_str();
   if (PVNameMap.find(TempName) == PVNameMap.end()) {
     PVNameMap[TempName] = PVNameMap.size();
   }
@@ -118,11 +118,11 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
   return pushed_spills;
 }
 
-std::string SenvParser::debug(const LogData& TDCTimeStamp)
-{
-  std::stringstream ss;
-  ss << "  Name      : " << TDCTimeStamp.source_name()->c_str() << "\n";
-  ss << "  Timestamp : " << TDCTimeStamp.timestamp() << "\n";
-  return ss.str();
-}
+//std::string SenvParser::debug(const LogData& TDCTimeStamp)
+//{
+//  std::stringstream ss;
+//  ss << "  Name      : " << TDCTimeStamp.source_name()->c_str() << "\n";
+//  ss << "  Timestamp : " << TDCTimeStamp.timestamp() << "\n";
+//  return ss.str();
+//}
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fb_parser.h"
-#include "f142_logdata_generated.h"
+#include "senv_data_generated.h"
 #include <map>
 
 using namespace DAQuiri;
@@ -34,6 +34,6 @@ class SenvParser : public fb_parser
 
     bool started_{false};
 
-    static std::string debug(const LogData& TDCTimeStamp);
+//    static std::string debug(const LogData& TDCTimeStamp);
 };
 
