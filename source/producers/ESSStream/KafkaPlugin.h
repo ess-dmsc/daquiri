@@ -63,6 +63,8 @@ class KafkaConfigPlugin : public DAQuiri::Plugin
     std::string kafka_broker_name_;
     uint16_t kafka_timeout_{1000};
     uint16_t kafka_decomission_wait_{5000};
+
+    static std::string random_string( size_t length );
 };
 
 
