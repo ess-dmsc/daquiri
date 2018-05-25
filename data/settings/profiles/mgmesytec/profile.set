@@ -3,7 +3,7 @@
   {
    "id": "ProfileDescr",
    "type": "text",
-   "value": "SKADI"
+   "value": "Multigrid Mesytec"
   },
   {
    "id": "DropPackets",
@@ -13,7 +13,7 @@
   {
    "id": "MaxPackets",
    "type": "integer",
-   "value": 1
+   "value": 3
   },
   {
    "branches": [
@@ -32,7 +32,7 @@
       {
        "id": "KafkaConfig/KafkaDecomission",
        "type": "integer",
-       "value": 5000
+       "value": 3000
       }
      ],
      "id": "KafkaConfig",
@@ -41,7 +41,7 @@
     {
      "id": "ESSStream/TopicCount",
      "type": "integer",
-     "value": 1
+     "value": 2
     },
     {
      "branches": [
@@ -50,12 +50,12 @@
         {
          "id": "KafkaTopicConfig/KafkaTopic",
          "type": "text",
-         "value": "SKADI_detector"
+         "value": "C-SPEC_detector"
         },
         {
          "id": "KafkaTopicConfig/KafkaFF",
          "type": "boolean",
-         "value": false
+         "value": true
         },
         {
          "id": "KafkaTopicConfig/KafkaMaxBacklog",
@@ -76,12 +76,12 @@
         {
          "id": "ev42_events/StreamID",
          "type": "text",
-         "value": "SKADI"
+         "value": "cspec"
         },
         {
          "id": "ev42_events/SpoofClock",
          "type": "menu",
-         "value": 1
+         "value": 2
         },
         {
          "id": "ev42_events/Heartbeat",
@@ -101,24 +101,24 @@
         {
          "id": "ev42_events/MessageOrdering",
          "type": "menu",
-         "value": 1
+         "value": 0
         },
         {
          "branches": [
           {
            "id": "ESSGeometry/extent_x",
            "type": "integer",
-           "value": 8
+           "value": 4
           },
           {
            "id": "ESSGeometry/extent_y",
            "type": "integer",
-           "value": 8
+           "value": 48
           },
           {
            "id": "ESSGeometry/extent_z",
            "type": "integer",
-           "value": 1
+           "value": 20
           },
           {
            "id": "ESSGeometry/panels",
@@ -152,10 +152,84 @@
      ],
      "id": "ESSStream/Topic",
      "type": "stem"
+    },
+    {
+     "branches": [
+      {
+       "branches": [
+        {
+         "id": "KafkaTopicConfig/KafkaTopic",
+         "type": "text",
+         "value": "C-SPEC_monitor"
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaFF",
+         "type": "boolean",
+         "value": true
+        },
+        {
+         "id": "KafkaTopicConfig/KafkaMaxBacklog",
+         "type": "integer",
+         "value": 1
+        }
+       ],
+       "id": "KafkaTopicConfig",
+       "type": "stem"
+      },
+      {
+       "id": "ESSStream/Parser",
+       "type": "menu",
+       "value": 2
+      },
+      {
+       "branches": [
+        {
+         "id": "mo01_nmx/HistsStream",
+         "type": "text",
+         "value": "hists"
+        },
+        {
+         "id": "mo01_nmx/XStream",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "mo01_nmx/YStream",
+         "type": "text",
+         "value": ""
+        },
+        {
+         "id": "mo01_nmx/HitsStream",
+         "type": "text",
+         "value": "hits"
+        },
+        {
+         "branches": [
+          {
+           "id": "TimeBase/multiplier",
+           "type": "integer",
+           "value": 1
+          },
+          {
+           "id": "TimeBase/divider",
+           "type": "integer",
+           "value": 1
+          }
+         ],
+         "id": "TimeBase",
+         "type": "stem"
+        }
+       ],
+       "id": "mo01_nmx",
+       "type": "stem"
+      }
+     ],
+     "id": "ESSStream/Topic",
+     "type": "stem"
     }
    ],
    "id": "ESSStream",
-   "reference": "SKADI",
+   "reference": "cspec",
    "type": "stem"
   }
  ],

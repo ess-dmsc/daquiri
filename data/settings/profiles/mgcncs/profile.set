@@ -3,7 +3,7 @@
   {
    "id": "ProfileDescr",
    "type": "text",
-   "value": "C-SPEC"
+   "value": "Multigrid CNCS"
   },
   {
    "id": "DropPackets",
@@ -22,7 +22,7 @@
       {
        "id": "KafkaConfig/KafkaBroker",
        "type": "text",
-       "value": "localhost:9092"
+       "value": "dmsc-parallel:9092"
       },
       {
        "id": "KafkaConfig/KafkaTimeout",
@@ -41,7 +41,7 @@
     {
      "id": "ESSStream/TopicCount",
      "type": "integer",
-     "value": 2
+     "value": 1
     },
     {
      "branches": [
@@ -108,7 +108,7 @@
           {
            "id": "ESSGeometry/extent_x",
            "type": "integer",
-           "value": 4
+           "value": 16
           },
           {
            "id": "ESSGeometry/extent_y",
@@ -118,7 +118,7 @@
           {
            "id": "ESSGeometry/extent_z",
            "type": "integer",
-           "value": 20
+           "value": 8
           },
           {
            "id": "ESSGeometry/panels",
@@ -147,80 +147,6 @@
         }
        ],
        "id": "ev42_events",
-       "type": "stem"
-      }
-     ],
-     "id": "ESSStream/Topic",
-     "type": "stem"
-    },
-    {
-     "branches": [
-      {
-       "branches": [
-        {
-         "id": "KafkaTopicConfig/KafkaTopic",
-         "type": "text",
-         "value": "C-SPEC_monitor"
-        },
-        {
-         "id": "KafkaTopicConfig/KafkaFF",
-         "type": "boolean",
-         "value": false
-        },
-        {
-         "id": "KafkaTopicConfig/KafkaMaxBacklog",
-         "type": "integer",
-         "value": 1
-        }
-       ],
-       "id": "KafkaTopicConfig",
-       "type": "stem"
-      },
-      {
-       "id": "ESSStream/Parser",
-       "type": "menu",
-       "value": 2
-      },
-      {
-       "branches": [
-        {
-         "id": "mo01_nmx/HistsStream",
-         "type": "text",
-         "value": "hists"
-        },
-        {
-         "id": "mo01_nmx/XStream",
-         "type": "text",
-         "value": ""
-        },
-        {
-         "id": "mo01_nmx/YStream",
-         "type": "text",
-         "value": ""
-        },
-        {
-         "id": "mo01_nmx/HitsStream",
-         "type": "text",
-         "value": "hits"
-        },
-        {
-         "branches": [
-          {
-           "id": "TimeBase/multiplier",
-           "type": "integer",
-           "value": 1
-          },
-          {
-           "id": "TimeBase/divider",
-           "type": "integer",
-           "value": 1
-          }
-         ],
-         "id": "TimeBase",
-         "type": "stem"
-        }
-       ],
-       "id": "mo01_nmx",
        "type": "stem"
       }
      ],
