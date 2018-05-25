@@ -9,6 +9,10 @@ file(GLOB ${this_target}_headers *.h
 dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
 #OpenGL for plots
+
+set(BUILD_SHARED_LIBS OFF)
+set(BUILD_STATIC_LIBS ON)
+
 add_subdirectory(qplot/source)
 add_subdirectory(ColorWidgets)
 
