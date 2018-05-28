@@ -4,7 +4,7 @@ endif ()
 
 if (NOT DAQuiri_config)
   set(DAQuiri_gui TRUE)
-  list(APPEND DAQuiri_enabled_producers ESSStream)
+  list(APPEND DAQuiri_enabled_producers ESSStream MockProducer)
 endif ()
 
 include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)

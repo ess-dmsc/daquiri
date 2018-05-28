@@ -33,13 +33,18 @@ conan profile new --detect default
 
 ### Build
 
+First time
 ```
-git clone --recurse-submodules https://github.com/ess-dmsc/daquiri.git
-mkdir daquiri/build
-cd daquiri/build
-cmake ..
-make -j
+git clone https://github.com/ess-dmsc/daquiri.git
+mkdir daquiri/utils
+./first_build.sh
 ```
+
+When you want to update to latest version, from `daquiri` directory, run:
+```
+./utils/update_build.sh
+```
+
 
 ## Running
 
@@ -50,6 +55,12 @@ Every time you run it, you need to activate the `conan`-generated virtual enviro
 source ./activate_run.sh
 ./bin/daquiri
 ```
+
+To simplify matters, you may also use the included script, which wraps the above:
+```
+./utils/daquiri.sh
+```
+
 
 ## Dependencies in custom locations
 

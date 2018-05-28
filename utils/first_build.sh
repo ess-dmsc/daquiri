@@ -8,4 +8,6 @@ pushd build
 rm -fr *
 cmake ..
 make -j
-make -j unit_tests
+make -j all_tests
+source ./activate_run.sh
+make run_tests
