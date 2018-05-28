@@ -20,12 +20,7 @@ add_subdirectory(core)
 add_subdirectory(consumers)
 add_subdirectory(producers)
 
-if (DAQuiri_cmd)
-  add_subdirectory(cmd)
-endif ()
-
-if (DAQuiri_gui)
-  add_subdirectory(gui)
-endif ()
+add_subdirectory(cmd)
+add_subdirectory(gui)
 
 add_subdirectory(tests)
