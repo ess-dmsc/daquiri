@@ -7,7 +7,7 @@ git submodule update
 mkdir -p build
 pushd build
 cmake ..
-make -j
-make -j all_tests
+make $@
+make all_tests $@
 source ./activate_run.sh
 make run_tests
