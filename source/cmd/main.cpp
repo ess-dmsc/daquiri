@@ -17,10 +17,20 @@
 
 #include "json_file.h"
 
+#include <signal.h>
+
 using namespace DAQuiri;
+
+std::atomic<bool> interruptor(false);
+void term_key(int /*sig*/)
+{
+  interruptor.store(true);
+}
 
 int main(int argc, char** argv)
 {
+  signal(SIGINT, term_key);
+
   CustomLogger::initLogger(nullptr, "acquire");
   hdf5::error::Singleton::instance().auto_print(false);
   producers_autoreg();
@@ -97,7 +107,6 @@ int main(int argc, char** argv)
   if (verbose)
     INFO << "Project before DAQ run:\n" << *project;
 
-  Interruptor interruptor(false);
   engine.acquire(project, interruptor, duration);
   engine.die();
 
