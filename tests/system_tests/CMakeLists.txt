@@ -1,4 +1,4 @@
-set(this_target system_tests)
+set(this_target system_test)
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
@@ -20,8 +20,8 @@ target_link_libraries(
 set_target_properties(${this_target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 
-add_custom_target(run_system_tests
-    COMMAND system_tests
-    DEPENDS system_tests)
+add_custom_target(run_${this_target}
+    COMMAND ${this_target}
+    DEPENDS ${this_target})
 
-add_test(NAME "RunSystemTest" COMMAND run_system_tests)
+add_test(NAME "RunSystemTest" COMMAND run_${this_target})

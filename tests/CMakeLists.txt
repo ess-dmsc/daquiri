@@ -41,14 +41,14 @@ add_test(NAME "RunGoogleTests" COMMAND run_unit_tests)
 # SYSTEM TEST #
 ###############
 
-add_subdirectory(system_test)
+add_subdirectory(system_tests)
 
 #############
 # ALL TESTS #
 #############
 
 add_custom_target(all_tests
-    DEPENDS unit_tests system_tests)
+    DEPENDS unit_tests system_test)
 
 add_custom_target(run_tests
-    DEPENDS run_unit_tests run_system_tests)
+    DEPENDS run_unit_tests run_system_test)
