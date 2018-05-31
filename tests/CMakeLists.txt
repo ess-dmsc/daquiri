@@ -3,14 +3,15 @@ set(this_target unit_tests)
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
-file(GLOB ${this_target}_sources ${dir}/*.cpp)
-file(GLOB ${this_target}_headers ${dir}/*.h)
+file(GLOB_RECURSE ${this_target}_sources ${dir}/core/*.cpp ${dir}/dataspaces/*.cpp)
+file(GLOB_RECURSE ${this_target}_headers ${dir}/core/*.h ${dir}/dataspaces/*.h)
 dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
 add_executable(
     ${this_target} EXCLUDE_FROM_ALL
     ${${this_target}_sources}
     ${${this_target}_headers}
+    ${dir}/main.cpp
 )
 
 target_include_directories(
@@ -40,34 +41,14 @@ add_test(NAME "RunGoogleTests" COMMAND run_unit_tests)
 # SYSTEM TEST #
 ###############
 
-add_executable(
-    system_test EXCLUDE_FROM_ALL
-    system_test/main.cpp
-)
-
-target_link_libraries(
-    system_test
-    PRIVATE ${PROJECT_NAME}_core
-    PRIVATE ${PROJECT_NAME}_producers
-    PRIVATE ${PROJECT_NAME}_consumers
-    PRIVATE ${Boost_LIBRARIES}
-)
-
-set_target_properties(system_test PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
-
-add_custom_target(run_system_test
-    COMMAND system_test
-    DEPENDS system_test)
-add_test(NAME "RunSystemTest" COMMAND run_system_test)
-
+add_subdirectory(system_test)
 
 #############
 # ALL TESTS #
 #############
 
 add_custom_target(all_tests
-    DEPENDS unit_tests system_test)
+    DEPENDS unit_tests system_tests)
 
 add_custom_target(run_tests
-    DEPENDS run_unit_tests run_system_test)
+    DEPENDS run_unit_tests run_system_tests)

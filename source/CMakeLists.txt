@@ -7,7 +7,6 @@ if(NOT DAQuiri_config)
   list(APPEND DAQuiri_enabled_producers ESSStream MockProducer)
 endif()
 
-include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
 include(${EXTRA_MODULES_DIR}/DirsOf.cmake)
 include(${EXTRA_MODULES_DIR}/InstallConfig.cmake)
 include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
