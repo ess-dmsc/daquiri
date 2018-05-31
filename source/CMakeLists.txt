@@ -1,11 +1,11 @@
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
   add_subdirectory(config)
-endif ()
+endif()
 
-if (NOT DAQuiri_config)
+if(NOT DAQuiri_config)
   set(DAQuiri_gui TRUE)
   list(APPEND DAQuiri_enabled_producers ESSStream MockProducer)
-endif ()
+endif()
 
 include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
 include(${EXTRA_MODULES_DIR}/DirsOf.cmake)
@@ -22,5 +22,3 @@ add_subdirectory(producers)
 
 add_subdirectory(cmd)
 add_subdirectory(gui)
-
-add_subdirectory(tests)

@@ -42,4 +42,16 @@ include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 
 add_subdirectory(source)
 
+include(${EXTRA_MODULES_DIR}/FindGTestFix.cmake)
+if(GTest_FOUND)
+  add_subdirectory(tests)
+endif()
+
+create_coverage_targets(
+    coverage
+    run_unit_tests
+    ${PROJECT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/source/
+    ${PROJECT_BINARY_DIR}/tests/coverage
+)
 
