@@ -22,6 +22,7 @@ target_include_directories(
 target_link_libraries(
     ${this_target}
     PRIVATE ${PROJECT_NAME}_core
+    PRIVATE ${PROJECT_NAME}_consumers
     PRIVATE ${GTEST_LIBRARIES}
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE ${Boost_LIBRARIES}
