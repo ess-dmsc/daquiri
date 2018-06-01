@@ -246,6 +246,56 @@ void ProjectForm::update_plots()
 //  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
 }
 
+void ProjectForm::projectOpen()
+{
+  QString formats = "daquiri project file (*.daq)";
+
+  QString fileName = QFileDialog::getOpenFileName(this, "Load project",
+                                                  data_directory_, formats);
+  if (!validateFile(this, fileName, false))
+    return;
+
+  data_directory_ = path_of_file(fileName);
+
+  //save first?
+  if (project_->has_data())
+  {
+    int reply = QMessageBox::warning(this, "Clear existing?",
+                                     "Spectra already open. Clear existing before opening?",
+                                     QMessageBox::Yes | QMessageBox::Cancel);
+    if (reply == QMessageBox::Yes)
+      project_->clear();
+    else
+      return;
+  }
+
+  //toggle_push(false, false);
+  INFO << "Reading spectra from file " << fileName.toStdString();
+  clearGraphs();
+
+  try
+  {
+    project_->open(fileName.toStdString());
+  }
+  catch (std::exception& e)
+  {
+    auto message = "Could not load project:\n" + hdf5::error::print_nested(e, 0);
+    ERR << message;
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(QS(message));
+    msgBox.exec();
+    return;
+  }
+
+  newProject();
+
+  project_identity_ = fileName;
+  project_->activate();
+
+  emit toggleIO(true);
+}
+
 void ProjectForm::projectSave()
 {
   if (!project_identity_.isEmpty())
@@ -254,11 +304,25 @@ void ProjectForm::projectSave()
                                      "Save changes to existing project: "
                                          + project_identity_,
                                      QMessageBox::Yes | QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes)
+    if (reply != QMessageBox::Yes)
+      return;
+
+    try
     {
       project_->save(project_identity_.toStdString());
-      update_plots();
     }
+    catch (std::exception& e)
+    {
+      auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+      ERR << message;
+      QMessageBox msgBox;
+      msgBox.setIcon(QMessageBox::Warning);
+      msgBox.setText(QS(message));
+      msgBox.exec();
+      return;
+    }
+
+    update_plots();
   } else
     projectSaveAs();
 }
@@ -269,13 +333,26 @@ void ProjectForm::projectSaveAs()
 
   QString fileName = CustomSaveFileDialog(this, "Save project",
                                           data_directory_, formats);
-  if (validateFile(this, fileName, true))
+  if (!validateFile(this, fileName, true))
+    return;
+
+  try
   {
     project_->save(fileName.toStdString());
-    project_identity_ = fileName;
-    update_plots();
+  }
+  catch (std::exception& e)
+  {
+    auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+    ERR << message;
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(QS(message));
+    msgBox.exec();
+    return;
   }
 
+  project_identity_ = fileName;
+  update_plots();
   data_directory_ = path_of_file(fileName);
 }
 
@@ -354,43 +431,6 @@ void ProjectForm::start_DAQ()
   if (ui->toggleIndefiniteRun->isChecked())
     duration = 0;
   runner_thread_.do_run(project_, interruptor_, duration);
-}
-
-void ProjectForm::projectOpen()
-{
-  QString formats = "daquiri project file (*.daq)";
-
-  QString fileName = QFileDialog::getOpenFileName(this, "Load project",
-                                                  data_directory_, formats);
-  if (!validateFile(this, fileName, false))
-    return;
-
-  data_directory_ = path_of_file(fileName);
-
-  //save first?
-  if (project_->has_data())
-  {
-    int reply = QMessageBox::warning(this, "Clear existing?",
-                                     "Spectra already open. Clear existing before opening?",
-                                     QMessageBox::Yes | QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes)
-      project_->clear();
-    else
-      return;
-  }
-
-  //toggle_push(false, false);
-  INFO << "Reading spectra from file " << fileName.toStdString();
-  clearGraphs();
-
-  project_->open(fileName.toStdString());
-
-  newProject();
-
-  project_identity_ = fileName;
-  project_->activate();
-
-  emit toggleIO(true);
 }
 
 void ProjectForm::newProject()

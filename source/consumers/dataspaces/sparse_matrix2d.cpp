@@ -109,48 +109,55 @@ void SparseMatrix2D::fill_list(EntryList& result,
 
 void SparseMatrix2D::data_save(hdf5::node::Group g) const
 {
-  if (!spectrum_.size())
+  if (spectrum_.nonZeros() == 0)
     return;
 
-  std::vector<uint16_t> dx;
-  std::vector<uint16_t> dy;
-  std::vector<double> dc;
-  for (int k = 0; k < spectrum_.outerSize(); ++k)
+  try
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
+    std::vector<uint16_t> dx;
+    std::vector<uint16_t> dy;
+    std::vector<double> dc;
+    for (int k = 0; k < spectrum_.outerSize(); ++k)
     {
-      dx.push_back(it.row());
-      dy.push_back(it.col());
-      dc.push_back(static_cast<double>(it.value()));
+      for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
+      {
+        dx.push_back(it.row());
+        dy.push_back(it.col());
+        dc.push_back(static_cast<double>(it.value()));
+      }
     }
+
+    using namespace hdf5;
+
+    property::DatasetCreationList dcpl;
+    dcpl.layout(property::DatasetLayout::CHUNKED);
+
+    size_t chunksize = dc.size();
+    if (chunksize > 128)
+      chunksize = 128;
+
+    auto i_space = dataspace::Simple({dc.size(), 2});
+    dcpl.chunk({chunksize, 1});
+    auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
+
+    auto c_space = dataspace::Simple({dc.size()});
+    dcpl.chunk({chunksize});
+    auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
+
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(dc.size()), 1});
+
+    slab.offset({0, 0});
+    didx.write(dx, slab);
+
+    slab.offset({0, 1});
+    didx.write(dy, slab);
+
+    dcts.write(dc);
   }
-
-  using namespace hdf5;
-
-  property::DatasetCreationList dcpl;
-  dcpl.layout(property::DatasetLayout::CHUNKED);
-
-  size_t chunksize = dc.size();
-  if (chunksize > 128)
-    chunksize = 128;
-
-  auto i_space = dataspace::Simple({dc.size(), 2});
-  dcpl.chunk({chunksize, 1});
-  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
-
-  auto c_space = dataspace::Simple({dc.size()});
-  dcpl.chunk({chunksize});
-  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
-
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(dc.size()), 1});
-
-  slab.offset({0, 0});
-  didx.write(dx, slab);
-
-  slab.offset({0, 1});
-  didx.write(dy, slab);
-
-  dcts.write(dc);
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not save SparseMatrix2D data"));
+  }
 }
 
 void SparseMatrix2D::data_load(hdf5::node::Group g)

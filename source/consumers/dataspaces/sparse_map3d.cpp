@@ -117,50 +117,57 @@ void SparseMap3D::data_save(hdf5::node::Group g) const
   if (!spectrum_.size())
     return;
 
-  std::vector<uint16_t> dx(spectrum_.size());
-  std::vector<uint16_t> dy(spectrum_.size());
-  std::vector<uint16_t> dz(spectrum_.size());
-  std::vector<double> dc(spectrum_.size());
-  size_t i = 0;
-
-  for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
+  try
   {
-    dx[i] = std::get<0>(it->first);
-    dy[i] = std::get<1>(it->first);
-    dz[i] = std::get<2>(it->first);
-    dc[i] = static_cast<long double>(it->second);
-    i++;
+    std::vector<uint16_t> dx(spectrum_.size());
+    std::vector<uint16_t> dy(spectrum_.size());
+    std::vector<uint16_t> dz(spectrum_.size());
+    std::vector<double> dc(spectrum_.size());
+    size_t i = 0;
+
+    for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
+    {
+      dx[i] = std::get<0>(it->first);
+      dy[i] = std::get<1>(it->first);
+      dz[i] = std::get<2>(it->first);
+      dc[i] = static_cast<long double>(it->second);
+      i++;
+    }
+
+    using namespace hdf5;
+
+    property::DatasetCreationList dcpl;
+    dcpl.layout(property::DatasetLayout::CHUNKED);
+
+    size_t chunksize = spectrum_.size();
+    if (chunksize > 128)
+      chunksize = 128;
+
+    dataspace::Simple i_space({spectrum_.size(), 3});
+    dcpl.chunk({chunksize, 3});
+    auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
+
+    dataspace::Simple c_space({spectrum_.size()});
+    dcpl.chunk({chunksize});
+    auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
+
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
+
+    slab.offset({0, 0});
+    didx.write(dx, slab);
+
+    slab.offset({0, 1});
+    didx.write(dy, slab);
+
+    slab.offset({0, 2});
+    didx.write(dz, slab);
+
+    dcts.write(dc);
   }
-
-  using namespace hdf5;
-
-  property::DatasetCreationList dcpl;
-  dcpl.layout(property::DatasetLayout::CHUNKED);
-
-  size_t chunksize = spectrum_.size();
-  if (chunksize > 128)
-    chunksize = 128;
-
-  dataspace::Simple i_space({spectrum_.size(), 3});
-  dcpl.chunk({chunksize, 3});
-  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
-
-  dataspace::Simple c_space({spectrum_.size()});
-  dcpl.chunk({chunksize});
-  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
-
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
-
-  slab.offset({0, 0});
-  didx.write(dx, slab);
-
-  slab.offset({0, 1});
-  didx.write(dy, slab);
-
-  slab.offset({0, 2});
-  didx.write(dz, slab);
-
-  dcts.write(dc);
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not save SparseMap3D data"));
+  }
 }
 
 void SparseMap3D::data_load(hdf5::node::Group g)

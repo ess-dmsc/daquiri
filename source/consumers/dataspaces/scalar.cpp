@@ -87,10 +87,17 @@ void Scalar::data_save(hdf5::node::Group g) const
   if (!has_data_)
     return;
 
-  g.attributes.create<double>("value").write(double(data_));
-  g.attributes.create<double>("min").write(double(min_val_));
-  g.attributes.create<double>("max").write(double(max_val_));
-  g.attributes.create<double>("total_count").write(double(total_count_));
+  try
+  {
+    g.attributes.create<double>("value").write(double(data_));
+    g.attributes.create<double>("min").write(double(min_val_));
+    g.attributes.create<double>("max").write(double(max_val_));
+    g.attributes.create<double>("total_count").write(double(total_count_));
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not save Scalar data"));
+  }
 }
 
 void Scalar::data_load(hdf5::node::Group g)
