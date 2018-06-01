@@ -13,9 +13,9 @@ ev42_events::ev42_events()
   add_definition(streamid);
 
   SettingMeta spoof(r + "/SpoofClock", SettingType::menu, "Spoof pulse time");
-  spoof.set_enum(0, "no");
-  spoof.set_enum(1, "monotonous high-time");
-  spoof.set_enum(2, "use earliest event in buffer");
+  spoof.set_enum(Spoof::None, "no");
+  spoof.set_enum(Spoof::Monotonous, "monotonous high-time");
+  spoof.set_enum(Spoof::Earliest, "use earliest event in buffer");
   add_definition(spoof);
 
   SettingMeta hb(r + "/Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
@@ -31,9 +31,9 @@ ev42_events::ev42_events()
   add_definition(sname);
 
   SettingMeta oor(r + "/MessageOrdering", SettingType::menu, "If message_id out of order");
-  oor.set_enum(0, "ignore");
-  oor.set_enum(1, "warn");
-  oor.set_enum(2, "reject");
+  oor.set_enum(CheckOrdering::Ignore, "ignore");
+  oor.set_enum(CheckOrdering::Warn, "warn");
+  oor.set_enum(CheckOrdering::Reject, "reject");
   add_definition(oor);
 
   int32_t i{0};
@@ -76,9 +76,9 @@ void ev42_events::settings(const Setting& settings)
   filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
   source_name_ = set.find({r + "/SourceName"}).get_text();
   stream_id_ = set.find({r + "/StreamID"}).get_text();
-  spoof_clock_ = set.find({r + "/SpoofClock"}).get_number();
+  spoof_clock_ = static_cast<Spoof>(set.find({r + "/SpoofClock"}).get_int());
   heartbeat_ = set.find({r + "/Heartbeat"}).triggered();
-  ordering_ = set.find({r + "/MessageOrdering"}).get_number();
+  ordering_ = static_cast<CheckOrdering>(set.find({r + "/MessageOrdering"}).get_int());
 
   event_definition_ = EventModel();
 
@@ -130,12 +130,12 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     return 0;
   }
 
-  if (ordering_ && !in_order(em))
+  if ((ordering_ != Ignore) && !in_order(em))
   {
     WARN << "Buffer out of order (" << em->message_id()
          << "<=" << latest_buf_id_ << ") "
          << debug(em);
-    if (ordering_ == 2)
+    if (ordering_ == Reject)
     {
       stats.time_spent += timer.s();
       return 0;
@@ -146,7 +146,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   uint64_t time_high = em->pulse_time();
 
-  if (spoof_clock_ == 1)
+  if (spoof_clock_ == Monotonous)
     time_high = spoofed_time_++ << 32;
 
   stats.time_start = stats.time_end = time_high;
@@ -177,9 +177,9 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   run_spill->state.branches.add(Setting::precise("native_time", stats.time_end));
   run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
 
-  if (spoof_clock_ == 1)
+  if (spoof_clock_ == Monotonous)
     run_spill->state.branches.add(Setting::precise("pulse_time", time_high));
-  else if (spoof_clock_ == 2)
+  else if (spoof_clock_ == Earliest)
     run_spill->state.branches.add(Setting::precise("pulse_time", stats.time_start));
   else
     run_spill->state.branches.add(Setting::precise("pulse_time", em->pulse_time()));

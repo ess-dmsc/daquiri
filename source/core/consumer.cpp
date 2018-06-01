@@ -208,32 +208,43 @@ void Consumer::load(hdf5::node::Group& g, bool withdata)
   if (!hdf5::has_group(g, "metadata"))
     return;
 
-  json j;
-  hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
-  metadata_ = j;
-//  metadata_.from_json(g.open_group("metadata"));
+  try
+  {
+    json j;
+    hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
+    metadata_ = j;
 
-  this->_apply_attributes();
+    this->_apply_attributes();
 
-  if (withdata && data_)
-    data_->load(g);
+    if (withdata && data_)
+      data_->load(g);
 
-  this->_init_from_file();
-//  this->_recalc_axes();
+    this->_init_from_file();
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not load Consumer"));
+  }
 }
 
 void Consumer::save(hdf5::node::Group& g) const
 {
   SHARED_LOCK_ST
-  hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
-  a.write(this->my_type());
-//  g.write_attribute("type", this->my_type());
+  try
+  {
+    hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
+    a.write(this->my_type());
 
-  auto mdg = hdf5::require_group(g, "metadata");
-  hdf5::from_json(json(metadata_), mdg);
+    auto mdg = hdf5::require_group(g, "metadata");
+    hdf5::from_json(json(metadata_), mdg);
 
-  if (data_)
-    data_->save(g);
+    if (data_)
+      data_->save(g);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not save Consumer"));
+  }
 }
 
 }

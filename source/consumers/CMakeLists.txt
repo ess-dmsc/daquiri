@@ -22,3 +22,6 @@ target_link_libraries(
   ${this_target}
   PUBLIC ${PROJECT_NAME}_core
 )
+
+enable_coverage(${this_target})
+
