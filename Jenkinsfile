@@ -135,7 +135,7 @@ def docker_tests_coverage(image_key) {
         sh """docker exec ${container_name(image_key)} sh -c \"
                 cd ${project}/build
                 . ./activate_run.sh
-                make coverage && make run_system_test
+                make run_tests && make coverage
             \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
     } catch(e) {
