@@ -5,7 +5,6 @@ include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB_RECURSE ${this_target}_sources ${dir}/core/*.cpp ${dir}/dataspaces/*.cpp)
 file(GLOB_RECURSE ${this_target}_headers ${dir}/core/*.h ${dir}/dataspaces/*.h)
-dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 
 add_executable(
     ${this_target} EXCLUDE_FROM_ALL
