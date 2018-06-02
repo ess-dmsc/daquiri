@@ -13,7 +13,7 @@ using Pair = std::pair<size_t, size_t>;
 
 using Coords = std::vector<size_t>;
 using Entry = std::pair<Coords, PreciseFloat>;
-using EntryList_t = std::list<Entry>;
+using EntryList_t = std::vector<Entry>;
 using EntryList = std::shared_ptr<EntryList_t>;
 
 class Dataspace;
