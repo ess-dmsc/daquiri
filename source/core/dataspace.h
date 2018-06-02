@@ -65,10 +65,10 @@ class Dataspace
     virtual void add_one(const Coords &) = 0;
     virtual void recalc_axes() = 0;
 
-    virtual void save(std::ostream &) {} //should be pure virtual!
+    virtual void export_csv(std::ostream &) const = 0;
 
-    void load(hdf5::node::Group &);
-    void save(hdf5::node::Group &) const;
+    void load(const hdf5::node::Group &);
+    void save(const hdf5::node::Group &) const;
 
     //retrieve axis-values for given dimension (can be precalculated energies)
     uint16_t dimensions() const;
@@ -85,8 +85,8 @@ class Dataspace
     PreciseFloat total_count_ {0};
 
     virtual std::string data_debug(const std::string &prepend) const;
-    virtual void data_load(hdf5::node::Group) = 0;
-    virtual void data_save(hdf5::node::Group) const = 0;
+    virtual void data_load(const hdf5::node::Group&) = 0;
+    virtual void data_save(const hdf5::node::Group&) const = 0;
 };
 
 }

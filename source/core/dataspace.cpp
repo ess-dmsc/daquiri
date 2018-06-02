@@ -128,11 +128,11 @@ uint16_t Dataspace::dimensions() const
   return dimensions_;
 }
 
-void Dataspace::load(hdf5::node::Group &g)
+void Dataspace::load(const hdf5::node::Group& g)
 {
   using namespace hdf5;
 
-  auto dgroup = g.get_group("dataspace");
+  auto dgroup = hdf5::node::Group(g).get_group("dataspace");
   axes_.clear();
   if (dgroup.has_group("axes"))
   {
@@ -153,7 +153,7 @@ void Dataspace::load(hdf5::node::Group &g)
   this->data_load(node::Group(dgroup["data"]));
 }
 
-void Dataspace::save(hdf5::node::Group &g) const
+void Dataspace::save(const hdf5::node::Group& g) const
 {
   using namespace hdf5;
 

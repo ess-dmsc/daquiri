@@ -28,6 +28,8 @@ class DenseMatrix2D : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
+    void export_csv(std::ostream &) const override {} //TODO: implement
+
   protected:
     typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> data_type_t;
 
@@ -69,8 +71,8 @@ class DenseMatrix2D : public Dataspace
                    size_t min1, size_t max1) const;
 
 
-    void data_save(hdf5::node::Group) const override;
-    void data_load(hdf5::node::Group) override;
+    void data_save(const hdf5::node::Group&) const override;
+    void data_load(const hdf5::node::Group&) override;
     std::string data_debug(const std::string& prepend) const override;
 };
 

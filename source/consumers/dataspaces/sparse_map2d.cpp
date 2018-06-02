@@ -99,7 +99,7 @@ void SparseMap2D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap2D::data_save(hdf5::node::Group g) const
+void SparseMap2D::data_save(const hdf5::node::Group& g) const
 {
   if (!spectrum_.size())
     return;
@@ -151,7 +151,7 @@ void SparseMap2D::data_save(hdf5::node::Group g) const
   }
 }
 
-void SparseMap2D::data_load(hdf5::node::Group g)
+void SparseMap2D::data_load(const hdf5::node::Group& g)
 {
   using namespace hdf5;
 
@@ -159,8 +159,8 @@ void SparseMap2D::data_load(hdf5::node::Group g)
       !g.has_dataset("counts"))
     return;
 
-  auto didx = g.get_dataset("indices");
-  auto dcts = g.get_dataset("counts");
+  auto didx = hdf5::node::Group(g).get_dataset("indices");
+  auto dcts = hdf5::node::Group(g).get_dataset("counts");
 
   auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
   auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
@@ -211,7 +211,7 @@ std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &p
   return ss.str();
 }
 
-void SparseMap2D::save(std::ostream& os)
+void SparseMap2D::export_csv(std::ostream& os) const
 {
   for (uint16_t i = 0; i <= max0_; i++)
   {

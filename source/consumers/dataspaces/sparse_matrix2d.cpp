@@ -107,7 +107,7 @@ void SparseMatrix2D::fill_list(EntryList& result,
   }
 }
 
-void SparseMatrix2D::data_save(hdf5::node::Group g) const
+void SparseMatrix2D::data_save(const hdf5::node::Group& g) const
 {
   if (spectrum_.nonZeros() == 0)
     return;
@@ -160,7 +160,7 @@ void SparseMatrix2D::data_save(hdf5::node::Group g) const
   }
 }
 
-void SparseMatrix2D::data_load(hdf5::node::Group g)
+void SparseMatrix2D::data_load(const hdf5::node::Group& g)
 {
   using namespace hdf5;
 
@@ -220,7 +220,7 @@ std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string
   return ss.str();
 }
 
-void SparseMatrix2D::save(std::ostream& os)
+void SparseMatrix2D::export_csv(std::ostream& os) const
 {
   if (!spectrum_.size())
     return;

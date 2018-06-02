@@ -84,13 +84,14 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   if (spectrum_.empty())
     return result;
 
+  //TODO: only non-0s?
   for (size_t i=min; i <= max; ++i)
     result->push_back({{i}, spectrum_[i]});
 
   return result;
 }
 
-void Dense1D::data_save(hdf5::node::Group g) const
+void Dense1D::data_save(const hdf5::node::Group& g) const
 {
   if (!spectrum_.size())
     return;
@@ -112,7 +113,7 @@ void Dense1D::data_save(hdf5::node::Group g) const
   }
 }
 
-void Dense1D::data_load(hdf5::node::Group g)
+void Dense1D::data_load(const hdf5::node::Group& g)
 {
   if (!g.has_dataset("counts"))
     return;
@@ -164,7 +165,7 @@ std::string Dense1D::data_debug(const std::string &prepend) const
   return ss.str();
 }
 
-void Dense1D::save(std::ostream& os)
+void Dense1D::export_csv(std::ostream& os) const
 {
   if (!spectrum_.size())
     return;

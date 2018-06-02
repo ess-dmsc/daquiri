@@ -20,7 +20,7 @@ class Scalar : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
-    void save(std::ostream& os) override;
+    void export_csv(std::ostream &) const override;
 
   protected:
     // data
@@ -31,8 +31,8 @@ class Scalar : public Dataspace
     PreciseFloat min_val_ {0};
 
     std::string data_debug(const std::string& prepend) const override;
-    void data_save(hdf5::node::Group) const override;
-    void data_load(hdf5::node::Group) override;
+    void data_save(const hdf5::node::Group&) const override;
+    void data_load(const hdf5::node::Group&) override;
 };
 
 }

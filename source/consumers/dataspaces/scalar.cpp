@@ -82,7 +82,7 @@ EntryList Scalar::range(std::vector<Pair> list) const
   return result;
 }
 
-void Scalar::data_save(hdf5::node::Group g) const
+void Scalar::data_save(const hdf5::node::Group& g) const
 {
   if (!has_data_)
     return;
@@ -100,7 +100,7 @@ void Scalar::data_save(hdf5::node::Group g) const
   }
 }
 
-void Scalar::data_load(hdf5::node::Group g)
+void Scalar::data_load(const hdf5::node::Group& g)
 {
   has_data_ = false;
   if (!g.attributes.exists("value")
@@ -137,7 +137,7 @@ std::string Scalar::data_debug(const std::string& prepend) const
   return ss.str();
 }
 
-void Scalar::save(std::ostream& os)
+void Scalar::export_csv(std::ostream& os) const
 {
   if (!has_data_)
     return;
