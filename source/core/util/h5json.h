@@ -21,8 +21,6 @@ void attribute_from_json(const json& j, const std::string& name, node::Group& g)
 void dataset_from_json(const json& j, const std::string& name, node::Group& g);
 
 node::Group require_group(node::Group& g, std::string name);
-bool has_group(const node::Group& g, std::string name);
-bool has_dataset(const node::Group& g, std::string name);
 
 }
 

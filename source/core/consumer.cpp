@@ -205,7 +205,7 @@ void Consumer::set_attributes(const Setting &settings)
 void Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
-  if (!hdf5::has_group(g, "metadata"))
+  if (!g.has_group("metadata"))
     return;
 
   try
