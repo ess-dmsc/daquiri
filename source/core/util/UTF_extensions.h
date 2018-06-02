@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cmath>
 
 const std::vector<std::string> k_UTF_superscripts =
 {
