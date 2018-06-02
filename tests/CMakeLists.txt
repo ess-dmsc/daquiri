@@ -3,8 +3,8 @@ set(this_target unit_tests)
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
-file(GLOB_RECURSE ${this_target}_sources ${dir}/core/*.cpp ${dir}/dataspaces/*.cpp)
-file(GLOB_RECURSE ${this_target}_headers ${dir}/core/*.h ${dir}/dataspaces/*.h)
+file(GLOB_RECURSE ${this_target}_sources ${dir}/core/*.cpp ${dir}/consumers/*.cpp)
+file(GLOB_RECURSE ${this_target}_headers ${dir}/core/*.h ${dir}/consumers/*.h)
 
 add_executable(
     ${this_target} EXCLUDE_FROM_ALL

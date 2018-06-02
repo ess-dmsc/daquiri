@@ -1,9 +1,11 @@
-#include "dense1d.h"
 #include <gtest/gtest.h>
+#include "dense1d.h"
+
+using namespace DAQuiri;
 
 TEST(Dense1D, Init)
 {
-  DAQuiri::Dense1D d;
+  Dense1D d;
   EXPECT_TRUE(d.empty());
 }
 
