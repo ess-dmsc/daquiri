@@ -10,12 +10,14 @@ add_executable(
     ${this_target} EXCLUDE_FROM_ALL
     ${${this_target}_sources}
     ${${this_target}_headers}
+    ${dir}/gtest_color_print.h
     ${dir}/main.cpp
 )
 
 target_include_directories(
     ${this_target}
     PRIVATE ${GTEST_INCLUDE_DIRS}
+    PRIVATE ${dir}
 )
 
 target_link_libraries(

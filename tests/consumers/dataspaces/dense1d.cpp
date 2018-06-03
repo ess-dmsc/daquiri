@@ -1,20 +1,22 @@
-#include <gtest/gtest.h>
+#include "gtest_color_print.h"
+
 #include "dense1d.h"
 
-using namespace DAQuiri;
-
-TEST(Dense1D, Init)
+class Dense1D : public TestBase
 {
-  Dense1D d;
+  protected:
+    DAQuiri::Dense1D d;
+};
+
+TEST_F(Dense1D, Init)
+{
   EXPECT_TRUE(d.empty());
   EXPECT_EQ(d.dimensions(), 1);
   EXPECT_EQ(d.total_count(), 0);
 }
 
-TEST(Dense1D, AddOne)
+TEST_F(Dense1D, AddOne)
 {
-  Dense1D d;
-
   d.add_one({0});
   EXPECT_FALSE(d.empty());
   EXPECT_EQ(d.total_count(), 1);
@@ -23,10 +25,8 @@ TEST(Dense1D, AddOne)
   EXPECT_EQ(d.total_count(), 2);
 }
 
-TEST(Dense1D, Get)
+TEST_F(Dense1D, Get)
 {
-  Dense1D d;
-
   d.add_one({0});
   EXPECT_EQ(d.get({0}), 1);
 
@@ -34,10 +34,8 @@ TEST(Dense1D, Get)
   EXPECT_EQ(d.get({0}), 2);
 }
 
-TEST(Dense1D, Add)
+TEST_F(Dense1D, Add)
 {
-  Dense1D d;
-
   d.add({{0},3});
   EXPECT_EQ(d.get({0}), 3);
 
@@ -45,9 +43,8 @@ TEST(Dense1D, Add)
   EXPECT_EQ(d.get({0}), 8);
 }
 
-TEST(Dense1D, Clear)
+TEST_F(Dense1D, Clear)
 {
-  Dense1D d;
   d.add({{0},3});
   EXPECT_EQ(d.total_count(), 3);
 
@@ -56,10 +53,8 @@ TEST(Dense1D, Clear)
   EXPECT_TRUE(d.empty());
 }
 
-TEST(Dense1D, Range)
+TEST_F(Dense1D, Range)
 {
-  Dense1D d;
-
   d.add_one({0});
   EXPECT_EQ(d.range({})->at(0).second, 1);
   EXPECT_EQ(d.range({})->at(0).first[0], 0);
@@ -69,11 +64,50 @@ TEST(Dense1D, Range)
   EXPECT_EQ(d.range({})->at(1).first[0], 1);
 }
 
-TEST(Dense1D, Save)
+TEST_F(Dense1D, SaveLoadEmpty)
 {
-  Dense1D d;
   auto f = hdf5::file::create("dummy.h5", hdf5::file::AccessFlags::TRUNCATE);
+  auto g = f.root().create_group("empty");
+  d.save(g);
+  d.load(g);
+  EXPECT_TRUE(d.empty());
+}
 
-  auto empty = f.root().create_group("empty");
-  d.save(empty);
+TEST_F(Dense1D, SaveLoadNonempty)
+{
+  d.add({{0},3});
+
+  auto f = hdf5::file::create("dummy.h5", hdf5::file::AccessFlags::TRUNCATE);
+  auto g = f.root().create_group("nonempty");
+  d.save(g);
+  d.load(g);
+  EXPECT_FALSE(d.empty());
+  EXPECT_EQ(d.total_count(), 3);
+}
+
+TEST_F(Dense1D, SaveLoadThrow)
+{
+  hdf5::node::Group g;
+
+  EXPECT_THROW(d.save(g), std::runtime_error);
+  EXPECT_THROW(d.load(g), std::runtime_error);
+}
+
+TEST_F(Dense1D, ExportCSV)
+{
+  d.add_one({0});
+  d.add_one({2});
+
+  std::stringstream ss;
+  d.export_csv(ss);
+
+  EXPECT_EQ(ss.str(), "1, 0, 1");
+}
+
+TEST_F(Dense1D, Debug)
+{
+  d.add_one({0});
+  d.add_one({2});
+
+  MESSAGE() << d.debug();
 }

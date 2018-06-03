@@ -118,12 +118,20 @@ void Dense1D::data_load(const hdf5::node::Group& g)
   if (!g.has_dataset("counts"))
     return;
 
-  auto dset = hdf5::node::Dataset(g["counts"]);
-  auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
-  std::vector<double> rdata(shape[0]);
-  dset.read(rdata);
+  std::vector<double> rdata;
+  try
+  {
+    auto dset = hdf5::node::Dataset(g["counts"]);
+    auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
+    rdata.resize(shape[0]);
+    dset.read(rdata);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not load Dense1D data"));
+  }
 
-  if (spectrum_.size() < rdata.size())
+  if (spectrum_.size() != rdata.size())
   {
     spectrum_.clear();
     spectrum_.resize(rdata.size(), PreciseFloat(0));
@@ -146,10 +154,11 @@ std::string Dense1D::data_debug(const std::string &prepend) const
   if (!spectrum_.size())
     return ss.str();
 
-  uint64_t total  = static_cast<uint64_t>(total_count_);
-  uint64_t nstars = static_cast<uint64_t>(maxchan_*3);
-  if (!nstars)
-    nstars = 100;
+  PreciseFloat max = spectrum_[0];
+  for (const auto& s : spectrum_)
+    max = std::max(max, s);
+
+  uint64_t nstars = 60;
 
   bool print {false};
   for (uint32_t i = 0; i <= maxchan_; i++)
@@ -159,7 +168,7 @@ std::string Dense1D::data_debug(const std::string &prepend) const
       print = true;
     if (print)
       ss << prepend << i << ": " <<
-            std::string(val*nstars/total,'*') << "\n";
+            std::string(nstars * val/max,'*') << "\n";
   }
 
   return ss.str();
@@ -172,8 +181,9 @@ void Dense1D::export_csv(std::ostream& os) const
 
   for (uint32_t i = 0; i <= maxchan_; i++)
   {
-    double val = static_cast<double>(spectrum_[i]);
-    os << val << ", ";
+    os << static_cast<double>(spectrum_[i]);
+    if (i != maxchan_)
+      os << ", ";
   }
 }
 
