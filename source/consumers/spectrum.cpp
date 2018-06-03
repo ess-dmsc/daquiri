@@ -4,130 +4,6 @@
 
 namespace DAQuiri {
 
-Status Status::extract(const Spill& spill)
-{
-  Status ret;
-  ret.type = spill.type;
-  ret.producer_time = spill.time;
-  ret.consumer_time = boost::posix_time::microsec_clock::universal_time();
-  ret.timebase = spill.event_model.timebase;
-  Setting native_time = spill.state.find(Setting("native_time"));
-  if (native_time)
-    ret.stats["native_time"] = native_time;
-  auto live_time = spill.state.find(Setting("live_time"));
-  if (live_time)
-    ret.stats["live_time"] = live_time;
-  return ret;
-}
-
-boost::posix_time::time_duration
-Status::calc_diff(const std::vector<Status>& stats, std::string name)
-{
-  PreciseFloat t{0};
-  PreciseFloat ret{0};
-
-  Status start = stats.front();
-
-  for (auto& q : stats)
-  {
-    if (q.type == StatusType::start)
-    {
-      ret += t;
-      start = q;
-    }
-    else
-    {
-      PreciseFloat diff{0};
-      if (q.stats.count(name) && start.stats.count(name))
-        diff = q.stats.at(name).get_number() - start.stats.at(name).get_number();
-      t = q.timebase.to_microsec(diff);
-    }
-  }
-
-  if (stats.back().type != StatusType::start)
-    ret += t;
-
-  return boost::posix_time::microseconds(ret);
-}
-
-void PeriodicTrigger::settings(const Setting& s)
-{
-  enabled_ = s.find(Setting("enabled")).get_bool();
-  clear_using_ =
-      static_cast<ClearReferenceTime>(s.find(Setting("clear_using")).selection());
-  timeout_ = s.find(Setting("clear_at")).duration();
-
-}
-
-Setting PeriodicTrigger::settings(int32_t index) const
-{
-  auto ret = Setting::stem("clear_periodically");
-  ret.set_indices({index});
-
-  SettingMeta en("enabled", SettingType::boolean, "Enabled");
-  Setting enabled(en);
-  enabled.set_bool(enabled_);
-  enabled.set_indices({index});
-  ret.branches.add(enabled);
-
-  SettingMeta cusing("clear_using", SettingType::menu, "Clear time reference");
-  cusing.set_enum(ClearReferenceTime::ProducerWallClock,
-                  "Producer wall clock (receipt of data)");
-  cusing.set_enum(ClearReferenceTime::ConsumerWallClock,
-                  "Consumer wall clock (time of binning)");
-  cusing.set_enum(ClearReferenceTime::NativeTime,
-                  "native_time provided by DAQ");
-  cusing.set_flag("preset");
-  Setting ccusing(cusing);
-  ccusing.select(clear_using_);
-  ccusing.set_indices({index});
-  ret.branches.add(ccusing);
-
-  SettingMeta clear_at("clear_at", SettingType::duration,
-                       "Clear at time-out");
-  clear_at.set_flag("preset");
-  Setting cat(clear_at);
-  cat.set_duration(timeout_);
-  cat.set_indices({index});
-  ret.branches.add(cat);
-
-  return ret;
-}
-
-void PeriodicTrigger::update_times(const Status& from, const Status& to)
-{
-  auto recent_native_time = to.stats.at("native_time").get_number()
-      - from.stats.at("native_time").get_number();
-
-  recent_native_time_ +=
-      boost::posix_time::microseconds(to.timebase.to_microsec(recent_native_time));
-  recent_producer_wall_time_ +=
-      (to.producer_time - from.producer_time);
-  recent_consumer_wall_time_ +=
-      (to.consumer_time - from.consumer_time);
-}
-
-void PeriodicTrigger::eval_trigger()
-{
-  boost::posix_time::time_duration* recent_time = &recent_producer_wall_time_;
-  if (clear_using_ == ClearReferenceTime::ConsumerWallClock)
-    recent_time = &recent_consumer_wall_time_;
-  else if (clear_using_ == ClearReferenceTime::NativeTime)
-    recent_time = &recent_native_time_;
-
-  if (enabled_ && ((*recent_time) > timeout_))
-  {
-//    DBG << "Clear triggered for " << metadata_.get_attribute("name").get_text()
-//        << " using " << clear_reference_timer_ << " satisfied "
-//        << (*recent_time) << " > " << clear_at_;
-
-    (*recent_time) -= timeout_;
-    triggered_ = true;
-  }
-}
-
-
-
 Spectrum::Spectrum()
     : Consumer()
 {
@@ -192,20 +68,13 @@ void Spectrum::calc_recent_rate(const Spill& spill)
 //  DBG << "Processing spill " << spill.stream_id << " "
 //      << type_to_str(spill.type) << "  " << spill.time;
 
-  if (recent_end_.type == StatusType::daq_status)
+  if (!recent_end_.valid)
     recent_end_ = Status::extract(spill);
   recent_start_ = recent_end_;
   recent_end_ = Status::extract(spill);
 
-  auto recent_native_time = recent_end_.stats["native_time"].get_number()
-      - recent_start_.stats["native_time"].get_number();
-
-//  DBG << recent_end_.producer_time << " - "
-//      << recent_start_.producer_time
-//      << " = " << recent_producer_wall_time;
-
   double instant_rate = 0;
-  PreciseFloat recent_s = recent_end_.timebase.to_sec(recent_native_time);
+  double recent_s = Status::calc_diff(recent_start_, recent_end_, "native_time").total_milliseconds() * 0.001;
   if (recent_s > 0)
     instant_rate = double(recent_count_) / to_double(recent_s);
   metadata_.set_attribute(Setting::floating("instant_rate", instant_rate), false);
@@ -217,8 +86,8 @@ void Spectrum::calc_recent_rate(const Spill& spill)
 
 void Spectrum::calc_cumulative()
 {
-  live_time_ = Status::calc_diff(stats_, "live_time");
-  real_time_ = Status::calc_diff(stats_, "native_time");
+  live_time_ = Status::total_elapsed(stats_, "live_time");
+  real_time_ = Status::total_elapsed(stats_, "native_time");
   if (live_time_.is_not_a_date_time())
     live_time_ = real_time_;
 }
