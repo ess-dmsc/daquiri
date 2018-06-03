@@ -16,6 +16,8 @@
 
 #include "histogram_3d.h"
 
+using namespace DAQuiri;
+
 void consumers_autoreg()
 {
   DAQUIRI_REGISTER_CONSUMER(StatsScalar)

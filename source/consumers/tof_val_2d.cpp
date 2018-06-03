@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 TOFVal2D::TOFVal2D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<SparseMap2D>();
 
@@ -90,7 +92,7 @@ void TOFVal2D::_recalc_axes()
 bool TOFVal2D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(val_name_));
+      && spill.event_model.name_to_val.count(val_name_));
 }
 
 bool TOFVal2D::_accept_events(const Spill& /*spill*/)
@@ -107,7 +109,7 @@ void TOFVal2D::_push_stats_pre(const Spill& spill)
     timebase_ = spill.event_model.timebase;
     value_idx_ = spill.event_model.name_to_val.at(val_name_);
     pulse_time_ = timebase_.to_nanosec(
-          spill.state.find(Setting("pulse_time")).get_number());
+        spill.state.find(Setting("pulse_time")).get_number());
     filters_.configure(spill);
     Spectrum::_push_stats_pre(spill);
   }
@@ -133,12 +135,14 @@ void TOFVal2D::_push_event(const Event& event)
   if (coords_[0] >= domain_.size())
   {
     size_t oldbound = domain_.size();
-    domain_.resize(coords_[0]+1);
+    domain_.resize(coords_[0] + 1);
 
-    for (size_t i=oldbound; i <= coords_[0]; ++i)
+    for (size_t i = oldbound; i <= coords_[0]; ++i)
       domain_[i] = i / time_resolution_ / units_multiplier_;
   }
 
   data_->add_one(coords_);
   recent_count_++;
+}
+
 }

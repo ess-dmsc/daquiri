@@ -2,8 +2,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Spectrum::Spectrum()
-  : Consumer()
+    : Consumer()
 {
   Setting base_options = metadata_.attributes();
 
@@ -44,7 +46,7 @@ Spectrum::Spectrum()
   base_options.branches.add(inst);
 
   SettingMeta clear_p("clear_periodically", SettingType::boolean,
-                       "Clear periodically");
+                      "Clear periodically");
   clear_p.set_flag("preset");
   base_options.branches.add(clear_p);
 
@@ -76,7 +78,7 @@ void Spectrum::_apply_attributes()
 bool Spectrum::_accept_spill(const Spill& spill)
 {
   return (Consumer::_accept_spill(spill)
-          && (spill.type != StatusType::daq_status));
+      && (spill.type != StatusType::daq_status));
 }
 
 Status Spectrum::extract(const Spill& spill)
@@ -141,10 +143,10 @@ void Spectrum::calc_cumulative()
 {
   Status start = stats_.front();
 
-  PreciseFloat rt {0},lt {0};
-  PreciseFloat real {0}, live {0};
+  PreciseFloat rt{0}, lt{0};
+  PreciseFloat real{0}, live{0};
 
-  for (auto &q : stats_)
+  for (auto& q : stats_)
   {
     if (q.type == StatusType::start)
     {
@@ -178,7 +180,6 @@ void Spectrum::calc_cumulative()
   real_time_ = boost::posix_time::microseconds(real);
   live_time_ = boost::posix_time::microseconds(live);
 }
-
 
 void Spectrum::_push_stats_post(const Spill& spill)
 {
@@ -228,7 +229,7 @@ void Spectrum::_push_stats_post(const Spill& spill)
   this->_recalc_axes();
 }
 
-void Spectrum::_push_stats_pre(const Spill &spill)
+void Spectrum::_push_stats_pre(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
@@ -247,4 +248,6 @@ void Spectrum::_push_stats_pre(const Spill &spill)
 void Spectrum::_flush()
 {
   metadata_.set_attribute(Setting::precise("total_count", data_->total_count()), false);
+}
+
 }

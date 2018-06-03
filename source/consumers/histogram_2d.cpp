@@ -6,8 +6,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Histogram2D::Histogram2D()
-  : Spectrum()
+    : Spectrum()
 {
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
@@ -74,7 +76,7 @@ void Histogram2D::_recalc_axes()
   data_->recalc_axes();
 }
 
-void Histogram2D::_push_stats_pre(const Spill &spill)
+void Histogram2D::_push_stats_pre(const Spill& spill)
 {
   if (this->_accept_spill(spill))
   {
@@ -113,12 +115,14 @@ void Histogram2D::_push_event(const Event& event)
 bool Histogram2D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(x_name_)
-          && spill.event_model.name_to_val.count(y_name_)
-          );
+      && spill.event_model.name_to_val.count(x_name_)
+      && spill.event_model.name_to_val.count(y_name_)
+  );
 }
 
 bool Histogram2D::_accept_events(const Spill& /*spill*/)
 {
   return (x_idx_ >= 0) && (y_idx_ >= 0);
+}
+
 }

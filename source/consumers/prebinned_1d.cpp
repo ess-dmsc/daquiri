@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Prebinned1D::Prebinned1D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -49,7 +51,7 @@ void Prebinned1D::_recalc_axes()
 bool Prebinned1D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          &&
+      &&
           spill.event_model.name_to_trace.count(trace_name_));
 }
 
@@ -76,11 +78,11 @@ void Prebinned1D::_push_event(const Event& event)
     size_t oldbound = domain_.size();
     domain_.resize(trace.size());
 
-    for (size_t i=oldbound; i < trace.size(); ++i)
+    for (size_t i = oldbound; i < trace.size(); ++i)
       domain_[i] = i;
   }
 
-  for (size_t i=0; i < trace.size(); ++i)
+  for (size_t i = 0; i < trace.size(); ++i)
   {
     entry_.first[0] = i;
     entry_.second = trace[i];
@@ -88,4 +90,6 @@ void Prebinned1D::_push_event(const Event& event)
   }
 
   recent_count_++;
+}
+
 }

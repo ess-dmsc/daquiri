@@ -3,6 +3,8 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 StatsScalar::StatsScalar()
     : Spectrum()
 {
@@ -95,4 +97,6 @@ void StatsScalar::_push_event(const Event& event)
 {
   // do nothing here
   // this should never be called anyhow because of above
+}
+
 }

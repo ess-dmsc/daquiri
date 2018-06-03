@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 TOF1D::TOF1D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -73,7 +75,7 @@ void TOF1D::_push_stats_pre(const Spill& spill)
   {
     timebase_ = spill.event_model.timebase;
     pulse_time_ = timebase_.to_nanosec(
-          spill.state.find(Setting("pulse_time")).get_number());
+        spill.state.find(Setting("pulse_time")).get_number());
     Spectrum::_push_stats_pre(spill);
   }
 }
@@ -90,12 +92,14 @@ void TOF1D::_push_event(const Event& event)
   if (coords_[0] >= domain_.size())
   {
     size_t oldbound = domain_.size();
-    domain_.resize(coords_[0]+1);
+    domain_.resize(coords_[0] + 1);
 
-    for (size_t i=oldbound; i <= coords_[0]; ++i)
+    for (size_t i = oldbound; i <= coords_[0]; ++i)
       domain_[i] = i / time_resolution_ / units_multiplier_;
   }
 
   data_->add_one(coords_);
   recent_count_++;
+}
+
 }

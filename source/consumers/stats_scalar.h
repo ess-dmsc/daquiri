@@ -2,6 +2,8 @@
 
 #include "spectrum.h"
 
+namespace DAQuiri {
+
 class StatsScalar : public Spectrum
 {
   public:
@@ -21,10 +23,12 @@ class StatsScalar : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     // cached parameters:
-    std::string what_ {0};
-    bool diff_ {false};
-    double highest_ {0};
+    std::string what_{0};
+    bool diff_{false};
+    double highest_{0};
 
     //reserve memory
-    Entry entry_ {{}, {0}};
+    Entry entry_{{}, {0}};
 };
+
+}

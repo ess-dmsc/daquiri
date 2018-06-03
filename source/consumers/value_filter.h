@@ -2,6 +2,8 @@
 
 #include "spill.h"
 
+namespace DAQuiri {
+
 struct ValueFilter
 {
   void settings(const DAQuiri::Setting& s);
@@ -23,12 +25,12 @@ struct ValueFilter
     return ((value_ >= min_) && (value_ <= max_));
   }
 
-  bool enabled_ {false};
+  bool enabled_{false};
   std::string name_;
-  uint32_t min_ {0};
-  uint32_t max_ {std::numeric_limits<int32_t>::max()};
+  uint32_t min_{0};
+  uint32_t max_{std::numeric_limits<int32_t>::max()};
 
-  int idx_ {-1};
+  int idx_{-1};
 
   mutable uint32_t value_;
 };
@@ -50,8 +52,10 @@ struct FilterBlock
     for (auto& f : filters_)
       if (f.enabled_ && !f.accept(event))
         return false;
-    return  true;
+    return true;
   }
 
   std::vector<ValueFilter> filters_;
 };
+
+}

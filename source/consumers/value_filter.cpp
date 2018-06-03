@@ -1,6 +1,6 @@
 #include "value_filter.h"
 
-using namespace DAQuiri;
+namespace DAQuiri {
 
 void ValueFilter::settings(const Setting& s)
 {
@@ -80,8 +80,10 @@ Setting FilterBlock::settings() const
   filter_count.set_int(filters_.size());
   ret.branches.add(filter_count);
 
-  for (size_t i=0; i < filters_.size(); ++i)
+  for (size_t i = 0; i < filters_.size(); ++i)
     ret.branches.add_a(filters_[i].settings(i));
 
   return ret;
+}
+
 }

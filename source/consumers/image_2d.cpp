@@ -5,8 +5,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Image2D::Image2D()
-  : Spectrum()
+    : Spectrum()
 {
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
@@ -82,10 +84,10 @@ void Image2D::_recalc_axes()
 bool Image2D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(x_name_)
-          && spill.event_model.name_to_val.count(y_name_)
-          && spill.event_model.name_to_val.count(val_name_)
-          );
+      && spill.event_model.name_to_val.count(x_name_)
+      && spill.event_model.name_to_val.count(y_name_)
+      && spill.event_model.name_to_val.count(val_name_)
+  );
 }
 
 bool Image2D::_accept_events(const Spill& /*spill*/)
@@ -93,7 +95,7 @@ bool Image2D::_accept_events(const Spill& /*spill*/)
   return (x_idx_ >= 0) && (y_idx_ >= 0) && (val_idx_ >= 0);
 }
 
-void Image2D::_push_stats_pre(const Spill &spill)
+void Image2D::_push_stats_pre(const Spill& spill)
 {
   if (this->_accept_spill(spill))
   {
@@ -129,4 +131,6 @@ void Image2D::_push_event(const Event& event)
   entry_.second = event.value(val_idx_);
   data_->add(entry_);
   recent_count_++; //not += ?
+}
+
 }

@@ -3,6 +3,8 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 TimeSpectrum::TimeSpectrum()
 {
   data_ = std::make_shared<SparseMatrix2D>(); //use dense 2d
@@ -90,7 +92,7 @@ void TimeSpectrum::_recalc_axes()
 bool TimeSpectrum::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(val_name_));
+      && spill.event_model.name_to_val.count(val_name_));
 }
 
 bool TimeSpectrum::_accept_events(const Spill& /*spill*/)
@@ -126,9 +128,9 @@ void TimeSpectrum::_push_event(const Event& event)
   if (coords_[0] >= domain_.size())
   {
     size_t oldbound = domain_.size();
-    domain_.resize(coords_[0]+1);
+    domain_.resize(coords_[0] + 1);
 
-    for (size_t i=oldbound; i <= coords_[0]; ++i)
+    for (size_t i = oldbound; i <= coords_[0]; ++i)
       domain_[i] = i / time_resolution_ / units_multiplier_;
   }
 
@@ -136,4 +138,4 @@ void TimeSpectrum::_push_event(const Event& event)
   recent_count_++;
 }
 
-
+}

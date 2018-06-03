@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 TOF1DCorrelate::TOF1DCorrelate()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -76,7 +78,7 @@ bool TOF1DCorrelate::_accept_spill(const Spill& spill)
   return (spill.stream_id == chopper_stream_id_) || Spectrum::_accept_spill(spill);
 }
 
-bool TOF1DCorrelate::_accept_events(const Spill &spill)
+bool TOF1DCorrelate::_accept_events(const Spill& spill)
 {
 //  return ((pulse_time_ >= 0) && (0 != time_resolution_));
   return (Spectrum::_accept_spill(spill) && (0 != time_resolution_));
@@ -90,7 +92,7 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
   if (spill.stream_id == chopper_stream_id_)
   {
     chopper_timebase_ = spill.event_model.timebase;
-    for (auto &e : spill.events)
+    for (auto& e : spill.events)
     {
       //if channel matches?
       chopper_buffer_.push_back(e.timestamp());
@@ -153,9 +155,9 @@ bool TOF1DCorrelate::bin_events()
     if (coords_[0] >= domain_.size())
     {
       size_t oldbound = domain_.size();
-      domain_.resize(coords_[0]+1);
+      domain_.resize(coords_[0] + 1);
 
-      for (size_t i=oldbound; i <= coords_[0]; ++i)
+      for (size_t i = oldbound; i <= coords_[0]; ++i)
         domain_[i] = i / time_resolution_ / units_multiplier_;
     }
 
@@ -174,4 +176,6 @@ void TOF1DCorrelate::_push_event(const Event& event)
 //    return;
 
   events_buffer_.push_back(event.timestamp());
+}
+
 }

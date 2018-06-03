@@ -3,36 +3,39 @@
 #include "spectrum.h"
 #include "value_filter.h"
 
+namespace DAQuiri {
+
 class Histogram2D : public Spectrum
 {
-public:
-  Histogram2D();
-  Histogram2D* clone() const override
-  { return new Histogram2D(*this); }
+  public:
+    Histogram2D();
+    Histogram2D* clone() const override { return new Histogram2D(*this); }
 
-protected:
-  std::string my_type() const override {return "Histogram 2D";}
+  protected:
+    std::string my_type() const override { return "Histogram 2D"; }
 
-  void _apply_attributes() override;
-  void _recalc_axes() override;
+    void _apply_attributes() override;
+    void _recalc_axes() override;
 
-  void _push_event(const Event&) override;
-  void _push_stats_pre(const Spill& spill) override;
-  void _flush() override;
+    void _push_event(const Event&) override;
+    void _push_stats_pre(const Spill& spill) override;
+    void _flush() override;
 
-  bool _accept_spill(const Spill& spill) override;
-  bool _accept_events(const Spill& spill) override;
+    bool _accept_spill(const Spill& spill) override;
+    bool _accept_events(const Spill& spill) override;
 
-  //cached parameters
-  std::string x_name_;
-  std::string y_name_;
-  uint16_t downsample_ {0};
-  FilterBlock filters_;
+    //cached parameters
+    std::string x_name_;
+    std::string y_name_;
+    uint16_t downsample_{0};
+    FilterBlock filters_;
 
-  //from status manifest
-  int x_idx_ {-1};
-  int y_idx_ {-1};
+    //from status manifest
+    int x_idx_{-1};
+    int y_idx_{-1};
 
-  //reserve memory
-  Coords coords_ {0, 0};
+    //reserve memory
+    Coords coords_{0, 0};
 };
+
+}

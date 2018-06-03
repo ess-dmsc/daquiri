@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Histogram1D::Histogram1D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -59,7 +61,7 @@ void Histogram1D::_recalc_axes()
 bool Histogram1D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          &&
+      &&
           spill.event_model.name_to_val.count(val_name_));
 }
 
@@ -90,4 +92,6 @@ void Histogram1D::_push_event(const Event& event)
 
   data_->add_one(coords_);
   recent_count_++;
+}
+
 }

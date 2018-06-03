@@ -6,8 +6,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Histogram3D::Histogram3D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<SparseMap3D>();
 //  data_ = std::make_shared<SparseMatrix3D>();
@@ -81,7 +83,7 @@ void Histogram3D::_recalc_axes()
   data_->recalc_axes();
 }
 
-void Histogram3D::_push_stats_pre(const Spill &spill)
+void Histogram3D::_push_stats_pre(const Spill& spill)
 {
   if (this->_accept_spill(spill))
   {
@@ -123,13 +125,15 @@ void Histogram3D::_push_event(const Event& event)
 bool Histogram3D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(x_name_)
-          && spill.event_model.name_to_val.count(y_name_)
-          && spill.event_model.name_to_val.count(z_name_)
-          );
+      && spill.event_model.name_to_val.count(x_name_)
+      && spill.event_model.name_to_val.count(y_name_)
+      && spill.event_model.name_to_val.count(z_name_)
+  );
 }
 
 bool Histogram3D::_accept_events(const Spill& /*spill*/)
 {
   return (x_idx_ >= 0) && (y_idx_ >= 0) && (z_idx_ >= 0);
+}
+
 }

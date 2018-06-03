@@ -2,8 +2,10 @@
 #include "custom_logger.h"
 #include "dense1d.h"
 
+namespace DAQuiri {
+
 TimeDomain::TimeDomain()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -148,4 +150,4 @@ void TimeDomain::_push_event(const Event& event)
   recent_count_++;
 }
 
-
+}
