@@ -64,6 +64,20 @@ TEST_F(Dense1D, Range)
   EXPECT_EQ(d.range({})->at(1).first[0], 1);
 }
 
+TEST_F(Dense1D, CalcAxes)
+{
+
+  d.add_one({0});
+  EXPECT_TRUE(d.axis(0).domain.empty());
+  d.recalc_axes();
+  EXPECT_EQ(d.axis(0).domain.size(), 1);
+
+  d.add_one({1});
+  EXPECT_EQ(d.axis(0).domain.size(), 1);
+  d.recalc_axes();
+  EXPECT_EQ(d.axis(0).domain.size(), 2);
+}
+
 TEST_F(Dense1D, SaveLoadEmpty)
 {
   auto f = hdf5::file::create("dummy.h5", hdf5::file::AccessFlags::TRUNCATE);

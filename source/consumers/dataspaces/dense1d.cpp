@@ -115,16 +115,16 @@ void Dense1D::data_save(const hdf5::node::Group& g) const
 
 void Dense1D::data_load(const hdf5::node::Group& g)
 {
-  if (!g.has_dataset("counts"))
-    return;
-
   std::vector<double> rdata;
   try
   {
-    auto dset = hdf5::node::Dataset(g["counts"]);
-    auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
-    rdata.resize(shape[0]);
-    dset.read(rdata);
+    if (g.has_dataset("counts"))
+    {
+      auto dset = hdf5::node::Group(g).get_dataset("counts");
+      auto shape = hdf5::dataspace::Simple(dset.dataspace()).current_dimensions();
+      rdata.resize(shape[0]);
+      dset.read(rdata);
+    }
   }
   catch (...)
   {
