@@ -36,16 +36,16 @@ TEST_F(Dense1D, Get)
 
 TEST_F(Dense1D, Add)
 {
-  d.add({{0},3});
+  d.add({{0}, 3});
   EXPECT_EQ(d.get({0}), 3);
 
-  d.add({{0},5});
+  d.add({{0}, 5});
   EXPECT_EQ(d.get({0}), 8);
 }
 
 TEST_F(Dense1D, Clear)
 {
-  d.add({{0},3});
+  d.add({{0}, 3});
   EXPECT_EQ(d.total_count(), 3);
 
   d.clear();
@@ -89,7 +89,7 @@ TEST_F(Dense1D, SaveLoadEmpty)
 
 TEST_F(Dense1D, SaveLoadNonempty)
 {
-  d.add({{0},3});
+  d.add({{0}, 3});
 
   auto f = hdf5::file::create("dummy.h5", hdf5::file::AccessFlags::TRUNCATE);
   auto g = f.root().create_group("nonempty");
@@ -123,5 +123,5 @@ TEST_F(Dense1D, Debug)
   d.add_one({0});
   d.add_one({2});
 
-  MESSAGE() << d.debug();
+  MESSAGE() << d.debug() << "\n";
 }

@@ -102,24 +102,31 @@ void Scalar::data_save(const hdf5::node::Group& g) const
 
 void Scalar::data_load(const hdf5::node::Group& g)
 {
-  has_data_ = false;
-  if (!g.attributes.exists("value")
-      || !g.attributes.exists("min")
-      || !g.attributes.exists("max")
-      || !g.attributes.exists("total_count"))
-    return;
+  try
+  {
+    has_data_ = false;
+    if (!g.attributes.exists("value")
+        || !g.attributes.exists("min")
+        || !g.attributes.exists("max")
+        || !g.attributes.exists("total_count"))
+      return;
 
-  double val, min, max, tot;
-  g.attributes["value"].read(val);
-  g.attributes["min"].read(min);
-  g.attributes["max"].read(max);
-  g.attributes["total_count"].read(tot);
+    double val, min, max, tot;
+    g.attributes["value"].read(val);
+    g.attributes["min"].read(min);
+    g.attributes["max"].read(max);
+    g.attributes["total_count"].read(tot);
 
-  data_ = val;
-  min_val_ = min;
-  max_val_ = max;
-  total_count_ = tot;
-  has_data_ = true;
+    data_ = val;
+    min_val_ = min;
+    max_val_ = max;
+    total_count_ = tot;
+    has_data_ = true;
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not load Scalar data"));
+  }
 }
 
 std::string Scalar::data_debug(const std::string& prepend) const

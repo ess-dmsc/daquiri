@@ -153,33 +153,44 @@ void SparseMap2D::data_save(const hdf5::node::Group& g) const
 
 void SparseMap2D::data_load(const hdf5::node::Group& g)
 {
-  using namespace hdf5;
+  try
+  {
+    using namespace hdf5;
 
-  if (!g.has_dataset("indices") ||
-      !g.has_dataset("counts"))
-    return;
+    if (!g.has_dataset("indices") ||
+        !g.has_dataset("counts"))
+      return;
 
-  auto didx = hdf5::node::Group(g).get_dataset("indices");
-  auto dcts = hdf5::node::Group(g).get_dataset("counts");
+    auto didx = hdf5::node::Group(g).get_dataset("indices");
+    auto dcts = hdf5::node::Group(g).get_dataset("counts");
 
-  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
-  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
+    auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+    auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0, 0});
-  didx.read(dx, slab);
+    std::vector<uint16_t> dx(didx_ds[0], 0);
+    slab.offset({0, 0});
+    didx.read(dx, slab);
 
-  std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0, 1});
-  didx.read(dy, slab);
+    std::vector<uint16_t> dy(didx_ds[0], 0);
+    slab.offset({0, 1});
+    didx.read(dy, slab);
 
-  std::vector<double> dc(dcts_ds[0], 0.0);
-  dcts.read(dc);
+    std::vector<double> dc(dcts_ds[0], 0.0);
+    dcts.read(dc);
 
-  for (size_t i = 0; i < dx.size(); ++i)
-    bin_pair(dx[i], dy[i], dc[i]);
+    spectrum_.clear();
+    total_count_ = 0;
+    max0_ = 0;
+    max1_ = 0;
+    for (size_t i = 0; i < dx.size(); ++i)
+      bin_pair(dx[i], dy[i], dc[i]);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not load SparseMap2D data"));
+  }
 }
 
 std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &prepend) const
@@ -220,9 +231,11 @@ void SparseMap2D::export_csv(std::ostream& os) const
       double v = 0;
       if (spectrum_.count(std::pair<uint16_t, uint16_t>(i, j)))
         v = spectrum_.at(std::pair<uint16_t, uint16_t>(i, j));
-      os << v << ", ";
+      os << v;
+      if (j != max1_)
+        os << ", ";
     }
-    os << "\n";
+    os << ";\n";
   }
 }
 

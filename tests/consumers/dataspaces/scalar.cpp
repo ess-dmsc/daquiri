@@ -67,7 +67,7 @@ TEST_F(Scalar, GetMinMax)
 
 TEST_F(Scalar, CalcAxes)
 {
-  //this feels wrong
+  //TODO: this feels wrong
 
   d.add_one({});
   EXPECT_TRUE(d.axis(0).domain.empty());
@@ -119,7 +119,9 @@ TEST_F(Scalar, ExportCSV)
   std::stringstream ss;
   d.export_csv(ss);
 
-  MESSAGE() << ss.str();
+  // TODO: could be better
+
+  MESSAGE() << ss.str() << "\n";
 }
 
 TEST_F(Scalar, Debug)
@@ -127,5 +129,5 @@ TEST_F(Scalar, Debug)
   d.add_one({});
   d.add_one({});
 
-  MESSAGE() << d.debug();
+  MESSAGE() << d.debug() << "\n";
 }
