@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "gtest_color_print.h"
 #include "spectrum.h"
 
 class MockSpectrum : public DAQuiri::Spectrum
@@ -17,9 +17,16 @@ class MockSpectrum : public DAQuiri::Spectrum
     bool _accept_events(const DAQuiri::Spill &spill) override {return false;}
 };
 
-TEST(Spectrum, Init)
+class Spectrum : public TestBase
 {
-  MockSpectrum m;
+  protected:
+    MockSpectrum m;
+};
+
+
+TEST_F(Spectrum, Init)
+{
   EXPECT_FALSE(m.changed());
+  EXPECT_EQ(m.type(), "MockSpectrum");
 }
 

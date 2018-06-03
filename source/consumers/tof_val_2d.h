@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spectrum.h"
-#include "value_filter.h"
+#include "filter_block.h"
 
 namespace DAQuiri {
 

@@ -1,11 +1,15 @@
-#include <gtest/gtest.h>
+#include "gtest_color_print.h"
 #include "histogram_1d.h"
 
-using namespace DAQuiri;
-
-TEST(Histogram1D, Init)
+class Histogram1D : public TestBase
 {
-  Histogram1D h;
+  protected:
+    DAQuiri::Histogram1D h;
+};
+
+TEST_F(Histogram1D, Init)
+{
+  EXPECT_FALSE(h.changed());
   EXPECT_EQ(h.type(), "Histogram 1D");
 }
 
