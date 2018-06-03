@@ -69,6 +69,24 @@ TEST_F(SparseMap3D, Range)
   EXPECT_EQ(d.range({})->at(1).first[2], 1);
 }
 
+TEST_F(SparseMap3D, Clone)
+{
+  d.add_one({0, 0, 0});
+  d.add_one({1, 1, 1});
+
+  auto d2 = std::shared_ptr<DAQuiri::Dataspace>(d.clone());
+  EXPECT_EQ(d2->range({})->at(0).second, 1);
+  EXPECT_EQ(d2->range({})->at(0).first[0], 0);
+  EXPECT_EQ(d2->range({})->at(0).first[1], 0);
+  EXPECT_EQ(d2->range({})->at(0).first[2], 0);
+  EXPECT_EQ(d2->range({})->at(1).second, 1);
+  EXPECT_EQ(d2->range({})->at(1).first[0], 1);
+  EXPECT_EQ(d2->range({})->at(1).first[1], 1);
+  EXPECT_EQ(d2->range({})->at(1).first[2], 1);
+  EXPECT_EQ(d2->dimensions(), 3);
+  EXPECT_EQ(d2->total_count(), 2);
+}
+
 TEST_F(SparseMap3D, CalcAxes)
 {
   d.add_one({0, 0, 0});

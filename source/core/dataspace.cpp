@@ -98,6 +98,7 @@ Dataspace::Dataspace(uint16_t dimensions)
 Dataspace::Dataspace(const Dataspace& other)
   : axes_ (other.axes_)
   , dimensions_(other.dimensions_)
+  , total_count_(other.total_count_)
 {}
 
 EntryList Dataspace::all_data() const

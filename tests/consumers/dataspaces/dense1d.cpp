@@ -64,6 +64,18 @@ TEST_F(Dense1D, Range)
   EXPECT_EQ(d.range({})->at(1).first[0], 1);
 }
 
+TEST_F(Dense1D, Clone)
+{
+  d.add_one({0});
+  d.add_one({1});
+
+  auto d2 = std::shared_ptr<DAQuiri::Dataspace>(d.clone());
+  EXPECT_EQ(d2->get({0}), 1);
+  EXPECT_EQ(d2->get({1}), 1);
+  EXPECT_EQ(d2->dimensions(), 1);
+  EXPECT_EQ(d2->total_count(), 2);
+}
+
 TEST_F(Dense1D, CalcAxes)
 {
 
