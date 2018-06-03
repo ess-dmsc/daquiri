@@ -18,6 +18,8 @@ void SparseMap2D::clear()
 {
   total_count_ = 0;
   spectrum_.clear();
+  max0_ = 0;
+  max1_ = 0;
 }
 
 void SparseMap2D::add(const Entry& e)
@@ -180,10 +182,7 @@ void SparseMap2D::data_load(const hdf5::node::Group& g)
     std::vector<double> dc(dcts_ds[0], 0.0);
     dcts.read(dc);
 
-    spectrum_.clear();
-    total_count_ = 0;
-    max0_ = 0;
-    max1_ = 0;
+    clear();
     for (size_t i = 0; i < dx.size(); ++i)
       bin_pair(dx[i], dy[i], dc[i]);
   }

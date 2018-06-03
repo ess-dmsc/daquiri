@@ -70,14 +70,14 @@ TEST_F(SparseMap2D, Range)
 
 TEST_F(SparseMap2D, CalcAxes)
 {
-  d.add_one({0,0});
+  d.add_one({0, 0});
   EXPECT_TRUE(d.axis(0).domain.empty());
   EXPECT_TRUE(d.axis(1).domain.empty());
   d.recalc_axes();
   EXPECT_EQ(d.axis(0).domain.size(), 1);
   EXPECT_EQ(d.axis(1).domain.size(), 1);
 
-  d.add_one({1,1});
+  d.add_one({1, 1});
   EXPECT_EQ(d.axis(0).domain.size(), 1);
   EXPECT_EQ(d.axis(1).domain.size(), 1);
   d.recalc_axes();
@@ -117,9 +117,9 @@ TEST_F(SparseMap2D, SaveLoadThrow)
 
 TEST_F(SparseMap2D, ExportCSV)
 {
-  d.add_one({0,0});
-  d.add_one({1,1});
-  d.add_one({2,2});
+  d.add_one({0, 0});
+  d.add_one({1, 1});
+  d.add_one({2, 2});
 
   std::stringstream ss;
   d.export_csv(ss);
@@ -129,9 +129,9 @@ TEST_F(SparseMap2D, ExportCSV)
 
 TEST_F(SparseMap2D, Debug)
 {
-  d.add_one({0,0});
-  d.add_one({1,1});
-  d.add_one({2,2});
+  d.add_one({0, 0});
+  d.add_one({1, 1});
+  d.add_one({2, 2});
 
   MESSAGE() << d.debug() << "\n";
 }

@@ -4,12 +4,10 @@
 
 #include "custom_logger.h"
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
 SparseMatrix2D::SparseMatrix2D()
-  : Dataspace(2)
-{}
+    : Dataspace(2) {}
 
 bool SparseMatrix2D::empty() const
 {
@@ -27,6 +25,7 @@ void SparseMatrix2D::clear()
 {
   total_count_ = 0;
   spectrum_.setZero();
+  limits_ = {0,0};
 }
 
 void SparseMatrix2D::add(const Entry& e)
@@ -54,10 +53,12 @@ void SparseMatrix2D::recalc_axes()
   set_axis(1, ax1);
 }
 
-PreciseFloat SparseMatrix2D::get(const Coords&  coords) const
+PreciseFloat SparseMatrix2D::get(const Coords& coords) const
 {
-  if (coords.size() != dimensions())
-    return 0;  
+  if (!total_count_ || coords.size() != dimensions())
+    return 0;
+  if ((coords[0] > limits_[0]) || (coords[1] > limits_[1]))
+    return 0;
   return spectrum_.coeff(coords[0], coords[1]);
 }
 
@@ -73,30 +74,30 @@ EntryList SparseMatrix2D::range(std::vector<Pair> list) const
   else
   {
     const auto& range0 = *list.begin();
-    const auto& range1 = *(list.begin()+1);
+    const auto& range1 = *(list.begin() + 1);
     min0 = std::min(range0.first, range0.second);
     max0 = std::max(range0.first, range0.second);
     min1 = std::min(range1.first, range1.second);
     max1 = std::max(range1.first, range1.second);
   }
-  
+
   EntryList result(new EntryList_t);
   //  CustomTimer makelist(true);
-  
+
   fill_list(result, min0, max0, min1, max1);
-  
+
   return result;
 }
 
 void SparseMatrix2D::fill_list(EntryList& result,
-                         int64_t min0, int64_t max0,
-                         int64_t min1, int64_t max1) const
+                               int64_t min0, int64_t max0,
+                               int64_t min1, int64_t max1) const
 {
-  for (int k=0; k < spectrum_.outerSize(); ++k)
+  for (int k = 0; k < spectrum_.outerSize(); ++k)
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
     {
-      
+
       const auto& co0 = it.row(); // row index
       const auto& co1 = it.col(); // col index (here it is equal to k)
       if ((min0 > co0) || (co0 > max0) ||
@@ -162,49 +163,57 @@ void SparseMatrix2D::data_save(const hdf5::node::Group& g) const
 
 void SparseMatrix2D::data_load(const hdf5::node::Group& g)
 {
-  using namespace hdf5;
+  try
+  {
+    using namespace hdf5;
 
-  if (!g.has_dataset("indices") ||
-      !g.has_dataset("counts"))
-    return;
+    if (!g.has_dataset("indices") ||
+        !g.has_dataset("counts"))
+      return;
 
-  auto didx = node::Dataset(g.nodes["indices"]);
-  auto dcts = node::Dataset(g.nodes["counts"]);
+    auto didx = node::Dataset(g.nodes["indices"]);
+    auto dcts = node::Dataset(g.nodes["counts"]);
 
-  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
-  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
+    auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+    auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0, 0});
-  didx.read(dx, slab);
+    std::vector<uint16_t> dx(didx_ds[0], 0);
+    slab.offset({0, 0});
+    didx.read(dx, slab);
 
-  std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0, 1});
-  didx.read(dy, slab);
+    std::vector<uint16_t> dy(didx_ds[0], 0);
+    slab.offset({0, 1});
+    didx.read(dy, slab);
 
-  std::vector<double> dc(dcts_ds[0], 0.0);
-  dcts.read(dc);
+    std::vector<double> dc(dcts_ds[0], 0.0);
+    dcts.read(dc);
 
-  for (size_t i = 0; i < dx.size(); ++i)
-    bin_pair(dx[i], dy[i], dc[i]);
+    clear();
+    for (size_t i = 0; i < dx.size(); ++i)
+      bin_pair(dx[i], dy[i], dc[i]);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("Could not save SparseMatrix2D data"));
+  }
 }
 
-std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string &prepend) const
+std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string& prepend) const
 {
-  double maximum {0};
-  for (int k=0; k < spectrum_.outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
+  double maximum{0};
+  for (int k = 0; k < spectrum_.outerSize(); ++k)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
       maximum = std::max(maximum, to_double(it.value()));
-  
+
   std::string representation(ASCII_grayscale94);
   std::stringstream ss;
-  
+
   ss << prepend << "Maximum=" << maximum << "\n";
   if (!maximum)
     return ss.str();
-  
+
   for (uint16_t i = 0; i <= limits_[0]; i++)
   {
     ss << prepend << "|";
@@ -216,7 +225,7 @@ std::string SparseMatrix2D::data_debug(__attribute__((unused)) const std::string
     }
     ss << "\n";
   }
-  
+
   return ss.str();
 }
 
@@ -229,18 +238,18 @@ void SparseMatrix2D::export_csv(std::ostream& os) const
   {
     for (uint16_t j = 0; j <= limits_[1]; j++)
     {
-      double v = 0;
-      v = spectrum_.coeff(i, j);
-      os << v << ", ";
+      os << spectrum_.coeff(i, j);
+      if (j < limits_[1])
+        os << ", ";
     }
-    os << "\n";
+    os << ";\n";
   }
 }
 
 bool SparseMatrix2D::is_symmetric()
 {
-  for (int k=0; k < spectrum_.outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_,k); it; ++it)
+  for (int k = 0; k < spectrum_.outerSize(); ++k)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(spectrum_, k); it; ++it)
       if (spectrum_.coeff(it.col(), it.row()) != it.value())
         return false;
   return true;
