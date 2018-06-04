@@ -806,10 +806,17 @@ void Setting::val_from_json(const json &j)
   else if (is(SettingType::precise))
     value_precise = j;
   else if (is(SettingType::time))
-    value_time = from_iso_extended(j.get<std::string>());
+  {
+    auto str = j.get<std::string>();
+    if (str != "not-a-date-time")
+      value_time = from_iso_extended(str);
+  }
   else if (is(SettingType::duration))
-    value_duration =
-        boost::posix_time::duration_from_string(j.get<std::string>());
+  {
+    auto str = j.get<std::string>();
+    if (str != "not-a-date-time")
+    value_duration = boost::posix_time::duration_from_string(str);
+  }
   else if (is(SettingType::text))
     value_text = j.get<std::string>();
 }
