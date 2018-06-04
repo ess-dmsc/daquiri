@@ -4,27 +4,29 @@
 
 namespace DAQuiri {
 
-enum ClearReferenceTime : int32_t
-{
-  ProducerWallClock = 0,
-  ConsumerWallClock = 1,
-  NativeTime = 2
-};
-
 struct PeriodicTrigger
 {
-  bool triggered_{false};
-
-  bool enabled_{false};
-  ClearReferenceTime clear_using_{ClearReferenceTime::ProducerWallClock};
-  boost::posix_time::time_duration timeout_{boost::posix_time::not_a_date_time};
+  enum ClearReferenceTime : int32_t
+  {
+    ProducerWallClock = 0,
+    ConsumerWallClock = 1,
+    NativeTime = 2
+  };
 
   void settings(const Setting& s);
   Setting settings(int32_t index) const;
 
-  void update_times(const Status& from, const Status& to);
+  void update(const Status& current);
   void eval_trigger();
 
+  // Parameters
+  bool enabled_{false};
+  ClearReferenceTime clear_using_{ClearReferenceTime::ProducerWallClock};
+  boost::posix_time::time_duration timeout_{boost::posix_time::not_a_date_time};
+
+  // State
+  bool triggered_{false};
+  Status previous_;
   boost::posix_time::time_duration recent_time_{boost::posix_time::seconds(0)};
 };
 

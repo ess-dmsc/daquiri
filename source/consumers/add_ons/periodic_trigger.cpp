@@ -48,26 +48,34 @@ Setting PeriodicTrigger::settings(int32_t index) const
   return ret;
 }
 
-void PeriodicTrigger::update_times(const Status& from, const Status& to)
+void PeriodicTrigger::update(const Status& current)
 {
+  if (!previous_.valid)
+    previous_ = current;
+
   if (clear_using_ == ClearReferenceTime::NativeTime)
   {
-    auto recent_native_time = Status::calc_diff(from, to, "native_time");
+    auto recent_native_time = Status::calc_diff(previous_, current, "native_time");
     if (!recent_native_time.is_not_a_date_time())
       recent_time_ += recent_native_time;
   }
   else if ((clear_using_ == ClearReferenceTime::ProducerWallClock) &&
-      !to.producer_time.is_not_a_date_time() &&
-      !from.producer_time.is_not_a_date_time())
+      !current.producer_time.is_not_a_date_time() &&
+      !previous_.producer_time.is_not_a_date_time())
   {
-    recent_time_ += (to.producer_time - from.producer_time);
+    recent_time_ += (current.producer_time - previous_.producer_time);
   }
   else if ((clear_using_ == ClearReferenceTime::ConsumerWallClock) &&
-      !to.consumer_time.is_not_a_date_time() &&
-      !from.consumer_time.is_not_a_date_time())
+      !current.consumer_time.is_not_a_date_time() &&
+      !previous_.consumer_time.is_not_a_date_time())
   {
-    recent_time_ += (to.consumer_time - from.consumer_time);
+    recent_time_ += (current.consumer_time - previous_.consumer_time);
   }
+
+  previous_ = current;
+
+  if (current.type != StatusType::start)
+    eval_trigger();
 }
 
 void PeriodicTrigger::eval_trigger()

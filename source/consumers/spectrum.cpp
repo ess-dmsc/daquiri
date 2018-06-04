@@ -71,9 +71,6 @@ void Spectrum::calc_recent_rate(const Spill& spill)
   double instant_rate = 0;
   if (stats_.size() >= 2)
   {
-    periodic_trigger_.update_times(stats_[stats_.size() - 2],
-                                   stats_[stats_.size() - 1]);
-
     auto recent = Status::calc_diff(
         stats_[stats_.size() - 2], stats_[stats_.size() - 1], "native_time");
     double recent_s = 0;
@@ -106,7 +103,8 @@ void Spectrum::_push_stats_pre(const Spill& spill)
 
   if (periodic_trigger_.triggered_)
   {
-    data_->clear();
+    if (data_)
+      data_->clear();
     recent_count_ = 0;
     periodic_trigger_.triggered_ = false;
   }
@@ -117,10 +115,14 @@ void Spectrum::_push_stats_post(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
+  auto new_status = Status::extract(spill);
+
+  periodic_trigger_.update(new_status);
+
   if (stats_.size() &&
       (stats_.back().type == StatusType::running))
     stats_.pop_back();
-  stats_.push_back(Status::extract(spill));
+  stats_.push_back(new_status);
 
   calc_recent_rate(spill);
 
@@ -137,10 +139,7 @@ void Spectrum::_push_stats_post(const Spill& spill)
   }
 
   metadata_.set_attribute(Setting::precise("total_count", data_->total_count()), false);
-
-  if ((spill.type != StatusType::start) && data_)
-    periodic_trigger_.eval_trigger();
-
+  
   this->_recalc_axes();
 }
 

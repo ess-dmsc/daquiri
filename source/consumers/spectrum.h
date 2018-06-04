@@ -27,8 +27,6 @@ class Spectrum : public Consumer
     boost::posix_time::time_duration real_time_;
     boost::posix_time::time_duration live_time_;
 
-    std::vector<Status> recent_2_stats_;
-
     void calc_cumulative();
     void calc_recent_rate(const Spill& spill);
 };
