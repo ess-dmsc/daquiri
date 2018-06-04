@@ -68,20 +68,24 @@ void Spectrum::calc_recent_rate(const Spill& spill)
 //  DBG << "Processing spill " << spill.stream_id << " "
 //      << type_to_str(spill.type) << "  " << spill.time;
 
-  if (!recent_end_.valid)
-    recent_end_ = Status::extract(spill);
-  recent_start_ = recent_end_;
-  recent_end_ = Status::extract(spill);
-
   double instant_rate = 0;
-  double recent_s = Status::calc_diff(recent_start_, recent_end_, "native_time").total_milliseconds() * 0.001;
-  if (recent_s > 0)
-    instant_rate = double(recent_count_) / to_double(recent_s);
+  if (stats_.size() >= 2)
+  {
+    periodic_trigger_.update_times(stats_[stats_.size() - 2],
+                                   stats_[stats_.size() - 1]);
+
+    auto recent = Status::calc_diff(
+        stats_[stats_.size() - 2], stats_[stats_.size() - 1], "native_time");
+    double recent_s = 0;
+    if (!recent.is_not_a_date_time())
+      recent_s = recent.total_milliseconds() * 0.001;
+    if (recent_s > 0)
+      instant_rate = double(recent_count_) / to_double(recent_s);
+  }
   metadata_.set_attribute(Setting::floating("instant_rate", instant_rate), false);
 
   recent_count_ = 0;
 
-  periodic_trigger_.update_times(recent_start_, recent_end_);
 }
 
 void Spectrum::calc_cumulative()
@@ -113,13 +117,12 @@ void Spectrum::_push_stats_post(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
-  calc_recent_rate(spill);
-
   if (stats_.size() &&
       (stats_.back().type == StatusType::running))
     stats_.pop_back();
-
   stats_.push_back(Status::extract(spill));
+
+  calc_recent_rate(spill);
 
   if (stats_.size())
   {

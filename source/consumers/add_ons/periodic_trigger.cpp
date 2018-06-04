@@ -50,32 +50,31 @@ Setting PeriodicTrigger::settings(int32_t index) const
 
 void PeriodicTrigger::update_times(const Status& from, const Status& to)
 {
-  auto recent_native_time = to.stats.at("native_time").get_number()
-      - from.stats.at("native_time").get_number();
-
-  recent_native_time_ +=
-      boost::posix_time::microseconds(to.timebase.to_microsec(recent_native_time));
-  recent_producer_wall_time_ +=
-      (to.producer_time - from.producer_time);
-  recent_consumer_wall_time_ +=
-      (to.consumer_time - from.consumer_time);
+  if (clear_using_ == ClearReferenceTime::NativeTime)
+  {
+    auto recent_native_time = Status::calc_diff(from, to, "native_time");
+    if (!recent_native_time.is_not_a_date_time())
+      recent_time_ += recent_native_time;
+  }
+  else if ((clear_using_ == ClearReferenceTime::ProducerWallClock) &&
+      !to.producer_time.is_not_a_date_time() &&
+      !from.producer_time.is_not_a_date_time())
+  {
+    recent_time_ += (to.producer_time - from.producer_time);
+  }
+  else if ((clear_using_ == ClearReferenceTime::ConsumerWallClock) &&
+      !to.consumer_time.is_not_a_date_time() &&
+      !from.consumer_time.is_not_a_date_time())
+  {
+    recent_time_ += (to.consumer_time - from.consumer_time);
+  }
 }
 
 void PeriodicTrigger::eval_trigger()
 {
-  boost::posix_time::time_duration* recent_time = &recent_producer_wall_time_;
-  if (clear_using_ == ClearReferenceTime::ConsumerWallClock)
-    recent_time = &recent_consumer_wall_time_;
-  else if (clear_using_ == ClearReferenceTime::NativeTime)
-    recent_time = &recent_native_time_;
-
-  if (enabled_ && ((*recent_time) > timeout_))
+  if (enabled_ && (recent_time_ >= timeout_))
   {
-//    DBG << "Clear triggered for " << metadata_.get_attribute("name").get_text()
-//        << " using " << clear_reference_timer_ << " satisfied "
-//        << (*recent_time) << " > " << clear_at_;
-
-    (*recent_time) -= timeout_;
+    recent_time_ -= timeout_;
     triggered_ = true;
   }
 }

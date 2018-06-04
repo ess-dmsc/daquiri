@@ -17,7 +17,7 @@ struct PeriodicTrigger
 
   bool enabled_{false};
   ClearReferenceTime clear_using_{ClearReferenceTime::ProducerWallClock};
-  boost::posix_time::time_duration timeout_;
+  boost::posix_time::time_duration timeout_{boost::posix_time::not_a_date_time};
 
   void settings(const Setting& s);
   Setting settings(int32_t index) const;
@@ -25,12 +25,7 @@ struct PeriodicTrigger
   void update_times(const Status& from, const Status& to);
   void eval_trigger();
 
-  boost::posix_time::time_duration recent_native_time_
-      {boost::posix_time::seconds(0)};
-  boost::posix_time::time_duration recent_producer_wall_time_
-      {boost::posix_time::seconds(0)};
-  boost::posix_time::time_duration recent_consumer_wall_time_
-      {boost::posix_time::seconds(0)};
+  boost::posix_time::time_duration recent_time_{boost::posix_time::seconds(0)};
 };
 
 }
