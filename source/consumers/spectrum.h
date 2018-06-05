@@ -20,6 +20,7 @@ class Spectrum : public Consumer
 
   protected:
     PeriodicTrigger periodic_trigger_;
+    //TODO: make this parametrizable
     RecentRate recent_rate_{"native_time"};
 
     std::vector<Status> stats_;
