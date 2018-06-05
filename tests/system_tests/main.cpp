@@ -20,6 +20,13 @@ Container<ConsumerMetadata> get_prototypes();
 void define_value(Engine& e, uint16_t num,
                   std::string name, double center, double spread);
 
+void add_histogram1d(ProjectPtr);
+void add_histogram2d(ProjectPtr);
+void add_histogram3d(ProjectPtr);
+void add_image2d(ProjectPtr);
+void add_tof2d(ProjectPtr);
+void add_time2d(ProjectPtr);
+
 int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
@@ -56,6 +63,13 @@ int main(int argc, char** argv)
   }
 
   ProjectPtr project = ProjectPtr(new Project());
+
+  add_histogram1d(project);
+  add_histogram2d(project);
+  add_image2d(project);
+  add_tof2d(project);
+  add_time2d(project);
+  add_histogram3d(project);
 
   for (const auto& definition : get_prototypes())
     project->add_consumer(ConsumerFactory::singleton().create_from_prototype(definition));
@@ -130,15 +144,120 @@ void define_value(Engine& e, uint16_t num,
   e.set_setting(res, Match::id | Match::indices);
 }
 
+void add_histogram1d(ProjectPtr project)
+{
+  auto h1d = ConsumerFactory::singleton().create_type("Histogram 1D");
+  h1d->set_attribute(Setting::text("stream_id", "exy"));
+  h1d->set_attribute(Setting::text("value_id", "x"));
+  h1d->set_attribute(Setting::integer("downsample", 10));
+  project->add_consumer(h1d);
+}
+
+void add_histogram2d(ProjectPtr project)
+{
+  auto h2d = ConsumerFactory::singleton().create_type("Histogram 2D");
+  h2d->set_attribute(Setting::text("stream_id", "exy"));
+
+  auto x_name = Setting::text("value_id", "x");
+  x_name.set_indices({0});
+  h2d->set_attribute(x_name);
+
+  auto y_name = Setting::text("value_id", "y");
+  y_name.set_indices({1});
+  h2d->set_attribute(y_name);
+
+  auto ds = Setting::integer("downsample", 11);
+  ds.set_indices({0});
+  h2d->set_attribute(ds);
+  ds.set_indices({1});
+  h2d->set_attribute(ds);
+
+  project->add_consumer(h2d);
+}
+
+void add_image2d(ProjectPtr project)
+{
+  auto im2d = ConsumerFactory::singleton().create_type("Image 2D");
+  im2d->set_attribute(Setting::text("stream_id", "exy"));
+
+  auto x_name = Setting::text("value_id", "x");
+  x_name.set_indices({0});
+  im2d->set_attribute(x_name);
+
+  auto y_name = Setting::text("value_id", "y");
+  y_name.set_indices({1});
+  im2d->set_attribute(y_name);
+
+  auto intensity_name = Setting::text("value_id", "energy");
+  intensity_name.set_indices({2});
+  im2d->set_attribute(intensity_name);
+
+  auto ds = Setting::integer("downsample", 10);
+  ds.set_indices({0});
+  im2d->set_attribute(ds);
+  ds.set_indices({1});
+  im2d->set_attribute(ds);
+
+  project->add_consumer(im2d);
+}
+
+void add_tof2d(ProjectPtr project)
+{
+  auto tof2d = ConsumerFactory::singleton().create_type("Time of Flight 2D");
+  tof2d->set_attribute(Setting::text("stream_id", "exy"));
+  tof2d->set_attribute(Setting::floating("time_resolution", 5));
+  tof2d->set_attribute(Setting::integer("time_units", 6));
+
+  tof2d->set_attribute(Setting::text("value_id", "x"));
+  tof2d->set_attribute(Setting::integer("downsample", 10));
+
+  project->add_consumer(tof2d);
+}
+
+void add_time2d(ProjectPtr project)
+{
+  auto time2d = ConsumerFactory::singleton().create_type("TimeSpectrum 2D");
+  time2d->set_attribute(Setting::text("stream_id", "exy"));
+  time2d->set_attribute(Setting::floating("time_resolution", 20));
+  time2d->set_attribute(Setting::integer("time_units", 6));
+
+  time2d->set_attribute(Setting::text("value_id", "x"));
+  time2d->set_attribute(Setting::integer("downsample", 10));
+
+  project->add_consumer(time2d);
+}
+
+void add_histogram3d(ProjectPtr project)
+{
+  auto h3d = ConsumerFactory::singleton().create_type("Histogram 3D");
+  h3d->set_attribute(Setting::text("stream_id", "exy"));
+
+  auto x_name = Setting::text("value_id", "x");
+  x_name.set_indices({0});
+  h3d->set_attribute(x_name);
+
+  auto y_name = Setting::text("value_id", "y");
+  y_name.set_indices({1});
+  h3d->set_attribute(y_name);
+
+  auto z_name = Setting::text("value_id", "z");
+  z_name.set_indices({2});
+  h3d->set_attribute(z_name);
+
+  auto ds = Setting::integer("downsample", 12);
+  ds.set_indices({0});
+  h3d->set_attribute(ds);
+  ds.set_indices({1});
+  h3d->set_attribute(ds);
+  ds.set_indices({2});
+  h3d->set_attribute(ds);
+
+  project->add_consumer(h3d);
+}
+
 Container<ConsumerMetadata> get_prototypes()
 {
   Container<ConsumerMetadata> prototypes;
-
-  auto ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
-  ptype.set_attribute(Setting::text("stream_id", "exy"));
-  ptype.set_attribute(Setting::text("value_id", "x"));
-  ptype.set_attribute(Setting::integer("downsample", 10));
-  prototypes.add(ptype);
 
   auto pbtype = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
   pbtype.set_attribute(Setting::text("stream_id", "exy"));
@@ -156,45 +275,6 @@ Container<ConsumerMetadata> get_prototypes()
   tdtype.set_attribute(Setting::floating("time_resolution", 25));
   tdtype.set_attribute(Setting::integer("time_units", 6));
   prototypes.add(tdtype);
-
-  auto itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
-  itype.set_attribute(Setting::integer("downsample", 11));
-  itype.set_attribute(Setting::text("stream_id", "exy"));
-  itype.set_attribute(Setting::text("x_name", "x"));
-  itype.set_attribute(Setting::text("y_name", "y"));
-  prototypes.add(itype);
-
-  auto imtype = ConsumerFactory::singleton().create_prototype("Image 2D");
-  imtype.set_attribute(Setting::integer("downsample", 11));
-  imtype.set_attribute(Setting::text("stream_id", "exy"));
-  imtype.set_attribute(Setting::text("x_name", "x"));
-  imtype.set_attribute(Setting::text("y_name", "y"));
-  imtype.set_attribute(Setting::text("val_name", "energy"));
-  prototypes.add(imtype);
-
-  auto tof2type = ConsumerFactory::singleton().create_prototype("Time of Flight 2D");
-  tof2type.set_attribute(Setting::text("stream_id", "exy"));
-  tof2type.set_attribute(Setting::integer("downsample", 10));
-  tof2type.set_attribute(Setting::text("value_name", "x"));
-  tof2type.set_attribute(Setting::floating("time_resolution", 10));
-  tof2type.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(tof2type);
-
-  auto tstype = ConsumerFactory::singleton().create_prototype("TimeSpectrum 2D");
-  tstype.set_attribute(Setting::text("stream_id", "exy"));
-  tstype.set_attribute(Setting::text("value_name", "x"));
-  tstype.set_attribute(Setting::integer("downsample", 11));
-  tstype.set_attribute(Setting::floating("time_resolution", 25));
-  tstype.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(tstype);
-
-  auto vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
-  vtype.set_attribute(Setting::integer("downsample", 12));
-  vtype.set_attribute(Setting::text("stream_id", "exy"));
-  vtype.set_attribute(Setting::text("x_name", "x"));
-  vtype.set_attribute(Setting::text("y_name", "y"));
-  vtype.set_attribute(Setting::text("z_name", "z"));
-  prototypes.add(vtype);
 
   auto sstype = ConsumerFactory::singleton().create_prototype("Stats Scalar");
   sstype.set_attribute(Setting::text("stream_id", "engine"));

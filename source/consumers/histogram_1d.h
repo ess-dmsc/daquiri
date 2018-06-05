@@ -25,8 +25,8 @@ class Histogram1D : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     // cached parameters:
-    ValueLatch value_latch_;
     FilterBlock filters_;
+    ValueLatch value_latch_;
 
     //reserve memory
     Coords coords_{0};

@@ -17,8 +17,8 @@ Histogram1D::Histogram1D()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
-  base_options.branches.add(value_latch_.settings(-1, "Value to bin"));
   base_options.branches.add(filters_.settings());
+  base_options.branches.add(value_latch_.settings(-1, "Value to bin"));
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -27,11 +27,11 @@ void Histogram1D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
-  value_latch_.settings(metadata_.get_attribute("value_latch"));
   filters_.settings(metadata_.get_attribute("filters"));
-
-  metadata_.replace_attribute(value_latch_.settings(-1, "Value to bin"));
   metadata_.replace_attribute(filters_.settings());
+
+  value_latch_.settings(metadata_.get_attribute("value_latch"));
+  metadata_.replace_attribute(value_latch_.settings(-1, "Value to bin"));
 
   this->_recalc_axes();
 }
@@ -58,8 +58,8 @@ void Histogram1D::_push_stats_pre(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
-  value_latch_.configure(spill);
   filters_.configure(spill);
+  value_latch_.configure(spill);
   Spectrum::_push_stats_pre(spill);
 }
 

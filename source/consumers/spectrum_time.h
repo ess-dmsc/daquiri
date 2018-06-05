@@ -2,6 +2,7 @@
 
 #include "spectrum.h"
 #include "filter_block.h"
+#include "value_latch.h"
 
 namespace DAQuiri {
 
@@ -30,12 +31,9 @@ class TimeSpectrum : public Spectrum
     std::string units_name_;
     double units_multiplier_{1};
     FilterBlock filters_;
-
-    uint16_t downsample_{0};
-    std::string val_name_;
+    ValueLatch value_latch_;
 
     //from status manifest
-    int value_idx_{-1};
     TimeBase timebase_;
 
     std::vector<double> domain_;

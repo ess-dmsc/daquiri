@@ -2,6 +2,7 @@
 
 #include "spectrum.h"
 #include "filter_block.h"
+#include "value_latch.h"
 
 namespace DAQuiri {
 
@@ -19,22 +20,15 @@ class Image2D : public Spectrum
 
     void _push_event(const Event&) override;
     void _push_stats_pre(const Spill& spill) override;
-    void _flush() override;
 
     bool _accept_spill(const Spill& spill) override;
     bool _accept_events(const Spill& spill) override;
 
     //cached parameters
-    std::string x_name_;
-    std::string y_name_;
-    std::string val_name_;
-    uint16_t downsample_{0};
     FilterBlock filters_;
-
-    //from status manifest
-    int x_idx_{-1};
-    int y_idx_{-1};
-    int val_idx_{-1};
+    ValueLatch value_latch_x_;
+    ValueLatch value_latch_y_;
+    ValueLatch value_latch_i_;
 
     //reserve memory
     Entry entry_{{0, 0}, 0};

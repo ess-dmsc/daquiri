@@ -2,6 +2,7 @@
 
 #include "spectrum.h"
 #include "filter_block.h"
+#include "value_latch.h"
 
 namespace DAQuiri {
 
@@ -29,12 +30,10 @@ class TOFVal2D : public Spectrum
     double time_resolution_{1};
     std::string units_name_;
     double units_multiplier_{1};
-    std::string val_name_;
-    uint16_t downsample_{0};
     FilterBlock filters_;
+    ValueLatch value_latch_;
 
     //from status manifest
-    int value_idx_{-1};
     TimeBase timebase_;
 
     // recent pulse times

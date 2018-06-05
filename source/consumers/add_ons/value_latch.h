@@ -16,7 +16,8 @@ struct ValueLatch
 
   void configure(const Spill& spill);
 
-  inline void extract(size_t& bin, const Event& event) const
+  template<typename T>
+  inline void extract(T& bin, const Event& event) const
   {
     if (downsample_)
       bin = event.value(static_cast<size_t>(idx_)) >> downsample_;
