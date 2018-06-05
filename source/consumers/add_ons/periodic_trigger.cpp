@@ -7,8 +7,8 @@ namespace DAQuiri {
 void PeriodicTrigger::settings(const Setting& s)
 {
   enabled_ = s.find(Setting("enabled")).get_bool();
-  clear_using_ =
-      static_cast<ClearReferenceTime>(s.find(Setting("clear_using")).selection());
+  clock_type =
+      static_cast<ClockType>(s.find(Setting("clear_using")).selection());
   timeout_ = s.find(Setting("clear_at")).duration();
 
 }
@@ -25,15 +25,15 @@ Setting PeriodicTrigger::settings(int32_t index) const
   ret.branches.add(enabled);
 
   SettingMeta cusing("clear_using", SettingType::menu, "Clear time reference");
-  cusing.set_enum(ClearReferenceTime::ProducerWallClock,
+  cusing.set_enum(ClockType::ProducerWallClock,
                   "Producer wall clock (receipt of data)");
-  cusing.set_enum(ClearReferenceTime::ConsumerWallClock,
+  cusing.set_enum(ClockType::ConsumerWallClock,
                   "Consumer wall clock (time of binning)");
-  cusing.set_enum(ClearReferenceTime::NativeTime,
+  cusing.set_enum(ClockType::NativeTime,
                   "native_time provided by DAQ");
   cusing.set_flag("preset");
   Setting ccusing(cusing);
-  ccusing.select(clear_using_);
+  ccusing.select(clock_type);
   ccusing.set_indices({index});
   ret.branches.add(ccusing);
 
@@ -53,19 +53,19 @@ void PeriodicTrigger::update(const Status& current)
   if (!previous_.valid)
     previous_ = current;
 
-  if (clear_using_ == ClearReferenceTime::NativeTime)
+  if (clock_type == ClockType::NativeTime)
   {
     auto recent_native_time = Status::calc_diff(previous_, current, "native_time");
     if (!recent_native_time.is_not_a_date_time())
       recent_time_ += recent_native_time;
   }
-  else if ((clear_using_ == ClearReferenceTime::ProducerWallClock) &&
+  else if ((clock_type == ClockType::ProducerWallClock) &&
       !current.producer_time.is_not_a_date_time() &&
       !previous_.producer_time.is_not_a_date_time())
   {
     recent_time_ += (current.producer_time - previous_.producer_time);
   }
-  else if ((clear_using_ == ClearReferenceTime::ConsumerWallClock) &&
+  else if ((clock_type == ClockType::ConsumerWallClock) &&
       !current.consumer_time.is_not_a_date_time() &&
       !previous_.consumer_time.is_not_a_date_time())
   {

@@ -18,7 +18,7 @@ TEST(Status, ExtractDefault)
   EXPECT_TRUE(s.valid);
   EXPECT_EQ(s.type, spill.type);
   EXPECT_EQ(s.producer_time, spill.time);
-  EXPECT_GT(s.consumer_time, s.producer_time);
+  EXPECT_GE(s.consumer_time, s.producer_time);
   EXPECT_TRUE(s.stats.empty());
   EXPECT_EQ(s.timebase, spill.event_model.timebase);
 }

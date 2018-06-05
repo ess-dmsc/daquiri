@@ -22,7 +22,6 @@ class TimeDomain : public Spectrum
     void _push_event(const Event& event) override;
     void _push_stats_pre(const Spill& spill) override;
 
-    bool _accept_spill(const Spill& spill) override;
     bool _accept_events(const Spill& spill) override;
 
     //cached parameters

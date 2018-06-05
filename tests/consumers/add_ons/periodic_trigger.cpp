@@ -13,7 +13,7 @@ TEST(PeriodicTrigger, GetSettings)
 {
   DAQuiri::PeriodicTrigger pt;
   pt.enabled_ = true;
-  pt.clear_using_ = DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime;
+  pt.clock_type = DAQuiri::PeriodicTrigger::ClockType::NativeTime;
   pt.timeout_ = boost::posix_time::seconds(1);
 
   auto sets = pt.settings(3);
@@ -23,7 +23,7 @@ TEST(PeriodicTrigger, GetSettings)
   EXPECT_TRUE(enabled.has_index(3));
 
   auto cusing = sets.find(DAQuiri::Setting("clear_using"));
-  EXPECT_EQ(cusing.selection(), DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime);
+  EXPECT_EQ(cusing.selection(), DAQuiri::PeriodicTrigger::ClockType::NativeTime);
   EXPECT_TRUE(cusing.has_index(3));
 
   auto cat = sets.find(DAQuiri::Setting("clear_at"));
@@ -37,13 +37,13 @@ TEST(PeriodicTrigger, SetSettings)
   auto sets = pt.settings(0);
 
   sets.set(DAQuiri::Setting::boolean("enabled", true));
-  sets.set(DAQuiri::Setting::integer("clear_using", DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime));
+  sets.set(DAQuiri::Setting::integer("clear_using", DAQuiri::PeriodicTrigger::ClockType::NativeTime));
   sets.set(DAQuiri::Setting("clear_at", boost::posix_time::seconds(1)));
 
   pt.settings(sets);
 
   EXPECT_TRUE(pt.enabled_);
-  EXPECT_EQ(pt.clear_using_, DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime);
+  EXPECT_EQ(pt.clock_type, DAQuiri::PeriodicTrigger::ClockType::NativeTime);
   EXPECT_EQ(pt.timeout_, boost::posix_time::seconds(1));
 }
 
@@ -90,7 +90,7 @@ TEST(PeriodicTrigger, UseProducerPathological)
 TEST(PeriodicTrigger, UseConsumer)
 {
   DAQuiri::PeriodicTrigger pt;
-  pt.clear_using_ = DAQuiri::PeriodicTrigger::ClearReferenceTime::ConsumerWallClock;
+  pt.clock_type = DAQuiri::PeriodicTrigger::ClockType::ConsumerWallClock;
 
   DAQuiri::Status s1;
   s1.valid = true;
@@ -111,7 +111,7 @@ TEST(PeriodicTrigger, UseConsumer)
 TEST(PeriodicTrigger, UseConsumerPathological)
 {
   DAQuiri::PeriodicTrigger pt;
-  pt.clear_using_ = DAQuiri::PeriodicTrigger::ClearReferenceTime::ConsumerWallClock;
+  pt.clock_type = DAQuiri::PeriodicTrigger::ClockType::ConsumerWallClock;
 
   DAQuiri::Status s_bad;
   s_bad.valid = true;
@@ -132,7 +132,7 @@ TEST(PeriodicTrigger, UseConsumerPathological)
 TEST(PeriodicTrigger, UseNative)
 {
   DAQuiri::PeriodicTrigger pt;
-  pt.clear_using_ = DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime;
+  pt.clock_type = DAQuiri::PeriodicTrigger::ClockType::NativeTime;
 
   DAQuiri::Status s1;
   s1.valid = true;
@@ -153,7 +153,7 @@ TEST(PeriodicTrigger, UseNative)
 TEST(PeriodicTrigger, UseNativePathological)
 {
   DAQuiri::PeriodicTrigger pt;
-  pt.clear_using_ = DAQuiri::PeriodicTrigger::ClearReferenceTime::NativeTime;
+  pt.clock_type = DAQuiri::PeriodicTrigger::ClockType::NativeTime;
 
   DAQuiri::Status s_bad;
   s_bad.valid = true;

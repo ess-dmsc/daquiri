@@ -119,7 +119,6 @@ void Histogram3D::_push_event(const Event& event)
   }
 
   data_->add_one(coords_);
-  recent_count_++;
 }
 
 bool Histogram3D::_accept_spill(const Spill& spill)

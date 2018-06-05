@@ -6,7 +6,7 @@ namespace DAQuiri {
 
 struct PeriodicTrigger
 {
-  enum ClearReferenceTime : int32_t
+  enum ClockType : int32_t
   {
     ProducerWallClock = 0,
     ConsumerWallClock = 1,
@@ -21,7 +21,7 @@ struct PeriodicTrigger
 
   // Parameters
   bool enabled_{false};
-  ClearReferenceTime clear_using_{ClearReferenceTime::ProducerWallClock};
+  ClockType clock_type{ClockType::ProducerWallClock};
   boost::posix_time::time_duration timeout_{boost::posix_time::not_a_date_time};
 
   // State

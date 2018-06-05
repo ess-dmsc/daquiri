@@ -74,9 +74,9 @@ int main(int argc, char** argv)
   ss1 << *project;
   ss2 << *project2;
 
-  DBG << "\n" << ss1.str();
+  DBG << "Acquired:\n" << ss1.str();
 
-//  DBG << "\n" << ss2.str();
+  DBG << "Loaded:\n" << ss2.str();
 
 //  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
 //  ofs1 << ss1.str();

@@ -92,11 +92,6 @@ void TimeDomain::_recalc_axes()
   }
 }
 
-bool TimeDomain::_accept_spill(const Spill& spill)
-{
-  return (Spectrum::_accept_spill(spill));
-}
-
 bool TimeDomain::_accept_events(const Spill& /*spill*/)
 {
   return (0 != time_resolution_);
@@ -104,12 +99,12 @@ bool TimeDomain::_accept_events(const Spill& /*spill*/)
 
 void TimeDomain::_push_stats_pre(const Spill& spill)
 {
-  if (this->_accept_spill(spill))
-  {
-    timebase_ = spill.event_model.timebase;
-    filters_.configure(spill);
-    Spectrum::_push_stats_pre(spill);
-  }
+  if (!this->_accept_spill(spill))
+    return;
+
+  timebase_ = spill.event_model.timebase;
+  filters_.configure(spill);
+  Spectrum::_push_stats_pre(spill);
 }
 
 void TimeDomain::_push_event(const Event& event)
@@ -147,7 +142,6 @@ void TimeDomain::_push_event(const Event& event)
   }
 
   range_[bin]++;
-  recent_count_++;
 }
 
 }

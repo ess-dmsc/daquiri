@@ -88,8 +88,6 @@ void Prebinned1D::_push_event(const Event& event)
     entry_.second = trace[i];
     data_->add(entry_);
   }
-
-  recent_count_++;
 }
 
 }

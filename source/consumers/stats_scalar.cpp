@@ -62,7 +62,6 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
       entry_.second -= highest_;
       highest_ = std::max(highest_, set.get_number());
     }
-    recent_count_++;
     data_->add(entry_);
   }
   Spectrum::_push_stats_pre(spill);
@@ -82,7 +81,6 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
 ////    {
 ////      double live = metadata_.get_attribute("live_time").duration().total_milliseconds();
 ////      entry_.second = (real - live) / real * 100.0;
-////      recent_count_++;
 ////      data_->add(entry_);
 ////    }
 ////  }

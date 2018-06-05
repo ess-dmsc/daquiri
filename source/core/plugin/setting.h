@@ -86,6 +86,10 @@ class Setting
     Setting operator++(int);
     Setting operator--(int);
 
+    // Precise float
+    void set_precise(PreciseFloat pf);
+    PreciseFloat precise() const;
+
     // menu/indicator/integer
     void set_int(integer_t v);
     integer_t get_int() const;

@@ -135,7 +135,6 @@ void TimeSpectrum::_push_event(const Event& event)
   }
 
   data_->add_one(coords_);
-  recent_count_++;
 }
 
 }

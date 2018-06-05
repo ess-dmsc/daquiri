@@ -130,7 +130,6 @@ void Image2D::_push_event(const Event& event)
 
   entry_.second = event.value(val_idx_);
   data_->add(entry_);
-  recent_count_++; //not += ?
 }
 
 }
