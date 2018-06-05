@@ -2,6 +2,7 @@
 
 #include "spectrum.h"
 #include "filter_block.h"
+#include "value_latch.h"
 
 namespace DAQuiri {
 
@@ -24,12 +25,8 @@ class Histogram1D : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     // cached parameters:
-    uint16_t downsample_{0};
-    std::string val_name_;
+    ValueLatch value_latch_;
     FilterBlock filters_;
-
-    //from status manifest
-    int value_idx_{-1};
 
     //reserve memory
     Coords coords_{0};

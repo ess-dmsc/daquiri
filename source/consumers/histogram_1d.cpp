@@ -17,18 +17,7 @@ Histogram1D::Histogram1D()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
-  SettingMeta ds("downsample", SettingType::integer, "Downsample by");
-  ds.set_val("units", "bits");
-  ds.set_flag("preset");
-  ds.set_val("min", 0);
-  ds.set_val("max", 31);
-  base_options.branches.add(ds);
-
-  SettingMeta val_name("value_name", SettingType::text, "Name of event value to bin");
-  val_name.set_flag("preset");
-  val_name.set_flag("event_value");
-  base_options.branches.add(val_name);
-
+  base_options.branches.add(value_latch_.settings(-1, "Value to bin"));
   base_options.branches.add(filters_.settings());
 
   metadata_.overwrite_all_attributes(base_options);
@@ -37,10 +26,11 @@ Histogram1D::Histogram1D()
 void Histogram1D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
-  downsample_ = metadata_.get_attribute("downsample").get_number();
-  val_name_ = metadata_.get_attribute("value_name").get_text();
 
+  value_latch_.settings(metadata_.get_attribute("value_latch"));
   filters_.settings(metadata_.get_attribute("filters"));
+
+  metadata_.replace_attribute(value_latch_.settings(-1, "Value to bin"));
   metadata_.replace_attribute(filters_.settings());
 
   this->_recalc_axes();
@@ -52,32 +42,30 @@ void Histogram1D::_recalc_axes()
   if (data_->dimensions() == metadata_.detectors.size())
     det = metadata_.detectors[0];
 
-  auto calib = det.get_calibration({val_name_, det.id()}, {val_name_});
-  data_->set_axis(0, DataAxis(calib, downsample_));
+  auto calib = det.get_calibration({value_latch_.value_id_, det.id()}, {value_latch_.value_id_});
+  data_->set_axis(0, DataAxis(calib, value_latch_.downsample_));
 
   data_->recalc_axes();
 }
 
 bool Histogram1D::_accept_spill(const Spill& spill)
 {
-  return (Spectrum::_accept_spill(spill)
-      &&
-          spill.event_model.name_to_val.count(val_name_));
-}
-
-bool Histogram1D::_accept_events(const Spill& /*spill*/)
-{
-  return (value_idx_ >= 0);
+  return (Spectrum::_accept_spill(spill) &&
+      value_latch_.has_declared_value(spill));
 }
 
 void Histogram1D::_push_stats_pre(const Spill& spill)
 {
-  if (this->_accept_spill(spill))
-  {
-    value_idx_ = spill.event_model.name_to_val.at(val_name_);
-    filters_.configure(spill);
-    Spectrum::_push_stats_pre(spill);
-  }
+  if (!this->_accept_spill(spill))
+    return;
+  value_latch_.configure(spill);
+  filters_.configure(spill);
+  Spectrum::_push_stats_pre(spill);
+}
+
+bool Histogram1D::_accept_events(const Spill& /*spill*/)
+{
+  return value_latch_.valid();
 }
 
 void Histogram1D::_push_event(const Event& event)
@@ -85,11 +73,7 @@ void Histogram1D::_push_event(const Event& event)
   if (!filters_.accept(event))
     return;
 
-  if (downsample_)
-    coords_[0] = (event.value(value_idx_) >> downsample_);
-  else
-    coords_[0] = event.value(value_idx_);
-
+  value_latch_.extract(coords_[0], event);
   data_->add_one(coords_);
 }
 

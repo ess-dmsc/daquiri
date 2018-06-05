@@ -6,7 +6,7 @@ class ValueLatch : public TestBase
   protected:
     virtual void SetUp()
     {
-      vl.name_ = "val";
+      vl.value_id_ = "val";
     }
 
     DAQuiri::ValueLatch vl;
@@ -60,13 +60,13 @@ TEST_F(ValueLatch, ExtractWithDownsample)
 
 TEST_F(ValueLatch, GetSettings)
 {
-  vl.name_ = "val";
+  vl.value_id_ = "val";
   vl.downsample_ = 4;
 
   auto sets = vl.settings(3);
   EXPECT_EQ(sets.id(), "value_latch");
 
-  auto name = sets.find(DAQuiri::Setting("name"));
+  auto name = sets.find(DAQuiri::Setting("value_id"));
   EXPECT_EQ(name.get_text(), "val");
   EXPECT_TRUE(name.has_index(3));
 
@@ -77,7 +77,7 @@ TEST_F(ValueLatch, GetSettings)
 
 TEST_F(ValueLatch, GetSettingsOverrideName)
 {
-  vl.name_ = "val";
+  vl.value_id_ = "val";
   vl.downsample_ = 4;
 
   auto sets = vl.settings(0, "NewName");
@@ -89,11 +89,11 @@ TEST_F(ValueLatch, SetSettings)
 {
   auto sets = vl.settings();
 
-  sets.set(DAQuiri::Setting::text("name", "val2"));
+  sets.set(DAQuiri::Setting::text("value_id", "val2"));
   sets.set(DAQuiri::Setting::integer("downsample", 7));
 
   vl.settings(sets);
 
-  EXPECT_EQ(vl.name_, "val2");
+  EXPECT_EQ(vl.value_id_, "val2");
   EXPECT_EQ(vl.downsample_, 7);
 }
