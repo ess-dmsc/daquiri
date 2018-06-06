@@ -3,8 +3,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Prebinned1D::Prebinned1D()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -15,10 +17,10 @@ Prebinned1D::Prebinned1D()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
-  SettingMeta val_name("value_name", SettingType::text);
+  SettingMeta val_name("trace_id", SettingType::text);
   val_name.set_flag("preset");
   val_name.set_flag("event_trace");
-  val_name.set_val("description", "Name of event value to bin");
+  val_name.set_val("description", "Name of event trace to bin");
   base_options.branches.add(val_name);
 
   metadata_.overwrite_all_attributes(base_options);
@@ -27,7 +29,7 @@ Prebinned1D::Prebinned1D()
 void Prebinned1D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
-  trace_name_ = metadata_.get_attribute("value_name").get_text();
+  trace_name_ = metadata_.get_attribute("trace_id").get_text();
   this->_recalc_axes();
 }
 
@@ -46,10 +48,12 @@ void Prebinned1D::_recalc_axes()
   data_->set_axis(0, ax);
 }
 
+// TODO: check trace dimensions
+
 bool Prebinned1D::_accept_spill(const Spill& spill)
 {
   return (Spectrum::_accept_spill(spill)
-          &&
+      &&
           spill.event_model.name_to_trace.count(trace_name_));
 }
 
@@ -69,6 +73,9 @@ void Prebinned1D::_push_stats_pre(const Spill& spill)
 
 void Prebinned1D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   const auto& trace = event.trace(trace_idx_);
 
   if (trace.size() >= domain_.size())
@@ -76,16 +83,16 @@ void Prebinned1D::_push_event(const Event& event)
     size_t oldbound = domain_.size();
     domain_.resize(trace.size());
 
-    for (size_t i=oldbound; i < trace.size(); ++i)
+    for (size_t i = oldbound; i < trace.size(); ++i)
       domain_[i] = i;
   }
 
-  for (size_t i=0; i < trace.size(); ++i)
+  for (size_t i = 0; i < trace.size(); ++i)
   {
     entry_.first[0] = i;
     entry_.second = trace[i];
     data_->add(entry_);
   }
+}
 
-  recent_count_++;
 }

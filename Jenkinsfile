@@ -146,7 +146,7 @@ def docker_tests_coverage(image_key) {
 
     dir("${project}/build") {
         junit 'tests/test_results.xml'
-        sh "../jenkins/redirect_coverage.sh ./tests/coverage/coverage.xml ${abs_dir}/${project}"
+        sh "../jenkins/redirect_coverage.sh ./tests/coverage/coverage.xml ${abs_dir}/${project}/source/"
 
         step([
                 $class: 'CoberturaPublisher',

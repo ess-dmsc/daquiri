@@ -2,8 +2,10 @@
 #include "custom_logger.h"
 #include "dense1d.h"
 
+namespace DAQuiri {
+
 TimeDomain::TimeDomain()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -38,8 +40,6 @@ TimeDomain::TimeDomain()
   SettingMeta trim("trim", SettingType::boolean, "Trim last bin");
   base_options.branches.add(trim);
 
-  base_options.branches.add(filters_.settings());
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -47,7 +47,9 @@ void TimeDomain::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
-  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  time_resolution_ = 0;
+  if (metadata_.get_attribute("time_resolution").get_number() > 0)
+    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
@@ -55,9 +57,6 @@ void TimeDomain::_apply_attributes()
 
   window_ = metadata_.get_attribute("window").get_number() * units_multiplier_;
   trim_ = metadata_.get_attribute("trim").get_bool();
-
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
 }
 
 void TimeDomain::_init_from_file()
@@ -90,11 +89,6 @@ void TimeDomain::_recalc_axes()
   }
 }
 
-bool TimeDomain::_accept_spill(const Spill& spill)
-{
-  return (Spectrum::_accept_spill(spill));
-}
-
 bool TimeDomain::_accept_events(const Spill& /*spill*/)
 {
   return (0 != time_resolution_);
@@ -102,12 +96,11 @@ bool TimeDomain::_accept_events(const Spill& /*spill*/)
 
 void TimeDomain::_push_stats_pre(const Spill& spill)
 {
-  if (this->_accept_spill(spill))
-  {
-    timebase_ = spill.event_model.timebase;
-    filters_.configure(spill);
-    Spectrum::_push_stats_pre(spill);
-  }
+  if (!this->_accept_spill(spill))
+    return;
+
+  timebase_ = spill.event_model.timebase;
+  Spectrum::_push_stats_pre(spill);
 }
 
 void TimeDomain::_push_event(const Event& event)
@@ -145,7 +138,6 @@ void TimeDomain::_push_event(const Event& event)
   }
 
   range_[bin]++;
-  recent_count_++;
 }
 
-
+}

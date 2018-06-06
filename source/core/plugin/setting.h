@@ -86,6 +86,10 @@ class Setting
     Setting operator++(int);
     Setting operator--(int);
 
+    // Precise float
+    void set_precise(PreciseFloat pf);
+    PreciseFloat precise() const;
+
     // menu/indicator/integer
     void set_int(integer_t v);
     integer_t get_int() const;
@@ -161,8 +165,8 @@ class Setting
     floating_t value_dbl{0};
     precise_t value_precise{0};
     std::string value_text;
-    boost::posix_time::ptime value_time;
-    boost::posix_time::time_duration value_duration;
+    boost::posix_time::ptime value_time {boost::posix_time::not_a_date_time};
+    boost::posix_time::time_duration value_duration {boost::posix_time::not_a_date_time};
     Pattern value_pattern;
 };
 

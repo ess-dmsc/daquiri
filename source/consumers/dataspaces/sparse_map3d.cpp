@@ -4,12 +4,10 @@
 
 #include "custom_logger.h"
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
 SparseMap3D::SparseMap3D()
-  : Dataspace(3)
-{}
+    : Dataspace(3) {}
 
 bool SparseMap3D::empty() const
 {
@@ -18,6 +16,9 @@ bool SparseMap3D::empty() const
 
 void SparseMap3D::clear()
 {
+  max0_ = 0;
+  max1_ = 0;
+  max2_ = 0;
   total_count_ = 0;
   spectrum_.clear();
 }
@@ -76,8 +77,8 @@ EntryList SparseMap3D::range(std::vector<Pair> list) const
   else
   {
     const auto& range0 = *list.begin();
-    const auto& range1 = *(list.begin()+1);
-    const auto& range2 = *(list.begin()+2);
+    const auto& range1 = *(list.begin() + 1);
+    const auto& range2 = *(list.begin() + 2);
     min0 = std::min(range0.first, range0.second);
     max0 = std::max(range0.first, range0.second);
     min1 = std::min(range1.first, range1.second);
@@ -112,7 +113,7 @@ void SparseMap3D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap3D::data_save(hdf5::node::Group g) const
+void SparseMap3D::data_save(const hdf5::node::Group& g) const
 {
   if (!spectrum_.size())
     return;
@@ -166,49 +167,57 @@ void SparseMap3D::data_save(hdf5::node::Group g) const
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not save SparseMap3D data"));
+    std::throw_with_nested(std::runtime_error("<SparseMap3D> Could not save"));
   }
 }
 
-void SparseMap3D::data_load(hdf5::node::Group g)
+void SparseMap3D::data_load(const hdf5::node::Group& g)
 {
-  using namespace hdf5;
+  try
+  {
+    using namespace hdf5;
 
-  if (!g.has_dataset("indices") ||
-      !g.has_dataset("counts"))
-    return;
+    if (!g.has_dataset("indices") ||
+        !g.has_dataset("counts"))
+      return;
 
-  auto didx = g.get_dataset("indices");
-  auto dcts = g.get_dataset("counts");
+    auto didx = hdf5::node::Group(g).get_dataset("indices");
+    auto dcts = hdf5::node::Group(g).get_dataset("counts");
 
-  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
-  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
+    auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+    auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0, 0});
-  didx.read(dx, slab);
+    std::vector<uint16_t> dx(didx_ds[0], 0);
+    slab.offset({0, 0});
+    didx.read(dx, slab);
 
-  std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0, 1});
-  didx.read(dy, slab);
+    std::vector<uint16_t> dy(didx_ds[0], 0);
+    slab.offset({0, 1});
+    didx.read(dy, slab);
 
-  std::vector<uint16_t> dz(didx_ds[0], 0);
-  slab.offset({0, 2});
-  didx.read(dz, slab);
+    std::vector<uint16_t> dz(didx_ds[0], 0);
+    slab.offset({0, 2});
+    didx.read(dz, slab);
 
-  std::vector<double> dc(dcts_ds[0], 0.0);
-  dcts.read(dc);
+    std::vector<double> dc(dcts_ds[0], 0.0);
+    dcts.read(dc);
 
-  for (size_t i = 0; i < dx.size(); ++i)
-    bin_pair(dx[i], dy[i], dz[i], dc[i]);
+    clear();
+    for (size_t i = 0; i < dx.size(); ++i)
+      bin_pair(dx[i], dy[i], dz[i], dc[i]);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<SparseMap3D> Could not load"));
+  }
 }
 
-std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &prepend) const
+std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string& prepend) const
 {
-  double maximum {0};
-  for (auto &b : spectrum_)
+  double maximum{0};
+  for (auto& b : spectrum_)
     maximum = std::max(maximum, to_double(b.second));
 
   std::string representation(ASCII_grayscale94);
@@ -225,7 +234,8 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
     for (uint16_t j = 0; j <= max1_; j++)
     {
       ss2 << prepend << "|";
-      for (uint16_t k = 0; k <= max2_; k++) {
+      for (uint16_t k = 0; k <= max2_; k++)
+      {
         uint16_t v = 0;
         if (spectrum_.count(tripple(i, j, k)))
           v = spectrum_.at(tripple(i, j, k)) / maximum * 93;
@@ -244,7 +254,7 @@ std::string SparseMap3D::data_debug(__attribute__((unused)) const std::string &p
   return ss.str();
 }
 
-void SparseMap3D::save(std::ostream& os)
+void SparseMap3D::export_csv(std::ostream& os) const
 {
   for (uint16_t i = 0; i <= max0_; i++)
   {
@@ -252,20 +262,22 @@ void SparseMap3D::save(std::ostream& os)
     std::stringstream ss2;
     for (uint16_t j = 0; j <= max1_; j++)
     {
-      for (uint16_t k = 0; k <= max2_; k++) {
+      for (uint16_t k = 0; k <= max2_; k++)
+      {
         double v = 0;
         if (spectrum_.count(tripple(i, j, k)))
           v = spectrum_.at(tripple(i, j, k));
         total += v;
-        ss2 << v << ", ";
+        ss2 << v;
+        if (k!=max2_)
+          ss2 << ", ";
       }
-      ss2 << "\n";
+      ss2 << ";\n";
     }
     if (total != 0.0)
     {
       os << "x=" << i << "\n";
       os << ss2.str();
-      os << "\n";
     }
   }
 }

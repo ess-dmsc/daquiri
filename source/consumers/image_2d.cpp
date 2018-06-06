@@ -5,8 +5,10 @@
 
 #include "custom_logger.h"
 
+namespace DAQuiri {
+
 Image2D::Image2D()
-  : Spectrum()
+    : Spectrum()
 {
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
@@ -18,32 +20,9 @@ Image2D::Image2D()
   app.set_flag("gradient-name");
   base_options.branches.add(Setting(app));
 
-  SettingMeta x_name("x_name", SettingType::text);
-  x_name.set_flag("preset");
-  x_name.set_flag("event_value");
-  x_name.set_val("description", "Name of event value for x coordinate");
-  base_options.branches.add(x_name);
-
-  SettingMeta y_name("y_name", SettingType::text);
-  y_name.set_flag("preset");
-  y_name.set_flag("event_value");
-  y_name.set_val("description", "Name of event value for y coordinate");
-  base_options.branches.add(y_name);
-
-  SettingMeta v_name("val_name", SettingType::text);
-  v_name.set_flag("preset");
-  v_name.set_flag("event_value");
-  v_name.set_val("description", "Name of event value for intensity");
-  base_options.branches.add(v_name);
-
-  SettingMeta ds("downsample", SettingType::integer, "Downsample x&y by");
-  ds.set_val("units", "bits");
-  ds.set_flag("preset");
-  ds.set_val("min", 0);
-  ds.set_val("max", 31);
-  base_options.branches.add(ds);
-
-  base_options.branches.add(filters_.settings());
+  base_options.branches.add_a(value_latch_x_.settings(0, "X value"));
+  base_options.branches.add_a(value_latch_y_.settings(1, "Y value"));
+  base_options.branches.add_a(value_latch_i_.settings(2, "Intensity value"));
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -52,13 +31,14 @@ void Image2D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
-  x_name_ = metadata_.get_attribute("x_name").get_text();
-  y_name_ = metadata_.get_attribute("y_name").get_text();
-  val_name_ = metadata_.get_attribute("val_name").get_text();
-  downsample_ = metadata_.get_attribute("downsample").get_number();
+  value_latch_x_.settings(metadata_.get_attribute(value_latch_x_.settings(0, "X value")));
+  metadata_.replace_attribute(value_latch_x_.settings(0, "X value"));
 
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
+  value_latch_y_.settings(metadata_.get_attribute(value_latch_y_.settings(1, "Y value")));
+  metadata_.replace_attribute(value_latch_y_.settings(1, "Y value"));
+
+  value_latch_i_.settings(metadata_.get_attribute(value_latch_i_.settings(2, "Intensity value")));
+  metadata_.replace_attribute(value_latch_i_.settings(2, "Intensity value"));
 }
 
 void Image2D::_recalc_axes()
@@ -70,44 +50,36 @@ void Image2D::_recalc_axes()
     det1 = metadata_.detectors[1];
   }
 
-  auto calib0 = det0.get_calibration({x_name_, det0.id()}, {x_name_});
-  data_->set_axis(0, DataAxis(calib0, downsample_));
+  auto calib0 = det0.get_calibration({value_latch_x_.value_id, det0.id()}, {value_latch_x_.value_id});
+  data_->set_axis(0, DataAxis(calib0, value_latch_x_.downsample));
 
-  auto calib1 = det1.get_calibration({y_name_, det1.id()}, {y_name_});
-  data_->set_axis(1, DataAxis(calib1, downsample_));
+  auto calib1 = det1.get_calibration({value_latch_y_.value_id, det1.id()}, {value_latch_y_.value_id});
+  data_->set_axis(1, DataAxis(calib1, value_latch_y_.downsample));
 
   data_->recalc_axes();
 }
 
 bool Image2D::_accept_spill(const Spill& spill)
 {
-  return (Spectrum::_accept_spill(spill)
-          && spill.event_model.name_to_val.count(x_name_)
-          && spill.event_model.name_to_val.count(y_name_)
-          && spill.event_model.name_to_val.count(val_name_)
-          );
+  return (Spectrum::_accept_spill(spill) &&
+      value_latch_x_.has_declared_value(spill) &&
+      value_latch_y_.has_declared_value(spill) &&
+      value_latch_i_.has_declared_value(spill));
+}
+
+void Image2D::_push_stats_pre(const Spill& spill)
+{
+  if (!this->_accept_spill(spill))
+    return;
+  value_latch_x_.configure(spill);
+  value_latch_y_.configure(spill);
+  value_latch_i_.configure(spill);
+  Spectrum::_push_stats_pre(spill);
 }
 
 bool Image2D::_accept_events(const Spill& /*spill*/)
 {
-  return (x_idx_ >= 0) && (y_idx_ >= 0) && (val_idx_ >= 0);
-}
-
-void Image2D::_push_stats_pre(const Spill &spill)
-{
-  if (this->_accept_spill(spill))
-  {
-    x_idx_ = spill.event_model.name_to_val.at(x_name_);
-    y_idx_ = spill.event_model.name_to_val.at(y_name_);
-    val_idx_ = spill.event_model.name_to_val.at(val_name_);
-    filters_.configure(spill);
-    Spectrum::_push_stats_pre(spill);
-  }
-}
-
-void Image2D::_flush()
-{
-  Spectrum::_flush();
+  return value_latch_x_.valid() && value_latch_y_.valid() && value_latch_i_.valid();
 }
 
 void Image2D::_push_event(const Event& event)
@@ -115,18 +87,11 @@ void Image2D::_push_event(const Event& event)
   if (!filters_.accept(event))
     return;
 
-  if (downsample_)
-  {
-    entry_.first[0] = (event.value(x_idx_) >> downsample_);
-    entry_.first[1] = (event.value(y_idx_) >> downsample_);
-  }
-  else
-  {
-    entry_.first[0] = event.value(x_idx_);
-    entry_.first[1] = event.value(y_idx_);
-  }
+  value_latch_x_.extract(entry_.first[0], event);
+  value_latch_y_.extract(entry_.first[1], event);
+  value_latch_i_.extract(entry_.second, event);
 
-  entry_.second = event.value(val_idx_);
   data_->add(entry_);
-  recent_count_++; //not += ?
+}
+
 }

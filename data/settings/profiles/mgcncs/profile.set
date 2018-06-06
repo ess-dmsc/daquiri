@@ -22,7 +22,7 @@
       {
        "id": "KafkaConfig/KafkaBroker",
        "type": "text",
-       "value": "dmsc-parallel:9092"
+       "value": "localhost:9092"
       },
       {
        "id": "KafkaConfig/KafkaTimeout",

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "spectrum.h"
-#include "value_filter.h"
+
+namespace DAQuiri {
 
 class TimeDomain : public Spectrum
 {
   public:
     TimeDomain();
-    TimeDomain *clone() const override { return new TimeDomain(*this); }
+    TimeDomain* clone() const override { return new TimeDomain(*this); }
 
   protected:
     std::string my_type() const override { return "Time-Activity 1D"; }
@@ -17,17 +18,15 @@ class TimeDomain : public Spectrum
     void _recalc_axes() override;
 
     //event processing
-    void _push_event(const Event &event) override;
-    void _push_stats_pre(const Spill &spill) override;
+    void _push_event(const Event& event) override;
+    void _push_stats_pre(const Spill& spill) override;
 
-    bool _accept_spill(const Spill &spill) override;
-    bool _accept_events(const Spill &spill) override;
+    bool _accept_events(const Spill& spill) override;
 
     //cached parameters
     double time_resolution_{1};
     std::string units_name_;
     double units_multiplier_{1};
-    FilterBlock filters_;
     double window_{0.0};
     bool trim_{true};
 
@@ -41,3 +40,5 @@ class TimeDomain : public Spectrum
     //reserve memory
     Entry entry_{{0}, 0};
 };
+
+}

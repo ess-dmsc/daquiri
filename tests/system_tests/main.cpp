@@ -15,10 +15,53 @@
 
 using namespace DAQuiri;
 
-Setting get_profile();
-Container<ConsumerMetadata> get_prototypes();
+void add_histogram1d(ProjectPtr);
+void add_histogram2d(ProjectPtr);
+void add_histogram3d(ProjectPtr);
+void add_image2d(ProjectPtr);
+void add_tof2d(ProjectPtr);
+void add_time2d(ProjectPtr);
+
+void add_prebinned1d(ProjectPtr);
+void add_tof1d(ProjectPtr);
+void add_time_domain(ProjectPtr);
+void add_stats_scalar(ProjectPtr);
+
+Setting get_profile()
+{
+  auto settings = ProducerFactory::singleton().default_settings("MockProducer");
+  settings.set_text("producer1");
+  settings.set(Setting::text("MockProducer/StreamID", "exy"));
+  settings.set(Setting::floating("MockProducer/SpillInterval", 0.2));
+  settings.set(Setting::floating("MockProducer/CountRate", 50000));
+  settings.set(Setting::floating("MockProducer/DeadTime", 5));
+
+  settings.set(Setting::integer("TimeBase/multiplier", 1));
+  settings.set(Setting::integer("TimeBase/divider", 3));
+
+  auto profile = Engine::default_settings();
+  profile.branches.add(settings);
+  return profile;
+}
+
 void define_value(Engine& e, uint16_t num,
                   std::string name, double center, double spread);
+
+ProjectPtr get_project()
+{
+  ProjectPtr project = ProjectPtr(new Project());
+  add_histogram1d(project);
+  add_histogram2d(project);
+  add_image2d(project);
+  add_tof2d(project);
+  add_time2d(project);
+  add_histogram3d(project);
+  add_prebinned1d(project);
+  add_tof1d(project);
+  add_time_domain(project);
+  add_stats_scalar(project);
+  return project;
+}
 
 int main(int argc, char** argv)
 {
@@ -55,10 +98,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  ProjectPtr project = ProjectPtr(new Project());
-
-  for (const auto& definition : get_prototypes())
-    project->add_consumer(ConsumerFactory::singleton().create_from_prototype(definition));
+  auto project = get_project();
 
   Interruptor interruptor(false);
   engine.acquire(project, interruptor, duration);
@@ -74,9 +114,9 @@ int main(int argc, char** argv)
   ss1 << *project;
   ss2 << *project2;
 
-  DBG << "\n" << ss1.str();
+  DBG << "Acquired:\n" << ss1.str();
 
-//  DBG << "\n" << ss2.str();
+//  DBG << "Loaded:\n" << ss2.str();
 
 //  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
 //  ofs1 << ss1.str();
@@ -91,23 +131,6 @@ int main(int argc, char** argv)
   }
 
   return EXIT_SUCCESS;
-}
-
-Setting get_profile()
-{
-  auto settings = ProducerFactory::singleton().default_settings("MockProducer");
-  settings.set_text("producer1");
-  settings.set(Setting::text("MockProducer/StreamID", "exy"));
-  settings.set(Setting::floating("MockProducer/SpillInterval", 0.2));
-  settings.set(Setting::floating("MockProducer/CountRate", 50000));
-  settings.set(Setting::floating("MockProducer/DeadTime", 5));
-
-  settings.set(Setting::integer("TimeBase/multiplier", 1));
-  settings.set(Setting::integer("TimeBase/divider", 3));
-
-  auto profile = Engine::default_settings();
-  profile.branches.add(settings);
-  return profile;
 }
 
 void define_value(Engine& e, uint16_t num,
@@ -130,76 +153,148 @@ void define_value(Engine& e, uint16_t num,
   e.set_setting(res, Match::id | Match::indices);
 }
 
-Container<ConsumerMetadata> get_prototypes()
+void add_histogram1d(ProjectPtr project)
 {
-  Container<ConsumerMetadata> prototypes;
+  auto h1d = ConsumerFactory::singleton().create_type("Histogram 1D");
+  h1d->set_attribute(Setting::text("stream_id", "exy"));
+  h1d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  h1d->set_attribute(Setting::integer("value_latch/downsample", 10));
+  project->add_consumer(h1d);
+}
 
-  auto ptype = ConsumerFactory::singleton().create_prototype("Histogram 1D");
-  ptype.set_attribute(Setting::integer("downsample", 10));
-  ptype.set_attribute(Setting::text("stream_id", "exy"));
-  ptype.set_attribute(Setting::text("value_name", "x"));
-  prototypes.add(ptype);
+void add_histogram2d(ProjectPtr project)
+{
+  auto h2d = ConsumerFactory::singleton().create_type("Histogram 2D");
+  h2d->set_attribute(Setting::text("stream_id", "exy"));
 
-  auto pbtype = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
-  pbtype.set_attribute(Setting::text("stream_id", "exy"));
-  pbtype.set_attribute(Setting::text("value_name", "x"));
-  prototypes.add(pbtype);
+  auto x_name = Setting::text("value_latch/value_id", "x");
+  x_name.set_indices({0});
+  h2d->set_attribute(x_name);
 
-  auto toftype = ConsumerFactory::singleton().create_prototype("Time of Flight 1D");
-  toftype.set_attribute(Setting::text("stream_id", "exy"));
-  toftype.set_attribute(Setting::floating("time_resolution", 10));
-  toftype.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(toftype);
+  auto y_name = Setting::text("value_latch/value_id", "y");
+  y_name.set_indices({1});
+  h2d->set_attribute(y_name);
 
-  auto tdtype = ConsumerFactory::singleton().create_prototype("Time-Activity 1D");
-  tdtype.set_attribute(Setting::text("stream_id", "exy"));
-  tdtype.set_attribute(Setting::floating("time_resolution", 25));
-  tdtype.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(tdtype);
+  auto ds = Setting::integer("value_latch/downsample", 11);
+  ds.set_indices({0});
+  h2d->set_attribute(ds);
+  ds.set_indices({1});
+  h2d->set_attribute(ds);
 
-  auto itype = ConsumerFactory::singleton().create_prototype("Histogram 2D");
-  itype.set_attribute(Setting::integer("downsample", 11));
-  itype.set_attribute(Setting::text("stream_id", "exy"));
-  itype.set_attribute(Setting::text("x_name", "x"));
-  itype.set_attribute(Setting::text("y_name", "y"));
-  prototypes.add(itype);
+  project->add_consumer(h2d);
+}
 
-  auto imtype = ConsumerFactory::singleton().create_prototype("Image 2D");
-  imtype.set_attribute(Setting::integer("downsample", 11));
-  imtype.set_attribute(Setting::text("stream_id", "exy"));
-  imtype.set_attribute(Setting::text("x_name", "x"));
-  imtype.set_attribute(Setting::text("y_name", "y"));
-  imtype.set_attribute(Setting::text("val_name", "energy"));
-  prototypes.add(imtype);
+void add_image2d(ProjectPtr project)
+{
+  auto im2d = ConsumerFactory::singleton().create_type("Image 2D");
+  im2d->set_attribute(Setting::text("stream_id", "exy"));
 
-  auto tof2type = ConsumerFactory::singleton().create_prototype("Time of Flight 2D");
-  tof2type.set_attribute(Setting::text("stream_id", "exy"));
-  tof2type.set_attribute(Setting::integer("downsample", 10));
-  tof2type.set_attribute(Setting::text("value_name", "x"));
-  tof2type.set_attribute(Setting::floating("time_resolution", 10));
-  tof2type.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(tof2type);
+  auto x_name = Setting::text("value_latch/value_id", "x");
+  x_name.set_indices({0});
+  im2d->set_attribute(x_name);
 
-  auto tstype = ConsumerFactory::singleton().create_prototype("TimeSpectrum 2D");
-  tstype.set_attribute(Setting::text("stream_id", "exy"));
-  tstype.set_attribute(Setting::text("value_name", "x"));
-  tstype.set_attribute(Setting::integer("downsample", 11));
-  tstype.set_attribute(Setting::floating("time_resolution", 25));
-  tstype.set_attribute(Setting::integer("time_units", 6));
-  prototypes.add(tstype);
+  auto y_name = Setting::text("value_latch/value_id", "y");
+  y_name.set_indices({1});
+  im2d->set_attribute(y_name);
 
-  auto vtype = ConsumerFactory::singleton().create_prototype("Histogram 3D");
-  vtype.set_attribute(Setting::integer("downsample", 12));
-  vtype.set_attribute(Setting::text("stream_id", "exy"));
-  vtype.set_attribute(Setting::text("x_name", "x"));
-  vtype.set_attribute(Setting::text("y_name", "y"));
-  vtype.set_attribute(Setting::text("z_name", "z"));
-  prototypes.add(vtype);
+  auto intensity_name = Setting::text("value_latch/value_id", "energy");
+  intensity_name.set_indices({2});
+  im2d->set_attribute(intensity_name);
 
-  auto sstype = ConsumerFactory::singleton().create_prototype("Stats Scalar");
-  sstype.set_attribute(Setting::text("stream_id", "engine"));
-  sstype.set_attribute(Setting::text("what_stats", "queue_size"));
-  prototypes.add(sstype);
+  auto ds = Setting::integer("value_latch/downsample", 10);
+  ds.set_indices({0});
+  im2d->set_attribute(ds);
+  ds.set_indices({1});
+  im2d->set_attribute(ds);
 
-  return prototypes;
+  project->add_consumer(im2d);
+}
+
+void add_tof2d(ProjectPtr project)
+{
+  auto tof2d = ConsumerFactory::singleton().create_type("Time of Flight 2D");
+  tof2d->set_attribute(Setting::text("stream_id", "exy"));
+  tof2d->set_attribute(Setting::floating("time_resolution", 5));
+  tof2d->set_attribute(Setting::integer("time_units", 6));
+
+  tof2d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  tof2d->set_attribute(Setting::integer("value_latch/downsample", 10));
+
+  project->add_consumer(tof2d);
+}
+
+void add_time2d(ProjectPtr project)
+{
+  auto time2d = ConsumerFactory::singleton().create_type("TimeSpectrum 2D");
+  time2d->set_attribute(Setting::text("stream_id", "exy"));
+  time2d->set_attribute(Setting::floating("time_resolution", 20));
+  time2d->set_attribute(Setting::integer("time_units", 6));
+
+  time2d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  time2d->set_attribute(Setting::integer("value_latch/downsample", 10));
+
+  project->add_consumer(time2d);
+}
+
+void add_histogram3d(ProjectPtr project)
+{
+  auto h3d = ConsumerFactory::singleton().create_type("Histogram 3D");
+  h3d->set_attribute(Setting::text("stream_id", "exy"));
+
+  auto x_name = Setting::text("value_latch/value_id", "x");
+  x_name.set_indices({0});
+  h3d->set_attribute(x_name);
+
+  auto y_name = Setting::text("value_latch/value_id", "y");
+  y_name.set_indices({1});
+  h3d->set_attribute(y_name);
+
+  auto z_name = Setting::text("value_latch/value_id", "z");
+  z_name.set_indices({2});
+  h3d->set_attribute(z_name);
+
+  auto ds = Setting::integer("value_latch/downsample", 12);
+  ds.set_indices({0});
+  h3d->set_attribute(ds);
+  ds.set_indices({1});
+  h3d->set_attribute(ds);
+  ds.set_indices({2});
+  h3d->set_attribute(ds);
+
+  project->add_consumer(h3d);
+}
+
+void add_prebinned1d(ProjectPtr project)
+{
+
+  auto h1d = ConsumerFactory::singleton().create_type("Prebinned 1D");
+  h1d->set_attribute(Setting::text("stream_id", "exy"));
+  h1d->set_attribute(Setting::text("trace_id", "x"));
+  project->add_consumer(h1d);
+}
+
+void add_tof1d(ProjectPtr project)
+{
+  auto tof1d = ConsumerFactory::singleton().create_type("Time of Flight 1D");
+  tof1d->set_attribute(Setting::text("stream_id", "exy"));
+  tof1d->set_attribute(Setting::floating("time_resolution", 5));
+  tof1d->set_attribute(Setting::integer("time_units", 6));
+  project->add_consumer(tof1d);
+}
+
+void add_time_domain(ProjectPtr project)
+{
+  auto act = ConsumerFactory::singleton().create_type("Time-Activity 1D");
+  act->set_attribute(Setting::text("stream_id", "exy"));
+  act->set_attribute(Setting::floating("time_resolution", 25));
+  act->set_attribute(Setting::integer("time_units", 6));
+  project->add_consumer(act);
+}
+
+void add_stats_scalar(ProjectPtr project)
+{
+  auto scal = ConsumerFactory::singleton().create_type("Stats Scalar");
+  scal->set_attribute(Setting::text("stream_id", "exy"));
+  scal->set_attribute(Setting::text("what_stats", "native_time"));
+  project->add_consumer(scal);
 }

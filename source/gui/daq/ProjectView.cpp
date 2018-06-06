@@ -162,7 +162,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
   double dead = 100;
   if (real > 0)
     dead = (real - live) * 100.0 / real;
-  double rate_inst = md.get_attribute("instant_rate").get_number();
+  double rate_inst = md.get_attribute("recent_native_time_rate").get_number();
 
   Detector det = Detector();
   if (!md.detectors.empty())
