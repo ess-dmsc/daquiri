@@ -60,9 +60,10 @@ TEST_F(Scalar, GetMinMax)
   d.add({{}, 3});
   d.add({{}, 42});
   d.add({{}, 9});
-  EXPECT_EQ(d.range({})->at(0).second, 3);
-  EXPECT_EQ(d.range({})->at(1).second, 9);
-  EXPECT_EQ(d.range({})->at(2).second, 42);
+
+  EXPECT_EQ(d.get({}), 9);
+  EXPECT_EQ(d.range({})->begin()->second, 3);
+  EXPECT_EQ(d.range({})->rbegin()->second, 42);
 }
 
 TEST_F(Scalar, Clone)
@@ -73,9 +74,8 @@ TEST_F(Scalar, Clone)
 
   auto d2 = std::shared_ptr<DAQuiri::Dataspace>(d.clone());
   EXPECT_EQ(d2->get({}), 9);
-  EXPECT_EQ(d2->range({})->at(0).second, 3);
-  EXPECT_EQ(d2->range({})->at(1).second, 9);
-  EXPECT_EQ(d2->range({})->at(2).second, 42);
+  EXPECT_EQ(d2->range({})->begin()->second, 3);
+  EXPECT_EQ(d2->range({})->rbegin()->second, 42);
   EXPECT_EQ(d2->dimensions(), 0);
   EXPECT_EQ(d2->total_count(), 3);
 }

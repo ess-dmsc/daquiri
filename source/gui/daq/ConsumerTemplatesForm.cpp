@@ -215,8 +215,8 @@ void ConsumerTemplatesForm::toggle_push()
 void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
-  QString fileName = QFileDialog::getOpenFileName(this, "Load template spectra",
-                                                  data_dir_, "Template set (*.tem)");
+  QString fileName = QFileDialog::getOpenFileName(this, "Import consumer prototypes",
+                                                  data_dir_, "DAQuiri project (*.daq)");
   if (!validateFile(this, fileName, false))
     return;
 

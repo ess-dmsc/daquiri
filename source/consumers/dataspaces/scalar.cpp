@@ -76,7 +76,6 @@ EntryList Scalar::range(std::vector<Pair> list) const
   if (has_data_)
   {
     result->push_back({{}, min_val_});
-    result->push_back({{}, data_});
     result->push_back({{}, max_val_});
   }
   return result;
