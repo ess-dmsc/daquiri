@@ -60,9 +60,12 @@ void Scalar::add_one(const Coords& coords)
 
 void Scalar::recalc_axes()
 {
+#if 0
+  //TODO: bad things in case of 0 or large values, think of something better
   auto ax = axis(0);
   ax.expand_domain(max_val_);
   set_axis(0, ax);
+#endif
 }
 
 PreciseFloat Scalar::get(const Coords& coords) const
