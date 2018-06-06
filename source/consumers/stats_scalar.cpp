@@ -26,9 +26,11 @@ StatsScalar::StatsScalar()
   SettingMeta diff("diff", SettingType::boolean, "Diff cumulative value");
   base_options.branches.add(Setting(diff));
 
+  // TODO: Unused
   SettingMeta eul("enforce_upper_limit", SettingType::boolean, "Enforce upper limit");
   base_options.branches.add(Setting(eul));
 
+  // TODO: Unused
   SettingMeta ul("upper_limit", SettingType::floating, "Enforce upper limit");
   base_options.branches.add(Setting(ul));
 
@@ -59,11 +61,12 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
     entry_.second = set.get_number();
     if (diff_)
     {
-      entry_.second -= highest_;
-      highest_ = std::max(highest_, set.get_number());
+      entry_.second -= previous_;
+      previous_ = set.get_number();
     }
     data_->add(entry_);
   }
+
   Spectrum::_push_stats_pre(spill);
 }
 
@@ -91,7 +94,7 @@ bool StatsScalar::_accept_events(const Spill& /*spill*/)
   return false;
 }
 
-void StatsScalar::_push_event(const Event& event)
+void StatsScalar::_push_event(const Event& /*event*/)
 {
   // do nothing here
   // this should never be called anyhow because of above

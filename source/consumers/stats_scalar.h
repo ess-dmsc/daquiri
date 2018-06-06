@@ -24,8 +24,9 @@ class StatsScalar : public Spectrum
 
     // cached parameters:
     std::string what_{0};
+
     bool diff_{false};
-    double highest_{0};
+    PreciseFloat previous_{0};
 
     //reserve memory
     Entry entry_{{}, {0}};
