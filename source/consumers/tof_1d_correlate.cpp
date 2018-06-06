@@ -48,9 +48,12 @@ void TOF1DCorrelate::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
+  //TODO: unused
   channel_num_ = metadata_.get_attribute("channel_num").get_number();
 
-  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  time_resolution_ = 0;
+  if (metadata_.get_attribute("time_resolution").get_number() > 0)
+    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
@@ -173,6 +176,9 @@ void TOF1DCorrelate::_push_event(const Event& event)
 //    return;
 //  if (Spectrum::_accept_spill(spill) && (event.value(1) != channel_num_))
 //    return;
+
+  if (!filters_.accept(event))
+    return;
 
   events_buffer_.push_back(event.timestamp());
 }
