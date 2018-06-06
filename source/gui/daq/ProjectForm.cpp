@@ -133,9 +133,10 @@ void ProjectForm::loadSettings()
     {
       project_->open(fname.toStdString());
     }
-    catch (...)
+    catch (std::exception& e)
     {
-      DBG << "Could not load default prototypes from " << fname.toStdString();
+      DBG << "<ProjectForm> Could not load default prototypes from " << fname.toStdString() << "\n"
+          << hdf5::error::print_nested(e, 0);;
     }
   }
 

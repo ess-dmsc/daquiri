@@ -98,7 +98,7 @@ void Scalar::data_save(const hdf5::node::Group& g) const
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not save Scalar data"));
+    std::throw_with_nested(std::runtime_error("<Scalar> Could not save"));
   }
 }
 
@@ -127,7 +127,7 @@ void Scalar::data_load(const hdf5::node::Group& g)
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not load Scalar data"));
+    std::throw_with_nested(std::runtime_error("<Scalar> Could not load"));
   }
 }
 

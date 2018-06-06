@@ -4,7 +4,10 @@ namespace DAQuiri {
 
 void FilterBlock::settings(const Setting& s)
 {
-  size_t filter_count = s.find(Setting("filter_count")).get_number();
+  size_t filter_count = 0;
+  auto newsize = s.find(Setting("filter_count"));
+  if (newsize)
+    filter_count = newsize.get_int();
   filters_.resize(filter_count);
 
   size_t i = 0;
@@ -16,6 +19,7 @@ void FilterBlock::settings(const Setting& s)
     if (i >= filter_count)
       break;
   }
+
 }
 
 Setting FilterBlock::settings() const
@@ -46,6 +50,5 @@ void FilterBlock::configure(const Spill& spill)
       valid = true;
   }
 }
-
 
 }

@@ -1,12 +1,10 @@
 #include "dense1d.h"
 #include "h5json.h"
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
 Dense1D::Dense1D()
-  : Dataspace(1)
-{}
+    : Dataspace(1) {}
 
 bool Dense1D::empty() const
 {
@@ -33,21 +31,21 @@ void Dense1D::add(const Entry& e)
     return;
   const auto& bin = e.first[0];
   if (bin >= spectrum_.size())
-    spectrum_.resize(bin+1, PreciseFloat(0));
+    spectrum_.resize(bin + 1, PreciseFloat(0));
 
   spectrum_[bin] += e.second;
   total_count_ += e.second;
   maxchan_ = std::max(maxchan_, bin);
 }
-  
+
 void Dense1D::add_one(const Coords& coords)
 {
   if (coords.size() != dimensions())
     return;
   const auto& bin = coords[0];
   if (bin >= spectrum_.size())
-    spectrum_.resize(bin+1, PreciseFloat(0));
-  
+    spectrum_.resize(bin + 1, PreciseFloat(0));
+
   spectrum_[bin]++;
   total_count_++;
   maxchan_ = std::max(maxchan_, bin);
@@ -64,7 +62,7 @@ PreciseFloat Dense1D::get(const Coords& coords) const
 {
   if (coords.size() != dimensions())
     return 0;
-  const auto& bin =  *coords.begin();
+  const auto& bin = *coords.begin();
   if (bin < spectrum_.size())
     return spectrum_.at(bin);
   return 0;
@@ -76,7 +74,7 @@ EntryList Dense1D::range(std::vector<Pair> list) const
   size_t max {spectrum_.size() - 1};
   if (list.size() == dimensions())
   {
-    min = std::max(list.begin()->first, (long unsigned)(0));
+    min = std::max(list.begin()->first, (long unsigned) (0));
     max = std::min(list.begin()->second, spectrum_.size() - 1);
   }
 
@@ -85,7 +83,7 @@ EntryList Dense1D::range(std::vector<Pair> list) const
     return result;
 
   //TODO: only non-0s?
-  for (size_t i=min; i <= max; ++i)
+  for (size_t i = min; i <= max; ++i)
     result->push_back({{i}, spectrum_[i]});
 
   return result;
@@ -109,15 +107,15 @@ void Dense1D::data_save(const hdf5::node::Group& g) const
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not save Dense1D data"));
+    std::throw_with_nested(std::runtime_error("<Dense1D> Could not save"));
   }
 }
 
 void Dense1D::data_load(const hdf5::node::Group& g)
 {
-  std::vector<double> rdata;
   try
   {
+    std::vector<double> rdata;
     if (g.has_dataset("counts"))
     {
       auto dset = hdf5::node::Group(g).get_dataset("counts");
@@ -125,30 +123,30 @@ void Dense1D::data_load(const hdf5::node::Group& g)
       rdata.resize(shape[0]);
       dset.read(rdata);
     }
+
+    if (spectrum_.size() != rdata.size())
+    {
+      spectrum_.clear();
+      spectrum_.resize(rdata.size(), PreciseFloat(0));
+    }
+
+    maxchan_ = 0;
+    total_count_ = 0;
+    for (size_t i = 0; i < rdata.size(); i++)
+    {
+      total_count_ += rdata[i];
+      spectrum_[i] = PreciseFloat(rdata[i]);
+      if (rdata[i])
+        maxchan_ = i;
+    }
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not load Dense1D data"));
-  }
-
-  if (spectrum_.size() != rdata.size())
-  {
-    spectrum_.clear();
-    spectrum_.resize(rdata.size(), PreciseFloat(0));
-  }
-
-  maxchan_ = 0;
-  total_count_ = 0;
-  for (size_t i = 0; i < rdata.size(); i++)
-  {
-    total_count_ += rdata[i];
-    spectrum_[i] = PreciseFloat(rdata[i]);
-    if (rdata[i])
-      maxchan_ = i;
+    std::throw_with_nested(std::runtime_error("<Dense1D> Could not load"));
   }
 }
 
-std::string Dense1D::data_debug(const std::string &prepend) const
+std::string Dense1D::data_debug(const std::string& prepend) const
 {
   std::stringstream ss;
   if (!spectrum_.size())
@@ -168,7 +166,7 @@ std::string Dense1D::data_debug(const std::string &prepend) const
       print = true;
     if (print)
       ss << prepend << i << ": " <<
-            std::string(nstars * val/max,'*') << "\n";
+         std::string(nstars * val / max, '*') << "\n";
   }
 
   return ss.str();

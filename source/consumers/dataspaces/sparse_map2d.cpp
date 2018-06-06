@@ -149,7 +149,7 @@ void SparseMap2D::data_save(const hdf5::node::Group& g) const
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not save SparseMap2D data"));
+    std::throw_with_nested(std::runtime_error("<SparseMap2D> Could not save"));
   }
 }
 
@@ -188,7 +188,7 @@ void SparseMap2D::data_load(const hdf5::node::Group& g)
   }
   catch (...)
   {
-    std::throw_with_nested(std::runtime_error("Could not load SparseMap2D data"));
+    std::throw_with_nested(std::runtime_error("<SparseMap2D> Could not load"));
   }
 }
 

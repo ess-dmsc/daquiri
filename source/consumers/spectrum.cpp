@@ -48,13 +48,20 @@ Spectrum::Spectrum()
 
 void Spectrum::_apply_attributes()
 {
-  Consumer::_apply_attributes();
+  try
+  {
+    Consumer::_apply_attributes();
 
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
+    filters_.settings(metadata_.get_attribute("filters"));
+    metadata_.replace_attribute(filters_.settings());
 
-  periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings()));
-  metadata_.replace_attribute(periodic_trigger_.settings());
+    periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings()));
+    metadata_.replace_attribute(periodic_trigger_.settings(-1, "Clear periodically"));
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<Spectrum> Failed _apply_attributes"));
+  }
 }
 
 bool Spectrum::_accept_spill(const Spill& spill)
@@ -110,7 +117,7 @@ void Spectrum::_push_stats_post(const Spill& spill)
   periodic_trigger_.update(new_status);
   update_cumulative(new_status);
 
-   if (data_)
+  if (data_)
   {
     metadata_.set_attribute(Setting::precise("total_count", data_->total_count()));
     metadata_.set_attribute(recent_rate_.update(new_status, data_->total_count()));

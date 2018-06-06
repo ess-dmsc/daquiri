@@ -36,29 +36,50 @@ TOF1D::TOF1D()
 
 void TOF1D::_apply_attributes()
 {
-  Spectrum::_apply_attributes();
+  try
+  {
+    Spectrum::_apply_attributes();
 
-  time_resolution_ = 0;
-  if (metadata_.get_attribute("time_resolution").get_number() > 0)
-    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
-  auto unit = metadata_.get_attribute("time_units").selection();
-  units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
-  units_multiplier_ = std::pow(10, unit);
-  time_resolution_ /= units_multiplier_;
+    time_resolution_ = 0;
+    if (metadata_.get_attribute("time_resolution").get_number() > 0)
+      time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+    auto unit = metadata_.get_attribute("time_units").selection();
+    units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
+    units_multiplier_ = std::pow(10, unit);
+    time_resolution_ /= units_multiplier_;
 
-  this->_recalc_axes();
+    this->_recalc_axes();
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<TOF1D> Failed _apply_attributes"));
+  }
 }
 
 void TOF1D::_init_from_file()
 {
-  domain_ = data_->axis(0).domain;
-  Spectrum::_init_from_file();
+  try
+  {
+    domain_ = data_->axis(0).domain;
+    Spectrum::_init_from_file();
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<TOF1D> Failed _init_from_file"));
+  }
 }
 
 void TOF1D::_recalc_axes()
 {
-  CalibID id("time", "", units_name_);
-  data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
+  try
+  {
+    CalibID id("time", "", units_name_);
+    data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<TOF1D> Failed _recalc_axes"));
+  }
 }
 
 bool TOF1D::_accept_spill(const Spill& spill)
