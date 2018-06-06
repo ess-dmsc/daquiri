@@ -104,19 +104,17 @@ void Spectrum::_push_stats_post(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
 
+  this->_recalc_axes();
+
   auto new_status = Status::extract(spill);
-
   periodic_trigger_.update(new_status);
-
   update_cumulative(new_status);
 
-  if (data_)
+   if (data_)
   {
     metadata_.set_attribute(Setting::precise("total_count", data_->total_count()));
     metadata_.set_attribute(recent_rate_.update(new_status, data_->total_count()));
   }
-
-  this->_recalc_axes();
 }
 
 void Spectrum::_flush()

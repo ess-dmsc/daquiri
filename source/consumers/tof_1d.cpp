@@ -38,7 +38,9 @@ void TOF1D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
-  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  time_resolution_ = 0;
+  if (metadata_.get_attribute("time_resolution").get_number() > 0)
+    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
@@ -82,6 +84,9 @@ void TOF1D::_push_stats_pre(const Spill& spill)
 
 void TOF1D::_push_event(const Event& event)
 {
+  if (!filters_.accept(event))
+    return;
+
   double nsecs = timebase_.to_nanosec(event.timestamp()) - pulse_time_;
 
   if (nsecs < 0)
