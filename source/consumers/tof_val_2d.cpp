@@ -31,7 +31,6 @@ TOFVal2D::TOFVal2D()
   units.set_enum(9, "s");
   base_options.branches.add(units);
 
-  base_options.branches.add(filters_.settings());
   base_options.branches.add(value_latch_.settings(-1, "Value to bin"));
 
   metadata_.overwrite_all_attributes(base_options);
@@ -46,9 +45,6 @@ void TOFVal2D::_apply_attributes()
   units_multiplier_ = std::pow(10, unit);
 
   time_resolution_ /= units_multiplier_;
-
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
 
   value_latch_.settings(metadata_.get_attribute("value_latch"));
   metadata_.replace_attribute(value_latch_.settings(-1, "Value to bin"));
@@ -90,7 +86,6 @@ void TOFVal2D::_push_stats_pre(const Spill& spill)
   timebase_ = spill.event_model.timebase;
   pulse_time_ = timebase_.to_nanosec(
       spill.state.find(Setting("pulse_time")).get_number());
-  filters_.configure(spill);
   value_latch_.configure(spill);
   Spectrum::_push_stats_pre(spill);
 }

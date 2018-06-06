@@ -20,8 +20,6 @@ Image2D::Image2D()
   app.set_flag("gradient-name");
   base_options.branches.add(Setting(app));
 
-  base_options.branches.add(filters_.settings());
-
   base_options.branches.add_a(value_latch_x_.settings(0, "X value"));
   base_options.branches.add_a(value_latch_y_.settings(1, "Y value"));
   base_options.branches.add_a(value_latch_i_.settings(2, "Intensity value"));
@@ -32,9 +30,6 @@ Image2D::Image2D()
 void Image2D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
-
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
 
   value_latch_x_.settings(metadata_.get_attribute(value_latch_x_.settings(0, "X value")));
   metadata_.replace_attribute(value_latch_x_.settings(0, "X value"));
@@ -76,7 +71,6 @@ void Image2D::_push_stats_pre(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
-  filters_.configure(spill);
   value_latch_x_.configure(spill);
   value_latch_y_.configure(spill);
   value_latch_i_.configure(spill);

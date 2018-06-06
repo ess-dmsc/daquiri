@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spectrum.h"
-#include "filter_block.h"
 #include "value_latch.h"
 
 namespace DAQuiri {
@@ -25,7 +24,6 @@ class Histogram3D : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     //cached parameters
-    FilterBlock filters_;
     ValueLatch value_latch_x_;
     ValueLatch value_latch_y_;
     ValueLatch value_latch_z_;

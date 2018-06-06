@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spectrum.h"
-#include "filter_block.h"
 #include "value_latch.h"
 
 namespace DAQuiri {
@@ -27,7 +26,6 @@ class Histogram2D : public Spectrum
     //cached parameters
     ValueLatch value_latch_x_;
     ValueLatch value_latch_y_;
-    FilterBlock filters_;
 
     //reserve memory
     Coords coords_{0, 0};

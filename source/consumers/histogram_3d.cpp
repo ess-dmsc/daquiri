@@ -18,8 +18,6 @@ Histogram3D::Histogram3D()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Event-based 3D spectrum");
 
-  base_options.branches.add(filters_.settings());
-
   base_options.branches.add_a(value_latch_x_.settings(0, "X value"));
   base_options.branches.add_a(value_latch_y_.settings(1, "Y value"));
   base_options.branches.add_a(value_latch_z_.settings(2, "Z value"));
@@ -30,9 +28,6 @@ Histogram3D::Histogram3D()
 void Histogram3D::_apply_attributes()
 {
   Spectrum::_apply_attributes();
-
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
 
   value_latch_x_.settings(metadata_.get_attribute(value_latch_x_.settings(0, "X value")));
   metadata_.replace_attribute(value_latch_x_.settings(0, "X value"));
@@ -79,7 +74,6 @@ void Histogram3D::_push_stats_pre(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
-  filters_.configure(spill);
   value_latch_x_.configure(spill);
   value_latch_y_.configure(spill);
   value_latch_z_.configure(spill);

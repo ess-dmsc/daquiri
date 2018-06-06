@@ -40,8 +40,6 @@ TimeDomain::TimeDomain()
   SettingMeta trim("trim", SettingType::boolean, "Trim last bin");
   base_options.branches.add(trim);
 
-  base_options.branches.add(filters_.settings());
-
   metadata_.overwrite_all_attributes(base_options);
 }
 
@@ -57,9 +55,6 @@ void TimeDomain::_apply_attributes()
 
   window_ = metadata_.get_attribute("window").get_number() * units_multiplier_;
   trim_ = metadata_.get_attribute("trim").get_bool();
-
-  filters_.settings(metadata_.get_attribute("filters"));
-  metadata_.replace_attribute(filters_.settings());
 }
 
 void TimeDomain::_init_from_file()
@@ -103,7 +98,6 @@ void TimeDomain::_push_stats_pre(const Spill& spill)
     return;
 
   timebase_ = spill.event_model.timebase;
-  filters_.configure(spill);
   Spectrum::_push_stats_pre(spill);
 }
 

@@ -3,6 +3,7 @@
 #include "consumer.h"
 #include "periodic_trigger.h"
 #include "recent_rate.h"
+#include "filter_block.h"
 
 namespace DAQuiri {
 
@@ -20,6 +21,8 @@ class Spectrum : public Consumer
 
   protected:
     PeriodicTrigger periodic_trigger_;
+    FilterBlock filters_;
+
     //TODO: make this parametrizable
     RecentRate recent_rate_{"native_time"};
 

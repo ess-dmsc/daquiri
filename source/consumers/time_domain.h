@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spectrum.h"
-#include "filter_block.h"
 
 namespace DAQuiri {
 
@@ -28,7 +27,6 @@ class TimeDomain : public Spectrum
     double time_resolution_{1};
     std::string units_name_;
     double units_multiplier_{1};
-    FilterBlock filters_;
     double window_{0.0};
     bool trim_{true};
 

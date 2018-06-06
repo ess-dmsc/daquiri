@@ -37,6 +37,8 @@ Spectrum::Spectrum()
   real_time.set_flag("readonly");
   base_options.branches.add(real_time);
 
+  base_options.branches.add(filters_.settings());
+
   base_options.branches.add(recent_rate_.update(Status(), 0));
 
   base_options.branches.add(periodic_trigger_.settings(0));
@@ -47,6 +49,9 @@ Spectrum::Spectrum()
 void Spectrum::_apply_attributes()
 {
   Consumer::_apply_attributes();
+
+  filters_.settings(metadata_.get_attribute("filters"));
+  metadata_.replace_attribute(filters_.settings());
 
   periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings(0)));
   metadata_.replace_attribute(periodic_trigger_.settings(0));
@@ -62,6 +67,8 @@ void Spectrum::_push_stats_pre(const Spill& spill)
 {
   if (!this->_accept_spill(spill))
     return;
+
+  filters_.configure(spill);
 
   if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
     metadata_.set_attribute(Setting("start_time", spill.time));

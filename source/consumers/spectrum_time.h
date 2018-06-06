@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spectrum.h"
-#include "filter_block.h"
 #include "value_latch.h"
 
 namespace DAQuiri {
@@ -30,7 +29,6 @@ class TimeSpectrum : public Spectrum
     double time_resolution_{1};
     std::string units_name_;
     double units_multiplier_{1};
-    FilterBlock filters_;
     ValueLatch value_latch_;
 
     //from status manifest

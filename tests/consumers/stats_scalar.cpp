@@ -53,14 +53,21 @@ TEST_F(StatsScalar, StatsDelta)
   s.state.branches.add_a(DAQuiri::Setting::floating("stat1", 0));
   h.push_spill(s);
   EXPECT_EQ(h.data()->get({}), 0);
+  EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 1);
 
   s.state.set(DAQuiri::Setting::floating("stat1", 10));
   h.push_spill(s);
   EXPECT_EQ(h.data()->get({}), 10);
+  EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 2);
 
   s.state.set(DAQuiri::Setting::floating("stat1", 5));
   h.push_spill(s);
   EXPECT_EQ(h.data()->get({}), -5);
+  EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
+
+  h.flush();
+  EXPECT_EQ(h.data()->get({}), 0);
+  EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 4);
 
   auto data = h.data()->range({});
 

@@ -100,4 +100,16 @@ void StatsScalar::_push_event(const Event& /*event*/)
   // this should never be called anyhow because of above
 }
 
+void StatsScalar::_flush()
+{
+  if (diff_)
+  {
+    entry_.second = 0;
+    data_->add(entry_);
+  }
+
+  Spectrum::_flush();
+}
+
+
 }

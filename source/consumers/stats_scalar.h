@@ -21,6 +21,7 @@ class StatsScalar : public Spectrum
     void _push_event(const Event& event) override;
     void _push_stats_pre(const Spill& spill) override;
     bool _accept_events(const Spill& spill) override;
+    void _flush() override;
 
     // cached parameters:
     std::string what_{0};
