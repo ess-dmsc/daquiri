@@ -37,11 +37,11 @@ Spectrum::Spectrum()
   real_time.set_flag("readonly");
   base_options.branches.add(real_time);
 
-  base_options.branches.add(filters_.settings());
-
   base_options.branches.add(recent_rate_.update(Status(), 0));
 
   base_options.branches.add(periodic_trigger_.settings(-1, "Clear periodically"));
+
+  base_options.branches.add(filters_.settings());
 
   metadata_.overwrite_all_attributes(base_options);
 }

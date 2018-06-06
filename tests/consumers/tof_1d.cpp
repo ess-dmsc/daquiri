@@ -91,19 +91,19 @@ TEST_F(TOF1D, FilterByValue)
 
   auto filters = h.metadata().get_attribute("filters");
 
-  auto fe = DAQuiri::Setting::boolean("filter_enabled", true);
+  auto fe = DAQuiri::Setting::boolean("filter/enabled", true);
   fe.set_indices({0});
   h.set_attribute(fe);
 
-  auto fn = DAQuiri::Setting::text("filter_value", "val");
+  auto fn = DAQuiri::Setting::text("filter/value_id", "val");
   fn.set_indices({0});
   h.set_attribute(fn);
 
-  auto fmin = DAQuiri::Setting::integer("filter_min", 10);
+  auto fmin = DAQuiri::Setting::integer("filter/min", 10);
   fmin.set_indices({0});
   h.set_attribute(fmin);
 
-  auto fmax= DAQuiri::Setting::integer("filter_max", 20);
+  auto fmax= DAQuiri::Setting::integer("filter/max", 20);
   fmax.set_indices({0});
   h.set_attribute(fmax);
 

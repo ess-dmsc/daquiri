@@ -102,19 +102,19 @@ TEST(ValueFilter, GetSettings)
 
   auto sets = h.settings(3);
 
-  auto enabled = sets.find(Setting("filter_enabled"));
+  auto enabled = sets.find(Setting("filter/enabled"));
   EXPECT_TRUE(enabled.get_bool());
   EXPECT_TRUE(enabled.has_index(3));
 
-  auto name = sets.find(Setting("filter_value"));
+  auto name = sets.find(Setting("filter/value_id"));
   EXPECT_EQ(name.get_text(), "val");
   EXPECT_TRUE(name.has_index(3));
 
-  auto min = sets.find(Setting("filter_min"));
+  auto min = sets.find(Setting("filter/min"));
   EXPECT_EQ(min.get_number(), 7);
   EXPECT_TRUE(min.has_index(3));
 
-  auto max = sets.find(Setting("filter_max"));
+  auto max = sets.find(Setting("filter/max"));
   EXPECT_EQ(max.get_number(), 42);
   EXPECT_TRUE(max.has_index(3));
 }
@@ -125,10 +125,10 @@ TEST(ValueFilter, SetSettings)
 
   auto sets = h.settings(0);
 
-  sets.set(Setting::boolean("filter_enabled", true));
-  sets.set(Setting::text("filter_value", "val"));
-  sets.set(Setting::integer("filter_min", 7));
-  sets.set(Setting::integer("filter_max", 42));
+  sets.set(Setting::boolean("filter/enabled", true));
+  sets.set(Setting::text("filter/value_id", "val"));
+  sets.set(Setting::integer("filter/min", 7));
+  sets.set(Setting::integer("filter/max", 42));
 
   h.settings(sets);
 
