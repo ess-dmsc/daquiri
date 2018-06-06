@@ -23,7 +23,7 @@ class PeriodicTrigger
     // Parameters
     bool enabled {false};
     ClockType clock_type {ClockType::ProducerWallClock};
-    boost::posix_time::time_duration timeout {boost::posix_time::not_a_date_time};
+    boost::posix_time::time_duration timeout {boost::posix_time::seconds(0)};
 
     // State
     bool triggered {false};
