@@ -157,8 +157,8 @@ void add_histogram1d(ProjectPtr project)
 {
   auto h1d = ConsumerFactory::singleton().create_type("Histogram 1D");
   h1d->set_attribute(Setting::text("stream_id", "exy"));
-  h1d->set_attribute(Setting::text("value_id", "x"));
-  h1d->set_attribute(Setting::integer("downsample", 10));
+  h1d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  h1d->set_attribute(Setting::integer("value_latch/downsample", 10));
   project->add_consumer(h1d);
 }
 
@@ -167,15 +167,15 @@ void add_histogram2d(ProjectPtr project)
   auto h2d = ConsumerFactory::singleton().create_type("Histogram 2D");
   h2d->set_attribute(Setting::text("stream_id", "exy"));
 
-  auto x_name = Setting::text("value_id", "x");
+  auto x_name = Setting::text("value_latch/value_id", "x");
   x_name.set_indices({0});
   h2d->set_attribute(x_name);
 
-  auto y_name = Setting::text("value_id", "y");
+  auto y_name = Setting::text("value_latch/value_id", "y");
   y_name.set_indices({1});
   h2d->set_attribute(y_name);
 
-  auto ds = Setting::integer("downsample", 11);
+  auto ds = Setting::integer("value_latch/downsample", 11);
   ds.set_indices({0});
   h2d->set_attribute(ds);
   ds.set_indices({1});
@@ -189,19 +189,19 @@ void add_image2d(ProjectPtr project)
   auto im2d = ConsumerFactory::singleton().create_type("Image 2D");
   im2d->set_attribute(Setting::text("stream_id", "exy"));
 
-  auto x_name = Setting::text("value_id", "x");
+  auto x_name = Setting::text("value_latch/value_id", "x");
   x_name.set_indices({0});
   im2d->set_attribute(x_name);
 
-  auto y_name = Setting::text("value_id", "y");
+  auto y_name = Setting::text("value_latch/value_id", "y");
   y_name.set_indices({1});
   im2d->set_attribute(y_name);
 
-  auto intensity_name = Setting::text("value_id", "energy");
+  auto intensity_name = Setting::text("value_latch/value_id", "energy");
   intensity_name.set_indices({2});
   im2d->set_attribute(intensity_name);
 
-  auto ds = Setting::integer("downsample", 10);
+  auto ds = Setting::integer("value_latch/downsample", 10);
   ds.set_indices({0});
   im2d->set_attribute(ds);
   ds.set_indices({1});
@@ -217,8 +217,8 @@ void add_tof2d(ProjectPtr project)
   tof2d->set_attribute(Setting::floating("time_resolution", 5));
   tof2d->set_attribute(Setting::integer("time_units", 6));
 
-  tof2d->set_attribute(Setting::text("value_id", "x"));
-  tof2d->set_attribute(Setting::integer("downsample", 10));
+  tof2d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  tof2d->set_attribute(Setting::integer("value_latch/downsample", 10));
 
   project->add_consumer(tof2d);
 }
@@ -230,8 +230,8 @@ void add_time2d(ProjectPtr project)
   time2d->set_attribute(Setting::floating("time_resolution", 20));
   time2d->set_attribute(Setting::integer("time_units", 6));
 
-  time2d->set_attribute(Setting::text("value_id", "x"));
-  time2d->set_attribute(Setting::integer("downsample", 10));
+  time2d->set_attribute(Setting::text("value_latch/value_id", "x"));
+  time2d->set_attribute(Setting::integer("value_latch/downsample", 10));
 
   project->add_consumer(time2d);
 }
@@ -241,19 +241,19 @@ void add_histogram3d(ProjectPtr project)
   auto h3d = ConsumerFactory::singleton().create_type("Histogram 3D");
   h3d->set_attribute(Setting::text("stream_id", "exy"));
 
-  auto x_name = Setting::text("value_id", "x");
+  auto x_name = Setting::text("value_latch/value_id", "x");
   x_name.set_indices({0});
   h3d->set_attribute(x_name);
 
-  auto y_name = Setting::text("value_id", "y");
+  auto y_name = Setting::text("value_latch/value_id", "y");
   y_name.set_indices({1});
   h3d->set_attribute(y_name);
 
-  auto z_name = Setting::text("value_id", "z");
+  auto z_name = Setting::text("value_latch/value_id", "z");
   z_name.set_indices({2});
   h3d->set_attribute(z_name);
 
-  auto ds = Setting::integer("downsample", 12);
+  auto ds = Setting::integer("value_latch/downsample", 12);
   ds.set_indices({0});
   h3d->set_attribute(ds);
   ds.set_indices({1});

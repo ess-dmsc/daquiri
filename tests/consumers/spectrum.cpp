@@ -232,13 +232,8 @@ TEST_F(Spectrum, LiveTime)
 
 TEST_F(Spectrum, PeriodicClear)
 {
-  auto enabled = DAQuiri::Setting::boolean("enabled", true);
-  enabled.set_indices({0});
-  m.set_attribute(enabled);
-
-  auto clear_at = DAQuiri::Setting("clear_at", boost::posix_time::seconds(2));
-  clear_at.set_indices({0});
-  m.set_attribute(clear_at);
+  m.set_attribute(DAQuiri::Setting::boolean("periodic_trigger/enabled", true));
+  m.set_attribute(DAQuiri::Setting("periodic_trigger/time_out", boost::posix_time::seconds(2)));
 
   s.events.reserve(3, DAQuiri::Event(DAQuiri::EventModel()));
   ++s.events;

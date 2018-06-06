@@ -66,8 +66,8 @@ void TOFVal2D::_recalc_axes()
   if (metadata_.detectors.size() == 1)
     det = metadata_.detectors[0];
 
-  auto calib = det.get_calibration({value_latch_.value_id_, det.id()}, {value_latch_.value_id_});
-  data_->set_axis(1, DataAxis(calib, value_latch_.downsample_));
+  auto calib = det.get_calibration({value_latch_.value_id, det.id()}, {value_latch_.value_id});
+  data_->set_axis(1, DataAxis(calib, value_latch_.downsample));
 
   data_->recalc_axes();
 

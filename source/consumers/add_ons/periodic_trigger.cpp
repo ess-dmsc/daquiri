@@ -6,24 +6,28 @@ namespace DAQuiri {
 
 void PeriodicTrigger::settings(const Setting& s)
 {
-  enabled_ = s.find(Setting("enabled")).get_bool();
+  enabled = s.find(Setting("periodic_trigger/enabled")).get_bool();
   clock_type =
-      static_cast<ClockType>(s.find(Setting("clear_using")).selection());
-  timeout_ = s.find(Setting("clear_at")).duration();
+      static_cast<ClockType>(s.find(Setting("periodic_trigger/clock")).selection());
+  timeout = s.find(Setting("periodic_trigger/time_out")).duration();
 }
 
-Setting PeriodicTrigger::settings(int32_t index) const
+Setting PeriodicTrigger::settings(int32_t index, std::string override_name) const
 {
-  auto ret = Setting::stem("clear_periodically");
-  ret.set_indices({index});
+  auto mret = SettingMeta("periodic_trigger", SettingType::stem,
+                          (override_name.empty() ? "Periodic trigger" : override_name));
+  auto ret = Setting(mret);
+  if (index >= 0)
+    ret.set_indices({index});
 
-  SettingMeta en("enabled", SettingType::boolean, "Enabled");
-  Setting enabled(en);
-  enabled.set_bool(enabled_);
-  enabled.set_indices({index});
-  ret.branches.add(enabled);
+  SettingMeta enm("periodic_trigger/enabled", SettingType::boolean, "Enabled");
+  Setting en(enm);
+  en.set_bool(enabled);
+  if (index >= 0)
+    en.set_indices({index});
+  ret.branches.add(en);
 
-  SettingMeta cusing("clear_using", SettingType::menu, "Clear time reference");
+  SettingMeta cusing("periodic_trigger/clock", SettingType::menu, "Clock");
   cusing.set_enum(ClockType::ProducerWallClock,
                   "Producer wall clock (receipt of data)");
   cusing.set_enum(ClockType::ConsumerWallClock,
@@ -33,15 +37,17 @@ Setting PeriodicTrigger::settings(int32_t index) const
   cusing.set_flag("preset");
   Setting ccusing(cusing);
   ccusing.select(clock_type);
-  ccusing.set_indices({index});
+  if (index >= 0)
+    ccusing.set_indices({index});
   ret.branches.add(ccusing);
 
-  SettingMeta clear_at("clear_at", SettingType::duration,
-                       "Clear at time-out");
+  SettingMeta clear_at("periodic_trigger/time_out", SettingType::duration,
+                       "Time-out");
   clear_at.set_flag("preset");
   Setting cat(clear_at);
-  cat.set_duration(timeout_);
-  cat.set_indices({index});
+  cat.set_duration(timeout);
+  if (index >= 0)
+    cat.set_indices({index});
   ret.branches.add(cat);
 
   return ret;
@@ -77,10 +83,10 @@ void PeriodicTrigger::update(const Status& current)
 
 void PeriodicTrigger::eval_trigger()
 {
-  if (enabled_ && (recent_time_ >= timeout_))
+  if (enabled && (recent_time_ >= timeout))
   {
-    recent_time_ -= timeout_;
-    triggered_ = true;
+    recent_time_ -= timeout;
+    triggered = true;
   }
 }
 

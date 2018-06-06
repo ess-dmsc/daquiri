@@ -41,7 +41,7 @@ Spectrum::Spectrum()
 
   base_options.branches.add(recent_rate_.update(Status(), 0));
 
-  base_options.branches.add(periodic_trigger_.settings(0));
+  base_options.branches.add(periodic_trigger_.settings(-1, "Clear periodically"));
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -53,8 +53,8 @@ void Spectrum::_apply_attributes()
   filters_.settings(metadata_.get_attribute("filters"));
   metadata_.replace_attribute(filters_.settings());
 
-  periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings(0)));
-  metadata_.replace_attribute(periodic_trigger_.settings(0));
+  periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings()));
+  metadata_.replace_attribute(periodic_trigger_.settings());
 }
 
 bool Spectrum::_accept_spill(const Spill& spill)
@@ -73,14 +73,14 @@ void Spectrum::_push_stats_pre(const Spill& spill)
   if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
     metadata_.set_attribute(Setting("start_time", spill.time));
 
-  if (periodic_trigger_.triggered_)
+  if (periodic_trigger_.triggered)
   {
     if (data_)
     {
       data_->clear();
       recent_rate_.update(recent_rate_.previous_status, data_->total_count());
     }
-    periodic_trigger_.triggered_ = false;
+    periodic_trigger_.triggered = false;
   }
 }
 

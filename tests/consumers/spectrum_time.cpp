@@ -7,7 +7,7 @@ class TimeSpectrum : public TestBase
     virtual void SetUp()
     {
       h.set_attribute(DAQuiri::Setting::text("stream_id", "stream"));
-      h.set_attribute(DAQuiri::Setting::text("value_id", "val"));
+      h.set_attribute(DAQuiri::Setting::text("value_latch/value_id", "val"));
       h.set_attribute(DAQuiri::Setting::floating("time_resolution", 1));
       h.set_attribute(DAQuiri::Setting::integer("time_units", 0));
 

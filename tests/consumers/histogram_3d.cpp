@@ -8,15 +8,15 @@ class Histogram3D : public TestBase
     {
       h.set_attribute(DAQuiri::Setting::text("stream_id", "stream"));
 
-      auto vx = h.metadata().get_attribute("value_id", 0);
+      auto vx = h.metadata().get_attribute("value_latch/value_id", 0);
       vx.set_text("x");
       h.set_attribute(vx);
 
-      auto vy = h.metadata().get_attribute("value_id", 1);
+      auto vy = h.metadata().get_attribute("value_latch/value_id", 1);
       vy.set_text("y");
       h.set_attribute(vy);
 
-      auto vz = h.metadata().get_attribute("value_id", 2);
+      auto vz = h.metadata().get_attribute("value_latch/value_id", 2);
       vz.set_text("z");
       h.set_attribute(vz);
 
@@ -63,7 +63,7 @@ TEST_F(Histogram3D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 2);
+  ASSERT_GE(data->size(), 2);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->first[1], 0);
   EXPECT_EQ(data->begin()->first[2], 0);
@@ -76,7 +76,7 @@ TEST_F(Histogram3D, HistogramsEvents)
 
 TEST_F(Histogram3D, LatchesValue)
 {
-  auto vx = h.metadata().get_attribute("value_id", 0);
+  auto vx = h.metadata().get_attribute("value_latch/value_id", 0);
   vx.set_text("N/A");
   h.set_attribute(vx);
 
@@ -130,7 +130,7 @@ TEST_F(Histogram3D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
   auto data = h_copy->data()->range({});
-  EXPECT_GE(data->size(), 2);
+  ASSERT_GE(data->size(), 2);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->first[1], 0);
   EXPECT_EQ(data->begin()->first[2], 0);

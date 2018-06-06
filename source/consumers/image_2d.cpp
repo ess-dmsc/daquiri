@@ -50,11 +50,11 @@ void Image2D::_recalc_axes()
     det1 = metadata_.detectors[1];
   }
 
-  auto calib0 = det0.get_calibration({value_latch_x_.value_id_, det0.id()}, {value_latch_x_.value_id_});
-  data_->set_axis(0, DataAxis(calib0, value_latch_x_.downsample_));
+  auto calib0 = det0.get_calibration({value_latch_x_.value_id, det0.id()}, {value_latch_x_.value_id});
+  data_->set_axis(0, DataAxis(calib0, value_latch_x_.downsample));
 
-  auto calib1 = det1.get_calibration({value_latch_y_.value_id_, det1.id()}, {value_latch_y_.value_id_});
-  data_->set_axis(1, DataAxis(calib1, value_latch_y_.downsample_));
+  auto calib1 = det1.get_calibration({value_latch_y_.value_id, det1.id()}, {value_latch_y_.value_id});
+  data_->set_axis(1, DataAxis(calib1, value_latch_y_.downsample));
 
   data_->recalc_axes();
 }

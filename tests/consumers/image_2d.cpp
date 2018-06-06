@@ -8,15 +8,15 @@ class Image2D : public TestBase
     {
       h.set_attribute(DAQuiri::Setting::text("stream_id", "stream"));
 
-      auto vx = h.metadata().get_attribute("value_id", 0);
+      auto vx = h.metadata().get_attribute("value_latch/value_id", 0);
       vx.set_text("x");
       h.set_attribute(vx);
 
-      auto vy = h.metadata().get_attribute("value_id", 1);
+      auto vy = h.metadata().get_attribute("value_latch/value_id", 1);
       vy.set_text("y");
       h.set_attribute(vy);
 
-      auto vi = h.metadata().get_attribute("value_id", 2);
+      auto vi = h.metadata().get_attribute("value_latch/value_id", 2);
       vi.set_text("i");
       h.set_attribute(vi);
 
@@ -63,7 +63,7 @@ TEST_F(Image2D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 20);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 2);
+  ASSERT_GE(data->size(), 2);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->first[1], 0);
   EXPECT_EQ(data->begin()->second, 4);
@@ -74,7 +74,7 @@ TEST_F(Image2D, HistogramsEvents)
 
 TEST_F(Image2D, LatchesValue)
 {
-  auto vx = h.metadata().get_attribute("value_id", 0);
+  auto vx = h.metadata().get_attribute("value_latch/value_id", 0);
   vx.set_text("N/A");
   h.set_attribute(vx);
 
@@ -128,7 +128,7 @@ TEST_F(Image2D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 20);
   auto data = h_copy->data()->range({});
-  EXPECT_GE(data->size(), 2);
+  ASSERT_GE(data->size(), 2);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->first[1], 0);
   EXPECT_EQ(data->begin()->second, 4);

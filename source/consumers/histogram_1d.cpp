@@ -38,8 +38,8 @@ void Histogram1D::_recalc_axes()
   if (data_->dimensions() == metadata_.detectors.size())
     det = metadata_.detectors[0];
 
-  auto calib = det.get_calibration({value_latch_.value_id_, det.id()}, {value_latch_.value_id_});
-  data_->set_axis(0, DataAxis(calib, value_latch_.downsample_));
+  auto calib = det.get_calibration({value_latch_.value_id, det.id()}, {value_latch_.value_id});
+  data_->set_axis(0, DataAxis(calib, value_latch_.downsample));
 
   data_->recalc_axes();
 }

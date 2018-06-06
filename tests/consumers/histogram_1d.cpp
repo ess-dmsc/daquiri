@@ -7,7 +7,7 @@ class Histogram1D : public TestBase
     virtual void SetUp()
     {
       h.set_attribute(DAQuiri::Setting::text("stream_id", "stream"));
-      h.set_attribute(DAQuiri::Setting::text("value_id", "val"));
+      h.set_attribute(DAQuiri::Setting::text("value_latch/value_id", "val"));
 
       s.event_model.add_value("val", 100);
       s.event_model.add_value("val2", 100);
@@ -44,7 +44,7 @@ TEST_F(Histogram1D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_EQ(data->size(), 3);
+  ASSERT_EQ(data->size(), 3);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->second, 1);
   EXPECT_EQ(data->rbegin()->first[0], 2);
@@ -53,7 +53,7 @@ TEST_F(Histogram1D, HistogramsEvents)
 
 TEST_F(Histogram1D, LatchesValue)
 {
-  h.set_attribute(DAQuiri::Setting::text("value_id", "N/A"));
+  h.set_attribute(DAQuiri::Setting::text("value_latch/value_id", "N/A"));
 
   h.push_spill(s);
 
@@ -105,7 +105,7 @@ TEST_F(Histogram1D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
   auto data = h_copy->data()->range({});
-  EXPECT_EQ(data->size(), 3);
+  ASSERT_EQ(data->size(), 3);
   EXPECT_EQ(data->begin()->first[0], 0);
   EXPECT_EQ(data->begin()->second, 1);
   EXPECT_EQ(data->rbegin()->first[0], 2);
