@@ -19,7 +19,7 @@ class MockDataspace : public Dataspace
     EntryList range(std::vector<Pair> list) const override { return EntryList(); }
     void recalc_axes() override {}
 
-    void export_csv(std::ostream &) const {}
+    void export_csv(std::ostream &) const override {}
 
   protected:
     void data_save(const hdf5::node::Group&) const override {}

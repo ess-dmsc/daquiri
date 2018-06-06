@@ -10,7 +10,6 @@ void PeriodicTrigger::settings(const Setting& s)
   clock_type =
       static_cast<ClockType>(s.find(Setting("clear_using")).selection());
   timeout_ = s.find(Setting("clear_at")).duration();
-
 }
 
 Setting PeriodicTrigger::settings(int32_t index) const
@@ -73,9 +72,7 @@ void PeriodicTrigger::update(const Status& current)
   }
 
   previous_ = current;
-
-  if (current.type != StatusType::start)
-    eval_trigger();
+  eval_trigger();
 }
 
 void PeriodicTrigger::eval_trigger()

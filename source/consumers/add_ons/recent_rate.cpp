@@ -37,9 +37,10 @@ Setting RecentRate::update(const Status& current, PreciseFloat new_count)
   if (!recent_t.is_not_a_date_time())
     recent_s = recent_t.total_milliseconds() * 0.001;
 
-  current_rate = 0;
   if (recent_s != 0)
     current_rate = (new_count - previous_count) / recent_s;
+  else
+    current_rate = 0;
 
   previous_status = current;
   previous_count = new_count;

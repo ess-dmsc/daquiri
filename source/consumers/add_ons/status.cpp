@@ -50,7 +50,7 @@ Status::total_elapsed(const std::vector<Status>& stats, std::string name)
     {
       t = calc_diff(start, q, name);
       if (t.is_not_a_date_time())
-        t = boost::posix_time::seconds(0);
+        return t;
     }
   }
 

@@ -4,6 +4,8 @@
 #include "detector.h"
 #include "event.h"
 
+namespace DAQuiri {
+
 enum class StatusType { start, running, stop, daq_status };
 
 inline StatusType type_from_str(std::string type)
@@ -29,8 +31,6 @@ inline std::string type_to_str(StatusType type)
   else
     return "daq_status";
 }
-
-namespace DAQuiri {
 
 class Spill;
 

@@ -24,10 +24,8 @@ class Spectrum : public Consumer
     RecentRate recent_rate_{"native_time"};
 
     std::vector<Status> stats_;
-    boost::posix_time::time_duration real_time_;
-    boost::posix_time::time_duration live_time_;
 
-    void calc_cumulative();
+    void update_cumulative(const Status&);
 };
 
 }

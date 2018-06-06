@@ -144,6 +144,8 @@ ConsumerMetadata Consumer::metadata() const
 DataspacePtr Consumer::data() const
 {
   SHARED_LOCK_ST
+  if (!data_)
+    return nullptr;
   return DataspacePtr(data_->clone());
 }
 
