@@ -1,7 +1,7 @@
 #include "gtest_color_print.h"
-#include "spectrum_time.h"
+#include "tof_val_2d.h"
 
-class TimeSpectrum : public TestBase
+class TOFVal2D : public TestBase
 {
   protected:
     virtual void SetUp()
@@ -11,6 +11,7 @@ class TimeSpectrum : public TestBase
       h.set_attribute(DAQuiri::Setting::floating("time_resolution", 1));
       h.set_attribute(DAQuiri::Setting::integer("time_units", 0));
 
+      s.state.branches.add_a(DAQuiri::Setting::floating("pulse_time", 10));
       s.event_model.add_value("val", 100);
       s.event_model.add_value("val2", 100);
       s.events.reserve(3, s.event_model);
@@ -29,30 +30,30 @@ class TimeSpectrum : public TestBase
       s.events.finalize();
     }
 
-    DAQuiri::TimeSpectrum h;
+    DAQuiri::TOFVal2D h;
     DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
 };
 
-TEST_F(TimeSpectrum, DefaultConstructed)
+TEST_F(TOFVal2D, DefaultConstructed)
 {
-  DAQuiri::TimeSpectrum default_h;
+  DAQuiri::TOFVal2D default_h;
   EXPECT_FALSE(default_h.changed());
-  EXPECT_EQ(default_h.type(), "TimeSpectrum 2D");
+  EXPECT_EQ(default_h.type(), "Time of Flight 2D");
   EXPECT_EQ(default_h.dimensions(), 2);
 }
 
-TEST_F(TimeSpectrum, HistogramsEvents)
+TEST_F(TOFVal2D, HistogramsEvents)
 {
   h.push_spill(s);
 
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data();
-  EXPECT_EQ(data->get({10,0}), 1);
-  EXPECT_EQ(data->get({20,1}), 2);
+  EXPECT_EQ(data->get({0,0}), 1);
+  EXPECT_EQ(data->get({10,1}), 2);
 }
 
-TEST_F(TimeSpectrum, HistogramDecimate)
+TEST_F(TOFVal2D, HistogramDecimate)
 {
   h.set_attribute(DAQuiri::Setting::floating("time_resolution", 10));
 
@@ -61,11 +62,11 @@ TEST_F(TimeSpectrum, HistogramDecimate)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data();
-  EXPECT_EQ(data->get({1,0}), 1);
-  EXPECT_EQ(data->get({2,1}), 2);
+  EXPECT_EQ(data->get({0,0}), 1);
+  EXPECT_EQ(data->get({1,1}), 2);
 }
 
-TEST_F(TimeSpectrum, LatchesStream)
+TEST_F(TOFVal2D, LatchesStream)
 {
   h.set_attribute(DAQuiri::Setting::text("stream_id", "N/A"));
 
@@ -74,7 +75,7 @@ TEST_F(TimeSpectrum, LatchesStream)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 0);
 }
 
-TEST_F(TimeSpectrum, ZeroResolutionBinsNothing)
+TEST_F(TOFVal2D, ZeroResolutionBinsNothing)
 {
   h.set_attribute(DAQuiri::Setting::floating("time_resolution", 0));
   h.push_spill(s);
@@ -82,7 +83,7 @@ TEST_F(TimeSpectrum, ZeroResolutionBinsNothing)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 0);
 }
 
-TEST_F(TimeSpectrum, FilterByValue)
+TEST_F(TOFVal2D, FilterByValue)
 {
   h.set_attribute(DAQuiri::Setting::integer("filter_count", 1));
 
@@ -112,16 +113,16 @@ TEST_F(TimeSpectrum, FilterByValue)
 //TODO: test other time units
 //TODO: test data axes
 
-TEST_F(TimeSpectrum, Clone)
+TEST_F(TOFVal2D, Clone)
 {
   h.push_spill(s);
 
-  auto h_copy = std::shared_ptr<DAQuiri::TimeSpectrum>(h.clone());
+  auto h_copy = std::shared_ptr<DAQuiri::TOFVal2D>(h.clone());
 
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h_copy->data();
-  EXPECT_EQ(data->get({10,0}), 1);
-  EXPECT_EQ(data->get({20,1}), 2);
+  EXPECT_EQ(data->get({0,0}), 1);
+  EXPECT_EQ(data->get({10,1}), 2);
 }

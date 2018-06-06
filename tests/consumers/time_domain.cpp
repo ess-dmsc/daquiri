@@ -10,7 +10,6 @@ class TimeDomain : public TestBase
       h.set_attribute(DAQuiri::Setting::floating("time_resolution", 1));
       h.set_attribute(DAQuiri::Setting::integer("time_units", 0));
 
-      s.state.branches.add_a(DAQuiri::Setting::floating("pulse_time", 10));
       s.event_model.add_value("val", 100);
       s.events.reserve(3, s.event_model);
       s.events.last().set_time(10);

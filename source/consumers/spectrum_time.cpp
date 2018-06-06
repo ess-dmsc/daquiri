@@ -39,12 +39,12 @@ void TimeSpectrum::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
-  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
-
+  time_resolution_ = 0;
+  if (metadata_.get_attribute("time_resolution").get_number() > 0)
+    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
-
   time_resolution_ /= units_multiplier_;
 
   value_latch_.settings(metadata_.get_attribute("value_latch"));
