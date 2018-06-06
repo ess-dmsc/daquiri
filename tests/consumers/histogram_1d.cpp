@@ -12,6 +12,17 @@ class Histogram1D : public TestBase
       s.event_model.add_value("val", 100);
       s.event_model.add_value("val2", 100);
       s.events.reserve(3, s.event_model);
+      s.events.last().set_value(0, 0);
+      s.events.last().set_value(1, 0);
+      ++s.events;
+      s.events.last().set_value(0, 2);
+      s.events.last().set_value(1, 15);
+      ++s.events;
+      s.events.last().set_value(0, 2);
+      s.events.last().set_value(1, 30);
+      ++s.events;
+
+      s.events.finalize();
     }
 
     DAQuiri::Histogram1D h;
@@ -20,21 +31,14 @@ class Histogram1D : public TestBase
 
 TEST_F(Histogram1D, DefaultConstructed)
 {
-  DAQuiri::Histogram1D default_h1;
-  EXPECT_FALSE(default_h1.changed());
-  EXPECT_EQ(default_h1.type(), "Histogram 1D");
+  DAQuiri::Histogram1D default_h;
+  EXPECT_FALSE(default_h.changed());
+  EXPECT_EQ(default_h.type(), "Histogram 1D");
+  EXPECT_EQ(default_h.dimensions(), 1);
 }
 
 TEST_F(Histogram1D, HistogramsEvents)
 {
-  s.events.last().set_value(0, 0);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.finalize();
-
   h.push_spill(s);
 
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
@@ -51,14 +55,6 @@ TEST_F(Histogram1D, LatchesValue)
 {
   h.set_attribute(DAQuiri::Setting::text("value_id", "N/A"));
 
-  s.events.last().set_value(0, 0);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.finalize();
-
   h.push_spill(s);
 
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 0);
@@ -67,14 +63,6 @@ TEST_F(Histogram1D, LatchesValue)
 TEST_F(Histogram1D, LatchesStream)
 {
   h.set_attribute(DAQuiri::Setting::text("stream_id", "N/A"));
-
-  s.events.last().set_value(0, 0);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.finalize();
 
   h.push_spill(s);
 
@@ -103,17 +91,6 @@ TEST_F(Histogram1D, FilterByValue)
   fmax.set_indices({0});
   h.set_attribute(fmax);
 
-  s.events.last().set_value(0, 0);
-  s.events.last().set_value(1, 0);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  s.events.last().set_value(1, 15);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  s.events.last().set_value(1, 30);
-  ++s.events;
-  s.events.finalize();
-
   h.push_spill(s);
 
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 1);
@@ -121,13 +98,6 @@ TEST_F(Histogram1D, FilterByValue)
 
 TEST_F(Histogram1D, Clone)
 {
-  s.events.last().set_value(0, 0);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.last().set_value(0, 2);
-  ++s.events;
-  s.events.finalize();
   h.push_spill(s);
 
   auto h_copy = std::shared_ptr<DAQuiri::Histogram1D>(h.clone());
