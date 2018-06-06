@@ -5,7 +5,7 @@ TEST(PeriodicTrigger, Init)
 {
   DAQuiri::PeriodicTrigger pt;
   EXPECT_FALSE(pt.enabled);
-  EXPECT_TRUE(pt.timeout.is_not_a_date_time());
+  EXPECT_EQ(pt.timeout.total_microseconds(), 0);
   EXPECT_FALSE(pt.triggered);
 }
 
