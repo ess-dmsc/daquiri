@@ -8,6 +8,7 @@
 #include "tof_1d.h"
 #include "tof_1d_correlate.h"
 #include "time_domain.h"
+#include "time_delta_1d.h"
 
 #include "tof_val_2d.h"
 #include "histogram_2d.h"
@@ -27,6 +28,7 @@ void consumers_autoreg()
   DAQUIRI_REGISTER_CONSUMER(TOF1D)
   DAQUIRI_REGISTER_CONSUMER(TOF1DCorrelate)
   DAQUIRI_REGISTER_CONSUMER(TimeDomain)
+  DAQUIRI_REGISTER_CONSUMER(TimeDelta1D)
 
   DAQUIRI_REGISTER_CONSUMER(Histogram2D)
   DAQUIRI_REGISTER_CONSUMER(Image2D)
