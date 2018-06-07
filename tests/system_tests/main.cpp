@@ -26,6 +26,7 @@ void add_prebinned1d(ProjectPtr);
 void add_tof1d(ProjectPtr);
 void add_time_domain(ProjectPtr);
 void add_stats_scalar(ProjectPtr);
+void add_time_delta1d(ProjectPtr);
 
 Setting get_profile()
 {
@@ -50,6 +51,7 @@ void define_value(Engine& e, uint16_t num,
 ProjectPtr get_project()
 {
   ProjectPtr project = ProjectPtr(new Project());
+  add_stats_scalar(project);
   add_histogram1d(project);
   add_histogram2d(project);
   add_image2d(project);
@@ -59,7 +61,7 @@ ProjectPtr get_project()
   add_prebinned1d(project);
   add_tof1d(project);
   add_time_domain(project);
-  add_stats_scalar(project);
+  add_time_delta1d(project);
   return project;
 }
 
@@ -287,6 +289,15 @@ void add_time_domain(ProjectPtr project)
   auto act = ConsumerFactory::singleton().create_type("Time-Activity 1D");
   act->set_attribute(Setting::text("stream_id", "exy"));
   act->set_attribute(Setting::floating("time_resolution", 25));
+  act->set_attribute(Setting::integer("time_units", 6));
+  project->add_consumer(act);
+}
+
+void add_time_delta1d(ProjectPtr project)
+{
+  auto act = ConsumerFactory::singleton().create_type("Time Delta 1D");
+  act->set_attribute(Setting::text("stream_id", "exy"));
+  act->set_attribute(Setting::floating("time_resolution", 1));
   act->set_attribute(Setting::integer("time_units", 6));
   project->add_consumer(act);
 }

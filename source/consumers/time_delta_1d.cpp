@@ -92,14 +92,12 @@ void TimeDelta1D::_push_stats_pre(const Spill& spill)
   if (!this->_accept_spill(spill))
     return;
   timebase_ = spill.event_model.timebase;
-  pulse_time_ = timebase_.to_nanosec(
-      spill.state.find(Setting("pulse_time")).get_number());
   Spectrum::_push_stats_pre(spill);
 }
 
 bool TimeDelta1D::_accept_events(const Spill& /*spill*/)
 {
-  return ((pulse_time_ >= 0) && (0 != time_resolution_));
+  return (0 != time_resolution_);
 }
 
 void TimeDelta1D::_push_event(const Event& event)
@@ -107,10 +105,22 @@ void TimeDelta1D::_push_event(const Event& event)
   if (!filters_.accept(event))
     return;
 
-  double nsecs = timebase_.to_nanosec(event.timestamp()) - pulse_time_;
+  if (!have_previous_time_)
+  {
+    previous_time_ = event.timestamp();
+    have_previous_time_ = true;
+    return;
+  }
+
+  PreciseFloat nsecs = timebase_.to_nanosec(event.timestamp() - previous_time_);
+  previous_time_ = event.timestamp();
 
   if (nsecs < 0)
+  {
+    //TODO: do something smarter about this
+    WARN << "<TimeDelta1D> Negative time difference occurred";
     return;
+  }
 
   coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 

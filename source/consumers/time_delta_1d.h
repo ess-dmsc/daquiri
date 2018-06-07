@@ -11,7 +11,7 @@ class TimeDelta1D : public Spectrum
     TimeDelta1D* clone() const override { return new TimeDelta1D(*this); }
 
   protected:
-    std::string my_type() const override { return "Time of Flight 1D"; }
+    std::string my_type() const override { return "Time Delta 1D"; }
 
     void _apply_attributes() override;
     void _init_from_file() override;
@@ -25,20 +25,21 @@ class TimeDelta1D : public Spectrum
     bool _accept_events(const Spill& spill) override;
 
     // cached parameters:
-    double time_resolution_{1};
+    double time_resolution_ {1};
     std::string units_name_;
-    double units_multiplier_{1};
+    double units_multiplier_ {1};
 
     // from status manifest
     TimeBase timebase_;
 
     // recent pulse time
-    double pulse_time_{-1};
+    bool have_previous_time_ {false};
+    uint64_t previous_time_ {0};
 
     std::vector<double> domain_;
 
     //reserve memory
-    Coords coords_{0};
+    Coords coords_ {0};
 };
 
 }
