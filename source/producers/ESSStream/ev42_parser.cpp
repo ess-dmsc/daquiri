@@ -158,7 +158,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   for (size_t i=0; i < event_count; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
-    time |= time_high;
+    time += time_high;
     if (i==0)
       stats.time_start = time;
     stats.time_start = std::min(stats.time_start, time);
