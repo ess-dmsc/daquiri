@@ -112,15 +112,16 @@ void TimeDelta1D::_push_event(const Event& event)
     return;
   }
 
-  PreciseFloat nsecs = timebase_.to_nanosec(event.timestamp() - previous_time_);
-  previous_time_ = event.timestamp();
-
-  if (nsecs < 0)
+  if (event.timestamp() < previous_time_)
   {
     //TODO: do something smarter about this
     WARN << "<TimeDelta1D> Negative time difference occurred";
+    previous_time_ = event.timestamp();
     return;
   }
+
+  PreciseFloat nsecs = timebase_.to_nanosec(event.timestamp() - previous_time_);
+  previous_time_ = event.timestamp();
 
   coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
