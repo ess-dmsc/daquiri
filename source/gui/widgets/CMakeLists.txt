@@ -14,7 +14,6 @@ set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)
 
 add_subdirectory(qplot/source)
-add_subdirectory(ColorWidgets)
 
 add_library(
     ${this_target} STATIC
@@ -33,7 +32,7 @@ target_link_libraries(
     ${PROJECT_NAME}_core
     ${Boost_LIBRARIES}
     qplot
-    QtColorWidgets
+    QtColorWidgets-Qt52
     Qt5::Widgets
     Qt5::PrintSupport
 )
