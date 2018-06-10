@@ -1,19 +1,57 @@
 set(this_target ${PROJECT_NAME}_core)
 
-file(GLOB ${this_target}_SOURCES *.cpp util/*.cpp plugin/*.cpp calibration/*.cpp)
-file(GLOB ${this_target}_HEADERS *.h util/*.h plugin/*.h calibration/*.h)
-dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(SOURCES
+  ${dir}/consumer.cpp
+  ${dir}/consumer_factory.cpp
+  ${dir}/consumer_metadata.cpp
+  ${dir}/dataspace.cpp
+  ${dir}/detector.cpp
+  ${dir}/engine.cpp
+  ${dir}/producer.cpp
+  ${dir}/producer_factory.cpp
+  ${dir}/project.cpp
+  ${dir}/spill.cpp
+  )
+
+set(HEADERS
+  ${dir}/consumer.h
+  ${dir}/consumer_factory.h
+  ${dir}/consumer_metadata.h
+  ${dir}/dataspace.h
+  ${dir}/detector.h
+  ${dir}/engine.h
+  ${dir}/producer.h
+  ${dir}/producer_factory.h
+  ${dir}/project.h
+  ${dir}/spill.h
+
+  ${dir}/event.h
+  ${dir}/event_model.h
+  ${dir}/spill_dequeue.h
+  ${dir}/thread_wrappers.h
+  ${dir}/time_base.h
+  ${dir}/time_stamp.h
+  )
+
+set(daquiri_headers ${HEADERS})
+set(daquiri_sources ${SOURCES})
+add_subdirectory(calibration)
+add_subdirectory(plugin)
+add_subdirectory(util)
 
 add_library(
   ${this_target} STATIC
-  ${${this_target}_SOURCES}
-  ${${this_target}_HEADERS}
+  ${daquiri_sources}
+  ${daquiri_headers}
 )
 
 target_include_directories(
   ${this_target}
-  PUBLIC ${${this_target}_INCLUDE_DIRS}
+  PUBLIC ${PROJECT_SOURCE_DIR}/source
   PUBLIC ${Boost_INCLUDE_DIRS}
+  INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(

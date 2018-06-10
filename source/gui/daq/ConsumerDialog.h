@@ -5,8 +5,8 @@
 #include "SettingDelegate.h"
 #include "SettingsTreeModel.h"
 //#include "widget_detectors.h"
-#include "consumer.h"
-#include "spill.h"
+#include <core/consumer.h>
+#include <core/spill.h>
 
 namespace Ui {
 class ConsumerDialog;

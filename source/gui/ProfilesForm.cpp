@@ -6,7 +6,7 @@
 #include <QBoxLayout>
 #include "qt_util.h"
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #include <QInputDialog>
 

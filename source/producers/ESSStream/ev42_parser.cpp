@@ -1,8 +1,8 @@
 #include "ev42_parser.h"
 #include "ev42_events_generated.h"
 
-#include "custom_timer.h"
-#include "custom_logger.h"
+#include <core/util/custom_timer.h>
+#include <core/util/custom_logger.h>
 
 ev42_events::ev42_events()
 {

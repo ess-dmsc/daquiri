@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "UTF_extensions.h"
+#include <core/util/UTF_extensions.h>
 
 TEST(UTF_extensions, Super)
 {

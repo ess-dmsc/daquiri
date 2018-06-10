@@ -1,5 +1,5 @@
 #include "dense1d.h"
-#include "h5json.h"
+#include <core/util/h5json.h>
 
 namespace DAQuiri {
 

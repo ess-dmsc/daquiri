@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "dataspace.h"
+#include <core/dataspace.h>
 
 using namespace DAQuiri;
 

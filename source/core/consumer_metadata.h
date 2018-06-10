@@ -1,6 +1,6 @@
 #pragma once
 
-#include "detector.h"
+#include <core/detector.h>
 
 namespace DAQuiri {
 

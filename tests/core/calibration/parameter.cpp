@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "parameter.h"
+#include <core/calibration/parameter.h>
 
 using namespace DAQuiri;
 

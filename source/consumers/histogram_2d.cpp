@@ -4,7 +4,7 @@
 #include "sparse_matrix2d.h"
 #include "dense_matrix2d.h"
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

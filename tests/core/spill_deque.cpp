@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "spill_dequeue.h"
+#include <core/spill_dequeue.h>
 
 using namespace DAQuiri;
 

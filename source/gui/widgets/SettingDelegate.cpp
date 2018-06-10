@@ -1,5 +1,4 @@
 #include "SettingDelegate.h"
-#include "setting.h"
 #include <QComboBox>
 #include <QPainter>
 #include <QDoubleSpinBox>

@@ -2,8 +2,8 @@
 
 #include <QThread>
 #include <QMutex>
-#include "project.h"
-#include "custom_logger.h"
+#include <core/project.h>
+#include <core/util/custom_logger.h>
 
 class ThreadPlotSignal : public QThread
 {

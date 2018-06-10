@@ -1,9 +1,9 @@
 #include "ConsumerDialog.h"
 #include "ui_ConsumerDialog.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 #include <QInputDialog>
 #include <QMessageBox>
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
 //#include "dialog_detector.h"
 
 #include "qt_util.h"

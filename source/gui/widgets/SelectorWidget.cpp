@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "SelectorWidget.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 #include "qt_util.h"
 
 SelectorWidget::SelectorWidget(QWidget *parent)

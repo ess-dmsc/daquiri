@@ -1,6 +1,6 @@
 #pragma once
 
-#include "consumer.h"
+#include <core/consumer.h>
 #include "periodic_trigger.h"
 #include "recent_rate.h"
 #include "filter_block.h"

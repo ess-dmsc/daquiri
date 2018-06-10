@@ -1,4 +1,5 @@
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
+
 #include "consumers_autoreg.h"
 
 #include "stats_scalar.h"

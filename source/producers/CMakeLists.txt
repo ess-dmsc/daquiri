@@ -25,7 +25,7 @@ foreach(prod ${DAQuiri_enabled_producers})
 endforeach(prod)
 
 file(WRITE ${autoreg_source} "#include \"producers_autoreg.h\"\n")
-file(APPEND ${autoreg_source} "#include \"producer_factory.h\"\n\n")
+file(APPEND ${autoreg_source} "#include <core/producer_factory.h>\n\n")
 file(APPEND ${autoreg_source} ${prod_reg_includes})
 file(APPEND ${autoreg_source} "\nvoid producers_autoreg()\n{\n")
 file(APPEND ${autoreg_source} ${prod_reg_cmds})

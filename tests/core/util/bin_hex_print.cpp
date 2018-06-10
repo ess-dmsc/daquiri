@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "bin_hex_print.h"
+#include <core/util/bin_hex_print.h>
 
 TEST(BinHexPrint, itobin16)
 {

@@ -1,5 +1,5 @@
 #include "time_domain.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 #include "dense1d.h"
 
 namespace DAQuiri {

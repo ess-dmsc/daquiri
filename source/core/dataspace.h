@@ -1,9 +1,9 @@
 #pragma once
 
 #include <initializer_list>
-#include "precise_float.h"
-#include "calibration.h"
-#include "thread_wrappers.h"
+#include <core/plugin/precise_float.h>
+#include <core/calibration/calibration.h>
+#include <core/thread_wrappers.h>
 
 #include <h5cpp/hdf5.hpp>
 

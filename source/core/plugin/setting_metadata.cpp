@@ -1,7 +1,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include "setting_metadata.h"
-#include "color_bash.h"
+#include <core/plugin/setting_metadata.h>
+#include <core/util/color_bash.h>
 
 namespace DAQuiri {
 

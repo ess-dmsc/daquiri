@@ -1,9 +1,9 @@
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
 #include "ProjectForm.h"
 #include "ui_ProjectForm.h"
 #include "ConsumerTemplatesForm.h"
-#include "custom_logger.h"
-#include "custom_timer.h"
+#include <core/util/custom_logger.h>
+#include <core/util/custom_timer.h>
 #include <QSettings>
 #include <QMessageBox>
 

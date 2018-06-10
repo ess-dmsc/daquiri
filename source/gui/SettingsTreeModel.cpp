@@ -1,7 +1,7 @@
 #include "SettingsTreeModel.h"
 #include "PatternWidget.h"
 #include <QDateTime>
-#include "bin_hex_print.h"
+#include <core/util/bin_hex_print.h>
 
 //#include "qt_util.h"
 #include "QTimeExtensions.h"

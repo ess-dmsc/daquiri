@@ -1,6 +1,6 @@
 #include "TimeDurationWidget.h"
 #include "ui_TimeDurationWidget.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #define FACTOR_us 1000000
 #define FACTOR_min 60

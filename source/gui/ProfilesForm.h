@@ -3,7 +3,7 @@
 #include <QDialog>
 #include <QItemSelection>
 #include <QDir>
-#include "setting.h"
+#include <core/plugin/setting.h>
 
 namespace Ui {
 class ProfilesForm;

@@ -6,7 +6,7 @@
 #include "SettingDelegate.h"
 #include "qt_util.h"
 #include "SettingsTreeModel.h"
-#include "project.h"
+#include <core/project.h>
 
 namespace Ui {
 class ConsumerTemplatesForm;

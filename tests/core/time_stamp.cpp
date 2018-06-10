@@ -1,4 +1,4 @@
-#include "time_stamp.h"
+#include <core/time_stamp.h>
 #include <gtest/gtest.h>
 
 TEST(TimeStamp, Init)

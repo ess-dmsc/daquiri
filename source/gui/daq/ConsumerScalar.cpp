@@ -4,7 +4,7 @@
 #include "manometer.h"
 #include "thermometer.h"
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 

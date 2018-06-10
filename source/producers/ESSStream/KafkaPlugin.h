@@ -1,6 +1,6 @@
 #pragma once
 
-#include "plugin.h"
+#include <core/plugin/plugin.h>
 #include <librdkafka/rdkafkacpp.h>
 
 namespace Kafka

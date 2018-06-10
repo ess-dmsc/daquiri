@@ -1,5 +1,5 @@
-#include "detector.h"
-#include "ascii_tree.h"
+#include <core/detector.h>
+#include <core/util/ascii_tree.h>
 
 namespace DAQuiri {
 

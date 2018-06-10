@@ -1,7 +1,7 @@
 #pragma once
 
-#include "plugin.h"
-#include "spill_dequeue.h"
+#include <core/plugin/plugin.h>
+#include <core/spill_dequeue.h>
 
 namespace DAQuiri {
 

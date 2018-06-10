@@ -1,7 +1,5 @@
 set(this_target ESSStream)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules)
-
 find_package(LibRDKafka REQUIRED)
 
 file(GLOB ${this_target}_SOURCES *.cpp)

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <cmath>
-#include "time_base.h"
+#include <core/time_base.h>
 
 namespace DAQuiri {
 

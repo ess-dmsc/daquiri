@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QMenu>
 #include <QMdiArea>
-#include <project.h>
+#include <core/project.h>
 #include "SelectorWidget.h"
 #include "AbstractConsumerWidget.h"
 

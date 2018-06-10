@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "producer.h"
-#include "unique_mangle.h"
+#include <core/producer.h>
+#include <core/util/unique_mangle.h>
 
 namespace DAQuiri {
 

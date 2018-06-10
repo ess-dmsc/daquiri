@@ -2,7 +2,7 @@
 #include <QVBoxLayout>
 #include "QHist.h"
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 
 using namespace DAQuiri;

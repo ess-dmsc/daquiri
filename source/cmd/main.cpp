@@ -1,13 +1,13 @@
 #include <CLI11.hpp>
 
-#include "engine.h"
+#include <core/engine.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #include "consumers_autoreg.h"
 #include "producers_autoreg.h"
 
-#include "json_file.h"
+#include <core/util/json_file.h>
 
 #include <signal.h>
 

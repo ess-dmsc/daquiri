@@ -2,8 +2,8 @@
 
 #include <string>
 #include <cmath>
-#include "precise_float.h"
-#include "plugin.h"
+#include <core/plugin/precise_float.h>
+#include <core/plugin/plugin.h>
 
 #include <nlohmann/json.hpp>
 using namespace nlohmann;

@@ -7,9 +7,9 @@
 #include <QTimer>
 #include <QDir>
 
-#include "json_file.h"
+#include <core/util/json_file.h>
 
-#include "producer_factory.h"
+#include <core/producer_factory.h>
 #include <QInputDialog>
 #include "Profiles.h"
 

@@ -1,12 +1,12 @@
-#include "setting.h"
-#include <boost/lexical_cast.hpp>
-#include "bin_hex_print.h"
-#include "time_extensions.h"
-#include "ascii_tree.h"
-#include "color_bash.h"
+#include <core/plugin/setting.h>
+#include <core/util/bin_hex_print.h>
+#include <core/util/time_extensions.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/color_bash.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
-#include <custom_logger.h>
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 
