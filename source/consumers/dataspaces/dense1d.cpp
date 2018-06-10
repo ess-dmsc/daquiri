@@ -1,4 +1,4 @@
-#include "dense1d.h"
+#include <consumers/dataspaces/dense1d.h>
 #include <core/util/h5json.h>
 
 namespace DAQuiri {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <core/consumer.h>
-#include "periodic_trigger.h"
-#include "recent_rate.h"
-#include "filter_block.h"
+#include <consumers/add_ons/periodic_trigger.h>
+#include <consumers/add_ons/recent_rate.h>
+#include <consumers/add_ons/filter_block.h>
 
 namespace DAQuiri {
 

@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include "recent_rate.h"
+#include <consumers/add_ons/recent_rate.h>
 
 class RecentRate : public TestBase
 {

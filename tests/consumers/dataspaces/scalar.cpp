@@ -1,6 +1,6 @@
 #include "gtest_color_print.h"
 
-#include "scalar.h"
+#include <consumers/dataspaces/scalar.h>
 
 class Scalar : public TestBase
 {

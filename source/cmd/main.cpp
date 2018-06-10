@@ -4,7 +4,7 @@
 
 #include <core/util/custom_logger.h>
 
-#include "consumers_autoreg.h"
+#include <consumers/consumers_autoreg.h>
 #include "producers_autoreg.h"
 
 #include <core/util/json_file.h>

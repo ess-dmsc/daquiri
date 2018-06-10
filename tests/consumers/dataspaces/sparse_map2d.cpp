@@ -1,6 +1,6 @@
 #include "gtest_color_print.h"
 
-#include "sparse_map2d.h"
+#include <consumers/dataspaces/sparse_map2d.h>
 
 class SparseMap2D : public TestBase
 {

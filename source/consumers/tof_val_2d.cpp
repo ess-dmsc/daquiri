@@ -1,5 +1,5 @@
-#include "tof_val_2d.h"
-#include "sparse_map2d.h"
+#include <consumers/tof_val_2d.h>
+#include <consumers/dataspaces/sparse_map2d.h>
 
 #include <core/util/custom_logger.h>
 

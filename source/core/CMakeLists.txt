@@ -35,16 +35,16 @@ set(HEADERS
   ${dir}/time_stamp.h
   )
 
-set(daquiri_headers ${HEADERS})
-set(daquiri_sources ${SOURCES})
+set(${this_target}_headers ${HEADERS})
+set(${this_target}_sources ${SOURCES})
 add_subdirectory(calibration)
 add_subdirectory(plugin)
 add_subdirectory(util)
 
 add_library(
   ${this_target} STATIC
-  ${daquiri_sources}
-  ${daquiri_headers}
+  ${${this_target}_headers}
+  ${${this_target}_sources}
 )
 
 target_include_directories(

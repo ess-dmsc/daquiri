@@ -1,4 +1,4 @@
-#include "dense_matrix2d.h"
+#include <consumers/dataspaces/dense_matrix2d.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/h5json.h>
 

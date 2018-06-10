@@ -1,4 +1,4 @@
-#include "sparse_map3d.h"
+#include <consumers/dataspaces/sparse_map3d.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/h5json.h>
 

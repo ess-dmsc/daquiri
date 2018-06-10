@@ -1,5 +1,5 @@
-#include "stats_scalar.h"
-#include "scalar.h"
+#include <consumers/stats_scalar.h>
+#include <consumers/dataspaces/scalar.h>
 
 #include <core/util/custom_logger.h>
 

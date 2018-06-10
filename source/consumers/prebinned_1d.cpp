@@ -1,5 +1,5 @@
-#include "prebinned_1d.h"
-#include "dense1d.h"
+#include <consumers/prebinned_1d.h>
+#include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/custom_logger.h>
 

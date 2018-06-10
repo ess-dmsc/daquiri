@@ -1,5 +1,5 @@
-#include "spectrum_time.h"
-#include "sparse_matrix2d.h"
+#include <consumers/spectrum_time.h>
+#include <consumers/dataspaces/sparse_matrix2d.h>
 
 #include <core/util/custom_logger.h>
 

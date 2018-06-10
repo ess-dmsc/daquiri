@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "status.h"
+#include <consumers/add_ons/status.h>
 
 using namespace DAQuiri;
 

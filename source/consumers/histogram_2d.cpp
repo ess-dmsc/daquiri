@@ -1,8 +1,8 @@
-#include "histogram_2d.h"
+#include <consumers/histogram_2d.h>
 
-#include "sparse_map2d.h"
-#include "sparse_matrix2d.h"
-#include "dense_matrix2d.h"
+#include <consumers/dataspaces/sparse_map2d.h>
+#include <consumers/dataspaces/sparse_matrix2d.h>
+#include <consumers/dataspaces/dense_matrix2d.h>
 
 #include <core/util/custom_logger.h>
 

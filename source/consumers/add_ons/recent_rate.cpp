@@ -1,4 +1,4 @@
-#include "recent_rate.h"
+#include <consumers/add_ons/recent_rate.h>
 
 #include <core/util/custom_logger.h>
 

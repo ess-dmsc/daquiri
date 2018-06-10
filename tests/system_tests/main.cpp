@@ -3,7 +3,7 @@
 #include <core/util/custom_logger.h>
 #include <core/util/lexical_extensions.h>
 
-#include "consumers_autoreg.h"
+#include <consumers/consumers_autoreg.h>
 #include "producers_autoreg.h"
 
 #include <core/producer_factory.h>

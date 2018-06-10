@@ -1,5 +1,5 @@
-#include "tof_1d_correlate.h"
-#include "dense1d.h"
+#include <consumers/tof_1d_correlate.h>
+#include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/custom_logger.h>
 

@@ -15,5 +15,5 @@ set(HEADERS
   ${dir}/setting_metadata.h
   )
 
-set(daquiri_headers ${daquiri_headers} ${HEADERS} PARENT_SCOPE)
-set(daquiri_sources ${daquiri_sources} ${SOURCES} PARENT_SCOPE)
+set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
+set(${this_target}_headers ${${this_target}_headers} ${SOURCES} PARENT_SCOPE)

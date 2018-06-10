@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "periodic_trigger.h"
+#include <consumers/add_ons/periodic_trigger.h>
 
 TEST(PeriodicTrigger, Init)
 {

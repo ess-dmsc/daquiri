@@ -1,5 +1,5 @@
 #include "daquiri.h"
-#include "consumers_autoreg.h"
+#include <consumers/consumers_autoreg.h>
 #include "producers_autoreg.h"
 #include <QApplication>
 #include <QCommandLineParser>

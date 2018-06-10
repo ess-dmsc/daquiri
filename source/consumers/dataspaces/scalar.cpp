@@ -1,4 +1,4 @@
-#include "scalar.h"
+#include <consumers/dataspaces/scalar.h>
 #include <core/util/h5json.h>
 
 namespace DAQuiri {

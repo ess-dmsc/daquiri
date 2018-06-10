@@ -1,6 +1,6 @@
 #include "gtest_color_print.h"
 
-#include "sparse_matrix2d.h"
+#include <consumers/dataspaces/sparse_matrix2d.h>
 
 class SparseMatrix2D : public TestBase
 {
