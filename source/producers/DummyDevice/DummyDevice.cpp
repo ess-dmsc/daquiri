@@ -1,4 +1,4 @@
-#include "DummyDevice.h"
+#include <producers/DummyDevice/DummyDevice.h>
 
 #include <core/util/custom_logger.h>
 

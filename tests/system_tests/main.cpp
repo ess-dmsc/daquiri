@@ -4,7 +4,7 @@
 #include <core/util/lexical_extensions.h>
 
 #include <consumers/consumers_autoreg.h>
-#include "producers_autoreg.h"
+#include <producers/producers_autoreg.h>
 
 #include <core/producer_factory.h>
 #include <core/consumer_factory.h>

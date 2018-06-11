@@ -1,4 +1,4 @@
-#include "DetectorIndex.h"
+#include <producers/DetectorIndex/DetectorIndex.h>
 
 #include <core/util/custom_logger.h>
 

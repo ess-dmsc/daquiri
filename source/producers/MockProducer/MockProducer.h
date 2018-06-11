@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/producer.h>
-#include "ValueDefinition.h"
+#include <producers/MockProducer/ValueDefinition.h>
 
 #include <atomic>
 #include <thread>
