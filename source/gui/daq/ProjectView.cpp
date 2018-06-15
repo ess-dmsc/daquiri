@@ -3,7 +3,7 @@
 #include "ConsumerDialog.h"
 #include <core/util/custom_timer.h>
 #include "boost/algorithm/string.hpp"
-#include "QHist.h"
+#include <QPlot/QHist.h>
 //#include "qt_util.h"
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"

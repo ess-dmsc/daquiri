@@ -9,7 +9,7 @@
 #include "qt_util.h"
 #include "QColorExtensions.h"
 
-#include "GradientSelector.h"
+#include <QPlot/GradientSelector.h>
 
 using namespace DAQuiri;
 

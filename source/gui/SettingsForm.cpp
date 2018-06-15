@@ -13,7 +13,7 @@
 #include <QInputDialog>
 #include "Profiles.h"
 
-#include "GradientSelector.h"
+#include <QPlot/GradientSelector.h>
 
 using namespace DAQuiri;
 

@@ -29,7 +29,6 @@ def get_macos_pipeline() {
                 dir("${project}/code") {
                     try {
                         checkout scm
-                        sh "git submodule update --init"
                     } catch (e) {
                         failure_function(e, 'MacOSX / Checkout failed')
                     }
@@ -83,7 +82,6 @@ def docker_clone(image_key) {
             --branch ${env.BRANCH_NAME} \
             https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
         cd ${project}
-        git submodule update --init
         """
     sh "docker exec ${container_name(image_key)} sh -c \"${clone_script}\""
 }

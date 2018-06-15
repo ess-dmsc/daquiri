@@ -18,11 +18,11 @@
 
 #include <QApplication>
 
-#include <QPlot.h>
+#include <QPlot/QPlot.h>
 
 #include "QColorExtensions.h"
 #include "QTimeExtensions.h"
-#include "GradientSelector.h"
+#include <QPlot/GradientSelector.h>
 
 using namespace color_widgets;
 using namespace DAQuiri;
