@@ -2,7 +2,7 @@
 
 #include <QItemSelection>
 #include <QDialog>
-#include "SettingDelegate.h"
+#include <widgets/SettingDelegate.h>
 #include "SettingsTreeModel.h"
 //#include "widget_detectors.h"
 #include <core/consumer.h>

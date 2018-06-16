@@ -5,7 +5,7 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
-#include "PatternWidget.h"
+#include <widgets/PatternWidget.h>
 #include <core/detector.h>
 #include <core/spill.h>
 

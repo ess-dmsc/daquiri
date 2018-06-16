@@ -4,7 +4,7 @@
 #include "Profiles.h"
 #include <QMessageBox>
 #include <QBoxLayout>
-#include "qt_util.h"
+#include <widgets/qt_util.h>
 
 #include <core/util/custom_logger.h>
 

@@ -1,8 +1,8 @@
 #include "ConsumerScalar.h"
 #include <QVBoxLayout>
 
-#include "manometer.h"
-#include "thermometer.h"
+#include <widgets/AnalogWidgets/manometer.h>
+#include <widgets/AnalogWidgets/thermometer.h>
 
 #include <core/util/custom_logger.h>
 

@@ -6,7 +6,7 @@
 #include <QTreeView>
 #include <QMenu>
 #include <core/detector.h>
-#include "SettingDelegate.h"
+#include <widgets/SettingDelegate.h>
 #include "SettingsTreeModel.h"
 
 #include "ThreadRunner.h"

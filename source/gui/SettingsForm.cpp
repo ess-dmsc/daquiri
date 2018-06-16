@@ -1,7 +1,7 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
 #include "ProfilesForm.h"
-#include "BinaryWidget.h"
+#include <widgets/BinaryWidget.h>
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>

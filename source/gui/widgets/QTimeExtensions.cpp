@@ -1,4 +1,4 @@
-#include "QTimeExtensions.h"\
+#include <widgets/QTimeExtensions.h>
 
 QDateTime fromBoostPtime(boost::posix_time::ptime bpt)
 {

@@ -8,14 +8,14 @@
 #include <QLabel>
 #include <QTimer>
 #include "Profiles.h"
-#include "TabCloseButton.h"
+#include <widgets/TabCloseButton.h>
 
 #include "ListModeForm.h"
 #include "ProjectForm.h"
 
 #include <QDir>
 #include <QCoreApplication>
-#include "QFileExtensions.h"
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 

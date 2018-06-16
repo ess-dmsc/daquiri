@@ -2,7 +2,7 @@
 
 #include <QDialog>
 #include <boost/date_time.hpp>
-#include "qt_util.h"
+#include <widgets/qt_util.h>
 
 
 namespace Ui {

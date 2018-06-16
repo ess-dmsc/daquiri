@@ -4,7 +4,7 @@
 #include <QMenu>
 #include <QMdiArea>
 #include <core/project.h>
-#include "SelectorWidget.h"
+#include <widgets/SelectorWidget.h>
 #include "AbstractConsumerWidget.h"
 
 namespace Ui {

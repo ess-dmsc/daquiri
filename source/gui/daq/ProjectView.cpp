@@ -4,12 +4,12 @@
 #include <core/util/custom_timer.h>
 #include "boost/algorithm/string.hpp"
 #include <QPlot/QHist.h>
-//#include "qt_util.h"
+//#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
 #include <boost/range/adaptor/reversed.hpp>
-#include "QColorExtensions.h"
+#include <widgets/QColorExtensions.h>
 
 using namespace DAQuiri;
 

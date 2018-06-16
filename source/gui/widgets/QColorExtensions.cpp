@@ -1,4 +1,4 @@
-#include "QColorExtensions.h"
+#include <widgets/QColorExtensions.h>
 
 QColor generateColor()
 {

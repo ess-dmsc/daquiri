@@ -2,7 +2,7 @@
 #include <math.h>
 #include <limits>
 
-#include "PatternWidget.h"
+#include <widgets/PatternWidget.h>
 #include <core/util/custom_logger.h>
 
 

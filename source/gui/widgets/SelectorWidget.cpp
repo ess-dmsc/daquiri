@@ -3,7 +3,7 @@
 
 #include "SelectorWidget.h"
 #include <core/util/custom_logger.h>
-#include "qt_util.h"
+#include <widgets/qt_util.h>
 
 SelectorWidget::SelectorWidget(QWidget *parent)
   : QWidget(parent)

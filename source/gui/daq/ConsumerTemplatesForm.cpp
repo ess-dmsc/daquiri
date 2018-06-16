@@ -7,7 +7,7 @@
 #include <QCloseEvent>
 #include <core/project.h>
 #include <core/consumer_factory.h>
-#include "QFileExtensions.h"
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 

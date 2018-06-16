@@ -1,4 +1,4 @@
-#include "SettingDelegate.h"
+#include <widgets/SettingDelegate.h>
 #include <QComboBox>
 #include <QPainter>
 #include <QDoubleSpinBox>
@@ -20,8 +20,8 @@
 
 #include <QPlot/QPlot.h>
 
-#include "QColorExtensions.h"
-#include "QTimeExtensions.h"
+#include <widgets/QColorExtensions.h>
+#include <widgets/QTimeExtensions.h>
 #include <QPlot/GradientSelector.h>
 
 using namespace color_widgets;

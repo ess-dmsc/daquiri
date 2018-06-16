@@ -27,9 +27,6 @@ dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
 add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 add_subdirectory(widgets)
-
-#add_subdirectory(widgets/qplot/source)
-
 add_subdirectory(daq)
 
 add_executable(
@@ -44,8 +41,6 @@ target_include_directories(
   ${this_target}
   PRIVATE ${PROJECT_SOURCE_DIR}/source
   PRIVATE ./daq
-  PRIVATE ./widgets
-  PRIVATE ./widgets/AnalogWidgets
   PRIVATE ${${this_target}_include_dirs}
 )
 

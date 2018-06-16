@@ -9,7 +9,7 @@
 
 #include <QCloseEvent>
 
-#include "QFileExtensions.h"
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 

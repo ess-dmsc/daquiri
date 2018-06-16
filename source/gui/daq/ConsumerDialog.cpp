@@ -6,8 +6,8 @@
 #include <core/consumer_factory.h>
 //#include "dialog_detector.h"
 
-#include "qt_util.h"
-#include "QColorExtensions.h"
+#include <widgets/qt_util.h>
+#include <widgets/QColorExtensions.h>
 
 #include <QPlot/GradientSelector.h>
 
