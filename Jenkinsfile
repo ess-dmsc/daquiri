@@ -36,7 +36,7 @@ def get_macos_pipeline() {
 
                 dir("${project}/build") {
                     try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
+                        sh "cmake ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
@@ -101,9 +101,7 @@ def docker_dependencies(image_key) {
 def docker_cmake(image_key, xtra_flags) {
     def configure_script = """
         cd ${project}/build
-        cmake -DDAQuiri_config=1 -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-              ${xtra_flags} \
-              ..
+        cmake ${xtra_flags} ..
         """
 
     sh "docker exec ${container_name(image_key)} sh -c \"${configure_script}\""

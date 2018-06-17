@@ -1,22 +1,17 @@
 set(this_target ${PROJECT_NAME})
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
-
-#For Qt
-if(APPLE AND EXISTS /usr/local/opt/qt)
-  # Homebrew installs Qt5 (up to at least 5.9.1) in
-  # /usr/local/opt/qt, ensure it can be found by CMake since
-  # it is not in the default /usr/local prefix.
-  list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt")
-endif()
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
+include(BoostLibraryConfig)
+include(QtLibraryConfig)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt5 COMPONENTS Widgets PrintSupport REQUIRED)
 
 find_package(qplot REQUIRED)
+#OpenGL for plots
+add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
+
+
+#find package for QtColorWidgets
 
 set(SOURCES
   ${dir}/daquiri.cpp
@@ -55,9 +50,6 @@ set(${this_target}_ui ${UI})
 
 add_subdirectory(widgets)
 add_subdirectory(daq)
-
-#OpenGL for plots
-add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 add_executable(
   ${this_target}

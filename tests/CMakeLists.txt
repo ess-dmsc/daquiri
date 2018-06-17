@@ -1,7 +1,7 @@
 set(this_target unit_tests)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
+include(BoostLibraryConfig)
 
 set(${this_target}_headers
   gtest_color_print.h)

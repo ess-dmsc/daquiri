@@ -1,6 +1,6 @@
 set(this_target system_test)
 
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
+include(BoostLibraryConfig)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 

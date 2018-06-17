@@ -1,6 +1,6 @@
 set(this_target acquire)
 
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
+include(BoostLibraryConfig)
 
 add_executable(
   ${this_target}
