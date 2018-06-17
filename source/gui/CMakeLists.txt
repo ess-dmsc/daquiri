@@ -49,11 +49,6 @@ set(RC
   ${dir}/resources/daquiri.qrc
   )
 
-#file(GLOB ${this_target}_resources resources/*.qrc)
-#file(GLOB ${this_target}_ui *.ui)
-#file(GLOB ${this_target}_sources *.cpp)
-#file(GLOB ${this_target}_headers *.h ${PROJECT_BINARY_DIR}/*.h)
-
 set(${this_target}_headers ${HEADERS})
 set(${this_target}_sources ${SOURCES})
 set(${this_target}_ui ${UI})

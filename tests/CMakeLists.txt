@@ -1,17 +1,20 @@
 set(this_target unit_tests)
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
-set(dir ${CMAKE_CURRENT_SOURCE_DIR})
-file(GLOB_RECURSE ${this_target}_sources ${dir}/core/*.cpp ${dir}/consumers/*.cpp)
-file(GLOB_RECURSE ${this_target}_headers ${dir}/core/*.h ${dir}/consumers/*.h)
+set(${this_target}_headers
+  gtest_color_print.h)
+set(${this_target}_sources
+  main.cpp)
+
+add_subdirectory(core)
+add_subdirectory(consumers)
 
 add_executable(
     ${this_target} EXCLUDE_FROM_ALL
     ${${this_target}_sources}
     ${${this_target}_headers}
-    ${dir}/gtest_color_print.h
-    ${dir}/main.cpp
 )
 
 target_include_directories(
