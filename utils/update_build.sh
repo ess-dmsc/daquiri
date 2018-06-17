@@ -3,7 +3,6 @@
 pushd $(dirname "${BASH_SOURCE[0]}")/..
 
 git pull
-git submodule update
 mkdir -p build
 pushd build
 cmake ..
