@@ -1,5 +1,5 @@
-#include "consumer_metadata.h"
-#include "ascii_tree.h"
+#include <core/consumer_metadata.h>
+#include <core/util/ascii_tree.h>
 
 namespace DAQuiri {
 

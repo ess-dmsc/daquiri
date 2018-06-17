@@ -1,6 +1,6 @@
-#include "periodic_trigger.h"
+#include <consumers/add_ons/periodic_trigger.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

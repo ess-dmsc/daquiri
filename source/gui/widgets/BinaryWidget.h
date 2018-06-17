@@ -4,7 +4,7 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
-#include "setting.h"
+#include <core/plugin/setting.h>
 
 class BinaryWidget : public QDialog
 {

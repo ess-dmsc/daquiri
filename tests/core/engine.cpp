@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "engine.h"
+#include <core/engine.h>
 
 using namespace DAQuiri;
 

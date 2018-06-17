@@ -1,4 +1,4 @@
-#include "container.h"
+#include <core/plugin/container.h>
 #include <gtest/gtest.h>
 
 struct SomeType

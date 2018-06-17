@@ -1,4 +1,4 @@
-#include "event.h"
+#include <core/event.h>
 #include <gtest/gtest.h>
 
 TEST(Event, Init)

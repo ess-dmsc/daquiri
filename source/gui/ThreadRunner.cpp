@@ -2,7 +2,7 @@
 #include <QSettings>
 #include <QDir>
 #include "ThreadRunner.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #include "Profiles.h"
 

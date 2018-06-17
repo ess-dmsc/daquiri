@@ -1,4 +1,4 @@
-#include "BinaryWidget.h"
+#include <widgets/BinaryWidget.h>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QCheckBox>

@@ -1,9 +1,9 @@
-#include "dataspace.h"
-#include "ascii_tree.h"
+#include <core/dataspace.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/h5json.h>
 
 #include <codecvt>
 #include <locale>
-#include "h5json.h"
 
 namespace DAQuiri {
 

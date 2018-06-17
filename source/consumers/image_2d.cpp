@@ -1,9 +1,9 @@
-#include "image_2d.h"
+#include <consumers/image_2d.h>
 
-#include "sparse_map2d.h"
-#include "sparse_matrix2d.h"
+#include <consumers/dataspaces/sparse_map2d.h>
+#include <consumers/dataspaces/sparse_matrix2d.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

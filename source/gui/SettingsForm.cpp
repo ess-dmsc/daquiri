@@ -1,19 +1,19 @@
 #include "SettingsForm.h"
 #include "ui_SettingsForm.h"
 #include "ProfilesForm.h"
-#include "BinaryWidget.h"
+#include <widgets/BinaryWidget.h>
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
 #include <QDir>
 
-#include "json_file.h"
+#include <core/util/json_file.h>
 
-#include "producer_factory.h"
+#include <core/producer_factory.h>
 #include <QInputDialog>
 #include "Profiles.h"
 
-#include "GradientSelector.h"
+#include <QPlot/GradientSelector.h>
 
 using namespace DAQuiri;
 

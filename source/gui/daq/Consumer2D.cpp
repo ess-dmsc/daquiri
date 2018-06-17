@@ -1,7 +1,7 @@
 #include "Consumer2D.h"
-#include "custom_timer.h"
+#include <core/util/custom_timer.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 

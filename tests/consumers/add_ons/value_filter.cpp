@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "value_filter.h"
+#include <consumers/add_ons/value_filter.h>
 
 using namespace DAQuiri;
 

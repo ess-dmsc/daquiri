@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include "prebinned_1d.h"
+#include <consumers/prebinned_1d.h>
 
 class Prebinned1D : public TestBase
 {

@@ -1,10 +1,10 @@
-#include "histogram_3d.h"
+#include <consumers/histogram_3d.h>
 
-#include "sparse_map3d.h"
-//#include "sparse_matrix3d.h"
-//#include "dense_matrix3d.h"
+#include <consumers/dataspaces/sparse_map3d.h>
+//#include <consumers/dataspaces/sparse_matrix3d.h>
+//#include <consumers/dataspaces/dense_matrix3d.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

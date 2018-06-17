@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
 
 using namespace DAQuiri;
 

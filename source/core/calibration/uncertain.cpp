@@ -1,16 +1,16 @@
 //Rework this according to http://arxiv.org/abs/physics/0306138v1 !!!
 
-#include "uncertain.h"
+#include <core/calibration/uncertain.h>
 
 #include <iostream>
 #include <limits>
 #include <cmath>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-#include "lexical_extensions.h"
-#include "UTF_extensions.h"
+#include <core/util/lexical_extensions.h>
+#include <core/util/UTF_extensions.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri
 {

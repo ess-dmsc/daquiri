@@ -11,7 +11,7 @@ list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
 # ensure build type first
 #=============================================================================
 
-include(${EXTRA_MODULES_DIR}/EnsureBuildType.cmake)
+include(EnsureBuildType)
 
 #=============================================================================
 # Conan
@@ -37,13 +37,13 @@ elseif(NOT ${CONAN} MATCHES "DISABLE")
   message(FATAL_ERROR "Unrecognised option for CONAN (${CONAN}), use AUTO, MANUAL or DISABLE")
 endif()
 
-include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
-include(${EXTRA_MODULES_DIR}/OutputDirConfig.cmake)
-include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
+include(CompilerConfig)
+include(OutputDirConfig)
+include(CoverageReports)
 
 add_subdirectory(source)
 
-include(${EXTRA_MODULES_DIR}/FindGTestFix.cmake)
+include(FindGTestFix)
 if(GTest_FOUND)
   add_subdirectory(tests)
 endif()

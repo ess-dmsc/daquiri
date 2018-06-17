@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "lexical_extensions.h"
+#include <core/util/lexical_extensions.h>
 
 TEST(lexicalExtensions, IsNumber)
 {

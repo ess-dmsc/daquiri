@@ -1,17 +1,17 @@
-#include "engine.h"
+#include <core/engine.h>
 
-#include "custom_logger.h"
-#include "lexical_extensions.h"
+#include <core/util/custom_logger.h>
+#include <core/util/lexical_extensions.h>
 
-#include "consumers_autoreg.h"
-#include "producers_autoreg.h"
+#include <consumers/consumers_autoreg.h>
+#include <producers/producers_autoreg.h>
 
-#include "producer_factory.h"
-#include "consumer_factory.h"
+#include <core/producer_factory.h>
+#include <core/consumer_factory.h>
 
-#include "custom_timer.h"
+#include <core/util/custom_timer.h>
 
-#include "h5json.h"
+#include <core/util/h5json.h>
 
 using namespace DAQuiri;
 

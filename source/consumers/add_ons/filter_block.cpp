@@ -1,4 +1,4 @@
-#include "filter_block.h"
+#include <consumers/add_ons/filter_block.h>
 
 namespace DAQuiri {
 

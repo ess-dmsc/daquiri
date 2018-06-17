@@ -1,6 +1,6 @@
 #pragma once
 
-#include "status.h"
+#include <consumers/add_ons/status.h>
 
 namespace DAQuiri {
 

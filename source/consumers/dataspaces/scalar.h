@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataspace.h"
+#include <core/dataspace.h>
 
 namespace DAQuiri {
 

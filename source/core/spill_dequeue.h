@@ -1,13 +1,13 @@
 #pragma once
 
-#include "spill.h"
+#include <core/spill.h>
 #include <deque>
 #include <condition_variable>
 #include <map>
 #include <mutex>
 #include <atomic>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

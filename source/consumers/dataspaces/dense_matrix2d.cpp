@@ -1,6 +1,6 @@
-#include "dense_matrix2d.h"
-#include "ascii_tree.h"
-#include "h5json.h"
+#include <consumers/dataspaces/dense_matrix2d.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/h5json.h>
 
 namespace DAQuiri
 {

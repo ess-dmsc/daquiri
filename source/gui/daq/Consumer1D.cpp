@@ -1,8 +1,8 @@
 #include "Consumer1D.h"
 #include <QVBoxLayout>
-#include "QHist.h"
+#include <QPlot/QHist.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 
 using namespace DAQuiri;

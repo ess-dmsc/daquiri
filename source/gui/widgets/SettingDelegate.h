@@ -5,9 +5,9 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
-#include "PatternWidget.h"
-#include "detector.h"
-#include "spill.h"
+#include <widgets/PatternWidget.h>
+#include <core/detector.h>
+#include <core/spill.h>
 
 Q_DECLARE_METATYPE(DAQuiri::Detector)
 Q_DECLARE_METATYPE(DAQuiri::Setting)

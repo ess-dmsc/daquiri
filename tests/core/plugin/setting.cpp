@@ -1,4 +1,4 @@
-#include "setting.h"
+#include <core/plugin/setting.h>
 #include <gtest/gtest.h>
 
 TEST(Setting, Init)

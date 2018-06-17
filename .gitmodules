@@ -1,4 +1,0 @@
-[submodule "source/gui/qplot"]
-	path = source/gui/widgets/qplot
-	url = https://github.com/ess-dmsc/qplot.git
-        ignore = dirty

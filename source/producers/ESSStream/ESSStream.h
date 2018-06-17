@@ -1,10 +1,10 @@
 #pragma once
 
-#include "producer.h"
+#include <core/producer.h>
 #include <atomic>
 #include <thread>
-#include "fb_parser.h"
-#include "KafkaPlugin.h"
+#include <producers/ESSStream/fb_parser.h>
+#include <producers/ESSStream/KafkaPlugin.h>
 
 using namespace DAQuiri;
 

@@ -1,4 +1,4 @@
-#include "setting_metadata.h"
+#include <core/plugin/setting_metadata.h>
 #include <gtest/gtest.h>
 
 TEST(SettingMeta, Type)

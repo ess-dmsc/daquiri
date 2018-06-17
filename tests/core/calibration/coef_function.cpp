@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "coef_function.h"
+#include <core/calibration/coef_function.h>
 
 using namespace DAQuiri;
 

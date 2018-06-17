@@ -3,8 +3,8 @@
 #include <QWidget>
 #include <QMenu>
 #include <QMdiArea>
-#include <project.h>
-#include "SelectorWidget.h"
+#include <core/project.h>
+#include <widgets/SelectorWidget.h>
 #include "AbstractConsumerWidget.h"
 
 namespace Ui {

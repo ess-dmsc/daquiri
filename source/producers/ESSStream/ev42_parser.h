@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fb_parser.h"
-#include "ESSGeometryPlugin.h"
+#include <producers/ESSStream/fb_parser.h>
+#include <producers/ESSStream/ESSGeometryPlugin.h>
 
 using namespace DAQuiri;
 

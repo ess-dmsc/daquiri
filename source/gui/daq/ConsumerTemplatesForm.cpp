@@ -5,10 +5,9 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QCloseEvent>
-#include "project.h"
-
-#include "QFileExtensions.h"
-#include "consumer_factory.h"
+#include <core/project.h>
+#include <core/consumer_factory.h>
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 

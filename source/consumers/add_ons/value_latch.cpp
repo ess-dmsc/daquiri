@@ -1,4 +1,4 @@
-#include "value_latch.h"
+#include <consumers/add_ons/value_latch.h>
 
 namespace DAQuiri {
 

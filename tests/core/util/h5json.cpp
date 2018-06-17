@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "h5json.h"
+#include <core/util/h5json.h>
 
 TEST(h5json, itobin16)
 {

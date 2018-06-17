@@ -1,15 +1,15 @@
 #include "ProjectView.h"
 #include "ui_ProjectView.h"
 #include "ConsumerDialog.h"
-#include "custom_timer.h"
+#include <core/util/custom_timer.h>
 #include "boost/algorithm/string.hpp"
-#include "QHist.h"
-//#include "qt_util.h"
+#include <QPlot/QHist.h>
+//#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
 #include <boost/range/adaptor/reversed.hpp>
-#include "QColorExtensions.h"
+#include <widgets/QColorExtensions.h>
 
 using namespace DAQuiri;
 

@@ -1,4 +1,4 @@
-#include "event_model.h"
+#include <core/event_model.h>
 #include <gtest/gtest.h>
 
 TEST(EventModel, AddValue)

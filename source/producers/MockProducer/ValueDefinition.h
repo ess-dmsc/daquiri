@@ -1,7 +1,7 @@
 #pragma once
 
-#include "plugin.h"
-#include "event.h"
+#include <core/plugin/plugin.h>
+#include <core/event.h>
 #include <random>
 
 using namespace DAQuiri;

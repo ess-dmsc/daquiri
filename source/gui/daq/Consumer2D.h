@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AbstractConsumerWidget.h"
-#include "QPlot2D.h"
+#include <QPlot/QPlot2D.h>
 
 class Consumer2D : public AbstractConsumerWidget
 {

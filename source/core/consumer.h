@@ -1,8 +1,8 @@
 #pragma once
 
-#include "consumer_metadata.h"
-#include "spill.h"
-#include "dataspace.h"
+#include <core/consumer_metadata.h>
+#include <core/spill.h>
+#include <core/dataspace.h>
 
 namespace DAQuiri {
 

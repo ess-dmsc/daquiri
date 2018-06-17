@@ -1,9 +1,10 @@
 #pragma once
 
-#include "setting_metadata.h"
+#include <core/plugin/setting_metadata.h>
+#include <core/plugin/pattern.h>
+#include <core/plugin/container.h>
+
 #include <boost/date_time.hpp>
-#include "pattern.h"
-#include "container.h"
 
 namespace DAQuiri {
 

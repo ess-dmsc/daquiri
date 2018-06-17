@@ -1,6 +1,6 @@
 #include "gtest_color_print.h"
 
-#include "dense1d.h"
+#include <consumers/dataspaces/dense1d.h>
 
 class Dense1D : public TestBase
 {

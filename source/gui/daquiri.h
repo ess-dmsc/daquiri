@@ -3,9 +3,9 @@
 #include <QMainWindow>
 #include "SettingsForm.h"
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 #include "qt_boost_logger.h"
-#include "producer.h"
+#include <core/producer.h>
 
 namespace Ui {
 class daquiri;
