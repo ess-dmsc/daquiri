@@ -3,8 +3,6 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(BoostLibraryConfig)
 include(QtLibraryConfig)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 
 find_package(qplot REQUIRED)
 #OpenGL for plots
@@ -13,7 +11,7 @@ add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 #find package for QtColorWidgets
 
-set(SOURCES
+set(${this_target}_sources
   ${dir}/daquiri.cpp
   ${dir}/main.cpp
   ${dir}/Profiles.cpp
@@ -24,7 +22,7 @@ set(SOURCES
   ${dir}/UnitConverter.cpp
   )
 
-set(HEADERS
+set(${this_target}_headers
   ${dir}/daquiri.h
   ${dir}/Profiles.h
   ${dir}/ProfilesForm.h
@@ -35,18 +33,14 @@ set(HEADERS
   ${dir}/qt_boost_logger.h
   )
 
-set(UI
+set(CMAKE_AUTOUIC ON)
+set(${this_target}_ui
   ${dir}/ProfilesForm.ui
   ${dir}/SettingsForm.ui
   )
 
-set(RC
-  ${dir}/resources/daquiri.qrc
-  )
-
-set(${this_target}_headers ${HEADERS})
-set(${this_target}_sources ${SOURCES})
-set(${this_target}_ui ${UI})
+qt5_add_resources(${this_target}_resources
+  ${dir}/resources/daquiri.qrc)
 
 add_subdirectory(widgets)
 add_subdirectory(daq)
