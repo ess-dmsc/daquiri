@@ -1,4 +1,5 @@
 set(this_target ${PROJECT_NAME})
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
 
@@ -17,17 +18,51 @@ find_package(Qt5 COMPONENTS Widgets PrintSupport REQUIRED)
 
 find_package(qplot REQUIRED)
 
-file(GLOB ${this_target}_resources resources/*.qrc)
-file(GLOB ${this_target}_ui *.ui)
-file(GLOB ${this_target}_sources *.cpp)
-file(GLOB ${this_target}_headers *.h ${PROJECT_BINARY_DIR}/*.h)
-dirs_of(${this_target}_include_dirs "${${this_target}_headers}")
+set(SOURCES
+  ${dir}/daquiri.cpp
+  ${dir}/main.cpp
+  ${dir}/Profiles.cpp
+  ${dir}/ProfilesForm.cpp
+  ${dir}/SettingsForm.cpp
+  ${dir}/SettingsTreeModel.cpp
+  ${dir}/ThreadRunner.cpp
+  ${dir}/UnitConverter.cpp
+  )
 
-#OpenGL for plots
-add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
+set(HEADERS
+  ${dir}/daquiri.h
+  ${dir}/Profiles.h
+  ${dir}/ProfilesForm.h
+  ${dir}/SettingsForm.h
+  ${dir}/SettingsTreeModel.h
+  ${dir}/ThreadRunner.h
+  ${dir}/UnitConverter.h
+  ${dir}/qt_boost_logger.h
+  )
+
+set(UI
+  ${dir}/ProfilesForm.ui
+  ${dir}/SettingsForm.ui
+  )
+
+set(RC
+  ${dir}/resources/daquiri.qrc
+  )
+
+#file(GLOB ${this_target}_resources resources/*.qrc)
+#file(GLOB ${this_target}_ui *.ui)
+#file(GLOB ${this_target}_sources *.cpp)
+#file(GLOB ${this_target}_headers *.h ${PROJECT_BINARY_DIR}/*.h)
+
+set(${this_target}_headers ${HEADERS})
+set(${this_target}_sources ${SOURCES})
+set(${this_target}_ui ${UI})
 
 add_subdirectory(widgets)
 add_subdirectory(daq)
+
+#OpenGL for plots
+add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 add_executable(
   ${this_target}
@@ -40,7 +75,6 @@ add_executable(
 target_include_directories(
   ${this_target}
   PRIVATE ${PROJECT_SOURCE_DIR}/source
-  PRIVATE ./daq
   PRIVATE ${${this_target}_include_dirs}
 )
 

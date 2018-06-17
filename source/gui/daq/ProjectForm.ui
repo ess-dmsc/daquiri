@@ -509,7 +509,7 @@
   <customwidget>
    <class>ProjectView</class>
    <extends>QWidget</extends>
-   <header>ProjectView.h</header>
+   <header>daq/ProjectView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

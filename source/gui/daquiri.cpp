@@ -10,8 +10,8 @@
 #include "Profiles.h"
 #include <widgets/TabCloseButton.h>
 
-#include "ListModeForm.h"
-#include "ProjectForm.h"
+#include <daq/ListModeForm.h>
+#include <daq/ProjectForm.h>
 
 #include <QDir>
 #include <QCoreApplication>
