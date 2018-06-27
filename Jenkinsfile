@@ -48,7 +48,7 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "source ./activate_run.sh && \
+                        sh "source ./activate_run.sh
                             tests/unit_tests && tests/system_test"
                     } catch (e) {
                         failure_function(e, 'MacOSX / tests failed')
@@ -83,7 +83,7 @@ def docker_clone(image_key) {
             https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
         cd ${project}
         """
-    sh "docker exec ${container_name(image_key)} sh -c \"${clone_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${clone_script}\""
 }
 
 def docker_dependencies(image_key) {
@@ -95,7 +95,7 @@ def docker_dependencies(image_key) {
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
                     """
-    sh "docker exec ${container_name(image_key)} sh -c \"${dependencies_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${dependencies_script}\""
 }
 
 def docker_cmake(image_key, xtra_flags) {
@@ -104,7 +104,7 @@ def docker_cmake(image_key, xtra_flags) {
         cmake ${xtra_flags} ..
         """
 
-    sh "docker exec ${container_name(image_key)} sh -c \"${configure_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${configure_script}\""
 }
 
 def docker_build(image_key) {
@@ -112,7 +112,7 @@ def docker_build(image_key) {
         cd ${project}/build
         make -j4 && make -j4 all_tests
         """
-    sh "docker exec ${container_name(image_key)} sh -c \"${build_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${build_script}\""
 }
 
 def docker_tests(image_key) {
@@ -121,14 +121,14 @@ def docker_tests(image_key) {
                 . ./activate_run.sh
                 make run_tests
                 """
-    sh "docker exec ${container_name(image_key)} sh -c \"${test_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${test_script}\""
 }
 
 def docker_tests_coverage(image_key) {
     abs_dir = pwd()
 
     try {
-        sh """docker exec ${container_name(image_key)} sh -c \"
+        sh """docker exec ${container_name(image_key)} bash -e -c \"
                 cd ${project}/build
                 . ./activate_run.sh
                 make run_tests && make coverage
