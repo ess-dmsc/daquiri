@@ -6,7 +6,7 @@ include(QtLibraryConfig)
 
 find_package(qplot REQUIRED)
 #OpenGL for plots
-add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
+#add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 
 #find package for QtColorWidgets
