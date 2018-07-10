@@ -10,6 +10,7 @@ The branch you merge from should already reference a daquiri github ticket numbe
 - [ ] utils/acquire.sh runs
 - [ ] utils/daquiri.sh runs
 - [ ] MockProducer profile runs and produces plots (manual test)
+- [ ] profiles in /data directory have been updated (if applicable)
 
 ---
 
