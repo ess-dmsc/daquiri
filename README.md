@@ -3,7 +3,6 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 
 [![DOI](https://zenodo.org/badge/94489375.svg)](https://zenodo.org/badge/latestdoi/94489375)
 
-
 ![screenshot](screenshot.png)
 
 ## Installation
@@ -21,7 +20,14 @@ You definitely need these:
 - Qt5 (on Ubuntu systems, the `qt5-default` package)
 - conan 1.0 (via pip)
 
-### Conan setup
+### Building
+**recommended**
+
+You are very likely using this within the ESS data acquisition framework. In this case you will want to automatically install and update DAQuiri using [ESS DAQ](https://github.com/ess-dmsc/essdaq)
+
+Othwerwise, you have to do the following:
+
+#### Conan setup
 To avoid C++ dependency hell, we use `conan`. The following repos need to be added:
 ```
 conan remote add conancommunity https://api.bintray.com/conan/conan-community/conan
@@ -34,13 +40,13 @@ If said file does not exists, you are likely yet to run `conan` for the frist ti
 conan profile new --detect default
 ```
 
-### Build
+#### Building
 
 First time
 ```
 git clone https://github.com/ess-dmsc/daquiri.git
-mkdir daquiri/utils
-./first_build.sh
+cd daquiri
+./utils/first_build.sh
 ```
 
 When you want to update to latest version, from `daquiri` directory, run:
@@ -51,19 +57,18 @@ When you want to update to latest version, from `daquiri` directory, run:
 
 ## Running
 
-The binary you want to run is `./bin/daquiri` relative to your build directory.
-Every time you run it, you need to activate the `conan`-generated virtual environment by sourcing `activate_run.sh`. Thus, if you are inside your build directory, do the following:
+**recommended**
+
+To simplify matters, you should run daquiri using this scirpt:
+```
+./utils/daquiri.sh
+```
+Otherwise, you need to activate the `conan`-generated virtual environment by sourcing `activate_run.sh`. If you are inside your build directory, do the following:
 
 ```
 source ./activate_run.sh
 ./bin/daquiri
 ```
-
-To simplify matters, you may also use the included script, which wraps the above:
-```
-./utils/daquiri.sh
-```
-
 
 ## Dependencies in custom locations
 
