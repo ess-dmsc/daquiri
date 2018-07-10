@@ -1,29 +1,15 @@
-### Description of work
+### Issue reference / description
 
-*Add your own description here. The aim is provide information to help the reviewer review the PR.*
+The branch you merge from should already reference a daquiri github ticket number. You can add a descriptive title, but if an issue is referenced, you don't have to.
 
-### Issue
+## Checklist for submitter
 
-*If there is an associated issue, write 'Closes #XXX'*
-
-### Acceptance Criteria
-
-*List the changes in functionality or code that the reviewer needs to review.*
-
-### Unit Tests
-
-*Give an overview of any unit tests you have added or modified, if applicable.*
-
-### Other
-
-*Give information on anything else that might be relevant to the reviewer. Such as added system tests, update documentation etc.*
-
----
-
-## Code Review (To be filled in by the reviewer only)
-
-- [ ] Is the code of an acceptable quality?
-- [ ] Do the changes function as described and is it robust?
+- [ ] Update docker container versions (if possible)
+- [ ] Update conan package versions (if possible)
+- [ ] Unit tests pass
+- [ ] utils/acquire.sh runs
+- [ ] utils/daquiri.sh runs
+- [ ] MockProducer profile runs and produces plots (manual test)
 
 ---
 
