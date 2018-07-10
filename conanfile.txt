@@ -1,5 +1,9 @@
 [requires]
-Boost/1.62.0-dm1@ess-dmsc/stable
+cmake_findboost_modular/1.65.1@bincrafters/stable
+boost_timer/1.65.1@bincrafters/stable
+boost_date_time/1.65.1@bincrafters/stable
+boost_thread/1.65.1@bincrafters/stable
+boost_log/1.65.1@bincrafters/stable
 cli11/1.4-dm3@ess-dmsc/stable
 gtest/3121b20-dm3@ess-dmsc/stable
 h5cpp/0.0.7-dm1@ess-dmsc/stable
@@ -17,7 +21,10 @@ cmake
 virtualrunenv
 
 [options]
-Boost:shared=True
+boost_thread:shared=True
+boost_system:shared=True
+boost_filesystem:shared=True
+boost_log:shared=True
 gtest:shared=True
 librdkafka:shared=True
 
