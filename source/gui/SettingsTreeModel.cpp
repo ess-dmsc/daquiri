@@ -1,11 +1,11 @@
 #include "SettingsTreeModel.h"
-#include "PatternWidget.h"
+#include <widgets/PatternWidget.h>
 #include <QDateTime>
-#include "bin_hex_print.h"
+#include <core/util/bin_hex_print.h>
 
-//#include "qt_util.h"
-#include "QTimeExtensions.h"
-#include "QColorExtensions.h"
+//#include <widgets/qt_util.h>
+#include <widgets/QTimeExtensions.h>
+#include <widgets/QColorExtensions.h>
 
 Q_DECLARE_METATYPE(Setting)
 Q_DECLARE_METATYPE(boost::posix_time::time_duration)

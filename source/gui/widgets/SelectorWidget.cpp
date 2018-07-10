@@ -2,8 +2,8 @@
 #include <math.h>
 
 #include "SelectorWidget.h"
-#include "custom_logger.h"
-#include "qt_util.h"
+#include <core/util/custom_logger.h>
+#include <widgets/qt_util.h>
 
 SelectorWidget::SelectorWidget(QWidget *parent)
   : QWidget(parent)

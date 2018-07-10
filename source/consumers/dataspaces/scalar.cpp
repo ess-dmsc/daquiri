@@ -1,5 +1,5 @@
-#include "scalar.h"
-#include "h5json.h"
+#include <consumers/dataspaces/scalar.h>
+#include <core/util/h5json.h>
 
 namespace DAQuiri {
 
@@ -60,9 +60,12 @@ void Scalar::add_one(const Coords& coords)
 
 void Scalar::recalc_axes()
 {
+#if 0
+  //TODO: bad things in case of 0 or large values, think of something better
   auto ax = axis(0);
   ax.expand_domain(max_val_);
   set_axis(0, ax);
+#endif
 }
 
 PreciseFloat Scalar::get(const Coords& coords) const
@@ -76,43 +79,56 @@ EntryList Scalar::range(std::vector<Pair> list) const
   if (has_data_)
   {
     result->push_back({{}, min_val_});
-    result->push_back({{}, data_});
     result->push_back({{}, max_val_});
   }
   return result;
 }
 
-void Scalar::data_save(hdf5::node::Group g) const
+void Scalar::data_save(const hdf5::node::Group& g) const
 {
   if (!has_data_)
     return;
 
-  g.attributes.create<double>("value").write(double(data_));
-  g.attributes.create<double>("min").write(double(min_val_));
-  g.attributes.create<double>("max").write(double(max_val_));
-  g.attributes.create<double>("total_count").write(double(total_count_));
+  try
+  {
+    g.attributes.create<double>("value").write(double(data_));
+    g.attributes.create<double>("min").write(double(min_val_));
+    g.attributes.create<double>("max").write(double(max_val_));
+    g.attributes.create<double>("total_count").write(double(total_count_));
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<Scalar> Could not save"));
+  }
 }
 
-void Scalar::data_load(hdf5::node::Group g)
+void Scalar::data_load(const hdf5::node::Group& g)
 {
-  has_data_ = false;
-  if (!g.attributes.exists("value")
-      || !g.attributes.exists("min")
-      || !g.attributes.exists("max")
-      || !g.attributes.exists("total_count"))
-    return;
+  try
+  {
+    has_data_ = false;
+    if (!g.attributes.exists("value")
+        || !g.attributes.exists("min")
+        || !g.attributes.exists("max")
+        || !g.attributes.exists("total_count"))
+      return;
 
-  double val, min, max, tot;
-  g.attributes["value"].read(val);
-  g.attributes["min"].read(min);
-  g.attributes["max"].read(max);
-  g.attributes["total_count"].read(tot);
+    double val, min, max, tot;
+    g.attributes["value"].read(val);
+    g.attributes["min"].read(min);
+    g.attributes["max"].read(max);
+    g.attributes["total_count"].read(tot);
 
-  data_ = val;
-  min_val_ = min;
-  max_val_ = max;
-  total_count_ = tot;
-  has_data_ = true;
+    data_ = val;
+    min_val_ = min;
+    max_val_ = max;
+    total_count_ = tot;
+    has_data_ = true;
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<Scalar> Could not load"));
+  }
 }
 
 std::string Scalar::data_debug(const std::string& prepend) const
@@ -130,7 +146,7 @@ std::string Scalar::data_debug(const std::string& prepend) const
   return ss.str();
 }
 
-void Scalar::save(std::ostream& os)
+void Scalar::export_csv(std::ostream& os) const
 {
   if (!has_data_)
     return;

@@ -1,6 +1,6 @@
-#include "sparse_map2d.h"
-#include "ascii_tree.h"
-#include "h5json.h"
+#include <consumers/dataspaces/sparse_map2d.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/h5json.h>
 
 namespace DAQuiri
 {
@@ -18,6 +18,8 @@ void SparseMap2D::clear()
 {
   total_count_ = 0;
   spectrum_.clear();
+  max0_ = 0;
+  max1_ = 0;
 }
 
 void SparseMap2D::add(const Entry& e)
@@ -99,80 +101,95 @@ void SparseMap2D::fill_list(EntryList& result,
   }
 }
 
-void SparseMap2D::data_save(hdf5::node::Group g) const
+void SparseMap2D::data_save(const hdf5::node::Group& g) const
 {
   if (!spectrum_.size())
     return;
 
-  std::vector<uint16_t> dx(spectrum_.size());
-  std::vector<uint16_t> dy(spectrum_.size());
-  std::vector<double> dc(spectrum_.size());
-  size_t i = 0;
-  for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
+  try
   {
-    dx[i] = it->first.first;
-    dy[i] = it->first.second;
-    dc[i] = static_cast<long double>(it->second);
-    i++;
+    std::vector<uint16_t> dx(spectrum_.size());
+    std::vector<uint16_t> dy(spectrum_.size());
+    std::vector<double> dc(spectrum_.size());
+    size_t i = 0;
+    for (auto it = spectrum_.begin(); it != spectrum_.end(); ++it)
+    {
+      dx[i] = it->first.first;
+      dy[i] = it->first.second;
+      dc[i] = static_cast<long double>(it->second);
+      i++;
+    }
+
+    using namespace hdf5;
+
+    property::DatasetCreationList dcpl;
+    dcpl.layout(property::DatasetLayout::CHUNKED);
+
+    size_t chunksize = spectrum_.size();
+    if (chunksize > 128)
+      chunksize = 128;
+
+    dataspace::Simple i_space({spectrum_.size(), 2});
+    dcpl.chunk({chunksize, 2});
+    auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
+
+    dataspace::Simple c_space({spectrum_.size()});
+    dcpl.chunk({chunksize});
+    auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
+
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
+
+    slab.offset({0, 0});
+    didx.write(dx, slab);
+
+    slab.offset({0, 1});
+    didx.write(dy, slab);
+
+    dcts.write(dc);
   }
-
-  using namespace hdf5;
-
-  property::DatasetCreationList dcpl;
-  dcpl.layout(property::DatasetLayout::CHUNKED);
-
-  size_t chunksize = spectrum_.size();
-  if (chunksize > 128)
-    chunksize = 128;
-
-  dataspace::Simple i_space({spectrum_.size(), 2});
-  dcpl.chunk({chunksize, 2});
-  auto didx = g.create_dataset("indices", datatype::create<uint16_t>(), i_space, dcpl);
-
-  dataspace::Simple c_space({spectrum_.size()});
-  dcpl.chunk({chunksize});
-  auto dcts = g.create_dataset("counts", datatype::create<double>(), c_space, dcpl);
-
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(spectrum_.size()), 1});
-
-  slab.offset({0, 0});
-  didx.write(dx, slab);
-
-  slab.offset({0, 1});
-  didx.write(dy, slab);
-
-  dcts.write(dc);
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<SparseMap2D> Could not save"));
+  }
 }
 
-void SparseMap2D::data_load(hdf5::node::Group g)
+void SparseMap2D::data_load(const hdf5::node::Group& g)
 {
-  using namespace hdf5;
+  try
+  {
+    using namespace hdf5;
 
-  if (!g.has_dataset("indices") ||
-      !g.has_dataset("counts"))
-    return;
+    if (!g.has_dataset("indices") ||
+        !g.has_dataset("counts"))
+      return;
 
-  auto didx = g.get_dataset("indices");
-  auto dcts = g.get_dataset("counts");
+    auto didx = hdf5::node::Group(g).get_dataset("indices");
+    auto dcts = hdf5::node::Group(g).get_dataset("counts");
 
-  auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
-  auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
+    auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
+    auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();
 
-  dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
+    dataspace::Hyperslab slab({0, 0}, {static_cast<size_t>(didx_ds[0]), 1});
 
-  std::vector<uint16_t> dx(didx_ds[0], 0);
-  slab.offset({0, 0});
-  didx.read(dx, slab);
+    std::vector<uint16_t> dx(didx_ds[0], 0);
+    slab.offset({0, 0});
+    didx.read(dx, slab);
 
-  std::vector<uint16_t> dy(didx_ds[0], 0);
-  slab.offset({0, 1});
-  didx.read(dy, slab);
+    std::vector<uint16_t> dy(didx_ds[0], 0);
+    slab.offset({0, 1});
+    didx.read(dy, slab);
 
-  std::vector<double> dc(dcts_ds[0], 0.0);
-  dcts.read(dc);
+    std::vector<double> dc(dcts_ds[0], 0.0);
+    dcts.read(dc);
 
-  for (size_t i = 0; i < dx.size(); ++i)
-    bin_pair(dx[i], dy[i], dc[i]);
+    clear();
+    for (size_t i = 0; i < dx.size(); ++i)
+      bin_pair(dx[i], dy[i], dc[i]);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<SparseMap2D> Could not load"));
+  }
 }
 
 std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &prepend) const
@@ -204,7 +221,7 @@ std::string SparseMap2D::data_debug(__attribute__((unused)) const std::string &p
   return ss.str();
 }
 
-void SparseMap2D::save(std::ostream& os)
+void SparseMap2D::export_csv(std::ostream& os) const
 {
   for (uint16_t i = 0; i <= max0_; i++)
   {
@@ -213,9 +230,11 @@ void SparseMap2D::save(std::ostream& os)
       double v = 0;
       if (spectrum_.count(std::pair<uint16_t, uint16_t>(i, j)))
         v = spectrum_.at(std::pair<uint16_t, uint16_t>(i, j));
-      os << v << ", ";
+      os << v;
+      if (j != max1_)
+        os << ", ";
     }
-    os << "\n";
+    os << ";\n";
   }
 }
 

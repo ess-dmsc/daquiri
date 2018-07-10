@@ -1,7 +1,7 @@
 #pragma once
 
-#include "consumer.h"
-#include "unique_mangle.h"
+#include <core/consumer.h>
+#include <core/util/unique_mangle.h>
 
 namespace DAQuiri {
 

@@ -1,9 +1,10 @@
-#include "ESSStream.h"
-#include "ev42_parser.h"
-#include "mo01_parser.h"
-#include "f142_parser.h"
+#include <producers/ESSStream/ESSStream.h>
 
-#include "custom_logger.h"
+#include <producers/ESSStream/ev42_parser.h>
+#include <producers/ESSStream/mo01_parser.h>
+#include <producers/ESSStream/f142_parser.h>
+
+#include <core/util/custom_logger.h>
 
 ESSStream::ESSStream()
 {

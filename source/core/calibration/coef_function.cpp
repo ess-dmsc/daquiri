@@ -1,12 +1,12 @@
-#include "coef_function.h"
+#include <core/calibration/coef_function.h>
 
 #include <sstream>
 #include <iomanip>
 #include <numeric>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include "custom_logger.h"
-//#include "util.h"
+
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri
 {

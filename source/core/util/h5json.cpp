@@ -1,4 +1,4 @@
-#include "h5json.h"
+#include <core/util/h5json.h>
 
 std::string vector_idx_minlen(size_t idx, size_t max)
 {
@@ -17,20 +17,6 @@ node::Group require_group(node::Group& g, std::string name)
   if (g.exists(name))
     node::remove(g[name]);
   return g.create_group(name);
-}
-
-bool has_group(const node::Group& g, std::string name)
-{
-  return (g.exists(name) &&
-      (g[name].type() == node::Type::GROUP));
-
-}
-
-bool has_dataset(const node::Group& g, std::string name)
-{
-  return (g.exists(name) &&
-      (g[name].type() == node::Type::DATASET));
-
 }
 
 //void to_json(json& j, const Enum<int16_t>& e)

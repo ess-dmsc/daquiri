@@ -1,5 +1,4 @@
-#include "SettingDelegate.h"
-#include "setting.h"
+#include <widgets/SettingDelegate.h>
 #include <QComboBox>
 #include <QPainter>
 #include <QDoubleSpinBox>
@@ -19,11 +18,11 @@
 
 #include <QApplication>
 
-#include <QPlot.h>
+#include <QPlot/QPlot.h>
 
-#include "QColorExtensions.h"
-#include "QTimeExtensions.h"
-#include "GradientSelector.h"
+#include <widgets/QColorExtensions.h>
+#include <widgets/QTimeExtensions.h>
+#include <QPlot/GradientSelector.h>
 
 using namespace color_widgets;
 using namespace DAQuiri;

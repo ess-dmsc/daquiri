@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataspace.h"
+#include <core/dataspace.h>
 
 namespace DAQuiri
 {
@@ -20,7 +20,7 @@ class SparseMap3D : public Dataspace
     EntryList range(std::vector<Pair> list) const override;
     void recalc_axes() override;
 
-    void save(std::ostream& os) override;
+    void export_csv(std::ostream &) const override;
 
   protected:
     using tripple = std::tuple<uint16_t,uint16_t,uint16_t>;
@@ -58,8 +58,8 @@ class SparseMap3D : public Dataspace
                    size_t min1, size_t max1,
                    size_t min2, size_t max2) const;
 
-    void data_save(hdf5::node::Group) const override;
-    void data_load(hdf5::node::Group) override;
+    void data_save(const hdf5::node::Group&) const override;
+    void data_load(const hdf5::node::Group&) override;
 
     std::string data_debug(const std::string& prepend) const override;
 };

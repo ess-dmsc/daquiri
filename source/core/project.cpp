@@ -1,10 +1,8 @@
-#include "project.h"
-#include "consumer_factory.h"
-#include "custom_logger.h"
-
-#include "h5json.h"
-
-#include "ascii_tree.h"
+#include <core/project.h>
+#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
+#include <core/util/h5json.h>
+#include <core/util/ascii_tree.h>
 
 namespace DAQuiri {
 
@@ -381,7 +379,7 @@ void Project::save_split(std::string base_name)
   {
     std::ofstream ofs(base_name + "_" + vector_idx_minlen(i++, consumers_.size() - 1) + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
-    q->data()->save(ofs);
+    q->data()->export_csv(ofs);
     ofs.close();
   }
 }

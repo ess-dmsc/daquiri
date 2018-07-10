@@ -1,6 +1,8 @@
 #pragma once
 
-#include "spectrum.h"
+#include <consumers/spectrum.h>
+
+namespace DAQuiri {
 
 class StatsScalar : public Spectrum
 {
@@ -19,12 +21,16 @@ class StatsScalar : public Spectrum
     void _push_event(const Event& event) override;
     void _push_stats_pre(const Spill& spill) override;
     bool _accept_events(const Spill& spill) override;
+    void _flush() override;
 
     // cached parameters:
-    std::string what_ {0};
-    bool diff_ {false};
-    double highest_ {0};
+    std::string what_{0};
+
+    bool diff_{false};
+    PreciseFloat previous_{0};
 
     //reserve memory
-    Entry entry_ {{}, {0}};
+    Entry entry_{{}, {0}};
 };
+
+}

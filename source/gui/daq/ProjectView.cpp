@@ -1,15 +1,15 @@
 #include "ProjectView.h"
 #include "ui_ProjectView.h"
 #include "ConsumerDialog.h"
-#include "custom_timer.h"
+#include <core/util/custom_timer.h>
 #include "boost/algorithm/string.hpp"
-#include "QHist.h"
-//#include "qt_util.h"
+#include <QPlot/QHist.h>
+//#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
 #include <boost/range/adaptor/reversed.hpp>
-#include "QColorExtensions.h"
+#include <widgets/QColorExtensions.h>
 
 using namespace DAQuiri;
 
@@ -162,7 +162,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
   double dead = 100;
   if (real > 0)
     dead = (real - live) * 100.0 / real;
-  double rate_inst = md.get_attribute("instant_rate").get_number();
+  double rate_inst = md.get_attribute("recent_native_time_rate").get_number();
 
   Detector det = Detector();
   if (!md.detectors.empty())

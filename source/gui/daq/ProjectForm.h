@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <QMenu>
-#include "project.h"
+#include <core/project.h>
 #include "ThreadRunner.h"
 #include "ThreadPlotSignal.h"
 

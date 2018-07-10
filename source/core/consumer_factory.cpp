@@ -1,5 +1,5 @@
-#include "consumer_factory.h"
-#include "custom_logger.h"
+#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

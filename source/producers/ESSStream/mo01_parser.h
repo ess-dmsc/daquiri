@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fb_parser.h"
+#include <producers/ESSStream/fb_parser.h>
 #include "mo01_nmx_generated.h"
 
 

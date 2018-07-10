@@ -1,10 +1,10 @@
 #pragma once
 
+#include <core/plugin/precise_float.h>
 #include <string>
 #include <map>
 #include <set>
 #include <list>
-#include "precise_float.h"
 
 #include <nlohmann/json.hpp>
 using namespace nlohmann;

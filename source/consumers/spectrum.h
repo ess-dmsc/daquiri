@@ -1,18 +1,11 @@
 #pragma once
 
-#include "consumer.h"
+#include <core/consumer.h>
+#include <consumers/add_ons/periodic_trigger.h>
+#include <consumers/add_ons/recent_rate.h>
+#include <consumers/add_ons/filter_block.h>
 
-using namespace DAQuiri;
-
-struct Status
-{
-    StatusType               type;
-    boost::posix_time::ptime producer_time;
-    boost::posix_time::ptime consumer_time;
-    std::map<std::string, Setting> stats;
-    TimeBase timebase;
-};
-
+namespace DAQuiri {
 
 class Spectrum : public Consumer
 {
@@ -27,24 +20,15 @@ class Spectrum : public Consumer
     void _flush() override;
 
   protected:
-    bool clear_next_spill_ {false};
-    bool clear_periodically_ {false};
-    int64_t clear_reference_timer_ {0};
-    double clear_at_ {0};
+    PeriodicTrigger periodic_trigger_;
+    FilterBlock filters_;
 
-    // instantaneous rate:
-    PreciseFloat recent_count_ {0};
-    Status recent_start_, recent_end_;
-    double recent_native_time_ {0};
-    double recent_producer_wall_time_ {0};
-    double recent_consumer_wall_time_ {0};
+    //TODO: make this parametrizable
+    RecentRate recent_rate_{"native_time"};
 
-    std::list<Status> stats_;
-    boost::posix_time::time_duration real_time_;
-    boost::posix_time::time_duration live_time_;
+    std::vector<Status> stats_;
 
-    void calc_cumulative();
-    void calc_recent_rate(const Spill& spill);
-
-    static Status extract(const Spill& spill);
+    void update_cumulative(const Status&);
 };
+
+}

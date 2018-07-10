@@ -1,10 +1,8 @@
-#include "consumer.h"
-#include "ascii_tree.h"
-
-#include "custom_logger.h"
-#include "custom_timer.h"
-
-#include "h5json.h"
+#include <core/consumer.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/custom_logger.h>
+#include <core/util/custom_timer.h>
+#include <core/util/h5json.h>
 
 namespace DAQuiri {
 
@@ -46,7 +44,7 @@ void Consumer::_set_detectors(const std::vector<Detector>& dets)
 
   if (dets.size() >= dims)
   {
-    for (size_t i=0; i < dets.size(); ++i)
+    for (size_t i = 0; i < dets.size(); ++i)
     {
       if (metadata_.chan_relevant(i))
       {
@@ -98,7 +96,7 @@ void Consumer::_push_spill(const Spill& spill)
   this->_push_stats_pre(spill);
 
   if (this->_accept_spill(spill) && this->_accept_events(spill))
-    for (auto &q : spill.events)
+    for (auto& q : spill.events)
       this->_push_event(q);
 
   this->_push_stats_post(spill);
@@ -144,6 +142,8 @@ ConsumerMetadata Consumer::metadata() const
 DataspacePtr Consumer::data() const
 {
   SHARED_LOCK_ST
+  if (!data_)
+    return nullptr;
   return DataspacePtr(data_->clone());
 }
 
@@ -180,7 +180,7 @@ std::string Consumer::debug(std::string prepend, bool verbose) const
 
 //change stuff
 
-void Consumer::set_attribute(const Setting &setting, bool greedy)
+void Consumer::set_attribute(const Setting& setting, bool greedy)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attribute(setting, greedy);
@@ -188,7 +188,7 @@ void Consumer::set_attribute(const Setting &setting, bool greedy)
   changed_ = true;
 }
 
-void Consumer::set_attributes(const Setting &settings)
+void Consumer::set_attributes(const Setting& settings)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
   metadata_.set_attributes(settings.branches.data(), true);
@@ -196,44 +196,54 @@ void Consumer::set_attributes(const Setting &settings)
   changed_ = true;
 }
 
-
-
-
 /////////////////////
 /// Save and load ///
 /////////////////////
 void Consumer::load(hdf5::node::Group& g, bool withdata)
 {
   UNIQUE_LOCK_EVENTUALLY_ST
-  if (!hdf5::has_group(g, "metadata"))
+  if (!g.has_group("metadata"))
     return;
 
-  json j;
-  hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
-  metadata_ = j;
-//  metadata_.from_json(g.open_group("metadata"));
+  try
+  {
+    json j;
+    hdf5::to_json(j, hdf5::node::Group(g["metadata"]));
+    metadata_ = j;
 
-  this->_apply_attributes();
+    this->_apply_attributes();
 
-  if (withdata && data_)
-    data_->load(g);
+    if (withdata && data_)
+      data_->load(g);
 
-  this->_init_from_file();
-//  this->_recalc_axes();
+    this->_init_from_file();
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<Consumer> Could not load "
+                                                  + metadata_.debug("")));
+  }
 }
 
 void Consumer::save(hdf5::node::Group& g) const
 {
   SHARED_LOCK_ST
-  hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
-  a.write(this->my_type());
-//  g.write_attribute("type", this->my_type());
+  try
+  {
+    hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
+    a.write(this->my_type());
 
-  auto mdg = hdf5::require_group(g, "metadata");
-  hdf5::from_json(json(metadata_), mdg);
+    auto mdg = hdf5::require_group(g, "metadata");
+    hdf5::from_json(json(metadata_), mdg);
 
-  if (data_)
-    data_->save(g);
+    if (data_)
+      data_->save(g);
+  }
+  catch (...)
+  {
+    std::throw_with_nested(std::runtime_error("<Consumer> Could not save "
+                                                  + metadata_.debug("")));
+  }
 }
 
 }

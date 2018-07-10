@@ -1,6 +1,6 @@
 #pragma once
 
-#include "event_model.h"
+#include <core/event_model.h>
 #include <vector>
 
 namespace DAQuiri {

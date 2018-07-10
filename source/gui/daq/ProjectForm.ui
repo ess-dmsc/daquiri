@@ -503,13 +503,13 @@
   <customwidget>
    <class>TimeDurationWidget</class>
    <extends>QWidget</extends>
-   <header>TimeDurationWidget.h</header>
+   <header>widgets/TimeDurationWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ProjectView</class>
    <extends>QWidget</extends>
-   <header>ProjectView.h</header>
+   <header>daq/ProjectView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "setting.h"
-#include "calibration.h"
+#include <core/plugin/setting.h>
+#include <core/calibration/calibration.h>
 
 namespace DAQuiri {
 

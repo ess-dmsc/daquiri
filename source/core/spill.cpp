@@ -1,8 +1,7 @@
-#include "spill.h"
-#include "time_extensions.h"
-#include "ascii_tree.h"
-
-#include "custom_logger.h"
+#include <core/spill.h>
+#include <core/util/time_extensions.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

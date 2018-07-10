@@ -1,6 +1,6 @@
-#include "DummyDevice.h"
+#include <producers/DummyDevice/DummyDevice.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 

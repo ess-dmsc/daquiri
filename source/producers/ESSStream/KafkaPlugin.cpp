@@ -1,5 +1,5 @@
-#include "KafkaPlugin.h"
-#include "custom_logger.h"
+#include <producers/ESSStream/KafkaPlugin.h>
+#include <core/util/custom_logger.h>
 
 namespace Kafka {
 

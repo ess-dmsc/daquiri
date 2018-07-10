@@ -1,28 +1,24 @@
-set(this_target ESSStream)
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules)
+set(SOURCES
+  ${dir}/ESSGeometryPlugin.cpp
+  ${dir}/ESSStream.cpp
+  ${dir}/ev42_parser.cpp
+  ${dir}/f142_parser.cpp
+  ${dir}/fb_parser.cpp
+  ${dir}/KafkaPlugin.cpp
+  ${dir}/mo01_parser.cpp
+  )
 
-find_package(LibRDKafka REQUIRED)
+set(HEADERS
+  ${dir}/ESSGeometryPlugin.h
+  ${dir}/ESSStream.h
+  ${dir}/ev42_parser.h
+  ${dir}/f142_parser.h
+  ${dir}/fb_parser.h
+  ${dir}/KafkaPlugin.h
+  ${dir}/mo01_parser.h
+  )
 
-file(GLOB ${this_target}_SOURCES *.cpp)
-file(GLOB ${this_target}_HEADERS *.h ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src/*.h)
-dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
-
-add_library(
-  ${this_target} STATIC
-  ${${this_target}_SOURCES}
-  ${${this_target}_HEADERS}
-)
-
-target_include_directories(
-  ${this_target}
-  PRIVATE ${${this_target}_INCLUDE_DIRS}
-  PRIVATE ${CMAKE_CURRENT_LIST_DIR}/logical-geometry/cpp/src
-)
-
-target_link_libraries(
-  ${this_target}
-  PRIVATE ${PROJECT_NAME}_core
-  PRIVATE ${LibRDKafka_LIBRARIES}
-  PRIVATE ${LibRDKafka_C_LIBRARIES}
-)
+set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
+set(${this_target}_sources ${${this_target}_sources} ${SOURCES} PARENT_SCOPE)

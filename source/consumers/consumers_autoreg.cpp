@@ -1,4 +1,5 @@
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
+
 #include "consumers_autoreg.h"
 
 #include "stats_scalar.h"
@@ -8,6 +9,7 @@
 #include "tof_1d.h"
 #include "tof_1d_correlate.h"
 #include "time_domain.h"
+#include "time_delta_1d.h"
 
 #include "tof_val_2d.h"
 #include "histogram_2d.h"
@@ -15,6 +17,8 @@
 #include "spectrum_time.h"
 
 #include "histogram_3d.h"
+
+using namespace DAQuiri;
 
 void consumers_autoreg()
 {
@@ -25,6 +29,7 @@ void consumers_autoreg()
   DAQUIRI_REGISTER_CONSUMER(TOF1D)
   DAQUIRI_REGISTER_CONSUMER(TOF1DCorrelate)
   DAQUIRI_REGISTER_CONSUMER(TimeDomain)
+  DAQUIRI_REGISTER_CONSUMER(TimeDelta1D)
 
   DAQUIRI_REGISTER_CONSUMER(Histogram2D)
   DAQUIRI_REGISTER_CONSUMER(Image2D)

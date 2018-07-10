@@ -1,10 +1,12 @@
-#include "tof_1d_correlate.h"
-#include "dense1d.h"
+#include <consumers/tof_1d_correlate.h>
+#include <consumers/dataspaces/dense1d.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
+
+namespace DAQuiri {
 
 TOF1DCorrelate::TOF1DCorrelate()
-  : Spectrum()
+    : Spectrum()
 {
   data_ = std::make_shared<Dense1D>();
 
@@ -46,9 +48,12 @@ void TOF1DCorrelate::_apply_attributes()
 {
   Spectrum::_apply_attributes();
 
+  //TODO: unused
   channel_num_ = metadata_.get_attribute("channel_num").get_number();
 
-  time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+  time_resolution_ = 0;
+  if (metadata_.get_attribute("time_resolution").get_number() > 0)
+    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
@@ -76,7 +81,7 @@ bool TOF1DCorrelate::_accept_spill(const Spill& spill)
   return (spill.stream_id == chopper_stream_id_) || Spectrum::_accept_spill(spill);
 }
 
-bool TOF1DCorrelate::_accept_events(const Spill &spill)
+bool TOF1DCorrelate::_accept_events(const Spill& spill)
 {
 //  return ((pulse_time_ >= 0) && (0 != time_resolution_));
   return (Spectrum::_accept_spill(spill) && (0 != time_resolution_));
@@ -90,7 +95,7 @@ void TOF1DCorrelate::_push_stats_pre(const Spill& spill)
   if (spill.stream_id == chopper_stream_id_)
   {
     chopper_timebase_ = spill.event_model.timebase;
-    for (auto &e : spill.events)
+    for (auto& e : spill.events)
     {
       //if channel matches?
       chopper_buffer_.push_back(e.timestamp());
@@ -153,14 +158,13 @@ bool TOF1DCorrelate::bin_events()
     if (coords_[0] >= domain_.size())
     {
       size_t oldbound = domain_.size();
-      domain_.resize(coords_[0]+1);
+      domain_.resize(coords_[0] + 1);
 
-      for (size_t i=oldbound; i <= coords_[0]; ++i)
+      for (size_t i = oldbound; i <= coords_[0]; ++i)
         domain_[i] = i / time_resolution_ / units_multiplier_;
     }
 
     data_->add_one(coords_);
-    recent_count_++;
   }
 
   return true;
@@ -173,5 +177,10 @@ void TOF1DCorrelate::_push_event(const Event& event)
 //  if (Spectrum::_accept_spill(spill) && (event.value(1) != channel_num_))
 //    return;
 
+  if (!filters_.accept(event))
+    return;
+
   events_buffer_.push_back(event.timestamp());
+}
+
 }

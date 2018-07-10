@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QWidget>
-#include "spill.h"
+#include <core/spill.h>
 #include "ThreadRunner.h"
-#include "SettingDelegate.h"
+#include <widgets/SettingDelegate.h>
 //#include "widget_detectors.h"
 #include "SettingsTreeModel.h"
 

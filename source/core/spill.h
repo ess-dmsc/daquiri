@@ -1,8 +1,10 @@
 #pragma once
 
-#include "setting.h"
-#include "detector.h"
-#include "event.h"
+#include <core/plugin/setting.h>
+#include <core/detector.h>
+#include <core/event.h>
+
+namespace DAQuiri {
 
 enum class StatusType { start, running, stop, daq_status };
 
@@ -29,8 +31,6 @@ inline std::string type_to_str(StatusType type)
   else
     return "daq_status";
 }
-
-namespace DAQuiri {
 
 class Spill;
 

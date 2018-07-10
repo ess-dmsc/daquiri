@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <boost/atomic.hpp>
 
-#include "engine.h"
-#include "project.h"
+#include <core/engine.h>
+#include <core/project.h>
 
 using namespace DAQuiri;
 

@@ -1,4 +1,4 @@
-#include "producer_factory.h"
+#include <core/producer_factory.h>
 
 namespace DAQuiri {
 

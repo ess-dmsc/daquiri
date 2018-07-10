@@ -5,24 +5,23 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QCloseEvent>
-#include "project.h"
-
-#include "QFileExtensions.h"
-#include "consumer_factory.h"
+#include <core/project.h>
+#include <core/consumer_factory.h>
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 
-ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(QObject *parent)
-  : QAbstractTableModel(parent)
+ConsumerTemplatesTableModel::ConsumerTemplatesTableModel(QObject* parent)
+    : QAbstractTableModel(parent)
 {
 }
 
-int ConsumerTemplatesTableModel::rowCount(const QModelIndex & /*parent*/) const
+int ConsumerTemplatesTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
   return consumers_.size();
 }
 
-int ConsumerTemplatesTableModel::columnCount(const QModelIndex & /*parent*/) const
+int ConsumerTemplatesTableModel::columnCount(const QModelIndex& /*parent*/) const
 {
   return 7;
 }
@@ -31,30 +30,33 @@ QVariant ConsumerTemplatesTableModel::headerData(int section, Qt::Orientation or
 {
   if (role == Qt::DisplayRole)
   {
-    if (orientation == Qt::Horizontal) {
+    if (orientation == Qt::Horizontal)
+    {
       switch (section)
       {
-      case 0:
-        return QString("name");
-      case 1:
-        return QString("visible");
-      case 2:
-        return QString("type");
-      case 3:
-        return QString("stream");
-      case 4:
-        return QString("appearance");
-      case 5:
-        return QString("scale");
+        case 0:
+          return QString("name");
+        case 1:
+          return QString("visible");
+        case 2:
+          return QString("type");
+        case 3:
+          return QString("stream");
+        case 4:
+          return QString("appearance");
+        case 5:
+          return QString("scale");
       }
-    } else if (orientation == Qt::Vertical) {
+    }
+    else if (orientation == Qt::Vertical)
+    {
       return QString::number(section);
     }
   }
   return QVariant();
 }
 
-QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) const
+QVariant ConsumerTemplatesTableModel::data(const QModelIndex& index, int role) const
 {
   int row = index.row();
   int col = index.column();
@@ -63,57 +65,52 @@ QVariant ConsumerTemplatesTableModel::data(const QModelIndex &index, int role) c
   {
     switch (col)
     {
-    case 0:
-      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("name"));
-    case 1:
-      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("visible"));
-    case 2:
-      return QString::fromStdString(consumers_.get(row)->metadata().type());
-    case 3:
-      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("stream_id"));
-    case 4:
-      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("appearance"));
-    case 5:
-      return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("preferred_scale"));
+      case 0:
+        return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("name"));
+      case 1:
+        return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("visible"));
+      case 2:
+        return QString::fromStdString(consumers_.get(row)->metadata().type());
+      case 3:
+        return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("stream_id"));
+      case 4:
+        return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("appearance"));
+      case 5:
+        return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("preferred_scale"));
     }
   }
   return QVariant();
 }
 
-void ConsumerTemplatesTableModel::update(DAQuiri::ProjectPtr &project)
+void ConsumerTemplatesTableModel::update(DAQuiri::ProjectPtr& project)
 {
   consumers_ = project->get_consumers();
-  QModelIndex start_ix = createIndex( 0, 0 );
+  QModelIndex start_ix = createIndex(0, 0);
   QModelIndex end_ix = createIndex(consumers_.size(), columnCount());
-  emit dataChanged( start_ix, end_ix );
+  emit dataChanged(start_ix, end_ix);
   emit layoutChanged();
 }
 
-Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags ConsumerTemplatesTableModel::flags(const QModelIndex& index) const
 {
   Qt::ItemFlags myflags =
       QAbstractTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
   return myflags;
 }
 
-
-
-
-
-
-ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr &project,
+ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr& project,
                                              std::vector<Detector> current_dets,
                                              StreamManifest stream_manifest,
                                              QString data_dir, QString profile_dir,
-                                             QWidget *parent)
-  : QDialog(parent)
-  , ui(new Ui::ConsumerTemplatesForm)
-  , project_(project)
-  , selection_model_(&table_model_)
-  , data_dir_(data_dir)
-  , profile_dir_(profile_dir)
-  , current_dets_(current_dets)
-  , stream_manifest_(stream_manifest)
+                                             QWidget* parent)
+    : QDialog(parent),
+      ui(new Ui::ConsumerTemplatesForm),
+      project_(project),
+      selection_model_(&table_model_),
+      data_dir_(data_dir),
+      profile_dir_(profile_dir),
+      current_dets_(current_dets),
+      stream_manifest_(stream_manifest)
 {
   ui->setupUi(this);
 
@@ -128,8 +125,8 @@ ConsumerTemplatesForm::ConsumerTemplatesForm(DAQuiri::ProjectPtr &project,
   ui->spectraSetupView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   ui->spectraSetupView->show();
 
-  connect(&selection_model_, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-          this, SLOT(selection_changed(QItemSelection,QItemSelection)));
+  connect(&selection_model_, SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+          this, SLOT(selection_changed(QItemSelection, QItemSelection)));
   connect(ui->spectraSetupView, SIGNAL(doubleClicked(QModelIndex)),
           this, SLOT(selection_double_clicked(QModelIndex)));
 
@@ -179,7 +176,8 @@ void ConsumerTemplatesForm::saveSettings()
   settings.endGroup();
 }
 
-void ConsumerTemplatesForm::selection_changed(QItemSelection, QItemSelection) {
+void ConsumerTemplatesForm::selection_changed(QItemSelection, QItemSelection)
+{
   toggle_push();
 }
 
@@ -192,7 +190,9 @@ void ConsumerTemplatesForm::toggle_push()
     ui->pushUp->setEnabled(false);
     ui->pushDown->setEnabled(false);
     ui->pushClone->setEnabled(false);
-  } else {
+  }
+  else
+  {
     ui->pushDelete->setEnabled(true);
   }
 
@@ -215,8 +215,8 @@ void ConsumerTemplatesForm::toggle_push()
 void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
-  QString fileName = QFileDialog::getOpenFileName(this, "Load template spectra",
-                                                  data_dir_, "Template set (*.tem)");
+  QString fileName = QFileDialog::getOpenFileName(this, "Import consumer prototypes",
+                                                  data_dir_, "DAQuiri project (*.daq)");
   if (!validateFile(this, fileName, false))
     return;
 
@@ -224,15 +224,16 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   {
     ProjectPtr project2 = ProjectPtr(new Project());
     project2->open(fileName.toStdString());
-    for (const auto &c : project2->get_consumers())
+    for (const auto& c : project2->get_consumers())
     {
       auto pr = c->metadata().prototype();
       project_->add_consumer(ConsumerFactory::singleton().create_from_prototype(pr));
     }
   }
-  catch (...)
+  catch (std::exception& e)
   {
-    DBG << "Could not load default prototypes from " << fileName.toStdString();
+    DBG << "<ConsumerTemplatesForm> Could not load default prototypes from " << fileName.toStdString() << "\n"
+        << hdf5::error::print_nested(e, 0);;
   }
 
   selection_model_.reset();
@@ -306,10 +307,10 @@ void ConsumerTemplatesForm::on_pushDelete_clicked()
   std::list<int> torem;
 
   // must remove them in reverse order
-  for (auto &ix : ixl)
+  for (auto& ix : ixl)
     torem.push_front(ix.row());
 
-  for (auto &i : torem)
+  for (auto& i : torem)
     project_->delete_consumer(i);
 
   selection_model_.reset();
@@ -321,7 +322,7 @@ void ConsumerTemplatesForm::on_pushSetDefault_clicked()
 {
   int reply = QMessageBox::warning(this, "Set default?",
                                    "Set current templates as default?",
-                                   QMessageBox::Yes|QMessageBox::Cancel);
+                                   QMessageBox::Yes | QMessageBox::Cancel);
   if (reply != QMessageBox::Yes)
   {
     return;
@@ -333,7 +334,7 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
 {
   int reply = QMessageBox::warning(this, "Reset to defaults?",
                                    "Reset to default prototype configuration?",
-                                   QMessageBox::Yes|QMessageBox::Cancel);
+                                   QMessageBox::Yes | QMessageBox::Cancel);
   if (reply != QMessageBox::Yes)
   {
     return;
@@ -344,9 +345,11 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
   {
     project_->open(fname.toStdString());
   }
-  catch (...)
+  catch (std::exception& e)
   {
-    DBG << "Could not load default prototypes from " << fname.toStdString();
+    DBG << "<ConsumerTemplatesForm> Could not load default prototypes from "
+        << fname.toStdString() << "\n"
+        << hdf5::error::print_nested(e, 0);;
   }
 
   selection_model_.reset();
@@ -358,7 +361,7 @@ void ConsumerTemplatesForm::save_default()
 {
   int reply = QMessageBox::warning(this, "Save as default",
                                    "Save as default prototype configuration?",
-                                   QMessageBox::Yes|QMessageBox::Cancel);
+                                   QMessageBox::Yes | QMessageBox::Cancel);
   if (reply != QMessageBox::Yes)
   {
     return;
@@ -395,7 +398,7 @@ void ConsumerTemplatesForm::on_pushUp_clicked()
     return;
 
   project_->up(ixl.front().row());
-  selection_model_.setCurrentIndex(ixl.front().sibling(ixl.front().row()-1, ixl.front().column()),
+  selection_model_.setCurrentIndex(ixl.front().sibling(ixl.front().row() - 1, ixl.front().column()),
                                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   table_model_.update(project_);
   toggle_push();
@@ -409,7 +412,7 @@ void ConsumerTemplatesForm::on_pushDown_clicked()
 
   project_->down(ixl.front().row());
 
-  selection_model_.setCurrentIndex(ixl.front().sibling(ixl.front().row()+1, ixl.front().column()),
+  selection_model_.setCurrentIndex(ixl.front().sibling(ixl.front().row() + 1, ixl.front().column()),
                                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   table_model_.update(project_);
   toggle_push();

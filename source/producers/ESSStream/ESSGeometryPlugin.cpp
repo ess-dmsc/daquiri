@@ -1,4 +1,4 @@
-#include "ESSGeometryPlugin.h"
+#include <producers/ESSStream/ESSGeometryPlugin.h>
 
 ESSGeometryPlugin::ESSGeometryPlugin()
 {
