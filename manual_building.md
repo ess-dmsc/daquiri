@@ -1,4 +1,4 @@
-# DAQuiri
+# Detailed building instructions
 
 In case you want to do everything manually, here are some of the gory details.
 
