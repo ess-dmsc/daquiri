@@ -6,7 +6,7 @@ boost_thread/1.65.1@bincrafters/stable
 boost_log/1.65.1@bincrafters/stable
 cli11/1.4-dm3@ess-dmsc/stable
 gtest/3121b20-dm3@ess-dmsc/stable
-h5cpp/0.0.7-dm1@ess-dmsc/stable
+h5cpp/0.0.9@ess-dmsc/testing
 librdkafka/0.11.4@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
 streaming-data-types/361bf7b@ess-dmsc/stable
@@ -21,6 +21,8 @@ cmake
 virtualrunenv
 
 [options]
+boost_timer:shared=True
+boost_chrono:shared=True
 boost_thread:shared=True
 boost_system:shared=True
 boost_filesystem:shared=True
