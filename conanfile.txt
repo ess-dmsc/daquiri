@@ -4,6 +4,7 @@ boost_timer/1.65.1@bincrafters/stable
 boost_date_time/1.65.1@bincrafters/stable
 boost_thread/1.65.1@bincrafters/stable
 boost_log/1.65.1@bincrafters/stable
+date/2.4@ess-dmsc/testing
 cli11/1.4-dm3@ess-dmsc/stable
 gtest/3121b20-dm3@ess-dmsc/stable
 h5cpp/0.0.7-dm1@ess-dmsc/stable
