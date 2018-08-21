@@ -72,6 +72,15 @@ int main(int argc, char** argv)
   producers_autoreg();
   consumers_autoreg();
 
+  LOG(Sev::Critical, "some text +{}", "including other text");
+  LOG(Sev::Error, "some text +{}", "including other text");
+  LOG(Sev::Critical, "some text +{}", "including other text");
+  LOG(Sev::Warning, "some text +{}", "including other text");
+  LOG(Sev::Info, "some text +{}", "including other text");
+  LOG(Sev::Debug, "some text +{}", "including other text");
+
+  return EXIT_SUCCESS;
+
   int duration = 1;
   std::string durstr;
   if (argc > 1)
@@ -92,7 +101,7 @@ int main(int argc, char** argv)
 
   engine.boot();
 
-  DBG << "\n" << engine.settings().debug("   ", false);
+  LOG(Sev::Info, "\n{}", engine.settings().debug("   ", false));
 
   if (0 == (engine.status() & ProducerStatus::can_run))
   {

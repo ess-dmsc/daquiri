@@ -1,6 +1,9 @@
 #include <core/util/custom_logger.h>
 
 #include <fstream>
+
+#if 0
+
 #include <boost/core/null_deleter.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/expressions.hpp>
@@ -77,3 +80,41 @@ void CustomLogger::closeLogger()
   logging::core::get()->remove_all_sinks();
 }
 
+#endif
+
+#if 1
+
+std::string ConsoleFormatter(const LogMessage &Msg) {
+  static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DEB"};
+  std::string FileName;
+  std::int64_t LineNr = -1;
+  for (auto &CField : Msg.additionalFields) {
+    if (CField.first == "file") {
+      FileName = CField.second.strVal;
+    } else if (CField.first == "line") {
+      LineNr = CField.second.intVal;
+    }
+  }
+  return fmt::format("{:5}{:21}{:5} - {}", SevToString.at(int(Msg.severity)), FileName, LineNr, Msg.message);
+}
+
+
+void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N) {
+  // Set-up logging before we start doing important stuff
+  Log::RemoveAllHandlers();
+
+  auto CI = new ConsoleInterface();
+  CI->SetMessageStringCreatorFunction(ConsoleFormatter);
+  Log::AddLogHandler(CI);
+
+  Log::SetMinimumSeverity(Severity(5));
+  if (log_file_N.size()) {
+    Log::AddLogHandler(new FileInterface(log_file_N));
+  }
+}
+
+void CustomLogger::closeLogger() {
+
+}
+
+#endif

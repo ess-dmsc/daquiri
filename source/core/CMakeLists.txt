@@ -58,7 +58,9 @@ target_link_libraries(
   ${this_target}
   PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
+  PUBLIC ${GraylogLogger_STATIC_LIBRARIES}
   PUBLIC h5cpp
+  PUBLIC fmt::fmt
   PRIVATE Threads::Threads
 )
 

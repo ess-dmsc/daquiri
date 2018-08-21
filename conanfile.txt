@@ -1,6 +1,8 @@
 [requires]
 Boost/1.62.0-dm1@ess-dmsc/stable
 cli11/1.4-dm3@ess-dmsc/stable
+graylog-logger/1.0.5-dm1@ess-dmsc/stable
+fmt/5.1.0@bincrafters/stable
 gtest/3121b20-dm3@ess-dmsc/stable
 h5cpp/0.0.7-dm1@ess-dmsc/stable
 librdkafka/0.11.4@ess-dmsc/stable
