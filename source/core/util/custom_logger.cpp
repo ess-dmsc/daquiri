@@ -107,7 +107,7 @@ void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N) 
   CI->SetMessageStringCreatorFunction(ConsoleFormatter);
   Log::AddLogHandler(CI);
 
-  Log::SetMinimumSeverity(Severity(5));
+  Log::SetMinimumSeverity(Severity(7));
   if (log_file_N.size()) {
     Log::AddLogHandler(new FileInterface(log_file_N));
   }

@@ -73,9 +73,8 @@ int main(int argc, char** argv)
   consumers_autoreg();
 
   LOG(Sev::Critical, "some text +{}", "including other text");
-  LOG(Sev::Error, "some text +{}", "including other text");
-  LOG(Sev::Critical, "some text +{}", "including other text");
-  LOG(Sev::Warning, "some text +{}", "including other text");
+  DERR("some text +{}", "including other text");
+  DWARN("some text +{}", "including other text");
   LOG(Sev::Info, "some text +{}", "including other text");
   LOG(Sev::Debug, "some text +{}", "including other text");
 

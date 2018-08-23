@@ -44,3 +44,9 @@ namespace CustomLogger {
 #define CRIT std::cout << "\nCRIT "
 
 #define LOG(Severity, Format, ...) Log::Msg(SevToInt(Severity), fmt::format(Format, ##__VA_ARGS__), {{"file", std::string(__FILE__)}, {"line", std::int64_t(__LINE__)}})
+
+#define DCRIT(Format, ...) LOG(Sev::Critical, Format, ##__VA_ARGS__)
+#define DERR(Format, ...) LOG(Sev::Error, Format, ##__VA_ARGS__)
+#define DWARN(Format, ...) LOG(Sev::Warning, Format, ##__VA_ARGS__)
+#define DINFO(Format, ...) LOG(Sev::Info, Format, ##__VA_ARGS__)
+#define DDEB(Format, ...) LOG(Sev::Debug, Format, ##__VA_ARGS__)
