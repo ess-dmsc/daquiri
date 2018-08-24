@@ -86,7 +86,7 @@
         {
          "id": "ev42_events/Heartbeat",
          "type": "boolean",
-         "value": true
+         "value": false
         },
         {
          "id": "ev42_events/FilterSourceName",
@@ -108,7 +108,7 @@
           {
            "id": "ESSGeometry/extent_x",
            "type": "integer",
-           "value": 36
+           "value": 24
           },
           {
            "id": "ESSGeometry/extent_y",
@@ -170,7 +170,7 @@
         {
          "id": "KafkaTopicConfig/KafkaMaxBacklog",
          "type": "integer",
-         "value": 1
+         "value": 5
         }
        ],
        "id": "KafkaTopicConfig",
