@@ -68,17 +68,10 @@ ProjectPtr get_project()
 int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
+  CustomLogger::initLogger(Sev::Debug, nullptr, "");
 
   producers_autoreg();
   consumers_autoreg();
-
-  LOG(Sev::Critical, "some text +{}", "including other text");
-  DERR("some text +{}", "including other text");
-  DWARN("some text +{}", "including other text");
-  LOG(Sev::Info, "some text +{}", "including other text");
-  LOG(Sev::Debug, "some text +{}", "including other text");
-
-  return EXIT_SUCCESS;
 
   int duration = 1;
   std::string durstr;
@@ -100,11 +93,11 @@ int main(int argc, char** argv)
 
   engine.boot();
 
-  LOG(Sev::Info, "\n{}", engine.settings().debug("   ", false));
+  INFO("\n{}", engine.settings().debug("   ", false));
 
   if (0 == (engine.status() & ProducerStatus::can_run))
   {
-    DBG << "Engine cannot run";
+    DBG("Engine cannot run");
     return 1;
   }
 
@@ -124,7 +117,7 @@ int main(int argc, char** argv)
   ss1 << *project;
   ss2 << *project2;
 
-  DBG << "Acquired:\n" << ss1.str();
+  INFO("Acquired:\n{}", ss1.str());
 
 //  DBG << "Loaded:\n" << ss2.str();
 
@@ -136,7 +129,7 @@ int main(int argc, char** argv)
 
   if (ss1.str() != ss2.str())
   {
-    DBG << "Saved project not identical to original!";
+    INFO("Saved project not identical to original!");
     return EXIT_FAILURE;
   }
 

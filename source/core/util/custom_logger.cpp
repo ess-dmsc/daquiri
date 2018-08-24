@@ -76,7 +76,7 @@ void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N)
 
 void CustomLogger::closeLogger()
 {
-  DBG << "<CustomLogger> Closing logger sinks";
+  DBG( "<CustomLogger> Closing logger sinks";
   logging::core::get()->remove_all_sinks();
 }
 
@@ -99,15 +99,16 @@ std::string ConsoleFormatter(const LogMessage &Msg) {
 }
 
 
-void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N) {
+void CustomLogger::initLogger(Sev severity, std::ostream *gui_stream, std::string log_file_N) {
   // Set-up logging before we start doing important stuff
   Log::RemoveAllHandlers();
+
+  Log::SetMinimumSeverity(Severity(SevToInt(severity)));
 
   auto CI = new ConsoleInterface();
   CI->SetMessageStringCreatorFunction(ConsoleFormatter);
   Log::AddLogHandler(CI);
 
-  Log::SetMinimumSeverity(Severity(7));
   if (log_file_N.size()) {
     Log::AddLogHandler(new FileInterface(log_file_N));
   }

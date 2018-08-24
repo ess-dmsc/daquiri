@@ -242,7 +242,7 @@ void ProjectView::update_plots()
     consumer_widget->refresh();
 
   selectorItemSelected(SelectorItem());
-//  DBG << "<ProjectView> plotting took " << t.s();
+//  DBG( "<ProjectView> plotting took " << t.s();
 }
 
 void ProjectView::on_pushFullInfo_clicked()
@@ -255,7 +255,7 @@ void ProjectView::on_pushFullInfo_clicked()
       new ConsumerDialog(consumer, std::vector<Detector>(),
                          detectors_, stream_manifest_, false, this);
 
-  //DBG << "Consumer:\n" << consumer->debug() << "\n";
+  //DBG( "Consumer:\n" << consumer->debug() << "\n";
 
   if (newSpecDia->exec() == QDialog::Accepted)
   {

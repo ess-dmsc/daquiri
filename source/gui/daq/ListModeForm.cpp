@@ -216,7 +216,7 @@ void ListModeForm::on_pushListStart_clicked()
 void ListModeForm::on_pushListStop_clicked()
 {
   ui->pushListStop->setEnabled(false);
-  INFO << "List acquisition interrupted by user";
+  INFO("List acquisition interrupted by user");
   interruptor_.store(true);
 }
 
@@ -282,7 +282,7 @@ void ListModeForm::spill_selection_changed(QItemSelection, QItemSelection)
       ui->labelState->setVisible(sp->state != Setting());
       event_model_ = sp->event_model;
 
-//      DBG << "Received event model " << event_model_;
+//      DBG( "Received event model " << event_model_;
 
       //      ui->labelEvents->setVisible(events_.size());
       //      ui->tableEvents->setVisible(events_.size());

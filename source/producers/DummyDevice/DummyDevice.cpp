@@ -69,11 +69,11 @@ void DummyDevice::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<DummyDevice> Cannot boot DummyDevice. Failed flag check (can_boot == 0)";
+    WARN("<DummyDevice> Cannot boot DummyDevice. Failed flag check (can_boot == 0)");
     return;
   }
 
-  INFO << "<DummyDevice> Booting";
+  INFO("<DummyDevice> Booting");
   status_ = ProducerStatus::loaded | ProducerStatus::booted;
 }
 

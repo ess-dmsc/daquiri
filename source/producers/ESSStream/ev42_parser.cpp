@@ -132,9 +132,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if ((ordering_ != Ignore) && !in_order(em))
   {
-    WARN << "Buffer out of order (" << em->message_id()
-         << "<=" << latest_buf_id_ << ") "
-         << debug(em);
+    WARN("Buffer out of order ({}<={}) {}", em->message_id(), latest_buf_id_, debug(em));
     if (ordering_ == Reject)
     {
       stats.time_spent += timer.s();
@@ -170,7 +168,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
       evt.set_time(time);
       ++ run_spill->events;
     }
-//    DBG << "Time " << stats.time_start << " - " << stats.time_end;
+//    DBG( "Time " << stats.time_start << " - " << stats.time_end;
   }
   run_spill->events.finalize();
 

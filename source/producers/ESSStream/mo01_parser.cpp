@@ -195,7 +195,7 @@ uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
   ret->event_model = hists_model_;
   ret->events.reserve(1, hists_model_);
 
-//  DBG << "Received GEMHist\n" << debug(hist);
+//  DBG( "Received GEMHist\n" << debug(hist);
 
   auto& e = ret->events.last();
   e.set_time(spoofed_time_);
@@ -209,7 +209,7 @@ uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
   ++ ret->events;
   ret->events.finalize();
 
-//  DBG << "Will enqueue with model " << ret->event_model.debug();
+//  DBG( "Will enqueue with model " << ret->event_model.debug();
 
   queue->enqueue(ret);
   return 1;
@@ -271,7 +271,7 @@ void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_
   auto& trace = e.trace(idx);
   for (size_t i=0; i < data->Length(); ++i)
     trace[i] = data->Get(i);
-//  DBG << "Added hist " << idx << " length " << data->Length();
+//  DBG( "Added hist " << idx << " length " << data->Length();
 }
 
 SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,

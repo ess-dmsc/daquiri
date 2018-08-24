@@ -54,9 +54,7 @@ void Engine::initialize(const json &profile)
     ProducerPtr device = pf.create_type(q.id());
     if (!device || name.empty())
     {
-      WARN << "<Engine> Failed to load producer"
-           << "  type=" << q.id()
-           << "  name=\"" << name << "\"";
+      WARN("<Engine> Failed to load producer  type={}  name=\"{}\"", q.id(), name);
       continue;
     }
     producers_[name] = device;
@@ -66,7 +64,7 @@ void Engine::initialize(const json &profile)
   _get_all_settings();
 
   std::string descr = tree.find(Setting("ProfileDescr")).get_text();
-  INFO << "<Engine> Initialized profile \"" << descr << "\"";
+  INFO("<Engine> Initialized profile \"{}\"", descr);
 }
 
 Engine::~Engine()
@@ -271,20 +269,20 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   if (!project)
   {
-    WARN << "<Engine> No reference to valid daq project";
+    WARN("<Engine> No reference to valid daq project");
     return;
   }
 
   if (!(aggregate_status_ & ProducerStatus::can_run))
   {
-    WARN << "<Engine> No devices exist that can perform acquisition";
+    WARN("<Engine> No devices exist that can perform acquisition");
     return;
   }
 
   if (timeout > 0)
-    INFO << "<Engine> Starting acquisition scheduled for " << timeout << " seconds";
+    INFO("<Engine> Starting acquisition scheduled for {} seconds", timeout);
   else
-    INFO << "<Engine> Starting acquisition for indefinite run";
+    INFO("<Engine> Starting acquisition for indefinite run");
 
   CustomTimer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
@@ -301,7 +299,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   parsed_queue.enqueue(spill);
 
   if (!daq_start(&parsed_queue))
-    ERR << "<Engine> Failed to start device daq threads";
+    ERR("<Engine> Failed to start device daq threads");
 
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
@@ -312,14 +310,12 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       if (timeout > 0)
-        INFO << "  RUNNING Elapsed: " << total_timer.done()
-             << "  ETA: " << total_timer.ETA()
-             << "  Dropped spills: " << parsed_queue.dropped_spills()
-             << "  Dropped events: " << parsed_queue.dropped_events();
+        INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
+             total_timer.done(), total_timer.ETA(),
+             parsed_queue.dropped_spills(), parsed_queue.dropped_events());
       else
-        INFO << "  RUNNING Elapsed: " << total_timer.done()
-             << "  Dropped spills: " << parsed_queue.dropped_spills()
-             << "  Dropped events: " << parsed_queue.dropped_events();
+        INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Dropped events: {}",
+            total_timer.done(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
 
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
@@ -327,7 +323,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
       if (!daq_stop())
-        ERR << "<Engine> Failed to stop device daq threads";
+        ERR("<Engine> Failed to stop device daq threads");
     }
   }
 
@@ -345,9 +341,9 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
-  INFO << "<Engine::acquire> Acquisition finished"
-       << "\n   dropped spills: " << parsed_queue.dropped_spills()
-       << "\n   dropped events: " << parsed_queue.dropped_events();
+  INFO("<Engine::acquire> Acquisition finished"
+       "\n   dropped spills: {} \n   dropped events: {}",
+       parsed_queue.dropped_spills(), parsed_queue.dropped_events());
 }
 
 ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
@@ -356,14 +352,14 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   if (!(aggregate_status_ & ProducerStatus::can_run))
   {
-    WARN << "<Engine> No devices exist that can perform acquisition";
+    WARN("<Engine> No devices exist that can perform acquisition");
     return ListData();
   }
 
   if (timeout > 0)
-    INFO << "<Engine> List mode acquisition scheduled for " << timeout << " seconds";
+    INFO("<Engine> List mode acquisition scheduled for {} seconds", timeout);
   else
-    INFO << "<Engine> List mode acquisition indefinite run";
+    INFO("<Engine> List mode acquisition indefinite run");
 
   SpillPtr spill;
   ListData result;
@@ -380,7 +376,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
   if (!daq_start(&parsed_queue))
-    ERR << "<Engine> Failed to start device daq threads";
+    ERR("<Engine> Failed to start device daq threads");
 
   CustomTimer total_timer(timeout, true);
   anouncement_timer = new CustomTimer(true);
@@ -390,17 +386,16 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
     wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
-      INFO << "  RUNNING Elapsed: " << total_timer.done()
-           << "  ETA: " << total_timer.ETA()
-           << "  Dropped spills: " << parsed_queue.dropped_spills()
-           << "  Dropped events: " << parsed_queue.dropped_events();
+      INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
+          total_timer.done(), total_timer.ETA(),
+          parsed_queue.dropped_spills(), parsed_queue.dropped_events());
       delete anouncement_timer;
       anouncement_timer = new CustomTimer(true);
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
       if (!daq_stop())
-        ERR << "<Engine> Failed to stop device daq threads";
+        ERR( "<Engine> Failed to stop device daq threads");
     }
   }
 
@@ -418,9 +413,9 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 
   parsed_queue.stop();
 
-  INFO << "<Engine::acquire_list> Acquisition finished"
-       << "\n   dropped spills: " << parsed_queue.dropped_spills()
-       << "\n   dropped events: " << parsed_queue.dropped_events();
+  INFO("<Engine::acquire_list> Acquisition finished"
+       "\n   dropped spills: {}\n   dropped events: {}",
+       parsed_queue.dropped_spills(), parsed_queue.dropped_events());
 
   return result;
 }
@@ -470,14 +465,14 @@ void Engine::builder_naive(SpillQueue data_queue,
   project->flush();
   time += presort_timer.s();
 
-  DBG << "<Engine::builder_naive> Finished "
-      << "\n   total spills=" << presort_cycles
-      << "\n   events=" << presort_events
-      << "\n   time=" << time
-      << "\n   secs/spill="
-      << (time / double(presort_cycles))
-      << "\n   events/sec="
-      << (double(presort_events) / time);
+  DBG("<Engine::builder_naive> Finished "
+      "\n   total spills={}"
+      "\n   events={}"
+      "\n   time={}"
+      "\n   secs/spill={}"
+      "\n   events/sec={}",
+      presort_cycles, presort_events, time,
+      (time / double(presort_cycles)), (double(presort_events) / time));
 }
 
 }

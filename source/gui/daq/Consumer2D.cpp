@@ -93,7 +93,7 @@ void Consumer2D::update()
   if (!user_zoomed_)
     plot_->zoomOut();
 
-  //  DBG << "<Plot2D> plotting took " << guiside.ms() << " ms";
+  //  DBG( "<Plot2D> plotting took " << guiside.ms() << " ms";
 }
 
 void Consumer2D::scaleChanged(QString sn)
@@ -109,7 +109,7 @@ void Consumer2D::scaleChanged(QString sn)
   {
     if (e.second == sn.toStdString())
     {
-      DBG << "Matched " << e.second << "=" << e.first;
+      DBG("Matched {}={}", e.second, e.first);
       st.select(e.first);
       break;
     }

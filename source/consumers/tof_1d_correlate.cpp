@@ -116,7 +116,7 @@ void TOF1DCorrelate::_push_stats_post(const Spill& spill)
 
   while (can_bin() && bin_events())
   {
-//    DBG << "Binning " << events_buffer_.size() << " in " << chopper_buffer_.size();
+//    DBG( "Binning " << events_buffer_.size() << " in " << chopper_buffer_.size();
   }
 
   Spectrum::_push_stats_post(spill);

@@ -59,14 +59,14 @@ void ConsumerFactory::register_type(ConsumerMetadata tt,
 {
   auto name = tt.type();
   if (name.empty())
-    WARN << "<ConsumerFactory> failed to register nameless type";
+    WARN("<ConsumerFactory> failed to register nameless type");
   else if (constructors_.count(tt.type()))
-    WARN << "<ConsumerFactory> type '" << tt.type() << "' already registered";
+    WARN("<ConsumerFactory> type '{}' already registered", tt.type());
   else
   {
     constructors_[tt.type()] = constructor;
     prototypes_[tt.type()] = tt;
-    TRC << "<ConsumerFactory> registered '" << tt.type() << "'";
+    DBG("<ConsumerFactory> registered '{}'", tt.type());
   }
 }
 

@@ -47,7 +47,7 @@ signals:
 
 protected:
   void run() {
-//    DBG << "<ThreadPlot> loop starting "
+//    DBG( "<ThreadPlot> loop starting "
 //        << terminating_.load() << " "
 //        << (project_.operator bool());
 
@@ -56,11 +56,11 @@ protected:
            && project_->wait_ready())
     {
       emit plot_ready();
-//      DBG << "<ThreadPlotSignal> Plot ready";
+//      DBG( "<ThreadPlotSignal> Plot ready";
       if (!terminating_.load())
         QThread::msleep(wait_ms_.load());
     }
-//    DBG << "<ThreadPlot> loop ended";
+//    DBG( "<ThreadPlot> loop ended";
   }
 
 private:

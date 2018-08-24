@@ -43,7 +43,7 @@ bool SettingsTreeItem::replace_data(const Setting &data)
   return (!itemData.is(SettingType::none));
 
   /*if (itemData.branches.size() != childItems.size()) {
-      WARN << "Setting branch size mismatch " << itemData.id();
+      WARN( "Setting branch size mismatch " << itemData.id();
 //      for (int i=0; i <  childItems.size(); ++i)
 //        delete childItems.takeAt(i);
 
@@ -478,12 +478,12 @@ QModelIndex SettingsTreeModel::parent(const QModelIndex &index) const
   if (parentItem == 0x0)
     return QModelIndex();
 
-  //DBG << parentItem;
+  //DBG( parentItem;
 
-  //DBG << "Index r" << index.row() << " c" << index.column() << " d=";
+  //DBG( "Index r" << index.row() << " c" << index.column() << " d=";
 //  if (index.data(Qt::EditRole).canConvert<Setting>()) {
 //    Setting set = qvariant_cast<Setting>(index.data(Qt::EditRole));
-//    DBG << "id=" << set.id();
+//    DBG( "id=" << set.id();
 //  }
 
   return createIndex(parentItem->childNumber(), 0, parentItem);
@@ -571,13 +571,13 @@ void SettingsTreeModel::update(const Setting &data)
   data_.cull_hidden();
   if (!show_read_only_)
   {
-    //DBG << "Culling read only";
+    //DBG( "Culling read only";
     data_.cull_readonly();
   }
 
   if (!rootItem->replace_data(data_))
   {
-//    DBG << "deleting root node";
+//    DBG( "deleting root node";
     beginResetModel();
     delete rootItem;
     rootItem = new SettingsTreeItem(data_);

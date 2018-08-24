@@ -74,12 +74,12 @@ void SettingsForm::update(const Setting &tree,
 
   if (editing_)
   {
-    //    DBG << "<SettingsForm> ignoring update";
+    //    DBG( "<SettingsForm> ignoring update";
     return;
   }
 
   settings_tree_ = tree;
-  //  DBG << "tree received " << settings_tree_.branches.size();
+  //  DBG( "tree received " << settings_tree_.branches.size();
 
   ui->treeViewSettings->clearSelection();
   tree_settings_model_.update(settings_tree_);
@@ -254,7 +254,7 @@ void SettingsForm::on_bootButton_clicked()
   if (ui->bootButton->text() == "Boot")
   {
     emit toggleIO(false);
-    //    INFO << "Booting system...";
+    //    INFO( "Booting system...";
 
     runner_thread_.do_boot();
   }
@@ -265,7 +265,7 @@ void SettingsForm::on_bootButton_clicked()
     settings.beginGroup("Program");
     settings.setValue("boot_on_startup", false);
 
-    //    INFO << "Shutting down";
+    //    INFO( "Shutting down";
     runner_thread_.do_shutdown();
   }
 }

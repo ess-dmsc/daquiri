@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   AcquireOptions opts;
   CLI11_PARSE(opts.app, argc, argv);
 
-  CustomLogger::initLogger(nullptr, "acquire");
+  CustomLogger::initLogger(Sev::Info, nullptr, "acquire");
   hdf5::error::Singleton::instance().auto_print(false);
   producers_autoreg();
   consumers_autoreg();
@@ -63,9 +63,8 @@ int main(int argc, char **argv) {
       engine.initialize(profile);
     }
     catch (std::exception &e) {
-      ERR << "Failed to read engine config file '" << opts.profile_file << "'. "
-          << "Json parsing error:\n"
-          << hdf5::error::print_nested(e, 1);
+      ERR("Failed to read engine config file '{}'. Json parsing error:\n{}",
+          opts.profile_file, hdf5::error::print_nested(e, 1));
       return EXIT_FAILURE;
     }
   }
@@ -74,8 +73,8 @@ int main(int argc, char **argv) {
 
   if (!opts.consumers.empty()) {
     if (!hdf5::file::is_hdf5_file(opts.consumers)) {
-      ERR << "Supplied project prototype '" << opts.consumers << "' is not an hdf5 file. "
-          << "No consumer prototypes specified. Cannot acquire data.";
+      ERR("Supplied project prototype '{}' is not an hdf5 file. "
+          "No consumer prototypes specified. Cannot acquire data.", opts.consumers);
       return EXIT_FAILURE;
     }
     project->open(opts.consumers);
@@ -84,22 +83,28 @@ int main(int argc, char **argv) {
   engine.boot();
 
   if (opts.verbose) {
-    INFO << "Engine status:\n" << engine.settings().debug("   ", false);
-    INFO << "Project before DAQ run:\n" << *project;
+    INFO("Engine status:\n{}", engine.settings().debug("   ", false));
+    std::stringstream ss;
+    ss << *project;
+    INFO("Project before DAQ run:\n{}", ss.str());
   }
 
   engine.acquire(project, interruptor, opts.duration);
 
   if (opts.verbose)
-    INFO << "Project after DAQ run:\n" << *project;
+  {
+    std::stringstream ss;
+    ss << *project;
+    INFO("Project after DAQ run:\n{}", ss.str());
+  }
 
   if (!opts.save_h5.empty()) {
-    INFO << "Saving h5 to " << opts.save_h5;
+    INFO("Saving h5 to {}", opts.save_h5);
     project->save(opts.save_h5);
   }
 
   if (!opts.save_csv.empty()) {
-    INFO << "Saving csv to " << opts.save_csv;
+    INFO("Saving csv to {}", opts.save_csv);
     project->save_split(opts.save_csv);
   }
 

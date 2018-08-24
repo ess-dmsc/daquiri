@@ -223,7 +223,7 @@ void BinaryWidget::change_setting()
     if (spins_[i]->isVisible() && spins_[i]->isEnabled())
     {
       double dbl = (spins_[i]->value() - spins_[i]->minimum()) / spins_[i]->singleStep();
-      //      DBG << "converted dbl " << spins_[i]->value() << " to " << dbl;
+      //      DBG( "converted dbl " << spins_[i]->value() << " to " << dbl;
       int64_t num = static_cast<int64_t>(dbl);
       num = num << i;
       setting_.select(setting_.selection() | num);

@@ -44,7 +44,9 @@ void TimeDurationWidget::set_total_seconds(uint64_t secs)
 
 void TimeDurationWidget::set_duration(boost::posix_time::time_duration duration)
 {
-  DBG << "Set duration " << duration;
+  std::stringstream ss;
+  ss << duration;
+  DBG("Set duration {}", ss.str());
 
   uint64_t total_ms = duration.total_microseconds();
   ui->spin_ms->setValue(total_ms % FACTOR_us);
@@ -69,7 +71,9 @@ boost::posix_time::time_duration TimeDurationWidget::get_duration() const
   time += ui->spin_ms->value();
   boost::posix_time::time_duration ret =
       boost::posix_time::microseconds(time);
-  DBG << "Ret duration " << ret;
+  std::stringstream ss;
+  ss << ret;
+  DBG("Ret duration {}", ss.str());
   return ret;
 }
 

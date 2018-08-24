@@ -202,7 +202,7 @@ std::string UncertainDouble::error_percent() const
   double error = std::abs(sigma_ / value_ * 100.0);
 
   UncertainDouble p(error, 0, 2);
-//  DBG << "perror for " << debug() << " is " << p.debug();
+//  DBG( "perror for " << debug() << " is " << p.debug();
   if (p.exponent() != 0)
     return "(" +  p.to_string(false) + ")%";
   else

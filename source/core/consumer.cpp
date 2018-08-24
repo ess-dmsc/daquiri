@@ -101,7 +101,7 @@ void Consumer::_push_spill(const Spill& spill)
 
   this->_push_stats_post(spill);
 
-//  DBG << "<" << metadata_.get_attribute("name").get_text() << "> added "
+//  DBG( "<" << metadata_.get_attribute("name").get_text() << "> added "
 //      << spill.events.size() << " events in "
 //      << addspill_timer.ms() << " ms at "
 //      << addspill_timer.us() / double(spill.events.size()) << " us/hit";

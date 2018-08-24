@@ -43,7 +43,7 @@ daquiri::daquiri(QWidget *parent,
   qRegisterMetaType<DAQuiri::ProjectPtr>("DAQuiri::ProjectPtr");
   qRegisterMetaType<boost::posix_time::time_duration>("boost::posix_time::time_duration");
 
-  CustomLogger::initLogger(&log_stream_, "daquiri_%N.log");
+  CustomLogger::initLogger(Sev::Info, &log_stream_, "daquiri_%N.log");
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 

@@ -232,8 +232,8 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
   }
   catch (std::exception& e)
   {
-    DBG << "<ConsumerTemplatesForm> Could not load default prototypes from " << fileName.toStdString() << "\n"
-        << hdf5::error::print_nested(e, 0);;
+    DBG("<ConsumerTemplatesForm> Could not load default prototypes from {}\n{}",
+        fileName.toStdString(), hdf5::error::print_nested(e, 0));
   }
 
   selection_model_.reset();
@@ -347,9 +347,8 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
   }
   catch (std::exception& e)
   {
-    DBG << "<ConsumerTemplatesForm> Could not load default prototypes from "
-        << fname.toStdString() << "\n"
-        << hdf5::error::print_nested(e, 0);;
+    DBG("<ConsumerTemplatesForm> Could not load default prototypes from {}\n{}",
+        fname.toStdString(), hdf5::error::print_nested(e, 0));
   }
 
   selection_model_.reset();
@@ -378,7 +377,7 @@ void ConsumerTemplatesForm::save_default()
   }
   catch (...)
   {
-    DBG << "Could not save default prototypes to " << fname.toStdString();
+    DBG("Could not save default prototypes to {}", fname.toStdString());
   }
 
 }
