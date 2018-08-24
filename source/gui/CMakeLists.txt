@@ -26,11 +26,11 @@ set(${this_target}_headers
   ${dir}/daquiri.h
   ${dir}/Profiles.h
   ${dir}/ProfilesForm.h
+  ${dir}/QStreamBuffer.h
   ${dir}/SettingsForm.h
   ${dir}/SettingsTreeModel.h
   ${dir}/ThreadRunner.h
   ${dir}/UnitConverter.h
-  ${dir}/qt_boost_logger.h
   )
 
 set(CMAKE_AUTOUIC ON)

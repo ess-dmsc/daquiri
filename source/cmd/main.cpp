@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   AcquireOptions opts;
   CLI11_PARSE(opts.app, argc, argv);
 
-  CustomLogger::initLogger(Sev::Info, nullptr, "acquire");
+  CustomLogger::initLogger(Severity::Informational, nullptr, "acquire.log");
   hdf5::error::Singleton::instance().auto_print(false);
   producers_autoreg();
   consumers_autoreg();

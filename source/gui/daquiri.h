@@ -4,7 +4,7 @@
 #include "SettingsForm.h"
 
 #include <core/util/custom_logger.h>
-#include "qt_boost_logger.h"
+#include <QStreamBuffer.h>
 #include <core/producer.h>
 
 namespace Ui {
