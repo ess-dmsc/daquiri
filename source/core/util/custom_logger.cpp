@@ -10,7 +10,7 @@
 
 #include <core/util/time.h>
 
-// \todo use fractional seconds in console and file
+// \todo use fractional seconds in file
 
 class OstreamInterface : public BaseLogHandler {
 public:
