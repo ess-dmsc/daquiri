@@ -24,7 +24,7 @@ class daquiri : public QMainWindow
   private:
     Ui::daquiri *ui;
 
-    //connect gui with boost logger framework
+    //connect gui with logger framework
     std::stringstream log_stream_;
     LogEmitter        my_emitter_;
     LogStreamBuffer   text_buffer_;

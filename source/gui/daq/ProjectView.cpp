@@ -2,7 +2,6 @@
 #include "ui_ProjectView.h"
 #include "ConsumerDialog.h"
 #include <core/util/custom_timer.h>
-#include "boost/algorithm/string.hpp"
 #include <QPlot/QHist.h>
 //#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
@@ -153,8 +152,8 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
 
   ConsumerMetadata md = consumer->metadata();
 
-  double real = md.get_attribute("real_time").duration().total_milliseconds() * 0.001;
-  double live = md.get_attribute("live_time").duration().total_milliseconds() * 0.001;
+  double real = md.get_attribute("real_time").duration().count() * 0.001;
+  double live = md.get_attribute("live_time").duration().count() * 0.001;
   double total_count = md.get_attribute("total_count").get_number();
   double rate_total = 0;
   if (live > 0)

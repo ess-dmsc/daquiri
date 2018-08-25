@@ -27,7 +27,7 @@ std::string Spill::debug(std::string prepend) const
   ss << "SPILL [" << type_to_str(type) + "]";
   if (stream_id.size())
     ss << " '" << stream_id << "' ";
-  ss << " @ " << boost::posix_time::to_iso_extended_string(time) << "\n";
+  ss << " @ " << to_iso_extended(time) << "\n";
 
   ss << prepend << k_branch_mid_B << "event model: "
      << event_model.debug() << "\n";
@@ -47,7 +47,7 @@ void to_json(json& j, const Spill& s)
 {
   j["type"] = type_to_str(s.type);
   j["stream_id"] = s.stream_id;
-  j["time"] = boost::posix_time::to_iso_extended_string(s.time);
+  j["time"] = to_iso_extended(s.time);
 //  j["bytes_raw_data"] = data.size() * sizeof(char);
 //  j["number_of_events"] = events.size();
   j["event_model"] = s.event_model;

@@ -76,7 +76,7 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
 uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
   CustomTimer timer(true);
   uint64_t pushed_spills = 1;
-  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
+  hr_time_t start_time {std::chrono::high_resolution_clock::now()};
   
   auto ChopperTDCTimeStamp = GetLogData(msg);
   

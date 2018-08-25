@@ -66,8 +66,8 @@ protected:
 private:
   QMutex mutex_;
   DAQuiri::ProjectPtr project_;
-  boost::atomic<bool> terminating_;
-  boost::atomic<uint16_t> wait_ms_;
+  std::atomic<bool> terminating_;
+  std::atomic<uint16_t> wait_ms_;
 
   void terminate_helper()
   {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/date_time.hpp>
+#include <core/util/time_extensions.h>
 #include <core/calibration/coef_function.h>
 
 #include <type_traits>
@@ -30,8 +30,7 @@ struct CalibID
 class Calibration
 {
   private:
-    boost::posix_time::ptime calib_date_
-    {boost::posix_time::microsec_clock::universal_time()};
+    hr_time_t calib_date_{std::chrono::system_clock::now()};
     CalibID from_, to_;
     std::shared_ptr<CoefFunction> function_;
 
@@ -50,7 +49,7 @@ class Calibration
     CalibID to() const;
     CalibID from() const;
     std::string model() const;
-    boost::posix_time::ptime calib_date() const;
+    hr_time_t calib_date() const;
     std::string debug() const;
     std::string fancy_equation(bool with_chi2=false) const;
 

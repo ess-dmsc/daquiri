@@ -66,34 +66,34 @@ std::set<int32_t> Setting::indices() const
   return indices_;
 }
 
-Setting::Setting(std::string sid, boost::posix_time::ptime v)
+Setting::Setting(std::string sid, hr_time_t v)
   : Setting(SettingMeta(sid, SettingType::time))
 {
   value_time = v;
 }
 
-void Setting::set_time(boost::posix_time::ptime v)
+void Setting::set_time(hr_time_t v)
 {
   value_time = v;
 }
 
-boost::posix_time::ptime Setting::time() const
+hr_time_t Setting::time() const
 {
   return value_time;
 }
 
-Setting::Setting(std::string sid, boost::posix_time::time_duration v)
+Setting::Setting(std::string sid, hr_duration_t v)
   : Setting(SettingMeta(sid, SettingType::duration))
 {
   value_duration = v;
 }
 
-void Setting::set_duration(boost::posix_time::time_duration v)
+void Setting::set_duration(hr_duration_t v)
 {
   value_duration = v;
 }
 
-boost::posix_time::time_duration Setting::duration() const
+hr_duration_t Setting::duration() const
 {
   return value_duration;
 }
@@ -705,19 +705,9 @@ std::string Setting::val_to_string() const
   else if (is(SettingType::pattern))
     ss << value_pattern.debug();
   else if (is(SettingType::duration))
-  {
-    if (value_duration.is_not_a_date_time())
-      ss << "INVALID";
-    else
-      ss << very_simple(value_duration);
-  }
+    ss << very_simple(value_duration);
   else if (is(SettingType::time))
-  {
-    if (value_time.is_not_a_date_time())
-      ss << "INVALID";
-    else
-      ss << boost::posix_time::to_iso_extended_string(value_time);
-  }
+    ss << to_iso_extended(value_time);
   else if (is(SettingType::boolean))
   {
     if (value_int != 0)
@@ -790,7 +780,7 @@ json Setting::val_to_json() const
   else if (is(SettingType::precise))
     return json(value_precise);
   else if (is(SettingType::duration))
-    return boost::posix_time::to_simple_string(value_duration);
+    return to_simple(value_duration);
   else
     return json(val_to_string());
 }
@@ -816,17 +806,9 @@ void Setting::val_from_json(const json &j)
   else if (is(SettingType::precise))
     value_precise = j;
   else if (is(SettingType::time))
-  {
-    auto str = j.get<std::string>();
-    if (str != "not-a-date-time")
-      value_time = from_iso_extended(str);
-  }
+    value_time = from_iso_extended(j.get<std::string>());
   else if (is(SettingType::duration))
-  {
-    auto str = j.get<std::string>();
-    if (str != "not-a-date-time")
-    value_duration = boost::posix_time::duration_from_string(str);
-  }
+    value_duration = duration_from_string(j.get<std::string>());
   else if (is(SettingType::text))
     value_text = j.get<std::string>();
 }

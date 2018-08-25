@@ -1,8 +1,6 @@
 set(this_target unit_tests)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-include(BoostLibraryConfig)
-
 set(${this_target}_headers
   gtest_color_print.h)
 set(${this_target}_sources
@@ -29,7 +27,6 @@ target_link_libraries(
     PRIVATE ${PROJECT_NAME}_consumers
     PRIVATE ${GTEST_LIBRARIES}
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-    PRIVATE ${Boost_LIBRARIES}
     PRIVATE ${COVERAGE_LIBRARIES}
 )
 

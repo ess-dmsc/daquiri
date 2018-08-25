@@ -69,11 +69,11 @@ TEST_F(Spectrum, DefaultConstruct)
 
 TEST_F(Spectrum, StartTime)
 {
-  EXPECT_TRUE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("start_time").time(), hr_time_t());
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::start);
   m.push_spill(s);
-  EXPECT_FALSE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("start_time").time(), hr_time_t());
   EXPECT_EQ(m.metadata().get_attribute("start_time").time(), s.time);
 }
 
@@ -81,11 +81,10 @@ TEST_F(Spectrum, FiltersSpillType)
 {
   s = DAQuiri::Spill("", DAQuiri::StatusType::daq_status);
   m.push_spill(s);
-  EXPECT_TRUE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("start_time").time(), hr_time_t());
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::start);
   m.push_spill(s);
-  EXPECT_FALSE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
   EXPECT_EQ(m.metadata().get_attribute("start_time").time(), s.time);
 }
 
@@ -93,11 +92,10 @@ TEST_F(Spectrum, FiltersStreamID)
 {
   m.set_attribute(DAQuiri::Setting::text("stream_id", "someid"));
   m.push_spill(s);
-  EXPECT_TRUE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("start_time").time(), hr_time_t());
 
   s = DAQuiri::Spill("someid", DAQuiri::StatusType::start);
   m.push_spill(s);
-  EXPECT_FALSE(m.metadata().get_attribute("start_time").time().is_not_a_date_time());
   EXPECT_EQ(m.metadata().get_attribute("start_time").time(), s.time);
 }
 
@@ -136,104 +134,122 @@ TEST_F(Spectrum, RecentCount)
 
 TEST_F(Spectrum, RealTime)
 {
-  EXPECT_TRUE(m.metadata().get_attribute("real_time").duration().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(), hr_duration_t());
 
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 1 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 0);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+      std::chrono::microseconds(0));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 2 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 1);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+            std::chrono::microseconds(1));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::stop);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 3 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::start);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 7 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 10 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+            std::chrono::microseconds(5));
 
   m.flush();
-  EXPECT_EQ(m.metadata().get_attribute("real_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("real_time").duration(),
+            std::chrono::microseconds(5));
 }
 
 TEST_F(Spectrum, LiveTimeDefaultsToRealTime)
 {
-  EXPECT_TRUE(m.metadata().get_attribute("live_time").duration().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(), hr_duration_t());
 
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 1 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 0);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(0));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 2 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 1);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(1));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::stop);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 3 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::start);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 7 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("native_time", 10 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(5));
 
   m.flush();
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(5));
 }
 
 TEST_F(Spectrum, LiveTime)
 {
-  EXPECT_TRUE(m.metadata().get_attribute("live_time").duration().is_not_a_date_time());
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(), hr_duration_t());
 
   s.state.branches.add_a(DAQuiri::Setting::floating("live_time", 1 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 0);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(0));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("live_time", 2 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 1);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(1));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::stop);
   s.state.branches.add_a(DAQuiri::Setting::floating("live_time", 3 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::start);
   s.state.branches.add_a(DAQuiri::Setting::floating("live_time", 7 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 2);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(2));
 
   s = DAQuiri::Spill("", DAQuiri::StatusType::running);
   s.state.branches.add_a(DAQuiri::Setting::floating("live_time", 10 * pow(10, 3)));
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(5));
 
   m.flush();
-  EXPECT_EQ(m.metadata().get_attribute("live_time").duration().total_microseconds(), 5);
+  EXPECT_EQ(m.metadata().get_attribute("live_time").duration(),
+            std::chrono::microseconds(5));
 }
 
 TEST_F(Spectrum, PeriodicClear)
 {
   m.set_attribute(DAQuiri::Setting::boolean("periodic_trigger/enabled", true));
-  m.set_attribute(DAQuiri::Setting("periodic_trigger/time_out", boost::posix_time::seconds(2)));
+  m.set_attribute(DAQuiri::Setting("periodic_trigger/time_out", std::chrono::seconds(2)));
 
   s.events.reserve(3, DAQuiri::Event(DAQuiri::EventModel()));
   ++s.events;
@@ -244,15 +260,15 @@ TEST_F(Spectrum, PeriodicClear)
   m.push_spill(s);
   EXPECT_EQ(m.metadata().get_attribute("total_count").get_number(), 3);
 
-  s.time += boost::posix_time::seconds(1);
+  s.time += std::chrono::seconds(1);
   m.push_spill(s);
   EXPECT_EQ(m.metadata().get_attribute("total_count").get_number(), 6);
 
-  s.time += boost::posix_time::seconds(1);
+  s.time += std::chrono::seconds(1);
   m.push_spill(s);
   EXPECT_EQ(m.metadata().get_attribute("total_count").get_number(), 9);
 
-  s.time += boost::posix_time::seconds(1);
+  s.time += std::chrono::seconds(1);
   m.push_spill(s);
   EXPECT_EQ(m.metadata().get_attribute("total_count").get_number(), 3);
 }

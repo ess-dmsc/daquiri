@@ -77,10 +77,10 @@ class Spill
     Spill() {}
     Spill(std::string id, StatusType t);
 
-    std::string                stream_id;
-    StatusType                 type {StatusType::daq_status};
-    boost::posix_time::ptime   time {boost::posix_time::microsec_clock::universal_time()};
-    Setting                    state;
+    std::string  stream_id;
+    StatusType   type {StatusType::daq_status};
+    hr_time_t    time{};
+    Setting      state;
 
     std::vector<char> raw; // raw from device
     EventModel        event_model;

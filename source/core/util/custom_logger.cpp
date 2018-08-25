@@ -16,8 +16,8 @@
 class OstreamInterface : public BaseLogHandler {
 public:
   OstreamInterface(std::ostream *gui_stream, const size_t maxQueueLength = 100)
-  : BaseLogHandler(maxQueueLength), outStream(gui_stream)
-  , ostreamThread(&OstreamInterface::ThreadFunction, this) {}
+      : BaseLogHandler(maxQueueLength), outStream(gui_stream)
+      , ostreamThread(&OstreamInterface::ThreadFunction, this) {}
   ~OstreamInterface() {
     ExitThread();
   }
@@ -44,8 +44,8 @@ protected:
       }
     }
   }
+  std::ostream *outStream{nullptr};
   std::thread ostreamThread;
-  std::ostream *outStream {nullptr};
 };
 
 std::string ConsoleFormatter(const LogMessage &Msg) {
@@ -64,11 +64,22 @@ std::string ConsoleFormatter(const LogMessage &Msg) {
     }
   }
   return fmt::format("{} {}{} {}",
-      std::string(timeBuffer, bytes),
-      SevToString.at(static_cast<uint32_t>(Msg.severity)),
-      extras, Msg.message);
+                     std::string(timeBuffer, bytes),
+                     SevToString.at(static_cast<uint32_t>(Msg.severity)),
+                     extras, Msg.message);
 }
 
+std::string GuiFormatter(const LogMessage &Msg) {
+  static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
+
+  std::time_t cTime = std::chrono::system_clock::to_time_t(Msg.timestamp);
+  char timeBuffer[50];
+  size_t bytes = std::strftime(timeBuffer, 50, "%F %T", std::localtime(&cTime));
+
+  return fmt::format("{} {}",
+                     std::string(timeBuffer, bytes),
+                     Msg.message);
+}
 
 void CustomLogger::initLogger(Severity severity, std::ostream *gui_stream, std::string log_file_N) {
   // Set-up logging before we start doing important stuff
@@ -85,7 +96,9 @@ void CustomLogger::initLogger(Severity severity, std::ostream *gui_stream, std::
   }
 
   if (gui_stream) {
-    Log::AddLogHandler(new OstreamInterface(gui_stream));
+    auto GI = new OstreamInterface(gui_stream);
+    GI->SetMessageStringCreatorFunction(GuiFormatter);
+    Log::AddLogHandler(GI);
   }
 }
 

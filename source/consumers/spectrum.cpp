@@ -77,7 +77,7 @@ void Spectrum::_push_stats_pre(const Spill& spill)
 
   filters_.configure(spill);
 
-  if (metadata_.get_attribute("start_time").time().is_not_a_date_time())
+  if (metadata_.get_attribute("start_time").time() != hr_time_t())
     metadata_.set_attribute(Setting("start_time", spill.time));
 
   if (periodic_trigger_.triggered)
@@ -100,7 +100,7 @@ void Spectrum::update_cumulative(const Status& new_status)
 
   auto live_time = Status::total_elapsed(stats_, "live_time");
   auto real_time = Status::total_elapsed(stats_, "native_time");
-  if (live_time.is_not_a_date_time())
+  if (live_time == hr_duration_t())
     live_time = real_time;
   metadata_.set_attribute(Setting("live_time", live_time));
   metadata_.set_attribute(Setting("real_time", real_time));

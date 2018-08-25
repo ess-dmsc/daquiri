@@ -239,7 +239,7 @@ void ListModeForm::list_completed(ListData newEvents)
       add_to_table(ui->tableSpills, i, 1,
                    QString::fromStdString(type_to_str(s->type)));
       add_to_table(ui->tableSpills, i, 2,
-                   QString::fromStdString(boost::posix_time::to_iso_extended_string(s->time)));
+                   QString::fromStdString(to_iso_extended(s->time)));
       i++;
     }
 

@@ -1,43 +1,15 @@
 #pragma once
 
 #include <string>
-#include <sstream>
-#include <boost/date_time/local_time/local_time.hpp>
+#include <chrono>
 
-inline boost::posix_time::ptime from_iso_extended(std::string str)
-{
-  boost::posix_time::ptime tm;
-  if (str.empty())
-    return tm;
-  boost::posix_time::time_input_facet *tif = new boost::posix_time::time_input_facet;
-  tif->set_iso_extended_format();
-  std::stringstream iss(str);
-  iss.imbue(std::locale(std::locale::classic(), tif));
-  iss >> tm;
-  return tm;
-}
+using hr_time_t = std::chrono::high_resolution_clock::time_point;
+using hr_duration_t = std::chrono::duration<double>;
 
-inline boost::posix_time::ptime from_custom_format(std::string str, std::string format)
-{
-  boost::posix_time::ptime tm;
-  if (str.empty())
-    return tm;
-  boost::posix_time::time_input_facet
-      *tif(new boost::posix_time::time_input_facet(format));
-  std::stringstream iss(str);
-  iss.imbue(std::locale(std::locale::classic(), tif));
-  iss >> tm;
-  return tm;
-}
+std::string to_simple(const hr_time_t& time);
+std::string to_iso_extended(const hr_time_t& time);
+hr_time_t from_iso_extended(const std::string& timestr);
 
-inline std::string very_simple(const boost::posix_time::time_duration &duration)
-{
-  uint64_t s = duration.total_seconds();
-  uint64_t min = s / 60;
-  uint64_t h   = min / 60;
-  std::stringstream ss;
-  ss << h << ":"
-     << std::setfill('0') << std::setw(2) << min - (h*60) << ":"
-     << std::setfill('0') << std::setw(2) << s - (min*60);
-  return ss.str();
-}
+std::string very_simple(const hr_duration_t &duration);
+std::string to_simple(const hr_duration_t &duration);
+hr_duration_t duration_from_string(const std::string& durstring);

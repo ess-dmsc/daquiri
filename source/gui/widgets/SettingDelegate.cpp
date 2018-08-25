@@ -95,7 +95,7 @@ QString SettingDelegate::get_string(const DAQuiri::Setting& val) const
   }
   else if (val.is(SettingType::duration))
   {
-    return QString::fromStdString(boost::posix_time::to_simple_string(val.duration()));
+    return QString::fromStdString(to_simple(val.duration()));
   }
   else if (val.is(SettingType::menu))
   {
@@ -345,7 +345,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     te->setCalendarPopup(true);
     te->setTimeSpec(Qt::UTC);
     te->setDisplayFormat("yyyy-MM-dd HH:mm:ss.zzz");
-    te->setDateTime(fromBoostPtime(set.time()));
+    te->setDateTime(fromTimePoint(set.time()));
     return te;
   }
   else if (set.is(SettingType::duration))

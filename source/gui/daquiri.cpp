@@ -41,7 +41,7 @@ daquiri::daquiri(QWidget *parent,
   qRegisterMetaType<DAQuiri::ProducerStatus>("DAQuiri::ProducerStatus");
   qRegisterMetaType<DAQuiri::StreamManifest>("DAQuiri::StreamManifest");
   qRegisterMetaType<DAQuiri::ProjectPtr>("DAQuiri::ProjectPtr");
-  qRegisterMetaType<boost::posix_time::time_duration>("boost::posix_time::time_duration");
+  qRegisterMetaType<hr_duration_t>("hr_duration_t");
 
   CustomLogger::initLogger(Severity::Informational, &log_stream_, "daquiri.log");
   ui->setupUi(this);

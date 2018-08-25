@@ -50,13 +50,11 @@ add_library(
 target_include_directories(
   ${this_target}
   PUBLIC ${PROJECT_SOURCE_DIR}/source
-  PUBLIC ${Boost_INCLUDE_DIRS}
   INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(
   ${this_target}
-  PUBLIC ${Boost_LIBRARIES}
   PUBLIC ${COVERAGE_LIBRARIES}
   PUBLIC ${GraylogLogger_STATIC_LIBRARIES}
   PUBLIC h5cpp

@@ -1,5 +1,5 @@
 #include <widgets/QTimeExtensions.h>
-
+/*
 QDateTime fromBoostPtime(boost::posix_time::ptime bpt)
 {
   std::string bpt_iso = boost::posix_time::to_iso_extended_string(bpt);
@@ -37,4 +37,16 @@ boost::posix_time::ptime fromQDateTime(QDateTime qdt)
   std::string dts = qdt.toString("yyyy-MM-dd hh:mm:ss.zzz").toStdString();
   boost::posix_time::ptime bpt = boost::posix_time::time_from_string(dts);
   return bpt;
+}
+*/
+// \todo implement these and test
+
+QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clock>)
+{
+  return QDateTime();
+}
+
+std::chrono::time_point<std::chrono::high_resolution_clock> toTimePoint(QDateTime)
+{
+  return std::chrono::time_point<std::chrono::high_resolution_clock>();
 }

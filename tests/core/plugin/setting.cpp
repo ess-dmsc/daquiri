@@ -36,25 +36,25 @@ TEST(Setting, Indices)
 
 TEST(Setting, Time)
 {
-  auto t = boost::posix_time::microsec_clock::universal_time();
+  auto t = std::chrono::high_resolution_clock::now();
   DAQuiri::Setting s("a", t);
   ASSERT_EQ(s.time(), t);
 
-  t = boost::posix_time::microsec_clock::universal_time();
+  t = std::chrono::high_resolution_clock::now();
   s.set_time(t);
   ASSERT_EQ(s.time(), t);
 }
 
 TEST(Setting, Duration)
 {
-  auto t1 = boost::posix_time::microsec_clock::universal_time();
-  auto t2 = boost::posix_time::microsec_clock::universal_time();
+  auto t1 = std::chrono::high_resolution_clock::now();
+  auto t2 = std::chrono::high_resolution_clock::now();
   auto d = t2 - t1;
   DAQuiri::Setting s("a", d);
   ASSERT_EQ(s.duration(), d);
 
-  t1 = boost::posix_time::microsec_clock::universal_time();
-  t2 = boost::posix_time::microsec_clock::universal_time();
+  t1 = std::chrono::high_resolution_clock::now();
+  t2 = std::chrono::high_resolution_clock::now();
   d = t2 - t1;
   s.set_duration(d);
   ASSERT_EQ(s.duration(), d);

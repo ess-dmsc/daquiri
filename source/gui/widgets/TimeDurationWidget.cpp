@@ -42,8 +42,10 @@ void TimeDurationWidget::set_total_seconds(uint64_t secs)
   ui->spinDays->setValue(total_hours / 24);
 }
 
-void TimeDurationWidget::set_duration(boost::posix_time::time_duration duration)
+// \todo fix this
+void TimeDurationWidget::set_duration(hr_duration_t duration)
 {
+  /*
   std::stringstream ss;
   ss << duration;
   DBG("Set duration {}", ss.str());
@@ -57,9 +59,10 @@ void TimeDurationWidget::set_duration(boost::posix_time::time_duration duration)
   uint64_t total_hours = total_minutes / FACTOR_h;
   ui->spinH->setValue(total_hours % FACTOR_day);
   ui->spinDays->setValue(total_hours / FACTOR_day);
+   */
 }
 
-boost::posix_time::time_duration TimeDurationWidget::get_duration() const
+hr_duration_t TimeDurationWidget::get_duration() const
 {
   uint64_t time = FACTOR_day * ui->spinDays->value();
   time += ui->spinH->value();
@@ -69,11 +72,10 @@ boost::posix_time::time_duration TimeDurationWidget::get_duration() const
   time += ui->spinS->value();
   time *= FACTOR_us;
   time += ui->spin_ms->value();
-  boost::posix_time::time_duration ret =
-      boost::posix_time::microseconds(time);
-  std::stringstream ss;
-  ss << ret;
-  DBG("Ret duration {}", ss.str());
+  hr_duration_t ret = std::chrono::microseconds(time);
+//  std::stringstream ss;
+//  ss << ret;
+//  DBG("Ret duration {}", ss.str());
   return ret;
 }
 

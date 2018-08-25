@@ -8,7 +8,7 @@
 #include <widgets/QColorExtensions.h>
 
 Q_DECLARE_METATYPE(Setting)
-Q_DECLARE_METATYPE(boost::posix_time::time_duration)
+Q_DECLARE_METATYPE(std::chrono::duration<double>)
 
 SettingsTreeItem::SettingsTreeItem(const Setting &data, SettingsTreeItem *parent)
 {
@@ -288,10 +288,10 @@ bool SettingsTreeItem::setData(int column, const QVariant &value)
     itemData.set_pattern(qvariant_cast<Pattern>(value));
   else if (itemData.is(SettingType::time)
       && (value.type() == QVariant::DateTime))
-    itemData.set_time(fromQDateTime(value.toDateTime()));
+    itemData.set_time(toTimePoint(value.toDateTime()));
   else if (itemData.is(SettingType::duration)
-      && (value.canConvert<boost::posix_time::time_duration>()))
-    itemData.set_duration(qvariant_cast<boost::posix_time::time_duration>(value));
+      && (value.canConvert<std::chrono::duration<double>>()))
+    itemData.set_duration(qvariant_cast<std::chrono::duration<double>>(value));
   else
     return false;
 

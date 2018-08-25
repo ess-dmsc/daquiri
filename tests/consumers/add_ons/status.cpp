@@ -41,7 +41,7 @@ TEST(Status, ExtractWithTimes)
 TEST(Status, CalcDiffBothIllegal)
 {
   Status s, s2;
-  EXPECT_TRUE(Status::calc_diff(s, s2, "sometime").is_not_a_date_time());
+  EXPECT_EQ(Status::calc_diff(s, s2, "sometime"), hr_duration_t());
 }
 
 TEST(Status, CalcDiffOneIllegal)
@@ -52,8 +52,8 @@ TEST(Status, CalcDiffOneIllegal)
 
   Status s = Status::extract(spill);
   Status s2;
-  EXPECT_TRUE(Status::calc_diff(s, s2, "sometime").is_not_a_date_time());
-  EXPECT_TRUE(Status::calc_diff(s2, s, "sometime").is_not_a_date_time());
+  EXPECT_EQ(Status::calc_diff(s, s2, "sometime"), hr_duration_t());
+  EXPECT_EQ(Status::calc_diff(s2, s, "sometime"), hr_duration_t());
 }
 
 TEST(Status, CalcDiffPositive)
@@ -68,8 +68,8 @@ TEST(Status, CalcDiffPositive)
   spill2.state.branches.add_a(Setting::precise("live_time", 8000));
   Status s2 = Status::extract(spill2);
 
-  EXPECT_EQ(Status::calc_diff(s, s2, "native_time").total_microseconds(), 10);
-  EXPECT_EQ(Status::calc_diff(s, s2, "live_time").total_microseconds(), 3);
+  EXPECT_EQ(Status::calc_diff(s, s2, "native_time"), std::chrono::microseconds(10));
+  EXPECT_EQ(Status::calc_diff(s, s2, "live_time"), std::chrono::microseconds(3));
 }
 
 TEST(Status, CalcDiffNegative)
@@ -84,8 +84,8 @@ TEST(Status, CalcDiffNegative)
   spill2.state.branches.add_a(Setting::precise("live_time", 8000));
   Status s2 = Status::extract(spill2);
 
-  EXPECT_EQ(Status::calc_diff(s2, s, "native_time").total_microseconds(), -10);
-  EXPECT_EQ(Status::calc_diff(s2, s, "live_time").total_microseconds(), -3);
+  EXPECT_EQ(Status::calc_diff(s2, s, "native_time"), std::chrono::microseconds(-10));
+  EXPECT_EQ(Status::calc_diff(s2, s, "live_time"), std::chrono::microseconds(-3));
 }
 
 TEST(Status, TotalElapsed)
@@ -95,25 +95,25 @@ TEST(Status, TotalElapsed)
   Spill spill("", StatusType::start);
   spill.state.branches.add_a(Setting::precise("native_time", 0));
   stats.push_back(Status::extract(spill));
-  EXPECT_EQ(Status::total_elapsed(stats, "native_time").total_microseconds(), 0);
+  EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(0));
 
   spill.type = StatusType::running;
   spill.state.set(Setting::precise("native_time", 2000));
   stats.push_back(Status::extract(spill));
-  EXPECT_EQ(Status::total_elapsed(stats, "native_time").total_microseconds(), 2);
+  EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(2));
 
   spill.type = StatusType::stop;
   spill.state.set(Setting::precise("native_time", 4000));
   stats.push_back(Status::extract(spill));
-  EXPECT_EQ(Status::total_elapsed(stats, "native_time").total_microseconds(), 4);
+  EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(4));
 
   spill.type = StatusType::start;
   spill.state.set(Setting::precise("native_time", 7000));
   stats.push_back(Status::extract(spill));
-  EXPECT_EQ(Status::total_elapsed(stats, "native_time").total_microseconds(), 4);
+  EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(4));
 
   spill.type = StatusType::running;
   spill.state.set(Setting::precise("native_time", 9000));
   stats.push_back(Status::extract(spill));
-  EXPECT_EQ(Status::total_elapsed(stats, "native_time").total_microseconds(), 6);
+  EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(6));
 }
