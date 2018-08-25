@@ -22,7 +22,7 @@ std::string very_simple(const hr_duration_t &duration)
 {
   using namespace date;
   std::stringstream ss;
-  ss << date::format("%T", date::round<std::chrono::seconds>(duration));
+  ss << format("%T", round<std::chrono::seconds>(duration));
   return ss.str();
 }
 
@@ -30,7 +30,7 @@ std::string to_simple(const hr_duration_t &duration)
 {
   using namespace date;
   std::stringstream ss;
-  ss << date::format("%T", date::round<std::chrono::nanoseconds>(duration));
+  ss << format("%T", round<std::chrono::nanoseconds>(duration));
   return ss.str();
 }
 
@@ -47,7 +47,7 @@ std::string to_simple(const hr_time_t& time)
 {
   using namespace date;
   std::stringstream ss;
-  ss << date::format("%F %T", date::floor<std::chrono::seconds>(time));
+  ss << format("%F %T", floor<std::chrono::seconds>(time));
   return ss.str();
 }
 
@@ -55,7 +55,7 @@ std::string to_iso_extended(const hr_time_t& time)
 {
   using namespace date;
   std::stringstream ss;
-  ss << date::format("%FT%T", date::floor<std::chrono::nanoseconds>(time));
+  ss << format("%FT%T", floor<std::chrono::nanoseconds>(time));
   return ss.str();
 }
 
