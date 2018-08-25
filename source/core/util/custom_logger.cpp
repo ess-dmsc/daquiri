@@ -8,8 +8,7 @@
 #include <graylog_logger/ConsoleInterface.hpp>
 #pragma GCC diagnostic pop
 
-#include <ciso646>
-#include <ctime>
+#include <core/util/time_extensions.h>
 
 // \todo use fractional seconds in console and file
 
@@ -51,10 +50,6 @@ protected:
 std::string ConsoleFormatter(const LogMessage &Msg) {
   static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
 
-  std::time_t cTime = std::chrono::system_clock::to_time_t(Msg.timestamp);
-  char timeBuffer[50];
-  size_t bytes = std::strftime(timeBuffer, 50, "%F %T", std::localtime(&cTime));
-
   std::string extras;
   for (auto &CField : Msg.additionalFields) {
     if (CField.first == "file") {
@@ -64,7 +59,7 @@ std::string ConsoleFormatter(const LogMessage &Msg) {
     }
   }
   return fmt::format("{} {}{} {}",
-                     std::string(timeBuffer, bytes),
+                     to_simple(Msg.timestamp),
                      SevToString.at(static_cast<uint32_t>(Msg.severity)),
                      extras, Msg.message);
 }
@@ -72,12 +67,8 @@ std::string ConsoleFormatter(const LogMessage &Msg) {
 std::string GuiFormatter(const LogMessage &Msg) {
   static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
 
-  std::time_t cTime = std::chrono::system_clock::to_time_t(Msg.timestamp);
-  char timeBuffer[50];
-  size_t bytes = std::strftime(timeBuffer, 50, "%F %T", std::localtime(&cTime));
-
   return fmt::format("{} {}",
-                     std::string(timeBuffer, bytes),
+                     to_simple(Msg.timestamp),
                      Msg.message);
 }
 

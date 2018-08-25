@@ -30,7 +30,7 @@ struct CalibID
 class Calibration
 {
   private:
-    hr_time_t calib_date_{std::chrono::system_clock::now()};
+    hr_time_t calib_date_{std::chrono::high_resolution_clock::now()};
     CalibID from_, to_;
     std::shared_ptr<CoefFunction> function_;
 
