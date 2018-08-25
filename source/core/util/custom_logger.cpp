@@ -8,7 +8,7 @@
 #include <graylog_logger/ConsoleInterface.hpp>
 #pragma GCC diagnostic pop
 
-#include <core/util/time_extensions.h>
+#include <core/util/time.h>
 
 // \todo use fractional seconds in console and file
 
@@ -59,7 +59,7 @@ std::string ConsoleFormatter(const LogMessage &Msg) {
     }
   }
   return fmt::format("{} {}{} {}",
-                     to_simple(Msg.timestamp),
+                     date::format("%F %T", date::floor<std::chrono::microseconds>(Msg.timestamp)),
                      SevToString.at(static_cast<uint32_t>(Msg.severity)),
                      extras, Msg.message);
 }
@@ -68,7 +68,7 @@ std::string GuiFormatter(const LogMessage &Msg) {
   static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
 
   return fmt::format("{} {}",
-                     to_simple(Msg.timestamp),
+                     date::format("%F %T", date::floor<std::chrono::microseconds>(Msg.timestamp)),
                      Msg.message);
 }
 
