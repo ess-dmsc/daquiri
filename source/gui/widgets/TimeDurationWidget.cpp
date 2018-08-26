@@ -2,6 +2,9 @@
 #include "ui_TimeDurationWidget.h"
 #include <core/util/custom_logger.h>
 
+#include <core/util/time.h>
+
+
 #define FACTOR_us 1000000
 #define FACTOR_min 60
 #define FACTOR_h 60
@@ -45,12 +48,9 @@ void TimeDurationWidget::set_total_seconds(uint64_t secs)
 // \todo fix this
 void TimeDurationWidget::set_duration(hr_duration_t duration)
 {
-  /*
-  std::stringstream ss;
-  ss << duration;
-  DBG("Set duration {}", ss.str());
-
-  uint64_t total_ms = duration.total_microseconds();
+  INFO("Set duration {}", to_simple(duration));
+  using namespace date;
+  uint64_t total_ms = static_cast<uint64_t>(round<std::chrono::microseconds>(duration).count());
   ui->spin_ms->setValue(total_ms % FACTOR_us);
   uint64_t total_seconds = total_ms / FACTOR_us;
   ui->spinS->setValue(total_seconds % FACTOR_min);
@@ -59,7 +59,6 @@ void TimeDurationWidget::set_duration(hr_duration_t duration)
   uint64_t total_hours = total_minutes / FACTOR_h;
   ui->spinH->setValue(total_hours % FACTOR_day);
   ui->spinDays->setValue(total_hours / FACTOR_day);
-   */
 }
 
 hr_duration_t TimeDurationWidget::get_duration() const
@@ -73,9 +72,7 @@ hr_duration_t TimeDurationWidget::get_duration() const
   time *= FACTOR_us;
   time += ui->spin_ms->value();
   hr_duration_t ret = std::chrono::microseconds(time);
-//  std::stringstream ss;
-//  ss << ret;
-//  DBG("Ret duration {}", ss.str());
+  INFO("Ret duration {}", to_simple(ret));
   return ret;
 }
 

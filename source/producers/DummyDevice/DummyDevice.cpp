@@ -39,12 +39,44 @@ DummyDevice::~DummyDevice()
 
 Setting DummyDevice::settings() const
 {
-  std::string r{plugin_name()};
-  auto set = get_rich_setting(r);
+  auto set = get_rich_setting(plugin_name());
 
-  set.set(Setting::boolean(r + "/DummySettings/Enabled", !read_only_));
-  set.set(Setting::integer(r + "/DummySettings/Menu", dummy_selection_));
-  set.set(Setting::indicator(r + "/DummySettings/Indicator", dummy_selection_));
+  std::string r{plugin_name() + "/DummySettings/"};
+  set.set(Setting::boolean(r + "Enabled", !read_only_));
+  set.set(Setting::integer(r + "Menu", dummy_selection_));
+  set.set(Setting::indicator(r + "Indicator", dummy_selection_));
+
+  set.set(Setting::integer(r + "IntUnbounded", int_unbounded_));
+  set.set(Setting::integer(r + "IntBounded", int_bounded_));
+  set.set(Setting::integer(r + "IntLB", int_lower_bounded_));
+  set.set(Setting::integer(r + "IntUB", int_upper_bounded_));
+
+  set.set(Setting::floating(r + "FloatUnbounded", float_unbounded_));
+  set.set(Setting::floating(r + "FloatBounded", float_bounded_));
+  set.set(Setting::floating(r + "FloatLB", float_lower_bounded_));
+  set.set(Setting::floating(r + "FloatUB", float_upper_bounded_));
+
+  set.set(Setting::precise(r + "PreciseUnbounded", precise_unbounded_));
+  set.set(Setting::precise(r + "PreciseBounded", precise_bounded_));
+  set.set(Setting::precise(r + "PreciseLB", precise_lower_bounded_));
+  set.set(Setting::precise(r + "PreciseUB", precise_upper_bounded_));
+
+  set.set(Setting(r + "Time", time_));
+  set.set(Setting(r + "Duration", duration_));
+  set.set(Setting(r + "Pattern", pattern_));
+  set.set(Setting::boolean(r + "Boolean", bool_));
+
+  auto sb = set.find({r + "Binary"});
+  sb.set_int(binary_);
+  set.set(sb);
+
+  set.set(Setting::text(r + "Text", text_));
+  set.set(Setting::text(r + "Color", color_));
+  set.set(Setting::text(r + "File", file_));
+  set.set(Setting::text(r + "Directory", directory_));
+  set.set(Setting::text(r + "Detector", detector_));
+  set.set(Setting::text(r + "Gradient", gradient_));
+
   set.enable_if_flag(!read_only_, "");
   set.enable_if_flag(true, "master");
 
@@ -53,11 +85,41 @@ Setting DummyDevice::settings() const
 
 void DummyDevice::settings(const Setting& settings)
 {
-  std::string r{plugin_name()};
+  std::string r{plugin_name() + "/DummySettings/"};
 
   auto set = enrich_and_toggle_presets(settings);
-  dummy_selection_ = set.find({r + "/DummySettings/Menu"}).selection();
-  read_only_ = !set.find({r + "/DummySettings/Enabled"}).triggered();
+  dummy_selection_ = set.find({r + "Menu"}).selection();
+  read_only_ = !set.find({r + "Enabled"}).triggered();
+
+  int_unbounded_ = set.find({r + "IntUnbounded"}).get_int();
+  int_lower_bounded_ = set.find({r + "IntLB"}).get_int();
+  int_upper_bounded_ = set.find({r + "IntUB"}).get_int();
+  int_bounded_ = set.find({r + "IntBounded"}).get_int();
+
+  float_unbounded_ = set.find({r + "FloatUnbounded"}).get_number();
+  float_lower_bounded_ = set.find({r + "FloatLB"}).get_number();
+  float_upper_bounded_ = set.find({r + "FloatUB"}).get_number();
+  float_bounded_ = set.find({r + "FloatBounded"}).get_number();
+
+  precise_unbounded_ = set.find({r + "PreciseUnbounded"}).precise();
+  precise_lower_bounded_ = set.find({r + "PreciseLB"}).precise();
+  precise_upper_bounded_ = set.find({r + "PreciseUB"}).precise();
+  precise_bounded_ = set.find({r + "PreciseBounded"}).precise();
+
+  time_ = set.find({r + "Time"}).time();
+  duration_ = set.find({r + "Duration"}).duration();
+
+  pattern_ = set.find({r + "Pattern"}).pattern();
+  bool_ = set.find({r + "Boolean"}).get_bool();
+
+  text_ = set.find({r + "Text"}).get_text();
+  color_ = set.find({r + "Color"}).get_text();
+  file_ = set.find({r + "File"}).get_text();
+  directory_ = set.find({r + "Directory"}).get_text();
+  detector_ = set.find({r + "Detector"}).get_text();
+  gradient_ = set.find({r + "Gradient"}).get_text();
+
+  binary_ = set.find({r + "Binary"}).get_int();
 }
 
 StreamManifest DummyDevice::stream_manifest() const
@@ -159,7 +221,7 @@ void DummyDevice::add_dummy_settings()
   SettingMeta a16(r + "/Boolean", SettingType::boolean);
   add_definition(a16);
 
-  SettingMeta a17(r + "/text", SettingType::text);
+  SettingMeta a17(r + "/Text", SettingType::text);
   add_definition(a17);
 
   SettingMeta a18(r + "/Color", SettingType::text);

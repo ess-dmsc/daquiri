@@ -19,7 +19,7 @@ BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
   if (wordsize > 64)
     wordsize = 64;
 
-  std::bitset<64> bs(setting.selection());
+  std::bitset<64> bs(setting.get_int());
 
   QLabel *label;
   QFrame* line;

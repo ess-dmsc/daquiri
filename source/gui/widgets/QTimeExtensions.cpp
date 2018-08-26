@@ -1,52 +1,32 @@
 #include <widgets/QTimeExtensions.h>
-/*
-QDateTime fromBoostPtime(boost::posix_time::ptime bpt)
+#include <core/util/time.h>
+
+#include <core/util/time_extensions.h>
+#include <core/util/custom_logger.h>
+
+// \todo time zones
+
+QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clock> tp)
 {
-  std::string bpt_iso = boost::posix_time::to_iso_extended_string(bpt);
-  std::replace(bpt_iso.begin(), bpt_iso.end(), '-', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), 'T', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), ':', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), '.', ' ');
+  using namespace date;
 
-  std::stringstream iss;
-  iss.str(bpt_iso);
+  auto daypoint = floor<days>(tp);
+  auto ymd = year_month_day(daypoint);   // calendar date
 
-  int year, month, day, hour, minute, second;
-  double ms = 0;
-  iss >> year >> month >> day >> hour >> minute >> second >> ms;
+  auto tt2 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - daypoint);
 
-  while (ms > 999)
-    ms = ms / 10;
-  ms = round(ms);
+  QDate qdate(static_cast<int>(ymd.year()),
+              static_cast<unsigned int>(ymd.month()),
+              static_cast<unsigned int>(ymd.day()));
 
-  QDate date;
-  date.setDate(year, month, day);
+  QTime qtime = QTime(0,0,0).addMSecs(tt2.count());
+  return QDateTime(qdate, qtime, Qt::UTC);
+}
 
-  QTime time;
-  time.setHMS(hour, minute, second, static_cast<int>(ms));
-
-  QDateTime ret;
-  ret.setDate(date);
-  ret.setTime(time);
-
+std::chrono::time_point<std::chrono::high_resolution_clock> toTimePoint(QDateTime qdt)
+{
+  using namespace date;
+  auto ret = date::sys_days(date::year{qdt.date().year()}/qdt.date().month()/qdt.date().day())
+          + std::chrono::milliseconds(qdt.time().msecsSinceStartOfDay());
   return ret;
-}
-
-boost::posix_time::ptime fromQDateTime(QDateTime qdt)
-{
-  std::string dts = qdt.toString("yyyy-MM-dd hh:mm:ss.zzz").toStdString();
-  boost::posix_time::ptime bpt = boost::posix_time::time_from_string(dts);
-  return bpt;
-}
-*/
-// \todo implement these and test
-
-QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clock>)
-{
-  return QDateTime();
-}
-
-std::chrono::time_point<std::chrono::high_resolution_clock> toTimePoint(QDateTime)
-{
-  return std::chrono::time_point<std::chrono::high_resolution_clock>();
 }

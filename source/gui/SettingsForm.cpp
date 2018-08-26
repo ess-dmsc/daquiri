@@ -114,7 +114,7 @@ void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
   editor->exec();
 
   if (!set.metadata().has_flag("readonly"))
-    tree_settings_model_.setData(index, QVariant::fromValue(editor->get_setting().get_number()), Qt::EditRole);
+    tree_settings_model_.setData(index, QVariant::fromValue(editor->get_setting().get_int()), Qt::EditRole);
   editing_ = false;
 }
 
