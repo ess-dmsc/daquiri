@@ -2,7 +2,7 @@
 #include "ui_TimeDurationWidget.h"
 #include <core/util/custom_logger.h>
 
-#include <core/util/time.h>
+#include <date/date.h>
 
 
 #define FACTOR_us 1000000

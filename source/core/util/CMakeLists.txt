@@ -21,7 +21,6 @@ set(HEADERS
   ${dir}/print_exception.h
   ${dir}/string_extensions.h
   ${dir}/sync_queue.h
-  ${dir}/time.h
   ${dir}/time_extensions.h
   ${dir}/unique_mangle.h
   ${dir}/UTF_extensions.h

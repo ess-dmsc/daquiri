@@ -8,6 +8,7 @@ find_package(GraylogLogger REQUIRED)
 add_definitions("-DGRAYLOG")
 
 find_package(fmt REQUIRED)
+find_package(date REQUIRED)
 
 add_subdirectory(core)
 

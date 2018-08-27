@@ -8,7 +8,7 @@
 #include <graylog_logger/ConsoleInterface.hpp>
 #pragma GCC diagnostic pop
 
-#include <core/util/time.h>
+#include <date/date.h>
 
 // \todo use fractional seconds in file
 
