@@ -59,6 +59,10 @@ target_link_libraries(
   PUBLIC ${GraylogLogger_STATIC_LIBRARIES}
   PUBLIC h5cpp
   PUBLIC fmt::fmt
+  PUBLIC ${DATE_LIBRARIES}
+  PUBLIC ${CMAKE_DL_LIBS}
+  PRIVATE ${OpenSSL_LIBRARIES}
+  PRIVATE ${ZLIB_LIBRARIES}
   PRIVATE Threads::Threads
 )
 

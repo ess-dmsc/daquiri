@@ -1,8 +1,5 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-#don't do this
-
-
 set(SOURCES
   ${dir}/custom_logger.cpp
   ${dir}/h5json.cpp
