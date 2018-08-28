@@ -44,7 +44,7 @@ class daquiri : public QMainWindow
     bool open_new_project_ {false};
     bool start_daq_ {false};
 
-    server srv;
+    CommandServer server;
 
 
   signals:
@@ -77,6 +77,11 @@ class daquiri : public QMainWindow
     void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
 
     void initialize_settings_dir();
+
+
+    void stop_daq();
+    void start_new_daq();
+
 
   private:
     //helper functions

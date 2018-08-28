@@ -2,13 +2,17 @@
 
 #include <QtNetwork>
 
-class server : public QTcpServer
+class CommandServer : public QTcpServer
 {
   Q_OBJECT
  public:
-  explicit server(QObject* parent = 0);
-  ~server();
-  QTcpSocket* server_socket {nullptr};
+  explicit CommandServer(QObject* parent = 0);
+  ~CommandServer();
+
+ signals:
+  void stopDAQ();
+  void startNewDAQ();
+
  public slots:
   void tcpReady();
   void tcpError(QAbstractSocket::SocketError error);
@@ -16,4 +20,6 @@ class server : public QTcpServer
   void acceptNew();
  protected:
   void incomingConnection(int descriptor);
+
+  QTcpSocket* server_socket {nullptr};
 };

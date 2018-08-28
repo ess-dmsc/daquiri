@@ -2,12 +2,12 @@
 #include <QMessageBox>
 #include <QDebug>
 
-server::server(QObject* parent) : QTcpServer(parent)
+CommandServer::CommandServer(QObject* parent) : QTcpServer(parent)
 {
   connect(this, SIGNAL(newConnection()), this, SLOT(acceptNew()));
 }
 
-server::~server()
+CommandServer::~CommandServer()
 {
   if (server_socket)
   {
@@ -16,12 +16,23 @@ server::~server()
   }
 }
 
-void server::tcpReady()
+void CommandServer::tcpReady()
 {
   if (server_socket)
   {
     QByteArray array = server_socket->read(server_socket->bytesAvailable());
     qDebug() << "received data " << array;
+
+    QString text(array);
+    if (text == "STOP\n")
+    {
+      qDebug() << "emitting stop";
+      emit stopDAQ();
+    }
+    else if (text == "START_NEW\n")
+    {
+      emit startNewDAQ();
+    }
 
     QByteArray out;
     out.append(QString("<OK>\n"));
@@ -29,7 +40,7 @@ void server::tcpReady()
   }
 }
 
-void server::acceptNew()
+void CommandServer::acceptNew()
 {
   qDebug() << "incoming connection";
   auto nc = nextPendingConnection();
@@ -44,7 +55,7 @@ void server::acceptNew()
   }
 }
 
-void server::tcpError(QAbstractSocket::SocketError error)
+void CommandServer::tcpError(QAbstractSocket::SocketError error)
 {
   if (server_socket)
   {
@@ -59,7 +70,7 @@ void server::tcpError(QAbstractSocket::SocketError error)
   }
 }
 
-bool server::start_listen(int port_no)
+bool CommandServer::start_listen(int port_no)
 {
   if (!this->listen(QHostAddress::Any, port_no))
   {
@@ -70,7 +81,7 @@ bool server::start_listen(int port_no)
     return true;
 }
 
-void server::incomingConnection(int descriptor)
+void CommandServer::incomingConnection(int descriptor)
 {
   if (!server_socket || !server_socket->setSocketDescriptor(descriptor))
   {

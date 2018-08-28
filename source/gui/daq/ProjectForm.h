@@ -37,10 +37,10 @@ class ProjectForm : public QWidget
     void toggle_push(bool, DAQuiri::ProducerStatus,
                      DAQuiri::StreamManifest);
     void start_DAQ();
+    void on_pushStop_clicked();
 
   private slots:
     void on_pushStart_clicked();
-    void on_pushStop_clicked();
     void run_completed();
     void on_pushEditSpectra_clicked();
     void update_plots();

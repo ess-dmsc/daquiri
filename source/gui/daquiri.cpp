@@ -29,13 +29,15 @@ daquiri::daquiri(QWidget *parent,
   , text_buffer_(log_stream_, my_emitter_)
   , open_new_project_(open_new_project)
   , start_daq_(start_daq)
-  , srv(this)
+  , server(this)
 {
 //  detectors_.add(Detector("a"));
 //  detectors_.add(Detector("b"));
 //  detectors_.add(Detector("c"));
 
-  srv.start_listen(12345);
+  server.start_listen(12345);
+  connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
+  connect(&server, SIGNAL(startNewDAQ()), this, SLOT(start_new_daq()));
 
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<Detector>>("std::vector<Detector>");
@@ -361,4 +363,24 @@ void daquiri::initialize_settings_dir()
       copy_dir_recursive(from_path.path(), Profiles::settings_dir(), true);
     }
   }
+}
+
+void daquiri::stop_daq()
+{
+  qDebug() << "daquiri stopping all projects";
+  for (int i = ui->tabs->count() - 1; i >= 0; --i)
+  {
+    if (ui->tabs->widget(i) == main_tab_)
+      continue;
+    if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
+    {
+      qDebug() << "daquiri stopping project at i=" << i;
+      of->on_pushStop_clicked();
+    }
+  }
+}
+
+void daquiri::start_new_daq()
+{
+  open_project(nullptr, true);
 }
