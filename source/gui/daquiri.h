@@ -6,6 +6,7 @@
 #include <core/util/custom_logger.h>
 #include "qt_boost_logger.h"
 #include <core/producer.h>
+#include "Server.h"
 
 namespace Ui {
 class daquiri;
@@ -42,6 +43,8 @@ class daquiri : public QMainWindow
 
     bool open_new_project_ {false};
     bool start_daq_ {false};
+
+    server srv;
 
 
   signals:

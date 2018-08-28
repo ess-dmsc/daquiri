@@ -29,10 +29,13 @@ daquiri::daquiri(QWidget *parent,
   , text_buffer_(log_stream_, my_emitter_)
   , open_new_project_(open_new_project)
   , start_daq_(start_daq)
+  , srv(this)
 {
 //  detectors_.add(Detector("a"));
 //  detectors_.add(Detector("b"));
 //  detectors_.add(Detector("c"));
+
+  srv.start_listen(12345);
 
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<Detector>>("std::vector<Detector>");
