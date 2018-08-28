@@ -1,6 +1,5 @@
 #include "Server.h"
-#include <QMessageBox>
-#include <QDebug>
+#include <core/util/custom_logger.h>
 
 CommandServer::CommandServer(QObject* parent) : QTcpServer(parent)
 {
@@ -20,32 +19,40 @@ void CommandServer::tcpReady()
 {
   if (server_socket)
   {
-    QByteArray array = server_socket->read(server_socket->bytesAvailable());
-    qDebug() << "received data " << array;
+    QString text(server_socket->read(server_socket->bytesAvailable()));
 
-    QString text(array);
     if (text == "STOP\n")
     {
-      qDebug() << "emitting stop";
+      INFO << "<CommandServer> received STOP";
       emit stopDAQ();
+
+      QByteArray out;
+      out.append(QString("<OK>\n"));
+      server_socket->write(out);
+
     }
     else if (text == "START_NEW\n")
     {
+      INFO << "<CommandServer> received START_NEW";
       emit startNewDAQ();
+
+      QByteArray out;
+      out.append(QString("<OK>\n"));
+      server_socket->write(out);
+
+    }
+    else {
+      WARN << "<CommandServer> received unknown command '" << text.toStdString() << "'";
     }
 
-    QByteArray out;
-    out.append(QString("<OK>\n"));
-    server_socket->write(out);
   }
 }
 
 void CommandServer::acceptNew()
 {
-  qDebug() << "incoming connection";
   auto nc = nextPendingConnection();
   if (nc) {
-    qDebug() << "good incoming connection";
+    INFO << "<CommandServer> established TCP connection";
     server_socket = nc;
     connect(server_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(tcpError(QAbstractSocket::SocketError)));
@@ -61,12 +68,11 @@ void CommandServer::tcpError(QAbstractSocket::SocketError error)
   {
     if (server_socket->error() == QAbstractSocket::RemoteHostClosedError)
     {
-      qDebug() << "connection terminated";
+      INFO << "<CommandServer> TCP connection terminated";
       server_socket = nullptr;
     }
     else
-      QMessageBox::warning(static_cast<QWidget*>(this->parent()),
-          "Error", QString("TCP error: %1").arg(server_socket->errorString()));
+      ERR << "<CommandServer> TCP error: " << server_socket->errorString().toStdString();
   }
 }
 
@@ -74,19 +80,17 @@ bool CommandServer::start_listen(int port_no)
 {
   if (!this->listen(QHostAddress::Any, port_no))
   {
-    QMessageBox::warning((QWidget * )
-    this->parent(), "Error!", QString("Cannot listen to port %1").arg(port_no));
+    ERR << "<CommandServer> Error! Cannot listen to port " << port_no;
+    return false;
   }
-  else
-    return true;
+  return true;
 }
 
 void CommandServer::incomingConnection(int descriptor)
 {
   if (!server_socket || !server_socket->setSocketDescriptor(descriptor))
   {
-    QMessageBox::warning(static_cast<QWidget*>(this->parent()),
-        "Error!", "Socket error!");
+    ERR << "<CommandServer> Incoming connection socket error.";
     return;
   }
 }

@@ -35,10 +35,6 @@ daquiri::daquiri(QWidget *parent,
 //  detectors_.add(Detector("b"));
 //  detectors_.add(Detector("c"));
 
-  server.start_listen(12345);
-  connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
-  connect(&server, SIGNAL(startNewDAQ()), this, SLOT(start_new_daq()));
-
   qRegisterMetaType<DAQuiri::OscilData>("DAQuiri::OscilData");
   qRegisterMetaType<std::vector<Detector>>("std::vector<Detector>");
   qRegisterMetaType<DAQuiri::ListData>("DAQuiri::ListData");
@@ -51,6 +47,11 @@ daquiri::daquiri(QWidget *parent,
   CustomLogger::initLogger(&log_stream_, "daquiri_%N.log");
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
+
+  server.start_listen(12345);
+  connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
+  connect(&server, SIGNAL(startNewDAQ()), this, SLOT(start_new_daq()));
+
 
   connect(&runner_thread_,
           SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
@@ -367,14 +368,13 @@ void daquiri::initialize_settings_dir()
 
 void daquiri::stop_daq()
 {
-  qDebug() << "daquiri stopping all projects";
   for (int i = ui->tabs->count() - 1; i >= 0; --i)
   {
     if (ui->tabs->widget(i) == main_tab_)
       continue;
     if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
     {
-      qDebug() << "daquiri stopping project at i=" << i;
+      INFO << "<daquiri> remote command stopping project at i=" << i;
       of->on_pushStop_clicked();
     }
   }
@@ -382,5 +382,6 @@ void daquiri::stop_daq()
 
 void daquiri::start_new_daq()
 {
+  INFO << "<daquiri> remote command starting new project";
   open_project(nullptr, true);
 }
