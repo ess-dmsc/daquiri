@@ -8,10 +8,8 @@
 
 QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clock> tp)
 {
-  using namespace date;
-
-  auto daypoint = floor<days>(tp);
-  auto ymd = year_month_day(daypoint);   // calendar date
+  auto daypoint = date::floor<date::days>(tp);
+  auto ymd = date::year_month_day(daypoint);   // calendar date
 
   auto tt2 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - daypoint);
 
