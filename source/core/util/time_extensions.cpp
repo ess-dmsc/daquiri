@@ -20,50 +20,44 @@ boost::posix_time::ptime from_custom_format(std::string str, std::string format)
 
 std::string very_simple(const hr_duration_t &duration)
 {
-  using namespace date;
   std::stringstream ss;
-  ss << format("%T", round<std::chrono::seconds>(duration));
+  ss << date::format("%T", date::round<std::chrono::seconds>(duration));
   return ss.str();
 }
 
 std::string to_simple(const hr_duration_t &duration)
 {
-  using namespace date;
   std::stringstream ss;
-  ss << format("%T", round<std::chrono::nanoseconds>(duration));
+  ss << date::format("%T", date::round<std::chrono::nanoseconds>(duration));
   return ss.str();
 }
 
 hr_duration_t duration_from_string(const std::string& durstring)
 {
-  using namespace date;
   std::istringstream in{durstring};
   std::chrono::nanoseconds ns;
-  in >> parse("%6H:%M:%S", ns);
+  in >> date::parse("%6H:%M:%S", ns);
   return ns;
 }
 
 std::string to_simple(const hr_time_t& time)
 {
-  using namespace date;
   std::stringstream ss;
-  ss << format("%F %T", floor<std::chrono::seconds>(time));
+  ss << date::format("%F %T", date::floor<std::chrono::seconds>(time));
   return ss.str();
 }
 
 std::string to_iso_extended(const hr_time_t& time)
 {
-  using namespace date;
   std::stringstream ss;
-  ss << format("%FT%T", floor<std::chrono::nanoseconds>(time));
+  ss << date::format("%FT%T", date::floor<std::chrono::nanoseconds>(time));
   return ss.str();
 }
 
 hr_time_t from_iso_extended(const std::string& timestr)
 {
-  using namespace date;
   std::istringstream in{timestr};
   hr_time_t ret;
-  in >> parse("%FT%T", ret);
+  in >> date::parse("%FT%T", ret);
   return ret;
 }
