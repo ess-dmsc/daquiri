@@ -29,6 +29,7 @@ daquiri::daquiri(QWidget *parent,
   , text_buffer_(log_stream_, my_emitter_)
   , open_new_project_(open_new_project)
   , start_daq_(start_daq)
+  , server(this)
 {
 //  detectors_.add(Detector("a"));
 //  detectors_.add(Detector("b"));
@@ -46,6 +47,11 @@ daquiri::daquiri(QWidget *parent,
   CustomLogger::initLogger(&log_stream_, "daquiri_%N.log");
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
+
+  server.start_listen(12345);
+  connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
+  connect(&server, SIGNAL(startNewDAQ()), this, SLOT(start_new_daq()));
+
 
   connect(&runner_thread_,
           SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
@@ -358,4 +364,24 @@ void daquiri::initialize_settings_dir()
       copy_dir_recursive(from_path.path(), Profiles::settings_dir(), true);
     }
   }
+}
+
+void daquiri::stop_daq()
+{
+  for (int i = ui->tabs->count() - 1; i >= 0; --i)
+  {
+    if (ui->tabs->widget(i) == main_tab_)
+      continue;
+    if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
+    {
+      INFO << "<daquiri> remote command stopping project at i=" << i;
+      of->on_pushStop_clicked();
+    }
+  }
+}
+
+void daquiri::start_new_daq()
+{
+  INFO << "<daquiri> remote command starting new project";
+  open_project(nullptr, true);
 }
