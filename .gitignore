@@ -1,6 +1,3 @@
-cmake-build-*/
-.idea/
-
 /build
 /install
 /source/config/*
@@ -10,3 +7,9 @@ cmake-build-*/
 *.log
 .*
 !.gitignore
+
+#IDE
+CMakeLists.txt.user
+.idea/workspace.xml
+.idea/usage.statistics.xml
+cmake-build-*/

@@ -24,29 +24,37 @@ void CommandServer::tcpReady()
     if (text == "STOP\n")
     {
       INFO << "<CommandServer> received STOP";
+      send_response("<DAQuiri::CommandServer> OK: stopping all ongoing acquisitions\n");
       emit stopDAQ();
-
-      QByteArray out;
-      out.append(QString("<OK>\n"));
-      server_socket->write(out);
-
     }
     else if (text == "START_NEW\n")
     {
       INFO << "<CommandServer> received START_NEW";
+      send_response("<DAQuiri::CommandServer> OK: opening new project and starting acquisition\n");
       emit startNewDAQ();
-
-      QByteArray out;
-      out.append(QString("<OK>\n"));
-      server_socket->write(out);
-
+    }
+    else if (text == "DIE\n")
+    {
+      INFO << "<CommandServer> received DIE";
+      send_response("<DAQuiri::CommandServer> OK: shutting down\n");
+      emit die();
     }
     else {
       WARN << "<CommandServer> received unknown command '" << text.toStdString() << "'";
+      send_response("<DAQuiri::CommandServer> ERROR: received unknown command '" + text + "'\n");
     }
-
   }
 }
+
+void CommandServer::send_response(QString msg)
+{
+  if (!server_socket)
+    return;
+  QByteArray out;
+  out.append(msg);
+  server_socket->write(out);
+}
+
 
 void CommandServer::acceptNew()
 {

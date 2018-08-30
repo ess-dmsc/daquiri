@@ -81,7 +81,7 @@ class daquiri : public QMainWindow
 
     void stop_daq();
     void start_new_daq();
-
+    void die();
 
   private:
     //helper functions

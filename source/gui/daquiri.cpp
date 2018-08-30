@@ -51,7 +51,7 @@ daquiri::daquiri(QWidget *parent,
   server.start_listen(12345);
   connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
   connect(&server, SIGNAL(startNewDAQ()), this, SLOT(start_new_daq()));
-
+  connect(&server, SIGNAL(die()), this, SLOT(die()));
 
   connect(&runner_thread_,
           SIGNAL(settingsUpdated(DAQuiri::Setting, DAQuiri::ProducerStatus, DAQuiri::StreamManifest)),
@@ -384,4 +384,11 @@ void daquiri::start_new_daq()
 {
   INFO << "<daquiri> remote command starting new project";
   open_project(nullptr, true);
+}
+
+void daquiri::die()
+{
+  INFO << "<daquiri> remote command shutting down";
+  closeEvent(new QCloseEvent());
+  QApplication::quit();
 }

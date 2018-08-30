@@ -12,6 +12,7 @@ class CommandServer : public QTcpServer
  signals:
   void stopDAQ();
   void startNewDAQ();
+  void die();
 
  public slots:
   void tcpReady();
@@ -22,4 +23,6 @@ class CommandServer : public QTcpServer
   void incomingConnection(int descriptor);
 
   QTcpSocket* server_socket {nullptr};
+
+  void send_response(QString);
 };
