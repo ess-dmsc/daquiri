@@ -15,6 +15,7 @@ set(${this_target}_sources
   ${dir}/main.cpp
   ${dir}/Profiles.cpp
   ${dir}/ProfilesForm.cpp
+  ${dir}/Server.cpp
   ${dir}/SettingsForm.cpp
   ${dir}/SettingsTreeModel.cpp
   ${dir}/ThreadRunner.cpp
@@ -26,6 +27,7 @@ set(${this_target}_headers
   ${dir}/Profiles.h
   ${dir}/ProfilesForm.h
   ${dir}/QStreamBuffer.h
+  ${dir}/Server.h
   ${dir}/SettingsForm.h
   ${dir}/SettingsTreeModel.h
   ${dir}/ThreadRunner.h
@@ -67,4 +69,5 @@ target_link_libraries(
   QtColorWidgets-Qt52
   Qt5::Widgets
   Qt5::PrintSupport
+  Qt5::Network
 )

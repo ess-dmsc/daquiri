@@ -6,6 +6,7 @@
 #include <core/util/custom_logger.h>
 #include <QStreamBuffer.h>
 #include <core/producer.h>
+#include "Server.h"
 
 namespace Ui {
 class daquiri;
@@ -43,6 +44,8 @@ class daquiri : public QMainWindow
     bool open_new_project_ {false};
     bool start_daq_ {false};
 
+    CommandServer server;
+
 
   signals:
     void toggle_push(bool,
@@ -74,6 +77,11 @@ class daquiri : public QMainWindow
     void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
 
     void initialize_settings_dir();
+
+
+    void stop_daq();
+    void start_new_daq();
+    void die();
 
   private:
     //helper functions
