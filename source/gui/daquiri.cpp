@@ -360,7 +360,7 @@ void daquiri::initialize_settings_dir()
     {
       QFileInfo fi(QCoreApplication::applicationFilePath());
       QDir from_path = fi.absoluteDir();
-      from_path.cd("../../data/settings");
+      from_path.cd("../../data");
       copy_dir_recursive(from_path.path(), Profiles::settings_dir(), true);
     }
   }
