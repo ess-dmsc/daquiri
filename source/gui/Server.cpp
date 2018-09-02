@@ -19,21 +19,42 @@ void CommandServer::tcpReady()
 {
   if (server_socket)
   {
-    QString text(server_socket->read(server_socket->bytesAvailable()));
+    auto text = QString(server_socket->read(server_socket->bytesAvailable())).trimmed();
 
-    if (text == "STOP\n")
+    if (text == "STOP")
     {
       INFO << "<CommandServer> received STOP";
       send_response("<DAQuiri::CommandServer> OK: stopping all ongoing acquisitions\n");
       emit stopDAQ();
     }
-    else if (text == "START_NEW\n")
+    else if (text.startsWith("START_NEW"))
     {
-      INFO << "<CommandServer> received START_NEW";
+      auto tokens = text.split(" ");
+      QString name;
+      if (tokens.size() > 1)
+        name = tokens[1];
+      INFO << "<CommandServer> received START_NEW '" << name.toStdString() << "'";
       send_response("<DAQuiri::CommandServer> OK: opening new project and starting acquisition\n");
-      emit startNewDAQ();
+      emit startNewDAQ(name);
     }
-    else if (text == "DIE\n")
+    else if (text.startsWith("CLOSE_OLDER"))
+    {
+      auto tokens = text.split(" ");
+      QString num;
+      if (tokens.size() > 1)
+        num = tokens[1];
+      uint32_t mins = num.toInt();
+      INFO << "<CommandServer> received CLOSE_OLDER than " << mins << " minutes";
+      send_response("<DAQuiri::CommandServer> OK: closing older projects\n");
+      emit close_older(mins);
+    }
+    else if (text == "SAVE")
+    {
+      INFO << "<CommandServer> received SAVE";
+      send_response("<DAQuiri::CommandServer> OK: saving\n");
+      emit save();
+    }
+    else if (text == "DIE")
     {
       INFO << "<CommandServer> received DIE";
       send_response("<DAQuiri::CommandServer> OK: shutting down\n");
@@ -60,7 +81,7 @@ void CommandServer::acceptNew()
 {
   auto nc = nextPendingConnection();
   if (nc) {
-    INFO << "<CommandServer> established TCP connection";
+    DBG << "<CommandServer> established TCP connection";
     server_socket = nc;
     connect(server_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(tcpError(QAbstractSocket::SocketError)));
@@ -76,7 +97,7 @@ void CommandServer::tcpError(QAbstractSocket::SocketError error)
   {
     if (server_socket->error() == QAbstractSocket::RemoteHostClosedError)
     {
-      INFO << "<CommandServer> TCP connection terminated";
+      DBG << "<CommandServer> TCP connection terminated";
       server_socket = nullptr;
     }
     else
