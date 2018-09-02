@@ -19,21 +19,31 @@ void CommandServer::tcpReady()
 {
   if (server_socket)
   {
-    QString text(server_socket->read(server_socket->bytesAvailable()));
+    auto text = QString(server_socket->read(server_socket->bytesAvailable())).trimmed();
 
-    if (text == "STOP\n")
+    if (text == "STOP")
     {
       INFO << "<CommandServer> received STOP";
       send_response("<DAQuiri::CommandServer> OK: stopping all ongoing acquisitions\n");
       emit stopDAQ();
     }
-    else if (text == "START_NEW\n")
+    else if (text.startsWith("START_NEW"))
     {
-      INFO << "<CommandServer> received START_NEW";
+      auto tokens = text.split(" ");
+      QString name;
+      if (tokens.size() > 1)
+        name = tokens[1];
+      INFO << "<CommandServer> received START_NEW '" << name.toStdString() << "'";
       send_response("<DAQuiri::CommandServer> OK: opening new project and starting acquisition\n");
-      emit startNewDAQ();
+      emit startNewDAQ(name);
     }
-    else if (text == "DIE\n")
+    else if (text == "SAVE")
+    {
+      INFO << "<CommandServer> received SAVE";
+      send_response("<DAQuiri::CommandServer> OK: saving\n");
+      emit save();
+    }
+    else if (text == "DIE")
     {
       INFO << "<CommandServer> received DIE";
       send_response("<DAQuiri::CommandServer> OK: shutting down\n");

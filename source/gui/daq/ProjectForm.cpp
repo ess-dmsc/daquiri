@@ -14,16 +14,16 @@
 using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner& thread,
-                         Container<Detector>& detectors,
                          ProjectPtr proj,
                          QString profile_dir,
+                         QString identity,
                          QWidget* parent)
     : QWidget(parent),
       ui(new Ui::ProjectForm),
       runner_thread_(thread),
       interruptor_(false),
       project_(proj),
-      detectors_(detectors),
+      project_identity_(identity),
       profile_dir_(profile_dir)
 {
   ui->setupUi(this);
@@ -212,17 +212,14 @@ void ProjectForm::clearGraphs() //rename this
   project_->activate();
 }
 
-void ProjectForm::update_plots()
+QString ProjectForm::get_label() const
 {
-  //ui->statusBar->showMessage("Updating plots");
-
-  CustomTimer guiside(true);
-
   QString name = project_identity_;
   if (name.isEmpty())
   {
     name = "New project";
-  } else
+  }
+  else
   {
     QStringList slist = name.split("/");
     if (!slist.empty())
@@ -234,6 +231,14 @@ void ProjectForm::update_plots()
   else if (project_->changed())
     name += QString::fromUtf8(" \u2731");
 
+  return name;
+}
+
+
+void ProjectForm::update_plots()
+{
+  QString name = get_label();
+
   if (name != this->windowTitle())
   {
     this->setWindowTitle(name);
@@ -242,9 +247,6 @@ void ProjectForm::update_plots()
 
   if (ui->projectView->isVisible())
     ui->projectView->update_plots();
-
-  //ui->statusBar->showMessage("Spectra acquisition in progress...");
-//  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
 }
 
 void ProjectForm::projectOpen()
@@ -327,6 +329,34 @@ void ProjectForm::projectSave()
   } else
     projectSaveAs();
 }
+
+void ProjectForm::save()
+{
+  if (project_identity_.isEmpty())
+    return;
+
+  boost::filesystem::path path(project_identity_.toStdString());
+  if (!boost::filesystem::exists(path) || !hdf5::file::is_hdf5_file(path))
+  {
+    path = boost::filesystem::path(data_directory_.toStdString())
+        / project_identity_.toStdString();
+    path.replace_extension(".daq");
+  }
+
+  try {
+    INFO << "Saving project to path " << path;
+    project_->save(path.string());
+  }
+  catch (std::exception &e) {
+    auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+    ERR << message;
+    return;
+  }
+
+  project_identity_ = QS(path.string());
+  update_plots();
+}
+
 
 void ProjectForm::projectSaveAs()
 {

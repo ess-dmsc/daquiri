@@ -11,8 +11,9 @@ class CommandServer : public QTcpServer
 
  signals:
   void stopDAQ();
-  void startNewDAQ();
+  void startNewDAQ(QString name);
   void die();
+  void save();
 
  public slots:
   void tcpReady();

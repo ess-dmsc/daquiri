@@ -74,14 +74,15 @@ class daquiri : public QMainWindow
 
     void open_list();
     void open_new_proj();
-    void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
+    void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false, QString name = "");
 
     void initialize_settings_dir();
 
 
     void stop_daq();
-    void start_new_daq();
+    void start_new_daq(QString name);
     void die();
+    void save();
 
   private:
     //helper functions

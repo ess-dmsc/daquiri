@@ -16,13 +16,14 @@ class ProjectForm : public QWidget
 
   public:
     explicit ProjectForm(ThreadRunner &thread,
-                         Container<Detector>& detectors,
                          ProjectPtr proj,
                          QString profile_dir,
+                         QString identity,
                          QWidget *parent = 0);
 
     //  void replot();
     QString profile() const;
+    void save();
 
     ~ProjectForm();
 
@@ -69,7 +70,6 @@ class ProjectForm : public QWidget
     bool my_run_ {false};
     bool close_me_ {false};
 
-    Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
 
@@ -84,4 +84,6 @@ class ProjectForm : public QWidget
 
     void loadSettings();
     void saveSettings();
+
+    QString get_label() const;
 };
