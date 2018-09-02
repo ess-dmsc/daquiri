@@ -37,6 +37,17 @@ void CommandServer::tcpReady()
       send_response("<DAQuiri::CommandServer> OK: opening new project and starting acquisition\n");
       emit startNewDAQ(name);
     }
+    else if (text.startsWith("CLOSE_OLDER"))
+    {
+      auto tokens = text.split(" ");
+      QString num;
+      if (tokens.size() > 1)
+        num = tokens[1];
+      uint32_t mins = num.toInt();
+      INFO << "<CommandServer> received CLOSE_OLDER than " << mins << " minutes";
+      send_response("<DAQuiri::CommandServer> OK: closing older projects\n");
+      emit close_older(mins);
+    }
     else if (text == "SAVE")
     {
       INFO << "<CommandServer> received SAVE";
@@ -70,7 +81,7 @@ void CommandServer::acceptNew()
 {
   auto nc = nextPendingConnection();
   if (nc) {
-    INFO << "<CommandServer> established TCP connection";
+    DBG << "<CommandServer> established TCP connection";
     server_socket = nc;
     connect(server_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(tcpError(QAbstractSocket::SocketError)));
@@ -86,7 +97,7 @@ void CommandServer::tcpError(QAbstractSocket::SocketError error)
   {
     if (server_socket->error() == QAbstractSocket::RemoteHostClosedError)
     {
-      INFO << "<CommandServer> TCP connection terminated";
+      DBG << "<CommandServer> TCP connection terminated";
       server_socket = nullptr;
     }
     else

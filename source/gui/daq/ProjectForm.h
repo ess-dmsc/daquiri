@@ -24,7 +24,8 @@ class ProjectForm : public QWidget
     //  void replot();
     QString profile() const;
     void save();
-
+    boost::posix_time::ptime opened() const;
+    bool running() const;
     ~ProjectForm();
 
   signals:
@@ -63,9 +64,11 @@ class ProjectForm : public QWidget
     void on_doubleSpinMinPause_editingFinished();
 
   private:
+    boost::posix_time::ptime opened_ {boost::posix_time::microsec_clock::universal_time()};
+
     Ui::ProjectForm *ui;
     ThreadRunner &runner_thread_;
-    DAQuiri::Interruptor interruptor_;
+    DAQuiri::Interruptor interruptor_ {true};
     DAQuiri::ProjectPtr  project_;
     bool my_run_ {false};
     bool close_me_ {false};

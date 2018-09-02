@@ -51,6 +51,7 @@ daquiri::daquiri(QWidget *parent,
   server.start_listen(12345);
   connect(&server, SIGNAL(stopDAQ()), this, SLOT(stop_daq()));
   connect(&server, SIGNAL(startNewDAQ(QString)), this, SLOT(start_new_daq(QString)));
+  connect(&server, SIGNAL(close_older(uint32_t)), this, SLOT(close_older(uint32_t)));
   connect(&server, SIGNAL(save()), this, SLOT(save()));
   connect(&server, SIGNAL(die()), this, SLOT(die()));
 
@@ -376,8 +377,10 @@ void daquiri::stop_daq()
       continue;
     if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
     {
-      INFO << "<daquiri> remote command stopping project at i=" << i;
-      of->on_pushStop_clicked();
+      if (of->running()) {
+        INFO << "<daquiri> remote command stopping project at i=" << i;
+        of->on_pushStop_clicked();
+      }
     }
   }
 }
@@ -401,6 +404,27 @@ void daquiri::start_new_daq(QString name)
   INFO << "<daquiri> remote command starting new project '" << name.toStdString() << "'";
   if (engine_status_ & ProducerStatus::can_run)
     open_project(nullptr, true, name);
+}
+
+void daquiri::close_older(uint32_t mins)
+{
+  boost::posix_time::ptime now {boost::posix_time::microsec_clock::universal_time()};
+  for (int i = ui->tabs->count() - 1; i >= 0; --i)
+  {
+    if (ui->tabs->widget(i) == main_tab_)
+      continue;
+    if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
+    {
+      auto dif = now - of->opened();
+      bool eval = ((dif.total_seconds() / 60) >= mins);
+      if (eval) {
+        INFO << "<daquiri> closing older project at i=" << i;
+        ui->tabs->setCurrentIndex(i);
+        if (ui->tabs->widget(i)->close())
+          ui->tabs->removeTab(i);
+      }
+    }
+  }
 }
 
 void daquiri::die()

@@ -14,6 +14,7 @@ class CommandServer : public QTcpServer
   void startNewDAQ(QString name);
   void die();
   void save();
+  void close_older(uint32_t minutes);
 
  public slots:
   void tcpReady();

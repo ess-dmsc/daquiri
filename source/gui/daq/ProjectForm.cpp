@@ -520,3 +520,13 @@ void ProjectForm::on_doubleSpinMinPause_editingFinished()
 {
   plot_thread_.set_wait_time(ui->doubleSpinMinPause->value() * 1000);
 }
+
+boost::posix_time::ptime ProjectForm::opened() const
+{
+  return opened_;
+}
+
+bool ProjectForm::running() const
+{
+  return !interruptor_.load();
+}

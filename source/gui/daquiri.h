@@ -83,6 +83,7 @@ class daquiri : public QMainWindow
     void start_new_daq(QString name);
     void die();
     void save();
+    void close_older(uint32_t mins);
 
   private:
     //helper functions
