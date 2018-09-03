@@ -339,8 +339,7 @@ void ProjectForm::save()
   if (!boost::filesystem::exists(path) || !hdf5::file::is_hdf5_file(path))
   {
     path = boost::filesystem::path(data_directory_.toStdString())
-        / project_identity_.toStdString();
-    path.replace_extension(".daq");
+        / (project_identity_.toStdString() + ".daq");
   }
 
   try {
