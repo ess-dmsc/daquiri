@@ -332,7 +332,7 @@ void ProjectForm::projectSave()
 
 void ProjectForm::save()
 {
-  if (project_identity_.isEmpty())
+  if (project_identity_.isEmpty() || !project_->changed())
     return;
 
   boost::filesystem::path path(project_identity_.toStdString());
