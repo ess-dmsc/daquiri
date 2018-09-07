@@ -21,7 +21,7 @@ inline static void wait_us(int64_t microsex)
 class CustomTimer
 {
 private:
-  typedef std::chrono::high_resolution_clock HRClock;
+  typedef std::chrono::system_clock HRClock;
   typedef std::chrono::time_point<HRClock> TP;
 
   const double secs = pow(10, 9);

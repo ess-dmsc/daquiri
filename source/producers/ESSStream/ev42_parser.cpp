@@ -118,7 +118,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
   CustomTimer timer(true);
   uint64_t pushed_spills = 0;
-  hr_time_t start_time {std::chrono::high_resolution_clock::now()};
+  hr_time_t start_time {std::chrono::system_clock::now()};
 
   auto em = GetEventMessage(msg);
 

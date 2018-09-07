@@ -43,7 +43,7 @@ private slots:
     auto tod = make_time(converted - daypoint); // Yields time_of_day type
 
     auto tod2 = std::chrono::duration_cast<std::chrono::milliseconds>(converted
-        - std::chrono::floor<std::chrono::seconds>(converted)); // Yields time_of_day type
+        - date::floor<std::chrono::seconds>(converted)); // Yields time_of_day type
 
 // Obtain individual components as integers
     auto y   = int(ymd.year());
@@ -63,7 +63,7 @@ private slots:
   }
 
   void from_to_tp() {
-    hr_time_t in = std::chrono::floor<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
+    hr_time_t in = date::floor<std::chrono::milliseconds>(std::chrono::system_clock::now());
     QVERIFY(toTimePoint(fromTimePoint(in)) == in);
   }
 

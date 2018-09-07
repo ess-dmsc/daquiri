@@ -6,7 +6,7 @@
 
 // \todo time zones
 
-QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clock> tp)
+QDateTime fromTimePoint(std::chrono::time_point<std::chrono::system_clock> tp)
 {
   auto daypoint = date::floor<date::days>(tp);
   auto ymd = date::year_month_day(daypoint);   // calendar date
@@ -21,7 +21,7 @@ QDateTime fromTimePoint(std::chrono::time_point<std::chrono::high_resolution_clo
   return QDateTime(qdate, qtime, Qt::UTC);
 }
 
-std::chrono::time_point<std::chrono::high_resolution_clock> toTimePoint(QDateTime qdt)
+std::chrono::time_point<std::chrono::system_clock> toTimePoint(QDateTime qdt)
 {
   using namespace date;
   auto ret = date::sys_days(date::year{qdt.date().year()}/qdt.date().month()/qdt.date().day())

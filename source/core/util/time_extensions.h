@@ -3,7 +3,7 @@
 #include <string>
 #include <chrono>
 
-using hr_time_t = std::chrono::high_resolution_clock::time_point;
+using hr_time_t = std::chrono::system_clock::time_point;
 using hr_duration_t = std::chrono::duration<double>;
 
 std::string to_simple(const hr_time_t& time);

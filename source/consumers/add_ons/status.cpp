@@ -9,7 +9,7 @@ Status Status::extract(const Spill& spill)
   ret.valid = true;
   ret.type = spill.type;
   ret.producer_time = spill.time;
-  ret.consumer_time = std::chrono::high_resolution_clock::now();
+  ret.consumer_time = std::chrono::system_clock::now();
   ret.timebase = spill.event_model.timebase;
   Setting native_time = spill.state.find(Setting("native_time"));
   if (native_time)

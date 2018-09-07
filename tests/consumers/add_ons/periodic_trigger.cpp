@@ -57,7 +57,7 @@ TEST_F(PeriodicTrigger, UseProducer)
 
   DAQuiri::Status s1;
   s1.valid = true;
-  s1.producer_time = std::chrono::high_resolution_clock::now();
+  s1.producer_time = std::chrono::system_clock::now();
   pt.update(s1);
 
   auto s2 = s1;
@@ -83,7 +83,7 @@ TEST_F(PeriodicTrigger, UseProducerPathological)
 
   DAQuiri::Status s1;
   s1.valid = true;
-  s1.producer_time = std::chrono::high_resolution_clock::now();
+  s1.producer_time = std::chrono::system_clock::now();
   pt.update(s1);
   EXPECT_EQ(pt.recent_time_, std::chrono::milliseconds(0)) << to_simple(pt.recent_time_);
 
@@ -99,7 +99,7 @@ TEST_F(PeriodicTrigger, UseConsumer)
 
   DAQuiri::Status s1;
   s1.valid = true;
-  s1.consumer_time = std::chrono::high_resolution_clock::now();
+  s1.consumer_time = std::chrono::system_clock::now();
   pt.update(s1);
 
   auto s2 = s1;
@@ -121,13 +121,13 @@ TEST_F(PeriodicTrigger, UseConsumerPathological)
 
   DAQuiri::Status s_bad;
   s_bad.valid = true;
-  s_bad.consumer_time = std::chrono::time_point<std::chrono::high_resolution_clock>();
+  s_bad.consumer_time = std::chrono::time_point<std::chrono::system_clock>();
   pt.update(s_bad);
   EXPECT_EQ(pt.recent_time_, std::chrono::milliseconds(0));
 
   DAQuiri::Status s1;
   s1.valid = true;
-  s1.consumer_time = std::chrono::high_resolution_clock::now();
+  s1.consumer_time = std::chrono::system_clock::now();
   pt.update(s1);
   EXPECT_EQ(pt.recent_time_, std::chrono::milliseconds(0));
 

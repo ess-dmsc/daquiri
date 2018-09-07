@@ -43,7 +43,7 @@ TEST_F(TimeExtensions, time_from_iso_extended)
 
 TEST_F(TimeExtensions, to_from_iso)
 {
-  hr_time_t in {std::chrono::high_resolution_clock::now()};
+  hr_time_t in {std::chrono::system_clock::now()};
   EXPECT_EQ(in, from_iso_extended(to_iso_extended(in)));
 }
 
@@ -83,8 +83,8 @@ TEST_F(TimeExtensions, duration_from_string)
 
 TEST_F(TimeExtensions, duration_to_from_string)
 {
-  hr_time_t t1 {std::chrono::high_resolution_clock::now()};
-  hr_time_t t2 {std::chrono::high_resolution_clock::now()};
+  hr_time_t t1 {std::chrono::system_clock::now()};
+  hr_time_t t2 {std::chrono::system_clock::now()};
   hr_duration_t d = t2 - t1;
   EXPECT_EQ(d, duration_from_string(to_simple(d)));
 }
