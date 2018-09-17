@@ -20,37 +20,57 @@ inline static void wait_us(int64_t microsex)
 
 class CustomTimer
 {
-private:
+ private:
   typedef std::chrono::system_clock HRClock;
   typedef std::chrono::time_point<HRClock> TP;
 
-  const double secs = pow(10, 9);
-  const double msecs = pow(10, 6);
-  const double usecs = pow(10, 3);
   uint64_t timeout_limit;
 
   TP t1;
 
-public:
-  CustomTimer(bool start = false) {if (start) restart(); timeout_limit = 0;}
-  CustomTimer(uint64_t timeout, bool start = false) { if (start) restart(); timeout_limit = timeout;}
+ public:
+  CustomTimer(bool start = false)
+  {
+    if (start) restart();
+    timeout_limit = 0;
+  }
 
-  void restart() {
+  CustomTimer(uint64_t timeout, bool start = false)
+  {
+    if (start) restart();
+    timeout_limit = timeout;
+  }
+
+  void restart()
+  {
     t1 = HRClock::now();
   }
 
-  double s () {return ns() / secs;}
-  double ms () {return ns() / msecs;}
-  double us () {return ns() / usecs;}
-  double ns() {
+  double s()
+  {
     TP t2 = HRClock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+    return std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
   }
-  bool timeout() {
+
+  double ms()
+  {
+    TP t2 = HRClock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+  }
+
+  double us()
+  {
+    TP t2 = HRClock::now();
+    return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+  }
+
+  bool timeout()
+  {
     return (s() > static_cast<double>(timeout_limit));
   }
 
-  std::string done() {
+  std::string done()
+  {
     uint64_t e_tot = static_cast<uint64_t>(s());
     uint64_t e_h = e_tot / 3600;
     uint64_t e_m = (e_tot % 3600) / 60;
@@ -64,11 +84,12 @@ public:
 
     return answer;
   }
-  
-  std::string ETA() {
+
+  std::string ETA()
+  {
     uint64_t ETA_tot = static_cast<uint64_t>(
         ceil(static_cast<double>(timeout_limit) - s())
-                                   );
+    );
     uint64_t ETA_h = ETA_tot / 3600;
     uint64_t ETA_m = (ETA_tot % 3600) / 60;
     uint64_t ETA_s = (ETA_tot % 60);
