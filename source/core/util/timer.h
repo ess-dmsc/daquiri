@@ -26,10 +26,11 @@ class Timer
 
   bool timeout() const;
 
-  std::string done() const;
+  std::string elapsed_str() const;
 
-  std::string ETA() const;
+  std::string ETA_str() const;
 
-  static void wait_ms(int64_t millisex);
-  static void wait_us(int64_t microsex);
+  static void wait_s(double);
+  static void wait_ms(double);
+  static void wait_us(uint64_t);
 };

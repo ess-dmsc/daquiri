@@ -2,12 +2,17 @@
 #include <thread>
 #include <cmath>
 
-void Timer::wait_ms(int64_t millisex)
+void Timer::wait_s(double secs)
 {
-  std::this_thread::sleep_for(std::chrono::milliseconds(millisex));
+  wait_us(static_cast<uint64_t>(secs * 1000000));
 }
 
-void Timer::wait_us(int64_t microsex)
+void Timer::wait_ms(double msecs)
+{
+  wait_us(static_cast<uint64_t>(msecs * 1000));
+}
+
+void Timer::wait_us(uint64_t microsex)
 {
   std::this_thread::sleep_for(std::chrono::microseconds(microsex));
 }
@@ -32,14 +37,12 @@ void Timer::restart()
 
 double Timer::s() const
 {
-  TP t2 = HRClock::now();
-  return std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+  return us() * 0.000001;
 }
 
 double Timer::ms() const
 {
-  TP t2 = HRClock::now();
-  return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+  return us() * 0.001;
 }
 
 double Timer::us() const
@@ -55,7 +58,7 @@ bool Timer::timeout() const
   return (s() > timeout_limit);
 }
 
-std::string Timer::done() const
+std::string Timer::elapsed_str() const
 {
   uint64_t e_tot = static_cast<uint64_t>(s());
   uint64_t e_h = e_tot / 3600;
@@ -71,7 +74,7 @@ std::string Timer::done() const
   return answer;
 }
 
-std::string Timer::ETA() const
+std::string Timer::ETA_str() const
 {
   uint64_t ETA_tot = static_cast<uint64_t>(
       ceil(static_cast<double>(timeout_limit) - s())

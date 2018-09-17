@@ -215,7 +215,7 @@ void MockProducer::worker_run(SpillQueue spill_queue)
   while (!terminate_.load())
   {
     spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
-    Timer::wait_ms(spill_interval_ * 1000.0);
+    Timer::wait_s(spill_interval_);
 
     double seconds = timer.s();
     double overshoot = ((event_definition_.timebase.to_sec(clock_) - seconds) / seconds * 100.0);

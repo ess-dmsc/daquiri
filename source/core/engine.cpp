@@ -284,8 +284,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   else
     INFO("<Engine> Starting acquisition for indefinite run");
 
-  Timer *anouncement_timer = nullptr;
-  double secs_between_anouncements = 5;
+  double secs_between_announcements = 5;
 
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
@@ -301,24 +300,23 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   if (!daq_start(&parsed_queue))
     ERR("<Engine> Failed to start device daq threads");
 
-  Timer total_timer(timeout, true);
-  anouncement_timer = new Timer(true);
+  Timer total_timer(static_cast<double>(timeout), true);
+  Timer announcement_timer(secs_between_announcements, true);
 
   while (daq_running())
   {
     Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
-    if (anouncement_timer->s() > secs_between_anouncements)
+    if (announcement_timer.timeout())
     {
       if (timeout > 0)
         INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
-             total_timer.done(), total_timer.ETA(),
+             total_timer.elapsed_str(), total_timer.ETA_str(),
              parsed_queue.dropped_spills(), parsed_queue.dropped_events());
       else
         INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Dropped events: {}",
-            total_timer.done(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
+            total_timer.elapsed_str(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
 
-      delete anouncement_timer;
-      anouncement_timer = new Timer(true);
+      announcement_timer.restart();
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
@@ -326,8 +324,6 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
         ERR("<Engine> Failed to stop device daq threads");
     }
   }
-
-  delete anouncement_timer;
 
   spill = std::make_shared<Spill>();
   _get_all_settings();
@@ -364,8 +360,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   SpillPtr spill;
   ListData result;
 
-  Timer *anouncement_timer = nullptr;
-  double secs_between_anouncements = 5;
+  double secs_between_announcements = 5;
 
   spill = std::make_shared<Spill>();
   _get_all_settings();
@@ -378,19 +373,18 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   if (!daq_start(&parsed_queue))
     ERR("<Engine> Failed to start device daq threads");
 
-  Timer total_timer(timeout, true);
-  anouncement_timer = new Timer(true);
+  Timer total_timer(static_cast<double>(timeout), true);
+  Timer announcement_timer(secs_between_announcements, true);
 
   while (daq_running())
   {
     Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
-    if (anouncement_timer->s() > secs_between_anouncements)
+    if (announcement_timer.timeout())
     {
       INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
-          total_timer.done(), total_timer.ETA(),
+          total_timer.elapsed_str(), total_timer.ETA_str(),
           parsed_queue.dropped_spills(), parsed_queue.dropped_events());
-      delete anouncement_timer;
-      anouncement_timer = new Timer(true);
+      announcement_timer.restart();
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
@@ -398,8 +392,6 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
         ERR( "<Engine> Failed to stop device daq threads");
     }
   }
-
-  delete anouncement_timer;
 
   spill = std::make_shared<Spill>();
   _get_all_settings();
