@@ -1,5 +1,5 @@
 #include "Consumer2D.h"
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 
 #include <core/util/custom_logger.h>
 
@@ -38,7 +38,7 @@ void Consumer2D::update()
       || (consumer_->dimensions() != 2))
     return;
 
-  //  CustomTimer guiside(true);
+  //  Timer guiside(true);
 
   DataspacePtr data = consumer_->data();
   ConsumerMetadata md = consumer_->metadata();

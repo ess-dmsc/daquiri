@@ -3,7 +3,7 @@
 #include "ui_ProjectForm.h"
 #include "ConsumerTemplatesForm.h"
 #include <core/util/custom_logger.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <QSettings>
 #include <QMessageBox>
 
@@ -216,7 +216,7 @@ void ProjectForm::update_plots()
 {
   //ui->statusBar->showMessage("Updating plots");
 
-  CustomTimer guiside(true);
+  Timer guiside(true);
 
   QString name = project_identity_;
   if (name.isEmpty())

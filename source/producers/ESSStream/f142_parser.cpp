@@ -1,6 +1,6 @@
 #include <producers/ESSStream/f142_parser.h>
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/custom_logger.h>
 
 ChopperTDC::ChopperTDC()
@@ -74,7 +74,7 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
 }
 
 uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 1;
   hr_time_t start_time {std::chrono::system_clock::now()};
   

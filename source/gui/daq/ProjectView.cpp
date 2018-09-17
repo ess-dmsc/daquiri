@@ -1,7 +1,7 @@
 #include "ProjectView.h"
 #include "ui_ProjectView.h"
 #include "ConsumerDialog.h"
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <QPlot/QHist.h>
 //#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
@@ -233,7 +233,7 @@ void ProjectView::enforce_all()
 
 void ProjectView::update_plots()
 {
-//  CustomTimer t(true);
+//  Timer t(true);
   for (auto &consumer_widget : consumers_)
     consumer_widget->update();
 

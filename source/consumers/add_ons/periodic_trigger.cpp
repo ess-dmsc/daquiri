@@ -55,9 +55,10 @@ Setting PeriodicTrigger::settings(int32_t index, std::string override_name) cons
 
 void PeriodicTrigger::update(const Status& current)
 {
-  bool was_valid = previous_.valid;
-  if (!was_valid)
+  if (!previous_.valid) {
     previous_ = current;
+    return;
+  }
 
   if (clock_type == ClockType::NativeTime)
   {

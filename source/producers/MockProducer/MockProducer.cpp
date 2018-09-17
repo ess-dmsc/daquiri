@@ -1,5 +1,5 @@
 #include <producers/MockProducer/MockProducer.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 
 #include <core/util/custom_logger.h>
 
@@ -209,13 +209,13 @@ void MockProducer::worker_run(SpillQueue spill_queue)
       "  timebase {} ns   init_rate = {} cps   lambda = {}",
       event_definition_.timebase.debug(), count_rate_, lambda_);
 
-  CustomTimer timer(true);
+  Timer timer(true);
 
   spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
   while (!terminate_.load())
   {
     spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
-    wait_ms(spill_interval_ * 1000.0);
+    Timer::wait_ms(spill_interval_ * 1000.0);
 
     double seconds = timer.s();
     double overshoot = ((event_definition_.timebase.to_sec(clock_) - seconds) / seconds * 100.0);

@@ -1,7 +1,7 @@
 #include <core/engine.h>
 #include <core/util/custom_logger.h>
+#include <core/util/timer.h>
 #include <core/producer_factory.h>
-#include <core/util/custom_timer.h>
 
 #include <functional>
 
@@ -284,7 +284,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   else
     INFO("<Engine> Starting acquisition for indefinite run");
 
-  CustomTimer *anouncement_timer = nullptr;
+  Timer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
@@ -301,12 +301,12 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   if (!daq_start(&parsed_queue))
     ERR("<Engine> Failed to start device daq threads");
 
-  CustomTimer total_timer(timeout, true);
-  anouncement_timer = new CustomTimer(true);
+  Timer total_timer(timeout, true);
+  anouncement_timer = new Timer(true);
 
   while (daq_running())
   {
-    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+    Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       if (timeout > 0)
@@ -318,7 +318,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
             total_timer.done(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
 
       delete anouncement_timer;
-      anouncement_timer = new CustomTimer(true);
+      anouncement_timer = new Timer(true);
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
@@ -334,11 +334,11 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   spill->state = settings_;
   parsed_queue.enqueue(spill);
 
-  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+  Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
   while (parsed_queue.size() > 0)
-    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+    Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
   parsed_queue.stop();
-  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+  Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   builder.join();
   INFO("<Engine::acquire> Acquisition finished"
@@ -364,7 +364,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   SpillPtr spill;
   ListData result;
 
-  CustomTimer *anouncement_timer = nullptr;
+  Timer *anouncement_timer = nullptr;
   double secs_between_anouncements = 5;
 
   spill = std::make_shared<Spill>();
@@ -378,19 +378,19 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   if (!daq_start(&parsed_queue))
     ERR("<Engine> Failed to start device daq threads");
 
-  CustomTimer total_timer(timeout, true);
-  anouncement_timer = new CustomTimer(true);
+  Timer total_timer(timeout, true);
+  anouncement_timer = new Timer(true);
 
   while (daq_running())
   {
-    wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+    Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
     if (anouncement_timer->s() > secs_between_anouncements)
     {
       INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
           total_timer.done(), total_timer.ETA(),
           parsed_queue.dropped_spills(), parsed_queue.dropped_events());
       delete anouncement_timer;
-      anouncement_timer = new CustomTimer(true);
+      anouncement_timer = new Timer(true);
     }
     if (interruptor.load() || (timeout && total_timer.timeout()))
     {
@@ -406,7 +406,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
   spill->state = settings_;
   parsed_queue.enqueue(spill);
 
-  wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
+  Timer::Timer::wait_ms(THREAD_CLOSE_WAIT_TIME_MS);
 
   while (parsed_queue.size() > 0)
     result.push_back(SpillPtr(parsed_queue.dequeue()));
@@ -441,7 +441,7 @@ void Engine::builder_naive(SpillQueue data_queue,
     spill = data_queue->dequeue();
     if (spill == nullptr)
       break;
-    CustomTimer presort_timer(true);
+    Timer presort_timer(true);
     presort_cycles++;
     presort_events += spill->events.size();
     project->add_spill(spill);
@@ -461,7 +461,7 @@ void Engine::builder_naive(SpillQueue data_queue,
   spill->state.branches.add_a(Setting::integer("dropped_events", data_queue->dropped_events()));
   project->add_spill(spill);
 
-  CustomTimer presort_timer(true);
+  Timer presort_timer(true);
   project->flush();
   time += presort_timer.s();
 

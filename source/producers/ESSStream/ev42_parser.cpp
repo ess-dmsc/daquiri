@@ -1,7 +1,7 @@
 #include <producers/ESSStream/ev42_parser.h>
 #include "ev42_events_generated.h"
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/custom_logger.h>
 
 ev42_events::ev42_events()
@@ -116,7 +116,7 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 0;
   hr_time_t start_time {std::chrono::system_clock::now()};
 

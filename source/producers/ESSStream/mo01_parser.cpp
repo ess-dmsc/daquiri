@@ -1,6 +1,6 @@
 #include <producers/ESSStream/mo01_parser.h>
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/custom_logger.h>
 
 mo01_nmx::mo01_nmx()
@@ -135,7 +135,7 @@ uint64_t mo01_nmx::stop(SpillQueue spill_queue)
 
 uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
 {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 0;
 
   auto em = GetMonitorMessage(msg);

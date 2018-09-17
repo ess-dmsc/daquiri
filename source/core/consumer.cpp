@@ -1,7 +1,7 @@
 #include <core/consumer.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/custom_logger.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/h5json.h>
 
 namespace DAQuiri {
@@ -88,7 +88,7 @@ bool Consumer::_accept_spill(const Spill& spill)
 
 void Consumer::_push_spill(const Spill& spill)
 {
-//  CustomTimer addspill_timer(true);
+//  Timer addspill_timer(true);
 
 //  if (!spill.detectors.empty())
 //    this->_set_detectors(spill.detectors);
