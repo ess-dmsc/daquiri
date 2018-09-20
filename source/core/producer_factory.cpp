@@ -23,13 +23,13 @@ void ProducerFactory::register_type(std::string name,
                                     std::function<Producer*(void)> constructor)
 {
   if (name.empty())
-    WARN << "<ProducerFactory> failed to register nameless type";
+    WARN("<ProducerFactory> failed to register nameless type");
   else if (constructors_.count(name))
-    WARN << "<ProducerFactory> type '" << name << "' already registered";
+    WARN("<ProducerFactory> type '{}' already registered", name);
   else
   {
     constructors_[name] = constructor;
-    TRC << "<ProducerFactory> registered '" << name << "'";
+    DBG("<ProducerFactory> registered '{}'", name);
   }
 }
 

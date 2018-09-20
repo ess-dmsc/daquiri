@@ -3,8 +3,7 @@
 #include <core/plugin/setting_metadata.h>
 #include <core/plugin/pattern.h>
 #include <core/plugin/container.h>
-
-#include <boost/date_time.hpp>
+#include <core/util/time_extensions.h>
 
 namespace DAQuiri {
 
@@ -38,8 +37,8 @@ class Setting
     Setting() {}
     Setting(std::string id);
     Setting(SettingMeta meta);
-    Setting(std::string sid, boost::posix_time::ptime v);
-    Setting(std::string sid, boost::posix_time::time_duration v);
+    Setting(std::string sid, hr_time_t v);
+    Setting(std::string sid, hr_duration_t v);
     Setting(std::string sid, Pattern v);
     static Setting floating(std::string sid, floating_t val);
     static Setting precise(std::string sid, precise_t val);
@@ -65,12 +64,12 @@ class Setting
     bool compare(const Setting &other, Match m) const;
 
     //time
-    void set_time(boost::posix_time::ptime v);
-    boost::posix_time::ptime time() const;
+    void set_time(hr_time_t v);
+    hr_time_t time() const;
 
     //duration
-    void set_duration(boost::posix_time::time_duration v);
-    boost::posix_time::time_duration duration() const;
+    void set_duration(hr_duration_t v);
+    hr_duration_t duration() const;
 
     //pattern
     void set_pattern(Pattern v);
@@ -166,8 +165,8 @@ class Setting
     floating_t value_dbl{0};
     precise_t value_precise{0};
     std::string value_text;
-    boost::posix_time::ptime value_time {boost::posix_time::not_a_date_time};
-    boost::posix_time::time_duration value_duration {boost::posix_time::not_a_date_time};
+    hr_time_t value_time {};
+    hr_duration_t value_duration {};
     Pattern value_pattern;
 };
 

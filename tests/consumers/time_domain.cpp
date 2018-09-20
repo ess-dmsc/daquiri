@@ -26,7 +26,7 @@ class TimeDomain : public TestBase
     }
 
     DAQuiri::TimeDomain h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(TimeDomain, DefaultConstructed)

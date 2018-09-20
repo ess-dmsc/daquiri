@@ -1,7 +1,6 @@
 set(this_target ${PROJECT_NAME})
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-include(BoostLibraryConfig)
 include(QtLibraryConfig)
 
 find_package(qplot REQUIRED)
@@ -27,12 +26,12 @@ set(${this_target}_headers
   ${dir}/daquiri.h
   ${dir}/Profiles.h
   ${dir}/ProfilesForm.h
+  ${dir}/QStreamBuffer.h
   ${dir}/Server.h
   ${dir}/SettingsForm.h
   ${dir}/SettingsTreeModel.h
   ${dir}/ThreadRunner.h
   ${dir}/UnitConverter.h
-  ${dir}/qt_boost_logger.h
   )
 
 set(CMAKE_AUTOUIC ON)
@@ -66,7 +65,6 @@ target_link_libraries(
   ${PROJECT_NAME}_core
   ${PROJECT_NAME}_producers
   ${PROJECT_NAME}_consumers
-  ${Boost_LIBRARIES}
   QPlot
   QtColorWidgets-Qt52
   Qt5::Widgets

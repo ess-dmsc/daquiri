@@ -9,6 +9,7 @@
 #include <QTimer>
 #include "Profiles.h"
 #include <widgets/TabCloseButton.h>
+#include <widgets/qt_util.h>
 
 #include <daq/ListModeForm.h>
 #include <daq/ProjectForm.h>
@@ -16,6 +17,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <widgets/QFileExtensions.h>
+#include <date/date.h>
 
 using namespace DAQuiri;
 
@@ -42,9 +44,10 @@ daquiri::daquiri(QWidget *parent,
   qRegisterMetaType<DAQuiri::ProducerStatus>("DAQuiri::ProducerStatus");
   qRegisterMetaType<DAQuiri::StreamManifest>("DAQuiri::StreamManifest");
   qRegisterMetaType<DAQuiri::ProjectPtr>("DAQuiri::ProjectPtr");
-  qRegisterMetaType<boost::posix_time::time_duration>("boost::posix_time::time_duration");
+  qRegisterMetaType<hr_duration_t>("hr_duration_t");
+  qRegisterMetaType<hr_time_t >("hr_time_t");
 
-  CustomLogger::initLogger(&log_stream_, "daquiri_%N.log");
+  CustomLogger::initLogger(Severity::Informational, &log_stream_, "daquiri.log");
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 
@@ -194,7 +197,7 @@ void daquiri::update_settings(Setting sets,
   engine_status_ = status;
   stream_manifest_ = manifest;
   auto description = sets.find({"ProfileDescr"}, Match::id);
-  profile_description_ = QString::fromStdString(description.get_text());
+  profile_description_ = QS(description.get_text());
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::current_profile_name();
 
@@ -378,7 +381,7 @@ void daquiri::stop_daq()
     if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
     {
       if (of->running()) {
-        INFO << "<daquiri> remote command stopping project at i=" << i;
+        INFO("<daquiri> remote command stopping project at i={}", i);
         of->on_pushStop_clicked();
       }
     }
@@ -393,7 +396,7 @@ void daquiri::save()
       continue;
     if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
     {
-      INFO << "<daquiri> remote command saving project at i=" << i;
+      INFO("<daquiri> remote command saving project at i={}", i);
       of->save();
     }
   }
@@ -401,14 +404,14 @@ void daquiri::save()
 
 void daquiri::start_new_daq(QString name)
 {
-  INFO << "<daquiri> remote command starting new project '" << name.toStdString() << "'";
+  INFO("<daquiri> remote command starting new project '{}'", name.toStdString());
   if (engine_status_ & ProducerStatus::can_run)
     open_project(nullptr, true, name);
 }
 
 void daquiri::close_older(uint32_t mins)
 {
-  boost::posix_time::ptime now {boost::posix_time::microsec_clock::universal_time()};
+  auto now = std::chrono::system_clock::now();
   for (int i = ui->tabs->count() - 1; i >= 0; --i)
   {
     if (ui->tabs->widget(i) == main_tab_)
@@ -416,9 +419,9 @@ void daquiri::close_older(uint32_t mins)
     if (ProjectForm* of = qobject_cast<ProjectForm*>(ui->tabs->widget(i)))
     {
       auto dif = now - of->opened();
-      bool eval = ((dif.total_seconds() / 60) >= mins);
+      bool eval = ((date::floor<std::chrono::seconds>(dif).count() / 60) >= mins);
       if (eval) {
-        INFO << "<daquiri> closing older project at i=" << i;
+        INFO("<daquiri> closing older project at i={}", i);
         ui->tabs->setCurrentIndex(i);
         if (ui->tabs->widget(i)->close())
           ui->tabs->removeTab(i);
@@ -429,7 +432,7 @@ void daquiri::close_older(uint32_t mins)
 
 void daquiri::die()
 {
-  INFO << "<daquiri> remote command shutting down";
+  INFO("<daquiri> remote command shutting down");
   closeEvent(new QCloseEvent());
   QApplication::quit();
 }

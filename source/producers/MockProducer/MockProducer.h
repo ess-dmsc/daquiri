@@ -60,7 +60,7 @@ class MockProducer : public Producer
     uint64_t clock_{0};
     uint64_t recent_pulse_time_{0};
 
-    SpillPtr get_spill(StatusType t, double seconds);
+    SpillPtr get_spill(Spill::Type t, double seconds);
     void fill_events(SpillPtr& spill, double seconds);
     void fill_stats(Spill& spill) const;
     bool eval_spill_lambda(uint32_t i, uint32_t total);

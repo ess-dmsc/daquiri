@@ -11,7 +11,7 @@
 
 Q_DECLARE_METATYPE(DAQuiri::Detector)
 Q_DECLARE_METATYPE(DAQuiri::Setting)
-Q_DECLARE_METATYPE(boost::posix_time::time_duration)
+Q_DECLARE_METATYPE(hr_duration_t)
 
 
 class SettingDelegate : public QStyledItemDelegate

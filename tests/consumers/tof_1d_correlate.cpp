@@ -43,8 +43,8 @@ class TOF1DCorrelate : public TestBase
     }
 
     DAQuiri::TOF1DCorrelate h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
-    DAQuiri::Spill cs{"chopper_stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
+    DAQuiri::Spill cs{"chopper_stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(TOF1DCorrelate, DefaultConstructed)

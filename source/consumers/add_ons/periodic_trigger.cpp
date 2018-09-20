@@ -55,24 +55,24 @@ Setting PeriodicTrigger::settings(int32_t index, std::string override_name) cons
 
 void PeriodicTrigger::update(const Status& current)
 {
-  if (!previous_.valid)
+  if (!previous_.valid) {
     previous_ = current;
+    return;
+  }
 
   if (clock_type == ClockType::NativeTime)
   {
     auto recent_native_time = Status::calc_diff(previous_, current, "native_time");
-    if (!recent_native_time.is_not_a_date_time())
+    if (recent_native_time != hr_duration_t())
       recent_time_ += recent_native_time;
   }
   else if ((clock_type == ClockType::ProducerWallClock) &&
-      !current.producer_time.is_not_a_date_time() &&
-      !previous_.producer_time.is_not_a_date_time())
+      (current.producer_time != hr_time_t()) && previous_.valid)
   {
     recent_time_ += (current.producer_time - previous_.producer_time);
   }
   else if ((clock_type == ClockType::ConsumerWallClock) &&
-      !current.consumer_time.is_not_a_date_time() &&
-      !previous_.consumer_time.is_not_a_date_time())
+          (current.consumer_time != hr_time_t()) && previous_.valid)
   {
     recent_time_ += (current.consumer_time - previous_.consumer_time);
   }

@@ -37,7 +37,7 @@ class Histogram2D : public TestBase
     }
 
     DAQuiri::Histogram2D h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(Histogram2D, DefaultConstructed)

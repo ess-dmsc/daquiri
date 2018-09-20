@@ -24,7 +24,7 @@ class ProjectForm : public QWidget
     //  void replot();
     QString profile() const;
     void save();
-    boost::posix_time::ptime opened() const;
+    hr_time_t opened() const;
     bool running() const;
     ~ProjectForm();
 
@@ -64,7 +64,7 @@ class ProjectForm : public QWidget
     void on_doubleSpinMinPause_editingFinished();
 
   private:
-    boost::posix_time::ptime opened_ {boost::posix_time::microsec_clock::universal_time()};
+    hr_time_t opened_{std::chrono::system_clock::now()};
 
     Ui::ProjectForm *ui;
     ThreadRunner &runner_thread_;

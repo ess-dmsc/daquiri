@@ -1,6 +1,6 @@
 #include <producers/ESSStream/f142_parser.h>
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/custom_logger.h>
 
 ChopperTDC::ChopperTDC()
@@ -60,7 +60,7 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
 {
   if (started_)
     {
-    auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
+    auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
     ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
 
@@ -74,15 +74,15 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
 }
 
 uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 1;
-  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
+  hr_time_t start_time {std::chrono::system_clock::now()};
   
   auto ChopperTDCTimeStamp = GetLogData(msg);
   
   stats.time_start = stats.time_end = ChopperTDCTimeStamp->timestamp();
   
-  auto ret = std::make_shared<Spill>(stream_id_, StatusType::running);
+  auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::running);
   ret->state.branches.add(Setting::precise("native_time", ChopperTDCTimeStamp->timestamp()));
   ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = event_model_;
@@ -103,7 +103,7 @@ uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
 
   if (!started_)
   {
-    auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    auto start_spill = std::make_shared<Spill>(stream_id_, Spill::Type::start);
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
     start_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));

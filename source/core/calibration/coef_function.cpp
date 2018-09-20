@@ -106,7 +106,7 @@ double CoefFunction::eval_inverse(double y, double e) const
 
   else
   {
-//    WARN <<"<" << this->type() << "> Maximum iteration reached in CoefFunction inverse evaluation";
+//    WARN("<" << this->type() << "> Maximum iteration reached in CoefFunction inverse evaluation";
     return nan("");
   }
 }
@@ -167,7 +167,7 @@ CoefFuncPtr CoefFuncFactory::create_type(std::string type) const
 void CoefFuncFactory::register_type(std::string name,
                                      std::function<CoefFunction*(void)> typeConstructor)
 {
-  INFO << "<CoefFuncFactory> registering CoefFunction '" << name << "'";
+  INFO("<CoefFuncFactory> registering CoefFunction '{}'", name);
   constructors[name] = typeConstructor;
 }
 

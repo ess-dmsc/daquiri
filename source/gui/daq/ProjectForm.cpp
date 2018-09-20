@@ -3,7 +3,7 @@
 #include "ui_ProjectForm.h"
 #include "ConsumerTemplatesForm.h"
 #include <core/util/custom_logger.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <QSettings>
 #include <QMessageBox>
 
@@ -31,7 +31,7 @@ ProjectForm::ProjectForm(ThreadRunner& thread,
   if (!project_)
     project_ = ProjectPtr(new Project());
 //  else
-//    DBG << "project already exists";
+//    DBG( "project already exists";
 
   //connect with runner
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
@@ -135,8 +135,8 @@ void ProjectForm::loadSettings()
     }
     catch (std::exception& e)
     {
-      DBG << "<ProjectForm> Could not load default prototypes from " << fname.toStdString() << "\n"
-          << hdf5::error::print_nested(e, 0);;
+      DBG("<ProjectForm> Could not load default prototypes from {}\n{}",
+          fname.toStdString(), hdf5::error::print_nested(e, 0));
     }
   }
 
@@ -175,7 +175,7 @@ void ProjectForm::saveSettings()
     }
     catch (...)
     {
-      DBG << "Could not save default prototypes to " << fname.toStdString();
+      DBG("Could not save default prototypes to {}", fname.toStdString());
     }
   }
 }
@@ -273,7 +273,7 @@ void ProjectForm::projectOpen()
   }
 
   //toggle_push(false, false);
-  INFO << "Reading spectra from file " << fileName.toStdString();
+  INFO("Reading spectra from file {}", fileName.toStdString());
   clearGraphs();
 
   try
@@ -283,7 +283,7 @@ void ProjectForm::projectOpen()
   catch (std::exception& e)
   {
     auto message = "Could not load project:\n" + hdf5::error::print_nested(e, 0);
-    ERR << message;
+    ERR("{}", message);
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText(QS(message));
@@ -317,7 +317,7 @@ void ProjectForm::projectSave()
     catch (std::exception& e)
     {
       auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
-      ERR << message;
+      ERR("{}", message);
       QMessageBox msgBox;
       msgBox.setIcon(QMessageBox::Warning);
       msgBox.setText(QS(message));
@@ -343,12 +343,12 @@ void ProjectForm::save()
   }
 
   try {
-    INFO << "Saving project to path " << path;
+    INFO("Saving project to path {}", path.string());
     project_->save(path.string());
   }
   catch (std::exception &e) {
     auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
-    ERR << message;
+    ERR("{}", message);
     return;
   }
 
@@ -373,7 +373,7 @@ void ProjectForm::projectSaveAs()
   catch (std::exception& e)
   {
     auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
-    ERR << message;
+    ERR("{}", message);
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText(QS(message));
@@ -394,7 +394,7 @@ void ProjectForm::projectSaveSplit()
                                           data_directory_, formats);
   if (validateFile(this, fileName + "_metadata.json", true))
   {
-    INFO << "Writing project to " << fileName.toStdString();
+    INFO("Writing project to {}", fileName.toStdString());
     project_->save_split(fileName.toStdString());
     update_plots();
   }
@@ -471,7 +471,7 @@ void ProjectForm::newProject()
 void ProjectForm::on_pushStop_clicked()
 {
   ui->pushStop->setEnabled(false);
-  //INFO << " acquisition interrupted by user";
+  //INFO( " acquisition interrupted by user";
   interruptor_.store(true);
 }
 
@@ -479,7 +479,7 @@ void ProjectForm::run_completed()
 {
   if (my_run_)
   {
-    //INFO << "ProjectForm received signal for run completed";
+    //INFO( "ProjectForm received signal for run completed";
     ui->pushStop->setEnabled(false);
     my_run_ = false;
 
@@ -503,7 +503,7 @@ void ProjectForm::on_pushForceRefresh_clicked()
 //void ProjectForm::on_pushDetails_clicked()
 //{
 ////  for (auto &q : project_->get_consumers())
-////    DBG << "\n" << q.first << "=" << q.second->debug();
+////    DBG( "\n" << q.first << "=" << q.second->debug();
 
 //  FormDaqSettings *DaqInfo = new FormDaqSettings(project_, this);
 //  DaqInfo->setWindowTitle("System settings at the time of acquisition");
@@ -520,7 +520,7 @@ void ProjectForm::on_doubleSpinMinPause_editingFinished()
   plot_thread_.set_wait_time(ui->doubleSpinMinPause->value() * 1000);
 }
 
-boost::posix_time::ptime ProjectForm::opened() const
+hr_time_t ProjectForm::opened() const
 {
   return opened_;
 }

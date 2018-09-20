@@ -23,7 +23,7 @@ void CommandServer::tcpReady()
 
     if (text == "STOP")
     {
-      INFO << "<CommandServer> received STOP";
+      INFO("<CommandServer> received STOP");
       send_response("<DAQuiri::CommandServer> OK: stopping all ongoing acquisitions\n");
       emit stopDAQ();
     }
@@ -33,7 +33,7 @@ void CommandServer::tcpReady()
       QString name;
       if (tokens.size() > 1)
         name = tokens[1];
-      INFO << "<CommandServer> received START_NEW '" << name.toStdString() << "'";
+      INFO("<CommandServer> received START_NEW '{}'", name.toStdString());
       send_response("<DAQuiri::CommandServer> OK: opening new project and starting acquisition\n");
       emit startNewDAQ(name);
     }
@@ -44,24 +44,24 @@ void CommandServer::tcpReady()
       if (tokens.size() > 1)
         num = tokens[1];
       uint32_t mins = num.toInt();
-      INFO << "<CommandServer> received CLOSE_OLDER than " << mins << " minutes";
+      INFO("<CommandServer> received CLOSE_OLDER than {} minutes", mins);
       send_response("<DAQuiri::CommandServer> OK: closing older projects\n");
       emit close_older(mins);
     }
     else if (text == "SAVE")
     {
-      INFO << "<CommandServer> received SAVE";
+      INFO("<CommandServer> received SAVE");
       send_response("<DAQuiri::CommandServer> OK: saving\n");
       emit save();
     }
     else if (text == "DIE")
     {
-      INFO << "<CommandServer> received DIE";
+      INFO("<CommandServer> received DIE");
       send_response("<DAQuiri::CommandServer> OK: shutting down\n");
       emit die();
     }
     else {
-      WARN << "<CommandServer> received unknown command '" << text.toStdString() << "'";
+      WARN("<CommandServer> received unknown command '{}'", text.toStdString());
       send_response("<DAQuiri::CommandServer> ERROR: received unknown command '" + text + "'\n");
     }
   }
@@ -81,7 +81,7 @@ void CommandServer::acceptNew()
 {
   auto nc = nextPendingConnection();
   if (nc) {
-    DBG << "<CommandServer> established TCP connection";
+    DBG("<CommandServer> established TCP connection");
     server_socket = nc;
     connect(server_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(tcpError(QAbstractSocket::SocketError)));
@@ -97,11 +97,11 @@ void CommandServer::tcpError(QAbstractSocket::SocketError error)
   {
     if (server_socket->error() == QAbstractSocket::RemoteHostClosedError)
     {
-      DBG << "<CommandServer> TCP connection terminated";
+      DBG("<CommandServer> TCP connection terminated");
       server_socket = nullptr;
     }
     else
-      ERR << "<CommandServer> TCP error: " << server_socket->errorString().toStdString();
+      ERR("<CommandServer> TCP error: {}", server_socket->errorString().toStdString());
   }
 }
 
@@ -109,7 +109,7 @@ bool CommandServer::start_listen(int port_no)
 {
   if (!this->listen(QHostAddress::Any, port_no))
   {
-    ERR << "<CommandServer> Error! Cannot listen to port " << port_no;
+    ERR("<CommandServer> Error! Cannot listen to port {}", port_no);
     return false;
   }
   return true;
@@ -119,7 +119,7 @@ void CommandServer::incomingConnection(int descriptor)
 {
   if (!server_socket || !server_socket->setSocketDescriptor(descriptor))
   {
-    ERR << "<CommandServer> Incoming connection socket error.";
+    ERR("<CommandServer> Incoming connection socket error.");
     return;
   }
 }

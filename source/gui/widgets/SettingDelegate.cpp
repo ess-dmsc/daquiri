@@ -82,24 +82,24 @@ QString SettingDelegate::get_string(const DAQuiri::Setting& val) const
   if (val.is(SettingType::indicator))
   {
     auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
-    QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
+    QString text = QS(ii.metadata().get_string("name", ""));
     if (text.isEmpty())
-      text = QString::fromStdString(ii.id());
+      text = QS(ii.id());
     return text;
   }
   else if (val.is(SettingType::command))
   {
-    QString txt = QString::fromStdString(val.metadata().get_string("name", ""));
+    QString txt = QS(val.metadata().get_string("name", ""));
     if (txt.isEmpty())
-      txt = QString::fromStdString(val.id());
+      txt = QS(val.id());
   }
   else if (val.is(SettingType::duration))
   {
-    return QString::fromStdString(boost::posix_time::to_simple_string(val.duration()));
+    return QS(to_simple(val.duration()));
   }
   else if (val.is(SettingType::menu))
   {
-    QString txt = QString::fromStdString(val.metadata().enum_name(val.get_number()));
+    QString txt = QS(val.metadata().enum_name(val.get_number()));
     if (txt.isEmpty())
       txt = "["+ QString::number(val.get_number()) + "]";
     return txt;
@@ -107,7 +107,7 @@ QString SettingDelegate::get_string(const DAQuiri::Setting& val) const
 
   // plain text
 
-  QString text = QString::fromStdString(val.val_to_string());
+  QString text = QS(val.val_to_string());
   truncate_w_ellipses(text, text_len_limit_);
   return text;
 }
@@ -120,7 +120,7 @@ void SettingDelegate::paint_detector(QPainter* painter, const QStyleOptionViewIt
   uint16_t idx = 0;
   if (val.indices().size())
     idx = *val.indices().begin();
-  QString text = QString::fromStdString(val.get_text());
+  QString text = QS(val.get_text());
   QColor col = detectors_palette_[idx % detectors_palette_.size()];
 
   if (option.state & QStyle::State_Selected)
@@ -142,7 +142,7 @@ void SettingDelegate::paint_color(QPainter* painter,
                                   const QStyleOptionViewItem &option,
                                   const Setting &val) const
 {
-  QColor c(QString::fromStdString(val.get_text()));
+  QColor c(QS(val.get_text()));
   paintColor(painter, option.rect,
              (option.state & QStyle::State_Selected) ? inverseColor(c) : c,
              c.name());
@@ -152,7 +152,7 @@ void SettingDelegate::paint_gradient(QPainter* painter,
                                      const QStyleOptionViewItem &option,
                                      const Setting &val) const
 {
-  auto gname = QString::fromStdString(val.get_text());
+  auto gname = QS(val.get_text());
   auto gs = QPlot::Gradients::defaultGradients();
   if (gs.contains(gname))
     QPlot::paintGradient(painter, option.rect, gs.get(gname));
@@ -164,8 +164,8 @@ void SettingDelegate::paint_indicator(QPainter* painter, const QStyleOptionViewI
                                       const Setting &val) const
 {
   auto ii = val.find(Setting(val.metadata().enum_name(val.get_number())));
-  QColor color = QColor(QString::fromStdString(ii.metadata().get_string("color", "")));
-  //  QString text = QString::fromStdString(ii.metadata().get_string("name", ""));
+  QColor color = QColor(QS(ii.metadata().get_string("color", "")));
+  //  QString text = QS(ii.metadata().get_string("name", ""));
 
   paintColor(painter, option.rect,
              (option.state & QStyle::State_Selected) ? inverseColor(color) : color,
@@ -246,7 +246,7 @@ QSize SettingDelegate::sizeHint(const QStyleOptionViewItem &option,
   if (item.is(SettingType::command))
   {
     QPushButton button;
-    button.setText(QString::fromStdString(item.metadata().get_string("name","")));
+    button.setText(QS(item.metadata().get_string("name","")));
     return button.sizeHint();
   }
   else if (item.is(SettingType::pattern))
@@ -345,7 +345,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     te->setCalendarPopup(true);
     te->setTimeSpec(Qt::UTC);
     te->setDisplayFormat("yyyy-MM-dd HH:mm:ss.zzz");
-    te->setDateTime(fromBoostPtime(set.time()));
+    te->setDateTime(fromTimePoint(set.time()));
     return te;
   }
   else if (set.is(SettingType::duration))
@@ -358,12 +358,12 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
   {
     auto cb = new QComboBox(parent);
     for (auto &q : set.metadata().enum_map())
-      cb->addItem(QString::fromStdString(q.second),
+      cb->addItem(QS(q.second),
                   QVariant::fromValue(q.first));
     //there is a better way to do this, indeces might be bad
     if (set.metadata().enum_map().count(set.get_number()))
     {
-      int cbIndex = cb->findText(QString::fromStdString(set.metadata().enum_name(set.get_number())));
+      int cbIndex = cb->findText(QS(set.metadata().enum_name(set.get_number())));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
     }
@@ -376,26 +376,26 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       auto cs = new ColorSelector(parent);
       cs->setDisplayMode(ColorPreview::AllAlpha);
       cs->setUpdateMode(ColorSelector::Confirm);
-      cs->setColor(QString::fromStdString(set.get_text()));
+      cs->setColor(QS(set.get_text()));
       return cs;
     }
     else if (set.metadata().has_flag("gradient-name"))
     {
-      emit ask_gradient(QString::fromStdString(set.get_text()), index);
+      emit ask_gradient(QS(set.get_text()), index);
       return nullptr;
     }
     else if (set.metadata().has_flag("file"))
     {
       auto fd = new QFileDialog(parent, QString("Chose File"),
-                                QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath(),
-                                QString::fromStdString(set.metadata().get_string("wildcards","")));
+                                QFileInfo(QS(set.get_text())).dir().absolutePath(),
+                                QS(set.metadata().get_string("wildcards","")));
       fd->setFileMode(QFileDialog::ExistingFile);
       return fd;
     }
     else if (set.metadata().has_flag("directory"))
     {
       auto fd = new QFileDialog(parent, QString("Chose Directory"),
-                                QFileInfo(QString::fromStdString(set.get_text())).dir().absolutePath());
+                                QFileInfo(QS(set.get_text())).dir().absolutePath());
       fd->setFileMode(QFileDialog::Directory);
       return fd;
     }
@@ -405,10 +405,10 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       cb->addItem("none", "none");
       for (size_t i=0; i < detectors_.size(); i++)
       {
-        QString name = QString::fromStdString(detectors_.get(i).id());
+        QString name = QS(detectors_.get(i).id());
         cb->addItem(name, name);
       }
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findText(QS(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
@@ -419,10 +419,10 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
       cb->addItem("<none>", "");
       for (auto stream : stream_manifest_)
       {
-        QString name = QString::fromStdString(stream.first);
+        QString name = QS(stream.first);
         cb->addItem(name, name);
       }
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findText(QS(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
@@ -437,11 +437,11 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
           continue;
         for (auto val : stream.second.event_model.value_names)
         {
-          QString name = QString::fromStdString(val);
+          QString name = QS(val);
           cb->addItem(name, name);
         }
       }
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findText(QS(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
@@ -456,14 +456,14 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
           continue;
         for (size_t i=0; i < stream.second.event_model.traces.size(); ++i)
         {
-          QString name = QString::fromStdString(stream.second.event_model.trace_names[i]);
+          QString name = QS(stream.second.event_model.trace_names[i]);
           QStringList ss;
           for (auto d : stream.second.event_model.traces[i])
             ss.push_back(QString::number(d));
           cb->addItem(name + " [" + ss.join(", ") + "]", name);
         }
       }
-      int cbIndex = cb->findData(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findData(QS(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
@@ -478,11 +478,11 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
           continue;
         for (const auto& set : stream.second.stats.branches)
         {
-          QString name = QString::fromStdString(set.id());
+          QString name = QS(set.id());
           cb->addItem(name, name);
         }
       }
-      int cbIndex = cb->findText(QString::fromStdString(set.get_text()));
+      int cbIndex = cb->findText(QS(set.get_text()));
       if(cbIndex >= 0)
         cb->setCurrentIndex(cbIndex);
       return cb;
@@ -490,7 +490,7 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     else
     {
       auto le = new QLineEdit(parent);
-      le->setText(QString::fromStdString(set.get_text()));
+      le->setText(QS(set.get_text()));
       return le;
     }
   }
