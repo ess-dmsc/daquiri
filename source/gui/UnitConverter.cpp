@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <numeric>
 #include <boost/algorithm/string.hpp>
-#include <boost/locale.hpp>
+//#include <boost/locale.hpp>
 #include <core/util/custom_logger.h>
 
 UnitConverter::UnitConverter()
@@ -74,22 +74,26 @@ PreciseFloat UnitConverter::convert_units(PreciseFloat value, std::string from, 
 
 std::string UnitConverter::get_prefix(std::string full_unit) const
 {
-  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
+//  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
+//  std::u32string prefix = ucs4;
 
-  std::u32string prefix = ucs4;
-  if (ucs4.size() > 1)
-    prefix = ucs4.substr(0, 1);
-  return boost::locale::conv::utf_to_utf<char>(prefix);
+  auto prefix = full_unit;
+  if (full_unit.size() > 1)
+    prefix = full_unit.substr(0, 1);
+//  return boost::locale::conv::utf_to_utf<char>(prefix);
+  return prefix;
 }
 
 std::string UnitConverter::strip_unit(std::string full_unit) const
 {
-  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
+//  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
+//  std::u32string stripped_unit = ucs4;
 
-  std::u32string stripped_unit = ucs4;
-  if (ucs4.size() > 1)
-    stripped_unit = ucs4.substr(1, ucs4.size()-1);
-  return boost::locale::conv::utf_to_utf<char>(stripped_unit);
+  auto stripped_unit = full_unit;
+  if (full_unit.size() > 1)
+    stripped_unit = full_unit.substr(1, full_unit.size()-1);
+//  return boost::locale::conv::utf_to_utf<char>(stripped_unit);
+  return stripped_unit;
 }
 
 PreciseFloat UnitConverter::convert_prefix(PreciseFloat value, std::string from, std::string to) const

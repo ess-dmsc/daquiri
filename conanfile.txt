@@ -2,7 +2,6 @@
 cmake_findboost_modular/1.65.1@bincrafters/stable
 boost_algorithm/1.65.1@bincrafters/stable
 boost_lexical_cast/1.65.1@bincrafters/stable
-boost_locale/1.65.1@bincrafters/stable
 cli11/1.4-dm3@ess-dmsc/stable
 graylog-logger/1.0.5-dm1@ess-dmsc/stable
 fmt/5.1.0@bincrafters/stable
