@@ -235,11 +235,11 @@ void ListModeForm::list_completed(ListData newEvents)
     for (auto &s : list_data_)
     {
       add_to_table(ui->tableSpills, i, 0,
-                   QString::fromStdString(s->stream_id));
+                   QS(s->stream_id));
       add_to_table(ui->tableSpills, i, 1,
-                   QString::fromStdString(type_to_str(s->type)));
+                   QS(Spill::to_str(s->type)));
       add_to_table(ui->tableSpills, i, 2,
-                   QString::fromStdString(to_iso_extended(s->time)));
+                   QS(to_iso_extended(s->time)));
       i++;
     }
 
@@ -338,7 +338,7 @@ void ListModeForm::trace_selection_changed(QItemSelection, QItemSelection)
     md.set_attribute(Setting::text("appearance", QColor(Qt::darkGreen).name().toStdString()));
     trace_ = ConsumerFactory::singleton().create_from_prototype(md);
 
-    SpillPtr sp3 = std::make_shared<Spill>(sp->stream_id, StatusType::running);
+    SpillPtr sp3 = std::make_shared<Spill>(sp->stream_id, Spill::Type::running);
     sp3->event_model = sp->event_model;
     sp3->events.reserve(1, sp->event_model);
     sp3->events.last() = events_[event_i];

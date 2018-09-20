@@ -26,7 +26,7 @@ class TimeDelta1D : public TestBase
     }
 
     DAQuiri::TimeDelta1D h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(TimeDelta1D, DefaultConstructed)

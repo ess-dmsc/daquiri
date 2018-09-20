@@ -92,27 +92,27 @@ TEST(Status, TotalElapsed)
 {
   std::vector<Status> stats;
 
-  Spill spill("", StatusType::start);
+  Spill spill("", Spill::Type::start);
   spill.state.branches.add_a(Setting::precise("native_time", 0));
   stats.push_back(Status::extract(spill));
   EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(0));
 
-  spill.type = StatusType::running;
+  spill.type = Spill::Type::running;
   spill.state.set(Setting::precise("native_time", 2000));
   stats.push_back(Status::extract(spill));
   EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(2));
 
-  spill.type = StatusType::stop;
+  spill.type = Spill::Type::stop;
   spill.state.set(Setting::precise("native_time", 4000));
   stats.push_back(Status::extract(spill));
   EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(4));
 
-  spill.type = StatusType::start;
+  spill.type = Spill::Type::start;
   spill.state.set(Setting::precise("native_time", 7000));
   stats.push_back(Status::extract(spill));
   EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(4));
 
-  spill.type = StatusType::running;
+  spill.type = Spill::Type::running;
   spill.state.set(Setting::precise("native_time", 9000));
   stats.push_back(Status::extract(spill));
   EXPECT_EQ(Status::total_elapsed(stats, "native_time"), std::chrono::microseconds(6));

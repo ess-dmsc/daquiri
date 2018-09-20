@@ -67,7 +67,7 @@ void Spectrum::_apply_attributes()
 bool Spectrum::_accept_spill(const Spill& spill)
 {
   return (Consumer::_accept_spill(spill)
-      && (spill.type != StatusType::daq_status));
+      && (spill.type != Spill::Type::daq_status));
 }
 
 void Spectrum::_push_stats_pre(const Spill& spill)
@@ -94,7 +94,7 @@ void Spectrum::_push_stats_pre(const Spill& spill)
 void Spectrum::update_cumulative(const Status& new_status)
 {
   if (stats_.size() &&
-      (stats_.back().type == StatusType::running))
+      (stats_.back().type == Spill::Type::running))
     stats_.pop_back();
   stats_.push_back(new_status);
 

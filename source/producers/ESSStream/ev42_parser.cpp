@@ -104,7 +104,7 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 {
   if (started_)
   {
-    auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
+    auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
     ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
@@ -149,7 +149,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   stats.time_start = stats.time_end = time_high;
 
-  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, StatusType::running);
+  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, Spill::Type::running);
   run_spill->event_model = event_definition_;
   run_spill->events.reserve(event_count, event_definition_);
 
@@ -186,7 +186,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if (!started_)
   {
-    auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    auto start_spill = std::make_shared<Spill>(stream_id_, Spill::Type::start);
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", time_high));
 //    start_spill->state.branches.add(Setting::text("source_name", source_name));

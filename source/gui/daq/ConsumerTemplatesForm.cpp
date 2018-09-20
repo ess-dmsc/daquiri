@@ -70,7 +70,7 @@ QVariant ConsumerTemplatesTableModel::data(const QModelIndex& index, int role) c
       case 1:
         return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("visible"));
       case 2:
-        return QString::fromStdString(consumers_.get(row)->metadata().type());
+        return QS(consumers_.get(row)->metadata().type());
       case 3:
         return QVariant::fromValue(consumers_.get(row)->metadata().get_attribute("stream_id"));
       case 4:

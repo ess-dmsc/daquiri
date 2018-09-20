@@ -211,10 +211,10 @@ void MockProducer::worker_run(SpillQueue spill_queue)
 
   Timer timer(true);
 
-  spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
+  spill_queue->enqueue(get_spill(Spill::Type::start, timer.s()));
   while (!terminate_.load())
   {
-    spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
+    spill_queue->enqueue(get_spill(Spill::Type::running, timer.s()));
     Timer::wait_s(spill_interval_);
 
     double seconds = timer.s();
@@ -222,7 +222,7 @@ void MockProducer::worker_run(SpillQueue spill_queue)
     if (overshoot > 0)
       DBG("<MockProducer> Native clock overshoot {}%", overshoot);
   }
-  spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
+  spill_queue->enqueue(get_spill(Spill::Type::stop, timer.s()));
 }
 
 void MockProducer::add_hit(Spill& spill, uint64_t time)
@@ -234,13 +234,13 @@ void MockProducer::add_hit(Spill& spill, uint64_t time)
   ++spill.events;
 }
 
-SpillPtr MockProducer::get_spill(StatusType t, double seconds)
+SpillPtr MockProducer::get_spill(Spill::Type t, double seconds)
 {
   SpillPtr spill = std::make_shared<Spill>(stream_id_, t);
 
   recent_pulse_time_ = clock_ = event_definition_.timebase.to_native(seconds * pow(10, 9));
 
-  if (t == StatusType::running)
+  if (t == Spill::Type::running)
     fill_events(spill, seconds);
   spill->events.finalize();
 

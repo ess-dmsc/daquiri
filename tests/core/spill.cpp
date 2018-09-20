@@ -6,6 +6,6 @@ using namespace DAQuiri;
 TEST(Spill, Init)
 {
   Spill s;
-  EXPECT_EQ(s.type, StatusType::daq_status);
+  EXPECT_EQ(s.type, Spill::Type::daq_status);
 }
 

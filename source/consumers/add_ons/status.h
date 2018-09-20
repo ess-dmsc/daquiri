@@ -13,7 +13,7 @@ struct Status
   static hr_duration_t total_elapsed(const std::vector<Status>& stats, std::string name);
 
   bool valid {false};
-  StatusType type{StatusType::daq_status};
+  Spill::Type type{Spill::Type::daq_status};
   hr_time_t producer_time {};
   hr_time_t consumer_time {};
   std::map<std::string, Setting> stats;

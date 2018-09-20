@@ -39,7 +39,7 @@ hr_duration_t Status::total_elapsed(const std::vector<Status>& stats, std::strin
 
   for (const auto& q : stats)
   {
-    if (q.type == StatusType::start)
+    if (q.type == Spill::Type::start)
     {
       ret += t;
       start = q;
@@ -52,7 +52,7 @@ hr_duration_t Status::total_elapsed(const std::vector<Status>& stats, std::strin
     }
   }
 
-  if (stats.back().type != StatusType::start)
+  if (stats.back().type != Spill::Type::start)
     ret += t;
 
   return ret;

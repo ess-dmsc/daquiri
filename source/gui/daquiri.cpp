@@ -9,6 +9,7 @@
 #include <QTimer>
 #include "Profiles.h"
 #include <widgets/TabCloseButton.h>
+#include <widgets/qt_util.h>
 
 #include <daq/ListModeForm.h>
 #include <daq/ProjectForm.h>
@@ -193,7 +194,7 @@ void daquiri::update_settings(Setting sets,
   engine_status_ = status;
   stream_manifest_ = manifest;
   auto description = sets.find({"ProfileDescr"}, Match::id);
-  profile_description_ = QString::fromStdString(description.get_text());
+  profile_description_ = QS(description.get_text());
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::current_profile_name();
 

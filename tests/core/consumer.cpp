@@ -47,14 +47,14 @@ TEST(Consumer, GetMetadata)
 
 TEST(Consumer, AcceptingSpillsByID)
 {
-  Spill s("", StatusType::daq_status);
+  Spill s("", Spill::Type::daq_status);
 
   MockConsumer c;
   c.push_spill(s);
   c.push_spill(s);
   EXPECT_EQ(c.accepted_spills, 2);
 
-  Spill s2("someid", StatusType::daq_status);
+  Spill s2("someid", Spill::Type::daq_status);
   c.push_spill(s2);
   c.push_spill(s2);
   EXPECT_EQ(c.accepted_spills, 2);
@@ -67,7 +67,7 @@ TEST(Consumer, AcceptingSpillsByID)
 
 TEST(Consumer, EventsArePushedWhenAccepted)
 {
-  Spill s("", StatusType::daq_status);
+  Spill s("", Spill::Type::daq_status);
   s.events.reserve(3, Event(EventModel()));
   ++s.events;
   ++s.events;
@@ -86,7 +86,7 @@ TEST(Consumer, EventsArePushedWhenAccepted)
 //TODO: this is failing
 //TEST(Consumer, ChangeAndReset)
 //{
-//  Spill s("", StatusType::daq_status);
+//  Spill s("", Spill::Type::daq_status);
 //
 //  MockConsumer c;
 //  c.push_spill(s);

@@ -2,6 +2,8 @@
 #include "ui_SettingsForm.h"
 #include "ProfilesForm.h"
 #include <widgets/BinaryWidget.h>
+#include <widgets/qt_util.h>
+
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
@@ -123,8 +125,8 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index)
   editing_ = true;
 
   QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
-  editor->setText("Run " + QString::fromStdString(command.id()));
-  editor->setInformativeText("Will run command: " + QString::fromStdString(command.id()) + "\n Are you sure?");
+  editor->setText("Run " + QS(command.id()));
+  editor->setInformativeText("Will run command: " + QS(command.id()) + "\n Are you sure?");
   editor->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   editor->exec();
 
@@ -307,7 +309,7 @@ void SettingsForm::on_pushAddProducer_clicked()
   auto& pf = ProducerFactory::singleton();
   QStringList prods;
   for (auto p : pf.types())
-    prods.push_back(QString::fromStdString(p));
+    prods.push_back(QS(p));
 
   QInputDialog id(this);
   id.setOptions(QInputDialog::UseListViewForComboBoxItems);

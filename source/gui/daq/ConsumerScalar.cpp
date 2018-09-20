@@ -1,6 +1,8 @@
 #include "ConsumerScalar.h"
 #include <QVBoxLayout>
 
+#include <widgets/qt_util.h>
+
 #include <widgets/AnalogWidgets/manometer.h>
 #include <widgets/AnalogWidgets/thermometer.h>
 
@@ -104,8 +106,8 @@ void ConsumerScalar::update()
   if (data)
   {
     axis = data->axis(0);
-    thermometer_->setSuffix(QString::fromStdString(axis.label()));
-    manometer_->setSuffix(QString::fromStdString(axis.label()));
+    thermometer_->setSuffix(QS(axis.label()));
+    manometer_->setSuffix(QS(axis.label()));
 
     EntryList range = data->range({});
     auto current = data->get({});
@@ -129,7 +131,7 @@ void ConsumerScalar::update()
   }
 
   std::string new_label = md.get_attribute("name").get_text();
-  setWindowTitle(QString::fromStdString(new_label).trimmed());
+  setWindowTitle(QS(new_label).trimmed());
 }
 
 void ConsumerScalar::refresh()

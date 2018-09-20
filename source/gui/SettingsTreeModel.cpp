@@ -6,6 +6,7 @@
 //#include <widgets/qt_util.h>
 #include <widgets/QTimeExtensions.h>
 #include <widgets/QColorExtensions.h>
+#include <widgets/qt_util.h>
 
 Q_DECLARE_METATYPE(Setting)
 Q_DECLARE_METATYPE(std::chrono::duration<double>)
@@ -98,17 +99,17 @@ QVariant SettingsTreeItem::display_data(int column) const
   if (column == 0)
   {
     QString name =
-        QString::fromStdString(itemData.metadata().get_string("name", ""));
+        QS(itemData.metadata().get_string("name", ""));
     if (name.isEmpty())
-      name = QString::fromStdString(itemData.id());
+      name = QS(itemData.id());
     if (itemData.is(SettingType::stem) &&
         !itemData.get_text().empty())
-      name += " (" + QString::fromStdString(itemData.get_text()) + ")";
+      name += " (" + QS(itemData.get_text()) + ")";
     return name;
   }
   else if (column == 1)
   {
-    QString ret = QString::fromStdString(itemData.indices_to_string(true));
+    QString ret = QS(itemData.indices_to_string(true));
     if (ret.size())
       return "  " + ret + "  ";
     else
@@ -121,18 +122,18 @@ QVariant SettingsTreeItem::display_data(int column) const
     return QVariant::fromValue(itemData);
   }
   else if (column == 3)
-    return QString::fromStdString(itemData.metadata().get_string("units", ""));
+    return QS(itemData.metadata().get_string("units", ""));
   else if (column == 4)
   {
     QString text;
     if (itemData.metadata().get_num("address", -1) >= 0)
-      text += "0x" + QString::fromStdString(itohex32(itemData.metadata().get_num("address", -1)));
+      text += "0x" + QS(itohex32(itemData.metadata().get_num("address", -1)));
     else if (itemData.metadata().get_num("address", -1) != -1)
       text += QString::number(itemData.metadata().get_num("address", -1));
     return text;
   }
   else if (column == 5)
-    return QString::fromStdString(itemData.metadata().get_string("description", ""));
+    return QS(itemData.metadata().get_string("description", ""));
   else
     return QVariant();
 }

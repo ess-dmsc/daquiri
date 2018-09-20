@@ -64,11 +64,11 @@ struct SmartSpillDeque
     bool push(const SpillPtr& s, bool drop, size_t max_buffers)
     {
       if (drop &&
-          (s->type == StatusType::running) &&
+          (s->type == Spill::Type::running) &&
           (recent_running_spills >= max_buffers))
         return true;
 
-      if (s->type == StatusType::running)
+      if (s->type == Spill::Type::running)
         recent_running_spills++;
 
       if (earliest == hr_time_t())
@@ -85,7 +85,7 @@ struct SmartSpillDeque
       SpillPtr f = queue.front();
       queue.pop_front();
 
-      if (f->type == StatusType::running)
+      if (f->type == Spill::Type::running)
         recent_running_spills--;
 
       if (queue.size())
