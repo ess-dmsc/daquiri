@@ -1,4 +1,3 @@
-#include <boost/thread.hpp>
 #include <QSettings>
 #include <QDir>
 #include "ThreadRunner.h"
