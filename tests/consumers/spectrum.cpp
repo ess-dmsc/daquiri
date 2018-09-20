@@ -73,7 +73,6 @@ TEST_F(Spectrum, StartTime)
 
   s = DAQuiri::Spill("", DAQuiri::Spill::Type::start);
   m.push_spill(s);
-  EXPECT_EQ(m.metadata().get_attribute("start_time").time(), hr_time_t());
   EXPECT_EQ(m.metadata().get_attribute("start_time").time(), s.time);
 }
 

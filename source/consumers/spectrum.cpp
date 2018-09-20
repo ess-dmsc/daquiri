@@ -77,7 +77,7 @@ void Spectrum::_push_stats_pre(const Spill& spill)
 
   filters_.configure(spill);
 
-  if (metadata_.get_attribute("start_time").time() != hr_time_t())
+  if (metadata_.get_attribute("start_time").time() == hr_time_t())
     metadata_.set_attribute(Setting("start_time", spill.time));
 
   if (periodic_trigger_.triggered)

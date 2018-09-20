@@ -22,9 +22,7 @@ using StreamManifest = std::map<std::string, StreamInfo>;
 
 class EventBuffer
 {
-  using container_t = std::vector<Event>;
  public:
-  using const_iterator = typename container_t::const_iterator;
   EventBuffer() {}
 
   inline size_t size() const { return data_.size(); }
@@ -46,8 +44,8 @@ class EventBuffer
 
   inline void finalize() { data_.resize(idx_); }
 
-  inline const_iterator begin() const { return data_.begin(); }
-  inline const_iterator end() const { return data_.end(); }
+  inline std::vector<Event>::const_iterator begin() const { return data_.begin(); }
+  inline std::vector<Event>::const_iterator end() const { return data_.end(); }
 
  private:
   std::vector<Event> data_;
@@ -67,7 +65,7 @@ class Spill
 
   std::string stream_id;
   Type type{Type::daq_status};
-  hr_time_t time{};
+  hr_time_t time{std::chrono::system_clock::now()};
   Setting state;
 
   std::vector<char> raw; // raw from device

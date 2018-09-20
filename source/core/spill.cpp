@@ -3,7 +3,8 @@
 #include <core/util/ascii_tree.h>
 #include <core/util/custom_logger.h>
 
-namespace DAQuiri {
+namespace DAQuiri
+{
 
 Spill::Type Spill::from_str(const std::string& type)
 {
@@ -38,11 +39,7 @@ Spill::Spill(std::string id, Spill::Type t)
 
 bool Spill::empty()
 {
-  return (
-      raw.empty() &&
-          events.empty() &&
-          state.branches.empty()
-  );
+  return (raw.empty() && events.empty() && !state);
 }
 
 std::string Spill::debug(std::string prepend) const
@@ -76,7 +73,7 @@ void to_json(json& j, const Spill& s)
 //  j["number_of_events"] = events.size();
   j["event_model"] = s.event_model;
 
-  if (!s.state.branches.empty())
+  if (s.state)
     j["state"] = s.state;
 }
 
