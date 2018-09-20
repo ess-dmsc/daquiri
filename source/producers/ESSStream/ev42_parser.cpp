@@ -1,7 +1,7 @@
 #include <producers/ESSStream/ev42_parser.h>
 #include "ev42_events_generated.h"
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 #include <core/util/custom_logger.h>
 
 ev42_events::ev42_events()
@@ -104,7 +104,7 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 {
   if (started_)
   {
-    auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
+    auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
     ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
@@ -116,9 +116,9 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 0;
-  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
+  hr_time_t start_time {std::chrono::system_clock::now()};
 
   auto em = GetEventMessage(msg);
 
@@ -132,9 +132,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if ((ordering_ != Ignore) && !in_order(em))
   {
-    WARN << "Buffer out of order (" << em->message_id()
-         << "<=" << latest_buf_id_ << ") "
-         << debug(em);
+    WARN("Buffer out of order ({}<={}) {}", em->message_id(), latest_buf_id_, debug(em));
     if (ordering_ == Reject)
     {
       stats.time_spent += timer.s();
@@ -151,7 +149,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   stats.time_start = stats.time_end = time_high;
 
-  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, StatusType::running);
+  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, Spill::Type::running);
   run_spill->event_model = event_definition_;
   run_spill->events.reserve(event_count, event_definition_);
 
@@ -170,7 +168,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
       evt.set_time(time);
       ++ run_spill->events;
     }
-//    DBG << "Time " << stats.time_start << " - " << stats.time_end;
+//    DBG( "Time " << stats.time_start << " - " << stats.time_end;
   }
   run_spill->events.finalize();
 
@@ -188,7 +186,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if (!started_)
   {
-    auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    auto start_spill = std::make_shared<Spill>(stream_id_, Spill::Type::start);
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", time_high));
 //    start_spill->state.branches.add(Setting::text("source_name", source_name));

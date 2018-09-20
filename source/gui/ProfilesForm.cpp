@@ -207,7 +207,7 @@ void ProfilesForm::create_profile()
 
   if (Profiles::profile_exists(name))
   {
-    DBG << "Already exists";
+    DBG("Profile '{}' already exists", name.toStdString());
     //ask user overwrite?
     return;
   }

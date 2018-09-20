@@ -3,7 +3,6 @@
 #include <QWidget>
 #include <QFileDialog>
 #include <QTableWidget>
-#include <boost/date_time.hpp>
 
 //  Modified FileDialog by Dave Mateer
 //  http://stackoverflow.com/users/183339/dave-mateer

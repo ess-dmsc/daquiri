@@ -16,14 +16,16 @@ class ProjectForm : public QWidget
 
   public:
     explicit ProjectForm(ThreadRunner &thread,
-                         Container<Detector>& detectors,
                          ProjectPtr proj,
                          QString profile_dir,
+                         QString identity,
                          QWidget *parent = 0);
 
     //  void replot();
     QString profile() const;
-
+    void save();
+    hr_time_t opened() const;
+    bool running() const;
     ~ProjectForm();
 
   signals:
@@ -37,10 +39,10 @@ class ProjectForm : public QWidget
     void toggle_push(bool, DAQuiri::ProducerStatus,
                      DAQuiri::StreamManifest);
     void start_DAQ();
+    void on_pushStop_clicked();
 
   private slots:
     void on_pushStart_clicked();
-    void on_pushStop_clicked();
     void run_completed();
     void on_pushEditSpectra_clicked();
     void update_plots();
@@ -62,14 +64,15 @@ class ProjectForm : public QWidget
     void on_doubleSpinMinPause_editingFinished();
 
   private:
+    hr_time_t opened_{std::chrono::system_clock::now()};
+
     Ui::ProjectForm *ui;
     ThreadRunner &runner_thread_;
-    DAQuiri::Interruptor interruptor_;
+    DAQuiri::Interruptor interruptor_ {true};
     DAQuiri::ProjectPtr  project_;
     bool my_run_ {false};
     bool close_me_ {false};
 
-    Container<DAQuiri::Detector> &detectors_;
     std::vector<DAQuiri::Detector> current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
 
@@ -84,4 +87,6 @@ class ProjectForm : public QWidget
 
     void loadSettings();
     void saveSettings();
+
+    QString get_label() const;
 };

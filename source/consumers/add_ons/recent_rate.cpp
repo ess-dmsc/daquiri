@@ -34,8 +34,8 @@ Setting RecentRate::update(const Status& current, PreciseFloat new_count)
   auto recent_t = Status::calc_diff(previous_status, current, divisor_clock);
 
   double recent_s = 0;
-  if (!recent_t.is_not_a_date_time())
-    recent_s = recent_t.total_milliseconds() * 0.001;
+  if (recent_t != hr_duration_t())
+    recent_s = std::chrono::duration_cast<std::chrono::microseconds>(recent_t).count() * 0.000001;
 
   if (recent_s != 0)
     current_rate = (new_count - previous_count) / recent_s;

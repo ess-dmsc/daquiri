@@ -2,6 +2,8 @@
 #include "ui_SettingsForm.h"
 #include "ProfilesForm.h"
 #include <widgets/BinaryWidget.h>
+#include <widgets/qt_util.h>
+
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
@@ -74,12 +76,12 @@ void SettingsForm::update(const Setting &tree,
 
   if (editing_)
   {
-    //    DBG << "<SettingsForm> ignoring update";
+    //    DBG( "<SettingsForm> ignoring update";
     return;
   }
 
   settings_tree_ = tree;
-  //  DBG << "tree received " << settings_tree_.branches.size();
+  //  DBG( "tree received " << settings_tree_.branches.size();
 
   ui->treeViewSettings->clearSelection();
   tree_settings_model_.update(settings_tree_);
@@ -114,7 +116,7 @@ void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
   editor->exec();
 
   if (!set.metadata().has_flag("readonly"))
-    tree_settings_model_.setData(index, QVariant::fromValue(editor->get_setting().get_number()), Qt::EditRole);
+    tree_settings_model_.setData(index, QVariant::fromValue(editor->get_setting().get_int()), Qt::EditRole);
   editing_ = false;
 }
 
@@ -123,8 +125,8 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index)
   editing_ = true;
 
   QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
-  editor->setText("Run " + QString::fromStdString(command.id()));
-  editor->setInformativeText("Will run command: " + QString::fromStdString(command.id()) + "\n Are you sure?");
+  editor->setText("Run " + QS(command.id()));
+  editor->setInformativeText("Will run command: " + QS(command.id()) + "\n Are you sure?");
   editor->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   editor->exec();
 
@@ -254,7 +256,7 @@ void SettingsForm::on_bootButton_clicked()
   if (ui->bootButton->text() == "Boot")
   {
     emit toggleIO(false);
-    //    INFO << "Booting system...";
+    //    INFO( "Booting system...";
 
     runner_thread_.do_boot();
   }
@@ -265,7 +267,7 @@ void SettingsForm::on_bootButton_clicked()
     settings.beginGroup("Program");
     settings.setValue("boot_on_startup", false);
 
-    //    INFO << "Shutting down";
+    //    INFO( "Shutting down";
     runner_thread_.do_shutdown();
   }
 }
@@ -307,7 +309,7 @@ void SettingsForm::on_pushAddProducer_clicked()
   auto& pf = ProducerFactory::singleton();
   QStringList prods;
   for (auto p : pf.types())
-    prods.push_back(QString::fromStdString(p));
+    prods.push_back(QS(p));
 
   QInputDialog id(this);
   id.setOptions(QInputDialog::UseListViewForComboBoxItems);

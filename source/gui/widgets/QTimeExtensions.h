@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QDateTime>
-#include <boost/date_time.hpp>
+#include <chrono>
 
-QDateTime fromBoostPtime(boost::posix_time::ptime);
+QDateTime fromTimePoint(std::chrono::time_point<std::chrono::system_clock>);
 
-boost::posix_time::ptime fromQDateTime(QDateTime);
+std::chrono::time_point<std::chrono::system_clock> toTimePoint(QDateTime);

@@ -64,14 +64,14 @@ struct SmartSpillDeque
     bool push(const SpillPtr& s, bool drop, size_t max_buffers)
     {
       if (drop &&
-          (s->type == StatusType::running) &&
+          (s->type == Spill::Type::running) &&
           (recent_running_spills >= max_buffers))
         return true;
 
-      if (s->type == StatusType::running)
+      if (s->type == Spill::Type::running)
         recent_running_spills++;
 
-      if (earliest.is_not_a_date_time())
+      if (earliest == hr_time_t())
         earliest = s->time;
 
       queue.push_back(s);
@@ -85,13 +85,13 @@ struct SmartSpillDeque
       SpillPtr f = queue.front();
       queue.pop_front();
 
-      if (f->type == StatusType::running)
+      if (f->type == Spill::Type::running)
         recent_running_spills--;
 
       if (queue.size())
         earliest = queue.front()->time;
       else
-        earliest = boost::posix_time::not_a_date_time;
+        earliest = hr_time_t();
 
       return f;
     }
@@ -106,7 +106,7 @@ struct SmartSpillDeque
       return queue.empty();
     }
 
-    boost::posix_time::ptime earliest;
+    hr_time_t earliest;
     std::deque<SpillPtr> queue;
     size_t recent_running_spills {0};
 };
@@ -155,8 +155,8 @@ public:
     for (auto& s : streams_)
     {
       if (!s.second.empty() &&
-          (earliest->earliest.is_not_a_date_time() ||
-           (earliest->earliest > s.second.earliest)))
+          ((earliest->earliest == hr_time_t())
+          || (earliest->earliest > s.second.earliest)))
         earliest = &s.second;
     }
 

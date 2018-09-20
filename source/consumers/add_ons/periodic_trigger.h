@@ -23,14 +23,14 @@ class PeriodicTrigger
     // Parameters
     bool enabled {false};
     ClockType clock_type {ClockType::ProducerWallClock};
-    boost::posix_time::time_duration timeout {boost::posix_time::seconds(0)};
+    hr_duration_t timeout {std::chrono::seconds(0)};
 
     // State
     bool triggered {false};
 
     //pivate:
     Status previous_;
-    boost::posix_time::time_duration recent_time_ {boost::posix_time::seconds(0)};
+    hr_duration_t recent_time_ {std::chrono::seconds(0)};
 };
 
 }

@@ -9,7 +9,7 @@
 #include <core/producer_factory.h>
 #include <core/consumer_factory.h>
 
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 
 #include <core/util/h5json.h>
 
@@ -68,6 +68,7 @@ ProjectPtr get_project()
 int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
+  CustomLogger::initLogger(Severity::Debug, nullptr, "systemtest.log");
 
   producers_autoreg();
   consumers_autoreg();
@@ -92,11 +93,11 @@ int main(int argc, char** argv)
 
   engine.boot();
 
-  DBG << "\n" << engine.settings().debug("   ", false);
+  INFO("\n{}", engine.settings().debug("   ", false));
 
   if (0 == (engine.status() & ProducerStatus::can_run))
   {
-    DBG << "Engine cannot run";
+    DBG("Engine cannot run");
     return 1;
   }
 
@@ -116,7 +117,7 @@ int main(int argc, char** argv)
   ss1 << *project;
   ss2 << *project2;
 
-  DBG << "Acquired:\n" << ss1.str();
+  INFO("Acquired:\n{}", ss1.str());
 
 //  DBG << "Loaded:\n" << ss2.str();
 
@@ -128,7 +129,7 @@ int main(int argc, char** argv)
 
   if (ss1.str() != ss2.str())
   {
-    DBG << "Saved project not identical to original!";
+    INFO("Saved project not identical to original!");
     return EXIT_FAILURE;
   }
 

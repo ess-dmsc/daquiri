@@ -1,5 +1,5 @@
 #include <producers/MockProducer/MockProducer.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 
 #include <core/util/custom_logger.h>
 
@@ -169,7 +169,7 @@ void MockProducer::settings(const Setting& settings)
     if (!indices.size())
       continue;
     size_t idx = *indices.begin();
-//    DBG << "Write idx " << idx;
+//    DBG( "Write idx " << idx;
     if (idx >= val_defs_.size())
       continue;
     val_defs_[idx].settings(v);
@@ -183,14 +183,13 @@ void MockProducer::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<MockProducer> Cannot boot MockProducer. Failed flag check (can_boot == 0)";
+    WARN("<MockProducer> Cannot boot MockProducer. Failed flag check (can_boot == 0)");
     return;
   }
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 
-  INFO << "<MockProducer> Booting"
-       << " rate=" << count_rate_ << "cps";
+  INFO("<MockProducer> Booting rate = {} cps", count_rate_);
 //        << " with peak at " << peak_center_ << "%   stdev=" << peak_spread_;
 
 
@@ -200,31 +199,30 @@ void MockProducer::boot()
 
 void MockProducer::die()
 {
-//  INFO << "<MockProducer> Shutting down";
+//  INFO( "<MockProducer> Shutting down";
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
 void MockProducer::worker_run(SpillQueue spill_queue)
 {
-  DBG << "<MockProducer> Starting run   "
-      << "  timebase " << event_definition_.timebase.debug() << "ns"
-      << "  init_rate=" << count_rate_ << "cps"
-      << "  lambda=" << lambda_;
+  DBG("<MockProducer> Starting run   "
+      "  timebase {} ns   init_rate = {} cps   lambda = {}",
+      event_definition_.timebase.debug(), count_rate_, lambda_);
 
-  CustomTimer timer(true);
+  Timer timer(true);
 
-  spill_queue->enqueue(get_spill(StatusType::start, timer.s()));
+  spill_queue->enqueue(get_spill(Spill::Type::start, timer.s()));
   while (!terminate_.load())
   {
-    spill_queue->enqueue(get_spill(StatusType::running, timer.s()));
-    wait_ms(spill_interval_ * 1000.0);
+    spill_queue->enqueue(get_spill(Spill::Type::running, timer.s()));
+    Timer::wait_s(spill_interval_);
 
     double seconds = timer.s();
     double overshoot = ((event_definition_.timebase.to_sec(clock_) - seconds) / seconds * 100.0);
     if (overshoot > 0)
-      DBG << "<MockProducer> Native clock overshoot " << overshoot << "%";
+      DBG("<MockProducer> Native clock overshoot {}%", overshoot);
   }
-  spill_queue->enqueue(get_spill(StatusType::stop, timer.s()));
+  spill_queue->enqueue(get_spill(Spill::Type::stop, timer.s()));
 }
 
 void MockProducer::add_hit(Spill& spill, uint64_t time)
@@ -236,13 +234,13 @@ void MockProducer::add_hit(Spill& spill, uint64_t time)
   ++spill.events;
 }
 
-SpillPtr MockProducer::get_spill(StatusType t, double seconds)
+SpillPtr MockProducer::get_spill(Spill::Type t, double seconds)
 {
   SpillPtr spill = std::make_shared<Spill>(stream_id_, t);
 
   recent_pulse_time_ = clock_ = event_definition_.timebase.to_native(seconds * pow(10, 9));
 
-  if (t == StatusType::running)
+  if (t == Spill::Type::running)
     fill_events(spill, seconds);
   spill->events.finalize();
 

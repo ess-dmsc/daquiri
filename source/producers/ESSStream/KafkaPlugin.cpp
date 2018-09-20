@@ -118,7 +118,7 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
 
   if (!conf.get())
   {
-    ERR << "<KafkaConfigPlugin> Unable to created global Conf object";
+    ERR("<KafkaConfigPlugin> Unable to created global Conf object");
     return nullptr;
   }
 
@@ -140,7 +140,7 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
       (RdKafka::KafkaConsumer::create(conf.get(), error_str));
   if (!ret->low_level.get())
   {
-    ERR << "<KafkaConfigPlugin> Failed to create consumer:" << error_str;
+    ERR("<KafkaConfigPlugin> Failed to create consumer:{}", error_str);
     return nullptr;
   }
 
@@ -148,8 +148,8 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
   RdKafka::ErrorCode resp = ret->low_level->subscribe({topic});
   if (resp != RdKafka::ERR_NO_ERROR)
   {
-    ERR << "<KafkaConfigPlugin> "
-        << "Failed to subscribe consumer to '" << topic << "': " << err2str(resp);
+    ERR("<KafkaConfigPlugin> Failed to subscribe consumer to '{}': {}",
+        topic, err2str(resp));
     ret->low_level->close();
     decomission();
     ret.reset();

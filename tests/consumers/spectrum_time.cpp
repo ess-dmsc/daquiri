@@ -30,7 +30,7 @@ class TimeSpectrum : public TestBase
     }
 
     DAQuiri::TimeSpectrum h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(TimeSpectrum, DefaultConstructed)

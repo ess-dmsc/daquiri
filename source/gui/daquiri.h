@@ -4,8 +4,9 @@
 #include "SettingsForm.h"
 
 #include <core/util/custom_logger.h>
-#include "qt_boost_logger.h"
+#include <QStreamBuffer.h>
 #include <core/producer.h>
+#include "Server.h"
 
 namespace Ui {
 class daquiri;
@@ -24,7 +25,7 @@ class daquiri : public QMainWindow
   private:
     Ui::daquiri *ui;
 
-    //connect gui with boost logger framework
+    //connect gui with logger framework
     std::stringstream log_stream_;
     LogEmitter        my_emitter_;
     LogStreamBuffer   text_buffer_;
@@ -42,6 +43,8 @@ class daquiri : public QMainWindow
 
     bool open_new_project_ {false};
     bool start_daq_ {false};
+
+    CommandServer server;
 
 
   signals:
@@ -71,9 +74,16 @@ class daquiri : public QMainWindow
 
     void open_list();
     void open_new_proj();
-    void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false);
+    void open_project(DAQuiri::ProjectPtr = nullptr, bool start = false, QString name = "");
 
     void initialize_settings_dir();
+
+
+    void stop_daq();
+    void start_new_daq(QString name);
+    void die();
+    void save();
+    void close_older(uint32_t mins);
 
   private:
     //helper functions

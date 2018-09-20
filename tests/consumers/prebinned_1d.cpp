@@ -32,7 +32,7 @@ class Prebinned1D : public TestBase
     }
 
     DAQuiri::Prebinned1D h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(Prebinned1D, DefaultConstructed)

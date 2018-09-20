@@ -1,11 +1,8 @@
 [requires]
 cmake_findboost_modular/1.65.1@bincrafters/stable
-boost_timer/1.65.1@bincrafters/stable
-boost_date_time/1.65.1@bincrafters/stable
-boost_thread/1.65.1@bincrafters/stable
-boost_log/1.65.1@bincrafters/stable
-date/2.4@ess-dmsc/testing
 cli11/1.4-dm3@ess-dmsc/stable
+graylog-logger/1.0.5-dm1@ess-dmsc/stable
+fmt/5.1.0@bincrafters/stable
 gtest/3121b20-dm3@ess-dmsc/stable
 h5cpp/0.0.9@ess-dmsc/testing
 librdkafka/0.11.4@ess-dmsc/stable
@@ -16,18 +13,14 @@ jsonformoderncpp/3.1.0@vthiery/stable
 qplot/b4a8639@ess-dmsc/stable
 Qt-Color-Widgets/fbeaae4@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
+date/2.4@ess-dmsc/testing
 
 [generators]
 cmake
 virtualrunenv
 
 [options]
-boost_timer:shared=True
-boost_chrono:shared=True
-boost_thread:shared=True
 boost_system:shared=True
-boost_filesystem:shared=True
-boost_log:shared=True
 gtest:shared=True
 librdkafka:shared=True
 

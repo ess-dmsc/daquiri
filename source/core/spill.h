@@ -4,33 +4,8 @@
 #include <core/detector.h>
 #include <core/event.h>
 
-namespace DAQuiri {
-
-enum class StatusType { start, running, stop, daq_status };
-
-inline StatusType type_from_str(std::string type)
+namespace DAQuiri
 {
-  if (type == "start")
-    return StatusType::start;
-  else if (type == "stop")
-    return StatusType::stop;
-  else if (type == "running")
-    return StatusType::running;
-  else
-    return StatusType::daq_status;
-}
-
-inline std::string type_to_str(StatusType type)
-{
-  if (type == StatusType::start)
-    return "start";
-  else if (type == StatusType::stop)
-    return "stop";
-  else if (type == StatusType::running)
-    return "running";
-  else
-    return "daq_status";
-}
 
 class Spill;
 
@@ -40,59 +15,69 @@ using ListData = std::vector<SpillPtr>;
 struct StreamInfo
 {
   EventModel event_model;
-  Setting    stats {Setting::stem("stats")};
+  Setting stats{Setting::stem("stats")};
 };
 
 using StreamManifest = std::map<std::string, StreamInfo>;
 
 class EventBuffer
 {
-    using container_t = std::vector<Event>;
-  public:
-    using const_iterator = typename container_t::const_iterator;
-    EventBuffer() {}
+ public:
+  EventBuffer() {}
 
-    inline size_t size() const { return data_.size(); }
-    inline bool empty() const { return data_.empty(); }
+  inline size_t size() const { return data_.size(); }
+  inline bool empty() const { return data_.empty(); }
 
-    inline void reserve(size_t s, const Event &e) { data_.resize(s, e); }
-    inline Event& last() { return data_[idx_]; }
+  inline void reserve(size_t s, const Event& e) { data_.resize(s, e); }
+  inline Event& last() { return data_[idx_]; }
 
-    inline EventBuffer& operator++ () { idx_++; return *this; }
-    inline EventBuffer operator++ (int) { idx_++; return *this; }
+  inline EventBuffer& operator++()
+  {
+    idx_++;
+    return *this;
+  }
+  inline EventBuffer operator++(int)
+  {
+    idx_++;
+    return *this;
+  }
 
-    inline void finalize() { data_.resize(idx_); }
+  inline void finalize() { data_.resize(idx_); }
 
-    inline const_iterator begin() const { return data_.begin(); }
-    inline const_iterator end() const { return data_.end(); }
+  inline std::vector<Event>::const_iterator begin() const { return data_.begin(); }
+  inline std::vector<Event>::const_iterator end() const { return data_.end(); }
 
-  private:
-    std::vector<Event> data_;
-    size_t idx_ {0};
+ private:
+  std::vector<Event> data_;
+  size_t idx_{0};
 };
 
 class Spill
 {
-  public:
-    Spill() {}
-    Spill(std::string id, StatusType t);
+ public:
+  enum class Type { start, running, stop, daq_status };
 
-    std::string                stream_id;
-    StatusType                 type {StatusType::daq_status};
-    boost::posix_time::ptime   time {boost::posix_time::microsec_clock::universal_time()};
-    Setting                    state;
+  Spill() {}
+  Spill(std::string id, Spill::Type t);
 
-    std::vector<char> raw; // raw from device
-    EventModel        event_model;
-    EventBuffer       events;
+  static Type from_str(const std::string& type);
+  static std::string to_str(const Type& type);
 
-  public:
-    bool empty();
-    std::string debug(std::string prepend = "") const;
+  std::string stream_id;
+  Type type{Type::daq_status};
+  hr_time_t time{std::chrono::system_clock::now()};
+  Setting state;
+
+  std::vector<char> raw; // raw from device
+  EventModel event_model;
+  EventBuffer events;
+
+ public:
+  bool empty();
+  std::string debug(std::string prepend = "") const;
 };
 
-
-void to_json(json& j, const Spill &s);
-void from_json(const json& j, Spill &s);
+void to_json(json& j, const Spill& s);
+void from_json(const json& j, Spill& s);
 
 }

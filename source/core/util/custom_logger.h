@@ -2,55 +2,35 @@
 
 #include <iostream>
 #include <string>
-#include <boost/log/core.hpp>
-#include <boost/log/expressions/keyword.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/severity_feature.hpp>
-#include <boost/log/sources/global_logger_storage.hpp>
+
+#include <fmt/format.h>
+#include <cstdint>
+#include <libgen.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#include <graylog_logger/Log.hpp>
+#pragma GCC diagnostic pop
+
+#pragma GCC system_header
 
 namespace CustomLogger {
-
-  void initLogger(std::ostream *gui_stream, std::string log_file_N);
+  void initLogger(Severity severity, std::ostream *gui_stream, std::string log_file_N);
   void closeLogger();
+};
 
-  enum SeverityLevel
-  {
-    kTrace,
-    kDebug,
-    kInfo,
-    kWarning,
-    kError,
-    kCritical
-  };
+#define LOG(Severity, Format, ...) Log::Msg(Severity, fmt::format(Format, ##__VA_ARGS__))
 
-  inline std::ostream& operator<< (std::ostream& strm, SeverityLevel level) {
-    static const char* strings[] = {
-      "TRACE",
-      "DEBUG",
-      "INFO",
-      "WARN",
-      "ERROR",
-      "FATAL"
-    };
-    if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
-      strm << strings[level];
-    else
-      strm << static_cast<int>(level);
-    return strm;
-  }
+#define CRIT(Format, ...) LOG(Severity::Critical, Format, ##__VA_ARGS__)
+#define ERR(Format, ...) LOG(Severity::Error, Format, ##__VA_ARGS__)
+#define WARN(Format, ...) LOG(Severity::Warning, Format, ##__VA_ARGS__)
+#define INFO(Format, ...) LOG(Severity::Informational, Format, ##__VA_ARGS__)
+#define DBG(Format, ...) LOG(Severity::Debug, Format, ##__VA_ARGS__)
 
-}
+#define LOGL(Severity, Format, ...) Log::Msg(Severity, fmt::format(Format, ##__VA_ARGS__), {{"file", std::string(__FILE__)}, {"line", std::int64_t(__LINE__)}})
 
-BOOST_LOG_ATTRIBUTE_KEYWORD(g_severity, "Severity", CustomLogger::SeverityLevel)
-
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(g_custom_logger,
-                                       boost::log::sources::severity_logger_mt<CustomLogger::SeverityLevel>)
-
-#define TRC BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kTrace)
-#define DBG BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kDebug)
-#define INFO BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kInfo)
-#define WARN BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kWarning)
-#define ERR BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kError)
-#define CRIT BOOST_LOG_SEV(g_custom_logger::get(), CustomLogger::kCritical)
-
+#define CRITL(Format, ...) LOGL(Severity::Critical, Format, ##__VA_ARGS__)
+#define ERRL(Format, ...) LOGL(Severity::Error, Format, ##__VA_ARGS__)
+#define WARNL(Format, ...) LOGL(Severity::Warning, Format, ##__VA_ARGS__)
+#define INFOL(Format, ...) LOGL(Severity::Informational, Format, ##__VA_ARGS__)
+#define DBGL(Format, ...) LOGL(Severity::Debug, Format, ##__VA_ARGS__)

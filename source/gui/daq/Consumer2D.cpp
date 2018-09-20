@@ -1,5 +1,7 @@
 #include "Consumer2D.h"
-#include <core/util/custom_timer.h>
+#include <widgets/qt_util.h>
+
+#include <core/util/timer.h>
 
 #include <core/util/custom_logger.h>
 
@@ -38,22 +40,22 @@ void Consumer2D::update()
       || (consumer_->dimensions() != 2))
     return;
 
-  //  CustomTimer guiside(true);
+  //  Timer guiside(true);
 
   DataspacePtr data = consumer_->data();
   ConsumerMetadata md = consumer_->metadata();
 
   std::string new_label = md.get_attribute("name").get_text();
-  setWindowTitle(QString::fromStdString(new_label).trimmed());
+  setWindowTitle(QS(new_label).trimmed());
 
   if (!initial_scale_)
   {
     auto st = md.get_attribute("preferred_scale");
     auto scale = st.metadata().enum_name(st.selection());
-    plot_->setScaleType(QString::fromStdString(scale));
+    plot_->setScaleType(QS(scale));
 
     auto app = md.get_attribute("appearance").get_text();
-    plot_->setGradient(QString::fromStdString(app));
+    plot_->setGradient(QS(app));
     initial_scale_ = true;
   }
 
@@ -83,8 +85,8 @@ void Consumer2D::update()
     plot_->clearExtras();
     plot_->clearData();
     plot_->setAxes(
-          QString::fromStdString(axis_x.label()), axis_x.domain[0], axis_x.domain[res_x],
-          QString::fromStdString(axis_y.label()), axis_y.domain[0], axis_y.domain[res_y],
+          QS(axis_x.label()), axis_x.domain[0], axis_x.domain[res_x],
+          QS(axis_y.label()), axis_y.domain[0], axis_y.domain[res_y],
           "count");
     plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->replotExtras();
@@ -93,7 +95,7 @@ void Consumer2D::update()
   if (!user_zoomed_)
     plot_->zoomOut();
 
-  //  DBG << "<Plot2D> plotting took " << guiside.ms() << " ms";
+  //  DBG( "<Plot2D> plotting took " << guiside.ms() << " ms";
 }
 
 void Consumer2D::scaleChanged(QString sn)
@@ -109,7 +111,7 @@ void Consumer2D::scaleChanged(QString sn)
   {
     if (e.second == sn.toStdString())
     {
-      DBG << "Matched " << e.second << "=" << e.first;
+      DBG("Matched {}={}", e.second, e.first);
       st.select(e.first);
       break;
     }
