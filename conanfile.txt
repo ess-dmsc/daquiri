@@ -1,12 +1,15 @@
 [requires]
+cmake_findboost_modular/1.65.1@bincrafters/stable
+boost_algorithm/1.65.1@bincrafters/stable
+boost_lexical_cast/1.65.1@bincrafters/stable
 cli11/1.4-dm3@ess-dmsc/stable
 graylog-logger/1.0.5-dm1@ess-dmsc/stable
 fmt/5.1.0@bincrafters/stable
 gtest/3121b20-dm3@ess-dmsc/stable
-h5cpp/0.0.7-dm1@ess-dmsc/stable
+h5cpp/0.0.9@ess-dmsc/testing
 librdkafka/0.11.4@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
-streaming-data-types/361bf7b@ess-dmsc/stable
+streaming-data-types/d429d55@ess-dmsc/stable
 Eigen3/3.2.9@bilke/stable
 jsonformoderncpp/3.1.0@vthiery/stable
 qplot/b4a8639@ess-dmsc/stable
@@ -19,6 +22,7 @@ cmake
 virtualrunenv
 
 [options]
+boost_system:shared=True
 gtest:shared=True
 librdkafka:shared=True
 

@@ -1,7 +1,8 @@
 include(InstallConfig)
 include(BuildInfo)
 
-find_package(h5cpp 0.0.7 REQUIRED)
+include(BoostLibraryConfig)
+find_package(h5cpp 0.0.9 REQUIRED)
 find_package(Threads REQUIRED)
 
 find_package(GraylogLogger REQUIRED)
