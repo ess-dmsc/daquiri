@@ -388,6 +388,10 @@ void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
   }
 }
 
+void ConsumerDialog::on_pushExpandAll_clicked()
+{
+  ui->treeAttribs->expandAll();
+}
 
 void ConsumerDialog::on_pushDetEdit_clicked()
 {

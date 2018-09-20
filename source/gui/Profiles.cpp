@@ -5,7 +5,7 @@
 #include <core/util/json_file.h>
 
 #define PROFILE_FILE_NAME "profile.set"
-#define PROFILE_PATH_DEFAULT "essdaq/daquiri_config"
+#define PROFILE_PATH_DEFAULT "essdaq/daquiri"
 
 namespace Profiles
 {
