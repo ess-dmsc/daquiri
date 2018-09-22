@@ -51,11 +51,12 @@ public:
 
   SettingMeta stripped() const;
   bool meaningful() const;
-  bool numeric() const;
 
   std::string id() const;
   SettingType type() const;
+
   bool is(SettingType type) const;
+  bool is_numeric() const;
 
   void set_flag(std::string f);
   bool has_flag(std::string f);
@@ -63,18 +64,18 @@ public:
   void set_flags(std::initializer_list<std::string> fs);
 
   void set_enum(int32_t idx, std::string val);
+  void set_enums(int32_t start_idx, std::list<std::string> vals);
   bool has_enum(int32_t idx) const;
   std::string enum_name(int32_t idx) const;
   std::list<std::string> enum_names() const;
-  std::map<int32_t, std::string> enum_map() const
-  {
-    return enum_map_;
-  }
+  std::map<int32_t, std::string> enum_map() const;
 
   std::string get_string(std::string name, std::string default_val) const;
 
   TT T get_num(std::string name, T default_val) const;
   TT void set_val(std::string name, T val);
+  TT void set_bounds(T minimum, T maximum);
+  TT void set_bounds(T minimum, T stepval, T maximum);
   TT T min() const;
   TT T max() const;
   TT T step() const;
@@ -89,7 +90,7 @@ private:
   std::string                    id_;
   SettingType                    type_ {SettingType::none};
   std::set<std::string>          flags_;
-  json                           contents_;
+  json                           values_;
   std::map<int32_t, std::string> enum_map_;
 
   std::string mins(std::string def) const;
@@ -123,14 +124,14 @@ TT std::string SettingMeta::max_str(std::string def) const
 
 TT T SettingMeta::get_num(std::string name, T default_val) const
 {
-  if (contents_.count(name) && contents_.at(name).is_number())
-    return contents_.at(name).get<T>();
+  if (values_.count(name) && values_.at(name).is_number())
+    return values_.at(name).get<T>();
   return default_val;
 }
 
 TT void SettingMeta::set_val(std::string name, T val)
 {
-  contents_[name] = val;
+  values_[name] = val;
 }
 
 TT T SettingMeta::min() const
@@ -147,6 +148,19 @@ TT T SettingMeta::step() const
 {
   return get_num("step", T(1));
 }
+
+TT void SettingMeta::set_bounds(T minimum, T maximum)
+{
+  set_val("min", minimum);
+  set_val("max", maximum);
+}
+
+TT void SettingMeta::set_bounds(T minimum, T stepval, T maximum)
+{
+  set_val("step", stepval);
+  set_bounds(minimum, maximum);
+}
+
 
 }
 

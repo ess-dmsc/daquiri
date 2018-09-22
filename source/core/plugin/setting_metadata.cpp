@@ -78,7 +78,7 @@ SettingMeta::SettingMeta(std::string id, SettingType type,
   : id_(id)
   , type_ (type)
 {
-  contents_["name"] = name;
+  values_["name"] = name;
 }
 
 std::string SettingMeta::id() const
@@ -96,9 +96,22 @@ bool SettingMeta::is(SettingType type) const
   return (type_ == type);
 }
 
+bool SettingMeta::is_numeric() const
+{
+  return (is(SettingType::integer)
+      || is(SettingType::floating)
+      || is(SettingType::precise));
+}
+
 void SettingMeta::set_enum(int32_t idx, std::string val)
 {
   enum_map_[idx] = val;
+}
+
+void SettingMeta::set_enums(int32_t start_idx, std::list<std::string> vals)
+{
+  for (const auto& v : vals)
+    set_enum(start_idx++, v);
 }
 
 bool SettingMeta::has_enum(int32_t idx) const
@@ -121,10 +134,15 @@ std::list<std::string> SettingMeta::enum_names() const
   return ret;
 }
 
+std::map<int32_t, std::string> SettingMeta::enum_map() const
+{
+  return enum_map_;
+}
+
 std::string SettingMeta::get_string(std::string name, std::string default_val) const
 {
-  if (contents_.count(name) && contents_.at(name).is_string())
-    return contents_[name];
+  if (values_.count(name) && values_.at(name).is_string())
+    return values_[name];
   return default_val;
 }
 
@@ -161,7 +179,7 @@ SettingMeta SettingMeta::stripped() const
 bool SettingMeta::meaningful() const
 {
   return (!flags_.empty() ||
-          !contents_.empty() ||
+          !values_.empty() ||
           !enum_map_.empty());
 }
 
@@ -169,7 +187,7 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
 {
   std::string ret = col(GREEN) + to_string(type_) + col();
 
-  if (numeric())
+  if (is_numeric())
     ret += " " + col(CYAN) + value_range() + col();
 
   if (!flags_.empty())
@@ -179,10 +197,10 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
 
   json cont;
   if (verbose)
-    cont = contents_;
+    cont = values_;
   else
-    for (auto it = contents_.begin();
-         it != contents_.end(); ++it)
+    for (auto it = values_.begin();
+         it != values_.end(); ++it)
       if ((it.key() != "min") &&
           (it.key() != "max") &&
           (it.key() != "step") &&
@@ -212,7 +230,7 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
 
 std::string SettingMeta::value_range() const
 {
-  if (!numeric())
+  if (!is_numeric())
     return "";
   std::stringstream ss;
   ss << "[" << mins("m")
@@ -243,20 +261,14 @@ std::string SettingMeta::maxs(std::string def) const
   return "?";
 }
 
-bool SettingMeta::numeric() const
-{
-  return (is(SettingType::integer)
-          || is(SettingType::floating)
-          || is(SettingType::precise));
-}
-
+// \todo change names and convert existing files
 void to_json(json& j, const SettingMeta &s)
 {
   j["id"] = s.id_;
   j["type"] = to_string(s.type_);
 
-  if (!s.contents_.empty())
-    j["contents"] = s.contents_;
+  if (!s.values_.empty())
+    j["contents"] = s.values_;
 
   for (auto &q : s.enum_map_)
     j["items"].push_back({{"val", q.first}, {"meaning", q.second}});
@@ -279,7 +291,7 @@ void from_json(const json& j, SettingMeta &s)
       s.flags_.insert(it.get<std::string>());
 
   if (j.count("contents"))
-    s.contents_ = j["contents"];
+    s.values_ = j["contents"];
 }
 
 }
