@@ -544,7 +544,7 @@ Setting Setting::indicator(std::string sid, integer_t val)
 
 bool Setting::numeric() const
 {
-  return metadata_.numeric();
+  return metadata_.is_numeric();
 }
 
 double Setting::get_number() const
