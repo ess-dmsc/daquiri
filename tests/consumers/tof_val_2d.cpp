@@ -31,7 +31,7 @@ class TOFVal2D : public TestBase
     }
 
     DAQuiri::TOFVal2D h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(TOFVal2D, DefaultConstructed)

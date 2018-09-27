@@ -45,7 +45,7 @@ class Image2D : public TestBase
     }
 
     DAQuiri::Image2D h;
-    DAQuiri::Spill s{"stream", DAQuiri::StatusType::start};
+    DAQuiri::Spill s{"stream", DAQuiri::Spill::Type::start};
 };
 
 TEST_F(Image2D, DefaultConstructed)

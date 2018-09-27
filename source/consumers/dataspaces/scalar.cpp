@@ -141,7 +141,8 @@ std::string Scalar::data_debug(const std::string& prepend) const
      << "current value = " << data_
      << "   on interval (" << min_val_ << ", " << max_val_ << ")"
      << "   out of total sample = "
-     << total_count_;
+     << total_count_
+     << "\n";
 
   return ss.str();
 }

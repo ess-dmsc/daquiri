@@ -1,8 +1,6 @@
 set(this_target unit_tests)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-include(BoostLibraryConfig)
-
 set(${this_target}_headers
   gtest_color_print.h)
 set(${this_target}_sources
@@ -29,7 +27,6 @@ target_link_libraries(
     PRIVATE ${PROJECT_NAME}_consumers
     PRIVATE ${GTEST_LIBRARIES}
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-    PRIVATE ${Boost_LIBRARIES}
     PRIVATE ${COVERAGE_LIBRARIES}
 )
 
@@ -42,18 +39,15 @@ add_custom_target(run_unit_tests
     DEPENDS ${this_target})
 add_test(NAME "RunGoogleTests" COMMAND run_unit_tests)
 
-###############
-# SYSTEM TEST #
-###############
-
 add_subdirectory(system_tests)
+add_subdirectory(gui)
 
 #############
 # ALL TESTS #
 #############
 
 add_custom_target(all_tests
-    DEPENDS unit_tests system_test)
+    DEPENDS unit_tests system_test gui_tests)
 
 add_custom_target(run_tests
-    DEPENDS run_unit_tests run_system_test)
+    DEPENDS run_unit_tests run_system_test run_gui_tests)

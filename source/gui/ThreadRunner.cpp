@@ -1,4 +1,3 @@
-#include <boost/thread.hpp>
 #include <QSettings>
 #include <QDir>
 #include "ThreadRunner.h"
@@ -50,7 +49,7 @@ void ThreadRunner::do_list(DAQuiri::Interruptor& interruptor, uint64_t timeout)
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -67,7 +66,7 @@ void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor,
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -85,7 +84,7 @@ void ThreadRunner::remove_producer(const Setting& node)
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -100,7 +99,7 @@ void ThreadRunner::add_producer(const Setting& node)
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -116,7 +115,7 @@ void ThreadRunner::do_initialize(QString profile_name,
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -133,7 +132,7 @@ void ThreadRunner::do_boot()
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -147,7 +146,7 @@ void ThreadRunner::do_shutdown()
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -161,7 +160,7 @@ void ThreadRunner::do_push_settings(const Setting &tree)
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -176,7 +175,7 @@ void ThreadRunner::do_set_setting(const Setting &item, Match match)
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -192,7 +191,7 @@ void ThreadRunner::do_oscil()
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -206,7 +205,7 @@ void ThreadRunner::do_refresh_settings()
 {
   if (running_.load())
   {
-    WARN << "Runner busy";
+    WARN("Runner busy");
     return;
   }
   QMutexLocker locker(&mutex_);
@@ -315,7 +314,7 @@ void ThreadRunner::run()
       {
         action_ = kSettingsRefresh;
         QThread::sleep(idle_refresh_frequency_.load());
-        //DBG << "idle runner will refresh settings";
+        //DBG( "idle runner will refresh settings";
       }
     }
     running_.store(false);

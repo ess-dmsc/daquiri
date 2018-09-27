@@ -39,6 +39,8 @@ private slots:
     void on_pushDetToDB_clicked();
     void on_spinDets_valueChanged(int arg1);
 
+    void on_pushExpandAll_clicked();
+
     void push_settings();
     void changeDet(DAQuiri::Detector);
     void det_selection_changed(QItemSelection,QItemSelection);

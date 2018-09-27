@@ -115,7 +115,7 @@ void TimeDelta1D::_push_event(const Event& event)
   if (event.timestamp() < previous_time_)
   {
     //TODO: do something smarter about this
-    WARN << "<TimeDelta1D> Negative time difference occurred";
+    WARN("<TimeDelta1D> Negative time difference occurred");
     previous_time_ = event.timestamp();
     return;
   }

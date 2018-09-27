@@ -2,6 +2,9 @@
 #include "ui_TimeDurationWidget.h"
 #include <core/util/custom_logger.h>
 
+#include <date/date.h>
+
+
 #define FACTOR_us 1000000
 #define FACTOR_min 60
 #define FACTOR_h 60
@@ -42,11 +45,12 @@ void TimeDurationWidget::set_total_seconds(uint64_t secs)
   ui->spinDays->setValue(total_hours / 24);
 }
 
-void TimeDurationWidget::set_duration(boost::posix_time::time_duration duration)
+// \todo fix this
+void TimeDurationWidget::set_duration(hr_duration_t duration)
 {
-  DBG << "Set duration " << duration;
-
-  uint64_t total_ms = duration.total_microseconds();
+  INFO("Set duration {}", to_simple(duration));
+  using namespace date;
+  uint64_t total_ms = static_cast<uint64_t>(round<std::chrono::microseconds>(duration).count());
   ui->spin_ms->setValue(total_ms % FACTOR_us);
   uint64_t total_seconds = total_ms / FACTOR_us;
   ui->spinS->setValue(total_seconds % FACTOR_min);
@@ -57,7 +61,7 @@ void TimeDurationWidget::set_duration(boost::posix_time::time_duration duration)
   ui->spinDays->setValue(total_hours / FACTOR_day);
 }
 
-boost::posix_time::time_duration TimeDurationWidget::get_duration() const
+hr_duration_t TimeDurationWidget::get_duration() const
 {
   uint64_t time = FACTOR_day * ui->spinDays->value();
   time += ui->spinH->value();
@@ -67,9 +71,8 @@ boost::posix_time::time_duration TimeDurationWidget::get_duration() const
   time += ui->spinS->value();
   time *= FACTOR_us;
   time += ui->spin_ms->value();
-  boost::posix_time::time_duration ret =
-      boost::posix_time::microseconds(time);
-  DBG << "Ret duration " << ret;
+  hr_duration_t ret = std::chrono::microseconds(time);
+  INFO("Ret duration {}", to_simple(ret));
   return ret;
 }
 

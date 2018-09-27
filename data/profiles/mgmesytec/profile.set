@@ -81,12 +81,12 @@
         {
          "id": "ev42_events/SpoofClock",
          "type": "menu",
-         "value": 2
+         "value": 0
         },
         {
          "id": "ev42_events/Heartbeat",
          "type": "boolean",
-         "value": true
+         "value": false
         },
         {
          "id": "ev42_events/FilterSourceName",
@@ -108,12 +108,12 @@
           {
            "id": "ESSGeometry/extent_x",
            "type": "integer",
-           "value": 4
+           "value": 24
           },
           {
            "id": "ESSGeometry/extent_y",
            "type": "integer",
-           "value": 48
+           "value": 40
           },
           {
            "id": "ESSGeometry/extent_z",
@@ -134,12 +134,12 @@
           {
            "id": "TimeBase/multiplier",
            "type": "integer",
-           "value": 1
+           "value": 125
           },
           {
            "id": "TimeBase/divider",
            "type": "integer",
-           "value": 1
+           "value": 2
           }
          ],
          "id": "TimeBase",
@@ -170,7 +170,7 @@
         {
          "id": "KafkaTopicConfig/KafkaMaxBacklog",
          "type": "integer",
-         "value": 1
+         "value": 5
         }
        ],
        "id": "KafkaTopicConfig",

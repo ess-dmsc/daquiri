@@ -88,7 +88,7 @@ EntryList SparseMap3D::range(std::vector<Pair> list) const
   }
 
   EntryList result(new EntryList_t);
-//  CustomTimer makelist(true);
+//  Timer makelist(true);
 
   fill_list(result, min0, max0, min1, max1, min2, max2);
 

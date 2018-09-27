@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/producer.h>
-#include <core/util/custom_timer.h>
+#include <core/util/timer.h>
 
 using namespace DAQuiri;
 

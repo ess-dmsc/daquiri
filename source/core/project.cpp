@@ -326,7 +326,7 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
         ConsumerPtr consumer = ConsumerFactory::singleton().create_from_h5(sg, with_full_consumers);
         if (!consumer)
-          WARN << "<Project> Could not parse consumer";
+          WARN("<Project> Could not parse consumer");
         else
         {
           _add_consumer(consumer);
