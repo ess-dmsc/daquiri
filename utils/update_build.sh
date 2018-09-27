@@ -9,4 +9,4 @@ cmake ..
 make $@
 make all_tests $@
 source ./activate_run.sh
-make run_tests
+./tests/unit_tests
