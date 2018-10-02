@@ -41,5 +41,11 @@ std::vector<std::string> ProducerFactory::types() const
   return all_types;
 }
 
+void ProducerFactory::clear()
+{
+  constructors_.clear();
+}
+
+
 }
 

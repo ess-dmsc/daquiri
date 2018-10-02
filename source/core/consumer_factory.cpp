@@ -14,7 +14,9 @@ ConsumerPtr ConsumerFactory::create_type(std::string type) const
 
 ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other) const
 {
-  return ConsumerPtr(other->clone());
+  if (other)
+    return ConsumerPtr(other->clone());
+  return ConsumerPtr();
 }
 
 ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) const
@@ -77,5 +79,12 @@ std::vector<std::string> ConsumerFactory::types() const
     all_types.push_back(q.first);
   return all_types;
 }
+
+void ConsumerFactory::clear()
+{
+  constructors_.clear();
+  prototypes_.clear();
+}
+
 
 }
