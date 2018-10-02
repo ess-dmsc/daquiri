@@ -104,9 +104,9 @@ TEST_F(ConsumerFactory, create_copy)
   auto c1 = cf.create_type("Consumer1");
   auto c2 = cf.create_copy(c1);
 
-//  EXPECT_EQ(c2->type(), "Consumer1");
-//  EXPECT_NE(c1.get(), c2.get());
+  EXPECT_EQ(c2->type(), "Consumer1");
+  EXPECT_NE(c1.get(), c2.get());
 
-//  EXPECT_FALSE(cf.create_copy(nullptr));
+  EXPECT_FALSE(cf.create_copy(nullptr));
 }
 

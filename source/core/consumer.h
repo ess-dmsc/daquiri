@@ -22,7 +22,7 @@ class Consumer
     Consumer();
     Consumer(const Consumer& other)
       : metadata_(other.metadata_)
-      , changed_ {true}
+      , changed_ {true} // \todo: really?
     {
         if (other.data_)
             data_ = DataspacePtr(other.data_->clone());
