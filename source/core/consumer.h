@@ -22,9 +22,11 @@ class Consumer
     Consumer();
     Consumer(const Consumer& other)
       : metadata_(other.metadata_)
-      , data_ (other.data_->clone())
       , changed_ {true}
-    {}
+    {
+        if (other.data_)
+            data_ = DataspacePtr(other.data_->clone());
+    }
     virtual Consumer* clone() const = 0;
     virtual ~Consumer() {}
 

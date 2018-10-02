@@ -78,4 +78,11 @@ std::vector<std::string> ConsumerFactory::types() const
   return all_types;
 }
 
+void ConsumerFactory::clear()
+{
+  constructors_.clear();
+  prototypes_.clear();
+}
+
+
 }
