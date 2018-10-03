@@ -1,7 +1,6 @@
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <core/plugin/setting_metadata.h>
 #include <core/util/color_bash.h>
+#include <core/util/string_extensions.h>
 
 namespace DAQuiri {
 
@@ -192,7 +191,7 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
 
   if (!flags_.empty())
     ret += " " + col(WHITE, NONE, DIM)
-        + boost::algorithm::join(flags_, " ")
+        + join(flags_, " ")
         + col();
 
   json cont;

@@ -1,5 +1,5 @@
 #include <core/calibration/parameter.h>
-#include <boost/lexical_cast.hpp>
+#include <fmt/format.h>
 #include <iomanip>
 #include <numeric>
 
@@ -123,11 +123,7 @@ FitParam FitParam::enforce_policy()
 
 std::string FitParam::to_string() const
 {
-  std::string ret =
-      value_.to_string() +
-      " [" + boost::lexical_cast<std::string>(lower_) +
-      ":" + boost::lexical_cast<std::string>(upper_) + "]";
-  return ret;
+  return fmt::format("{} [{}:{}]", value_.to_string(), lower_, upper_);
 }
 
 bool FitParam::same_bounds_and_policy(const FitParam &other) const

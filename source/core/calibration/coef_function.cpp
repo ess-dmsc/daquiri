@@ -3,9 +3,6 @@
 #include <sstream>
 #include <iomanip>
 #include <numeric>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <core/util/custom_logger.h>
 
 namespace DAQuiri
