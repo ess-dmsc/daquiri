@@ -3,21 +3,6 @@
 #include <sstream>
 #include <date/date.h>
 
-/*
-boost::posix_time::ptime from_custom_format(std::string str, std::string format)
-{
-  boost::posix_time::ptime tm;
-  if (str.empty())
-    return tm;
-  boost::posix_time::time_input_facet
-      *tif(new boost::posix_time::time_input_facet(format));
-  std::stringstream iss(str);
-  iss.imbue(std::locale(std::locale::classic(), tif));
-  iss >> tm;
-  return tm;
-}
-*/
-
 std::string very_simple(const hr_duration_t &duration)
 {
   std::stringstream ss;

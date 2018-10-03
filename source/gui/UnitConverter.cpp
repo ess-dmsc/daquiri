@@ -3,8 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <numeric>
-#include <boost/algorithm/string.hpp>
-//#include <boost/locale.hpp>
+#include <core/util/string_extensions.h>
 #include <core/util/custom_logger.h>
 
 UnitConverter::UnitConverter()
@@ -63,8 +62,8 @@ std::map<int32_t, std::string> UnitConverter::make_ordered_map(std::string defau
 
 PreciseFloat UnitConverter::convert_units(PreciseFloat value, std::string from, std::string to) const
 {
-  boost::algorithm::trim(from);
-  boost::algorithm::trim(to);
+  trim(from);
+  trim(to);
   if (from == to)
     return value;
   if (strip_unit(from) != strip_unit(to))

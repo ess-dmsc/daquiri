@@ -1,7 +1,7 @@
 #include <core/calibration/calibration.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>
+#include <fmt/format.h>
 
 namespace DAQuiri {
 
@@ -195,7 +195,7 @@ std::string Calibration::fancy_equation(bool with_chi2) const
   if (valid())
     return function_->to_UTF8()
         + (with_chi2
-           ? (" (chi2=" + boost::lexical_cast<std::string>(function_->chi2()) + ")")
+           ? fmt::format("chi2={})", function_->chi2())
            : "");
   return "N/A";
 }
@@ -222,12 +222,12 @@ std::string Calibration::coefs_to_string() const
   std::stringstream dss;
   for (auto &q : function_->coeffs_consecutive())
     dss << q << " ";
-  return boost::algorithm::trim_copy(dss.str());
+  return trim_copy(dss.str());
 }
 
 std::vector<double> Calibration::coefs_from_string(const std::string &coefs)
 {
-  std::stringstream ss(boost::algorithm::trim_copy(coefs));
+  std::stringstream ss(trim_copy(coefs));
   std::vector<double> templist;
   while (ss.rdbuf()->in_avail())
   {

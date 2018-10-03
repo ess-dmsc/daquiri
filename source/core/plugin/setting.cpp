@@ -1,10 +1,9 @@
 #include <core/plugin/setting.h>
 #include <core/util/bin_hex_print.h>
+#include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/color_bash.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <core/util/custom_logger.h>
 
@@ -180,7 +179,7 @@ std::string Setting::indices_to_string(bool showblanks) const
 
   auto max = metadata_.get_num<size_t>("max_indices", 0);
 
-  std::list<std::string> idcs;
+  std::vector<std::string> idcs;
   for (auto &q : indices_)
     idcs.push_back(std::to_string(q));
 
@@ -189,7 +188,7 @@ std::string Setting::indices_to_string(bool showblanks) const
       idcs.push_back("-");
 
   if (idcs.size())
-    return "{" + boost::join(idcs, " ") + "}";
+    return "{" + join(idcs, " ") + "}";
 
   return "";
 }

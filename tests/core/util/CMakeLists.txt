@@ -6,6 +6,7 @@ set(SOURCES
   ${dir}/json_file.cpp
   ${dir}/lexical_extensions.cpp
   ${dir}/timer.cpp
+  ${dir}/string_extensions.cpp
   ${dir}/time_extensions.cpp
   ${dir}/UTF_extensions.cpp
   )

@@ -5,8 +5,6 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
 #include <core/util/lexical_extensions.h>
 #include <core/util/UTF_extensions.h>
 
