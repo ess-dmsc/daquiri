@@ -7,7 +7,6 @@
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
-#include <boost/range/adaptor/reversed.hpp>
 #include <widgets/QColorExtensions.h>
 #include <widgets/qt_util.h>
 
@@ -226,8 +225,9 @@ void ProjectView::updateUI()
 void ProjectView::enforce_all()
 {
   auto initial = consumers_.size();
-  for (auto item :boost::adaptors::reverse(selector_->items()))
-    enforce_item(item);
+  auto items = selector_->items();
+  for (auto it = items.rbegin(); it != items.rend(); it++)
+    enforce_item(*it);
   if (consumers_.size() != initial)
     enforce_tile_policy();
 }
