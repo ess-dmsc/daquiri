@@ -11,9 +11,6 @@ add_definitions("-DGRAYLOG")
 find_package(fmt REQUIRED)
 find_package(date REQUIRED)
 
-find_package(OpenSSL REQUIRED)
-find_package(ZLIB REQUIRED)
-
 add_subdirectory(core)
 
 add_subdirectory(consumers)
