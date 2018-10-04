@@ -12,7 +12,7 @@ jsonformoderncpp/3.1.0@vthiery/stable
 qplot/b4a8639@ess-dmsc/stable
 Qt-Color-Widgets/fbeaae4@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
-date/2.4@ess-dmsc/testing
+date/2.4@ess-dmsc/stable
 
 [generators]
 cmake
