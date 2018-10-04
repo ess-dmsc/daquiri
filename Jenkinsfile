@@ -3,7 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.1.0'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.2.0'
         ]
 ]
 
@@ -42,7 +42,7 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "make -j4 && make -j4 all_tests"
+                        sh "make everything -j4"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build failed')
                     }
@@ -111,7 +111,7 @@ def docker_cmake(image_key, xtra_flags) {
 def docker_build(image_key) {
     def build_script = """
         cd ${project}/build
-        make -j4 && make -j4 all_tests
+        make everything -j4
         """
     sh "docker exec ${container_name(image_key)} bash -e -c \"${build_script}\""
 }
