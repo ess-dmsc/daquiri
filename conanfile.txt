@@ -19,7 +19,6 @@ cmake
 virtualrunenv
 
 [options]
-boost_system:shared=True
 gtest:shared=True
 librdkafka:shared=True
 
