@@ -60,7 +60,6 @@ target_link_libraries(
   PUBLIC h5cpp
   PUBLIC fmt::fmt
   PUBLIC ${DATE_LIBRARIES}
-  PUBLIC ${CMAKE_DL_LIBS}
   PRIVATE Threads::Threads
 )
 

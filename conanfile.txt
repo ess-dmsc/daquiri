@@ -1,18 +1,18 @@
 [requires]
 cli11/1.4-dm3@ess-dmsc/stable
-graylog-logger/1.0.5-dm1@ess-dmsc/stable
+date/2.4.1@bincrafters/stable
+Eigen3/3.2.9@bilke/stable
 fmt/5.1.0@bincrafters/stable
+graylog-logger/1.0.5-dm1@ess-dmsc/stable
 gtest/3121b20-dm3@ess-dmsc/stable
-h5cpp/0.0.9@ess-dmsc/testing
+h5cpp/0.1.0@ess-dmsc/testing
+jsonformoderncpp/3.1.0@vthiery/stable
 librdkafka/0.11.5@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
-streaming-data-types/d429d55@ess-dmsc/stable
-Eigen3/3.2.9@bilke/stable
-jsonformoderncpp/3.1.0@vthiery/stable
 qplot/b4a8639@ess-dmsc/stable
 Qt-Color-Widgets/fbeaae4@ess-dmsc/stable
+streaming-data-types/d429d55@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
-date/2.4@ess-dmsc/stable
 
 [generators]
 cmake
