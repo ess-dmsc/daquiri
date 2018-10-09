@@ -71,19 +71,19 @@ TEST_F(ProducerFactory, types)
   cf.clear();
 
   EXPECT_TRUE(cf.types().empty());
-  EXPECT_EQ(cf.types().size(), 0);
+  EXPECT_EQ(cf.types().size(), 0UL);
 
   DAQUIRI_REGISTER_PRODUCER(Producer1);
-  EXPECT_EQ(cf.types().size(), 1);
+  EXPECT_EQ(cf.types().size(), 1UL);
 
   DAQUIRI_REGISTER_PRODUCER(Producer2);
-  EXPECT_EQ(cf.types().size(), 2);
+  EXPECT_EQ(cf.types().size(), 2UL);
 
   DAQUIRI_REGISTER_PRODUCER(Producer3);
-  EXPECT_EQ(cf.types().size(), 3);
+  EXPECT_EQ(cf.types().size(), 3UL);
 
   cf.clear();
-  EXPECT_EQ(cf.types().size(), 0);
+  EXPECT_EQ(cf.types().size(), 0UL);
   EXPECT_TRUE(cf.types().empty());
 }
 

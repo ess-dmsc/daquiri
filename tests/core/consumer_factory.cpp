@@ -12,8 +12,8 @@ class FakeConsumer : public DAQuiri::Consumer
 
  protected:
   void _recalc_axes() override {}
-  bool _accept_spill(const DAQuiri::Spill& spill) override { return true; }
-  bool _accept_events(const DAQuiri::Spill& spill) override { return false; }
+  bool _accept_spill(const DAQuiri::Spill&) override { return true; }
+  bool _accept_events(const DAQuiri::Spill&) override { return false; }
   void _push_event(const DAQuiri::Event&) override {}
 };
 
@@ -67,19 +67,19 @@ TEST_F(ConsumerFactory, types)
   cf.clear();
 
   EXPECT_TRUE(cf.types().empty());
-  EXPECT_EQ(cf.types().size(), 0);
+  EXPECT_EQ(cf.types().size(), 0UL);
 
   DAQUIRI_REGISTER_CONSUMER(Consumer1);
-  EXPECT_EQ(cf.types().size(), 1);
+  EXPECT_EQ(cf.types().size(), 1UL);
 
   DAQUIRI_REGISTER_CONSUMER(Consumer2);
-  EXPECT_EQ(cf.types().size(), 2);
+  EXPECT_EQ(cf.types().size(), 2UL);
 
   DAQUIRI_REGISTER_CONSUMER(Consumer3);
-  EXPECT_EQ(cf.types().size(), 3);
+  EXPECT_EQ(cf.types().size(), 3UL);
 
   cf.clear();
-  EXPECT_EQ(cf.types().size(), 0);
+  EXPECT_EQ(cf.types().size(), 0UL);
   EXPECT_TRUE(cf.types().empty());
 }
 

@@ -16,7 +16,7 @@ class MockDataspace : public Dataspace
     void add(const Entry&) override {}
     void add_one(const Coords&) override {}
     PreciseFloat get(const Coords&) const override { return 0; }
-    EntryList range(std::vector<Pair> list) const override { return EntryList(); }
+    EntryList range(std::vector<Pair>) const override { return EntryList(); }
     void recalc_axes() override {}
 
     void export_csv(std::ostream &) const override {}

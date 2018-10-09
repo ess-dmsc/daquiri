@@ -50,12 +50,12 @@ TEST_F(Prebinned1D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 4);
 
   auto data = h.data()->range({});
-  ASSERT_EQ(data->size(), 3);
-  EXPECT_EQ(data->at(0).first[0], 0);
+  ASSERT_EQ(data->size(), 3UL);
+  EXPECT_EQ(data->at(0).first[0], 0UL);
   EXPECT_EQ(data->at(0).second, 2);
-  EXPECT_EQ(data->at(1).first[0], 1);
+  EXPECT_EQ(data->at(1).first[0], 1UL);
   EXPECT_EQ(data->at(1).second, 1);
-  EXPECT_EQ(data->at(2).first[0], 2);
+  EXPECT_EQ(data->at(2).first[0], 2UL);
   EXPECT_EQ(data->at(2).second, 1);
 }
 
@@ -113,11 +113,11 @@ TEST_F(Prebinned1D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 4);
   auto data = h_copy->data()->range({});
-  ASSERT_EQ(data->size(), 3);
-  EXPECT_EQ(data->at(0).first[0], 0);
+  ASSERT_EQ(data->size(), 3UL);
+  EXPECT_EQ(data->at(0).first[0], 0UL);
   EXPECT_EQ(data->at(0).second, 2);
-  EXPECT_EQ(data->at(1).first[0], 1);
+  EXPECT_EQ(data->at(1).first[0], 1UL);
   EXPECT_EQ(data->at(1).second, 1);
-  EXPECT_EQ(data->at(2).first[0], 2);
+  EXPECT_EQ(data->at(2).first[0], 2UL);
   EXPECT_EQ(data->at(2).second, 1);
 }

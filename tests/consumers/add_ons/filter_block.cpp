@@ -22,7 +22,7 @@ TEST(FilterBlock, ResizeFiltersUp)
   auto sets = h.settings();
   sets.set(Setting::integer("filter_count", 3));
   h.settings(sets);
-  EXPECT_EQ(h.filters_.size(), 3);
+  EXPECT_EQ(h.filters_.size(), 3UL);
 }
 
 TEST(FilterBlock, ResizeFiltersDown)
@@ -32,7 +32,7 @@ TEST(FilterBlock, ResizeFiltersDown)
   auto sets = h.settings();
   sets.set(Setting::integer("filter_count", 2));
   h.settings(sets);
-  EXPECT_EQ(h.filters_.size(), 2);
+  EXPECT_EQ(h.filters_.size(), 2UL);
 }
 
 TEST(FilterBlock, ConfigureValid)

@@ -19,7 +19,7 @@ TEST_F(EventBuffer, Init)
 {
   DAQuiri::EventBuffer eb;
   EXPECT_TRUE(eb.empty());
-  EXPECT_EQ(eb.size(), 0);
+  EXPECT_EQ(eb.size(), 0UL);
 }
 
 TEST_F(EventBuffer, reserve)
@@ -27,8 +27,8 @@ TEST_F(EventBuffer, reserve)
   DAQuiri::EventBuffer eb;
   eb.reserve(10, e);
   EXPECT_FALSE(eb.empty());
-  EXPECT_EQ(eb.size(), 10);
-  EXPECT_EQ(eb.last().value_count(), 1);
+  EXPECT_EQ(eb.size(), 10UL);
+  EXPECT_EQ(eb.last().value_count(), 1UL);
 }
 
 TEST_F(EventBuffer, finalize)
@@ -36,17 +36,17 @@ TEST_F(EventBuffer, finalize)
   DAQuiri::EventBuffer eb;
   eb.reserve(10, e);
   EXPECT_FALSE(eb.empty());
-  EXPECT_EQ(eb.size(), 10);
+  EXPECT_EQ(eb.size(), 10UL);
 
   eb.finalize();
   EXPECT_TRUE(eb.empty());
-  EXPECT_EQ(eb.size(), 0);
+  EXPECT_EQ(eb.size(), 0UL);
 
   eb++;
   ++eb;
   eb.finalize();
   EXPECT_FALSE(eb.empty());
-  EXPECT_EQ(eb.size(), 2);
+  EXPECT_EQ(eb.size(), 2UL);
 }
 
 
@@ -62,7 +62,7 @@ TEST_F(EventBuffer, iterate)
   }
 
   eb.finalize();
-  EXPECT_EQ(eb.size(), 10);
+  EXPECT_EQ(eb.size(), 10UL);
   uint16_t x {0};
   for (const auto& e : eb)
   {
@@ -155,7 +155,7 @@ TEST_F(Spill, ToJson)
   EXPECT_EQ(j["type"], "start");
   EXPECT_EQ(j["stream_id"], "stream_id_x");
   EXPECT_EQ(j["time"], to_iso_extended(s.time));
-  EXPECT_EQ(j["event_model"]["values"].size(), 1);
+  EXPECT_EQ(j["event_model"]["values"].size(), 1UL);
   EXPECT_EQ(j["state"]["type"], "stem");
 }
 

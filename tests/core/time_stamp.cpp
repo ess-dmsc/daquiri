@@ -5,21 +5,21 @@ TEST(TimeStamp, Init)
 {
   DAQuiri::TimeStamp t1{};
   ASSERT_EQ(DAQuiri::TimeBase(), t1.base());
-  ASSERT_EQ(0, t1.native());
+  ASSERT_EQ(0UL, t1.native());
   ASSERT_EQ(0, t1.nanosecs());
 
   DAQuiri::TimeStamp t2{1};
   ASSERT_EQ(DAQuiri::TimeBase(), t2.base());
-  ASSERT_EQ(1, t2.native());
+  ASSERT_EQ(1UL, t2.native());
   ASSERT_EQ(1, t2.nanosecs());
 
   DAQuiri::TimeStamp t3{4,DAQuiri::TimeBase(3,4)};
   ASSERT_EQ(DAQuiri::TimeBase(3,4), t3.base());
-  ASSERT_EQ(4, t3.native());
+  ASSERT_EQ(4UL, t3.native());
   ASSERT_EQ(3, t3.nanosecs());
 
   t3.set_native(12);
-  ASSERT_EQ(12, t3.native());
+  ASSERT_EQ(12UL, t3.native());
   ASSERT_EQ(9, t3.nanosecs());
 }
 
