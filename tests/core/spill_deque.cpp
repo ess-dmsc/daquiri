@@ -6,6 +6,6 @@ using namespace DAQuiri;
 TEST(SpillDeque, Init)
 {
   SpillDeque sd;
-  EXPECT_EQ(sd.size(), 0);
+  EXPECT_EQ(sd.size(), 0UL);
 }
 

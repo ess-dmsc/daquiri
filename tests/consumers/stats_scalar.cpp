@@ -41,7 +41,7 @@ TEST_F(StatsScalar, StatsNoDelta)
 
   auto data = h.data()->range({});
 
-  EXPECT_EQ(data->size(), 2);
+  EXPECT_EQ(data->size(), 2UL);
   EXPECT_EQ(data->begin()->second, 0);
   EXPECT_EQ(data->rbegin()->second, 10);
 }
@@ -71,7 +71,7 @@ TEST_F(StatsScalar, StatsDelta)
 
   auto data = h.data()->range({});
 
-  EXPECT_EQ(data->size(), 2);
+  EXPECT_EQ(data->size(), 2UL);
   EXPECT_EQ(data->begin()->second, -5);
   EXPECT_EQ(data->rbegin()->second, 10);
 }
@@ -114,7 +114,7 @@ TEST_F(StatsScalar, Clone)
 
   auto data = h_copy->data()->range({});
 
-  EXPECT_EQ(data->size(), 2);
+  EXPECT_EQ(data->size(), 2UL);
   EXPECT_EQ(data->begin()->second, 0);
   EXPECT_EQ(data->rbegin()->second, 10);
 }

@@ -134,6 +134,6 @@ TEST(ValueFilter, SetSettings)
 
   EXPECT_EQ(h.enabled_, true);
   EXPECT_EQ(h.name_, "val");
-  EXPECT_EQ(h.min_, 7);
-  EXPECT_EQ(h.max_, 42);
+  EXPECT_EQ(h.min_, 7UL);
+  EXPECT_EQ(h.max_, 42UL);
 }

@@ -57,11 +57,11 @@ TEST_F(Dense1D, Range)
 {
   d.add_one({0});
   EXPECT_EQ(d.range({})->at(0).second, 1);
-  EXPECT_EQ(d.range({})->at(0).first[0], 0);
+  EXPECT_EQ(d.range({})->at(0).first[0], 0UL);
 
   d.add_one({1});
   EXPECT_EQ(d.range({})->at(1).second, 1);
-  EXPECT_EQ(d.range({})->at(1).first[0], 1);
+  EXPECT_EQ(d.range({})->at(1).first[0], 1UL);
 }
 
 TEST_F(Dense1D, Clone)
@@ -82,12 +82,12 @@ TEST_F(Dense1D, CalcAxes)
   d.add_one({0});
   EXPECT_TRUE(d.axis(0).domain.empty());
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 1);
+  EXPECT_EQ(d.axis(0).domain.size(), 1UL);
 
   d.add_one({1});
-  EXPECT_EQ(d.axis(0).domain.size(), 1);
+  EXPECT_EQ(d.axis(0).domain.size(), 1UL);
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 2);
+  EXPECT_EQ(d.axis(0).domain.size(), 2UL);
 }
 
 TEST_F(Dense1D, SaveLoadEmpty)

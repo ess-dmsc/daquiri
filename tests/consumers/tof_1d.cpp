@@ -45,10 +45,10 @@ TEST_F(TOF1D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 10);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 10UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 10);
+  EXPECT_EQ(data->rbegin()->first[0], 10UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -61,10 +61,10 @@ TEST_F(TOF1D, HistogramDecimate)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_EQ(data->size(), 2);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_EQ(data->size(), 2UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 1);
+  EXPECT_EQ(data->rbegin()->first[0], 1UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -124,9 +124,9 @@ TEST_F(TOF1D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
   auto data = h_copy->data()->range({});
-  EXPECT_GE(data->size(), 10);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 10UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 10);
+  EXPECT_EQ(data->rbegin()->first[0], 10UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }

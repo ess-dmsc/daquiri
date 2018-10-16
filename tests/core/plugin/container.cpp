@@ -56,24 +56,24 @@ TEST(Container, AddClear)
 
   //Will not add null object
   n.add_a(SomeType());
-  ASSERT_EQ(n.size(), 0);
+  ASSERT_EQ(n.size(), 0UL);
 
   n.add(SomeType(1,1));
-  ASSERT_EQ(n.size(), 1);
+  ASSERT_EQ(n.size(), 1UL);
 
   n.add(SomeType(2,2));
-  ASSERT_EQ(n.size(), 2);
+  ASSERT_EQ(n.size(), 2UL);
 
   // add duplicate
   n.add(SomeType(2,2));
-  ASSERT_EQ(n.size(), 2);
+  ASSERT_EQ(n.size(), 2UL);
 
   // force add duplicate
   n.add_a(SomeType(2,2));
-  ASSERT_EQ(n.size(), 3);
+  ASSERT_EQ(n.size(), 3UL);
 
   n.clear();
-  ASSERT_EQ(n.size(), 0);
+  ASSERT_EQ(n.size(), 0UL);
 }
 
 TEST(Container, Replace)

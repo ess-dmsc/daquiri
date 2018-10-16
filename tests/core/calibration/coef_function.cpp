@@ -11,8 +11,8 @@ class MockFunction : public CoefFunction
     std::string to_UTF8() const override { return ""; }
     std::string to_markup() const override { return ""; }
 
-    double eval(double x) const override { return 0; }
-    double derivative(double x) const override { return 0; }
+    double eval(double) const override { return 0; }
+    double derivative(double) const override { return 0; }
 };
 
 TEST(CoefFunction, Init)

@@ -24,7 +24,7 @@ class MockConsumer : public Consumer
       accepted_spills++;
       return true;
     }
-    bool _accept_events(const Spill& spill) override { return accept_events; }
+    bool _accept_events(const Spill&) override { return accept_events; }
     void _push_event(const Event&) override { accepted_events++; }
 };
 
@@ -52,17 +52,17 @@ TEST(Consumer, AcceptingSpillsByID)
   MockConsumer c;
   c.push_spill(s);
   c.push_spill(s);
-  EXPECT_EQ(c.accepted_spills, 2);
+  EXPECT_EQ(c.accepted_spills, 2UL);
 
   Spill s2("someid", Spill::Type::daq_status);
   c.push_spill(s2);
   c.push_spill(s2);
-  EXPECT_EQ(c.accepted_spills, 2);
+  EXPECT_EQ(c.accepted_spills, 2UL);
 
   c.set_attribute(Setting::text("stream_id", "someid"));
   c.push_spill(s2);
   c.push_spill(s2);
-  EXPECT_EQ(c.accepted_spills, 4);
+  EXPECT_EQ(c.accepted_spills, 4UL);
 }
 
 TEST(Consumer, EventsArePushedWhenAccepted)
@@ -76,11 +76,11 @@ TEST(Consumer, EventsArePushedWhenAccepted)
 
   MockConsumer c;
   c.push_spill(s);
-  EXPECT_EQ(c.accepted_events, 0);
+  EXPECT_EQ(c.accepted_events, 0UL);
 
   c.accept_events = true;
   c.push_spill(s);
-  EXPECT_EQ(c.accepted_events, 3);
+  EXPECT_EQ(c.accepted_events, 3UL);
 }
 
 //TODO: this is failing

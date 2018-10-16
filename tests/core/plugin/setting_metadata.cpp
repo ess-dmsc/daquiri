@@ -179,7 +179,7 @@ TEST_F(SettingMeta, EnumMap)
   m.set_enum(2, "b");
 
   auto em = m.enum_map();
-  EXPECT_EQ(em.size(), 2);
+  EXPECT_EQ(em.size(), 2UL);
   EXPECT_EQ(em[1], "a");
   EXPECT_EQ(em[2], "b");
 }

@@ -63,12 +63,12 @@ TEST_F(Image2D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 20);
 
   auto data = h.data()->range({});
-  ASSERT_GE(data->size(), 2);
-  EXPECT_EQ(data->begin()->first[0], 0);
-  EXPECT_EQ(data->begin()->first[1], 0);
+  ASSERT_GE(data->size(), 2UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
+  EXPECT_EQ(data->begin()->first[1], 0UL);
   EXPECT_EQ(data->begin()->second, 4);
-  EXPECT_EQ(data->rbegin()->first[0], 2);
-  EXPECT_EQ(data->rbegin()->first[1], 2);
+  EXPECT_EQ(data->rbegin()->first[0], 2UL);
+  EXPECT_EQ(data->rbegin()->first[1], 2UL);
   EXPECT_EQ(data->rbegin()->second, 16);
 }
 
@@ -128,11 +128,11 @@ TEST_F(Image2D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 20);
   auto data = h_copy->data()->range({});
-  ASSERT_GE(data->size(), 2);
-  EXPECT_EQ(data->begin()->first[0], 0);
-  EXPECT_EQ(data->begin()->first[1], 0);
+  ASSERT_GE(data->size(), 2UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
+  EXPECT_EQ(data->begin()->first[1], 0UL);
   EXPECT_EQ(data->begin()->second, 4);
-  EXPECT_EQ(data->rbegin()->first[0], 2);
-  EXPECT_EQ(data->rbegin()->first[1], 2);
+  EXPECT_EQ(data->rbegin()->first[0], 2UL);
+  EXPECT_EQ(data->rbegin()->first[1], 2UL);
   EXPECT_EQ(data->rbegin()->second, 16);
 }

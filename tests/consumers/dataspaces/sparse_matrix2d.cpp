@@ -59,13 +59,13 @@ TEST_F(SparseMatrix2D, Range)
 {
   d.add_one({0, 0});
   EXPECT_EQ(d.range({})->at(0).second, 1);
-  EXPECT_EQ(d.range({})->at(0).first[0], 0);
-  EXPECT_EQ(d.range({})->at(0).first[1], 0);
+  EXPECT_EQ(d.range({})->at(0).first[0], 0UL);
+  EXPECT_EQ(d.range({})->at(0).first[1], 0UL);
 
   d.add_one({1, 1});
   EXPECT_EQ(d.range({})->at(1).second, 1);
-  EXPECT_EQ(d.range({})->at(1).first[0], 1);
-  EXPECT_EQ(d.range({})->at(1).first[1], 1);
+  EXPECT_EQ(d.range({})->at(1).first[0], 1UL);
+  EXPECT_EQ(d.range({})->at(1).first[1], 1UL);
 }
 
 TEST_F(SparseMatrix2D, Clone)
@@ -75,11 +75,11 @@ TEST_F(SparseMatrix2D, Clone)
 
   auto d2 = std::shared_ptr<DAQuiri::Dataspace>(d.clone());
   EXPECT_EQ(d2->range({})->at(0).second, 1);
-  EXPECT_EQ(d2->range({})->at(0).first[0], 0);
-  EXPECT_EQ(d2->range({})->at(0).first[1], 0);
+  EXPECT_EQ(d2->range({})->at(0).first[0], 0UL);
+  EXPECT_EQ(d2->range({})->at(0).first[1], 0UL);
   EXPECT_EQ(d2->range({})->at(1).second, 1);
-  EXPECT_EQ(d2->range({})->at(1).first[0], 1);
-  EXPECT_EQ(d2->range({})->at(1).first[1], 1);
+  EXPECT_EQ(d2->range({})->at(1).first[0], 1UL);
+  EXPECT_EQ(d2->range({})->at(1).first[1], 1UL);
   EXPECT_EQ(d2->dimensions(), 2);
   EXPECT_EQ(d2->total_count(), 2);
 }
@@ -90,15 +90,15 @@ TEST_F(SparseMatrix2D, CalcAxes)
   EXPECT_TRUE(d.axis(0).domain.empty());
   EXPECT_TRUE(d.axis(1).domain.empty());
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 1);
-  EXPECT_EQ(d.axis(1).domain.size(), 1);
+  EXPECT_EQ(d.axis(0).domain.size(), 1UL);
+  EXPECT_EQ(d.axis(1).domain.size(), 1UL);
 
   d.add_one({1, 1});
-  EXPECT_EQ(d.axis(0).domain.size(), 1);
-  EXPECT_EQ(d.axis(1).domain.size(), 1);
+  EXPECT_EQ(d.axis(0).domain.size(), 1UL);
+  EXPECT_EQ(d.axis(1).domain.size(), 1UL);
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 2);
-  EXPECT_EQ(d.axis(1).domain.size(), 2);
+  EXPECT_EQ(d.axis(0).domain.size(), 2UL);
+  EXPECT_EQ(d.axis(1).domain.size(), 2UL);
 }
 
 TEST_F(SparseMatrix2D, SaveLoadEmpty)

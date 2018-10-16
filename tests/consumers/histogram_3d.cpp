@@ -63,14 +63,14 @@ TEST_F(Histogram3D, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  ASSERT_GE(data->size(), 2);
-  EXPECT_EQ(data->begin()->first[0], 0);
-  EXPECT_EQ(data->begin()->first[1], 0);
-  EXPECT_EQ(data->begin()->first[2], 0);
+  ASSERT_GE(data->size(), 2UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
+  EXPECT_EQ(data->begin()->first[1], 0UL);
+  EXPECT_EQ(data->begin()->first[2], 0UL);
   EXPECT_EQ(data->begin()->second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 2);
-  EXPECT_EQ(data->rbegin()->first[1], 2);
-  EXPECT_EQ(data->rbegin()->first[2], 2);
+  EXPECT_EQ(data->rbegin()->first[0], 2UL);
+  EXPECT_EQ(data->rbegin()->first[1], 2UL);
+  EXPECT_EQ(data->rbegin()->first[2], 2UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -130,13 +130,13 @@ TEST_F(Histogram3D, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
   auto data = h_copy->data()->range({});
-  ASSERT_GE(data->size(), 2);
-  EXPECT_EQ(data->begin()->first[0], 0);
-  EXPECT_EQ(data->begin()->first[1], 0);
-  EXPECT_EQ(data->begin()->first[2], 0);
+  ASSERT_GE(data->size(), 2UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
+  EXPECT_EQ(data->begin()->first[1], 0UL);
+  EXPECT_EQ(data->begin()->first[2], 0UL);
   EXPECT_EQ(data->begin()->second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 2);
-  EXPECT_EQ(data->rbegin()->first[1], 2);
-  EXPECT_EQ(data->rbegin()->first[2], 2);
+  EXPECT_EQ(data->rbegin()->first[0], 2UL);
+  EXPECT_EQ(data->rbegin()->first[1], 2UL);
+  EXPECT_EQ(data->rbegin()->first[2], 2UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }

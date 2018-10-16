@@ -3,7 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.1.0'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.2.0'
         ]
 ]
 
@@ -42,7 +42,7 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "make -j4 && make -j4 all_tests"
+                        sh "make everything -j4"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build failed')
                     }
@@ -75,6 +75,13 @@ def create_container(image_key) {
         --env https_proxy=${env.https_proxy} \
         --env local_conan_server=${env.local_conan_server} \
           ")
+}
+
+def docker_copy_code(image_key) {
+    sh "docker cp ${project}_code ${container_name(image_key)}:/home/jenkins/${project}"
+    sh """docker exec --user root ${container_name(image_key)} sh -c \"
+                        chown -R jenkins.jenkins /home/jenkins/${project}
+                        \""""
 }
 
 def docker_clone(image_key) {
@@ -111,7 +118,7 @@ def docker_cmake(image_key, xtra_flags) {
 def docker_build(image_key) {
     def build_script = """
         cd ${project}/build
-        make -j4 && make -j4 all_tests
+        make everything -j4
         """
     sh "docker exec ${container_name(image_key)} bash -e -c \"${build_script}\""
 }
@@ -164,10 +171,11 @@ def docker_tests_coverage(image_key) {
 def get_pipeline(image_key) {
     return {
         stage("${image_key}") {
-            node("docker") {
                 try {
                     create_container(image_key)
-                    docker_clone(image_key)
+
+                    docker_copy_code(image_key)
+                    //docker_clone(image_key)
 
                     docker_dependencies(image_key)
 
@@ -189,7 +197,6 @@ def get_pipeline(image_key) {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
                 }
-            }
         }
     }
 }

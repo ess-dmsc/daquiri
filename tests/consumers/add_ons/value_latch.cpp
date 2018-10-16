@@ -41,7 +41,7 @@ TEST_F(ValueLatch, ExtractNoDownsample)
 
   e.set_value(0, 3);
   vl.extract(result, e);
-  EXPECT_EQ(result, 3);
+  EXPECT_EQ(result, 3UL);
 }
 
 TEST_F(ValueLatch, ExtractWithDownsample)
@@ -55,7 +55,7 @@ TEST_F(ValueLatch, ExtractWithDownsample)
 
   e.set_value(0, 16);
   vl.extract(result, e);
-  EXPECT_EQ(result, 4);
+  EXPECT_EQ(result, 4UL);
 }
 
 TEST_F(ValueLatch, GetSettings)

@@ -14,7 +14,7 @@ class MockSpectrumDataspace : public DAQuiri::Dataspace
     void add(const DAQuiri::Entry& e) override { total_count_ += e.second; }
     void add_one(const DAQuiri::Coords&) override { total_count_++; }
     PreciseFloat get(const DAQuiri::Coords&) const override { return 0; }
-    DAQuiri::EntryList range(std::vector<DAQuiri::Pair> list) const override { return DAQuiri::EntryList(); }
+    DAQuiri::EntryList range(std::vector<DAQuiri::Pair>) const override { return DAQuiri::EntryList(); }
     void recalc_axes() override {}
 
     void export_csv(std::ostream&) const override {}
@@ -41,13 +41,13 @@ class MockSpectrum : public DAQuiri::Spectrum
     void _recalc_axes() override {}
 
     //event processing
-    void _push_event(const DAQuiri::Event& event) override
+    void _push_event(const DAQuiri::Event&) override
     {
       if (accept_events)
         data_->add_one({});
     }
 
-    bool _accept_events(const DAQuiri::Spill& spill) override { return accept_events; }
+    bool _accept_events(const DAQuiri::Spill&) override { return accept_events; }
 };
 
 class Spectrum : public TestBase

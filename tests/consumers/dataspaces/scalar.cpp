@@ -87,12 +87,12 @@ TEST_F(Scalar, CalcAxes)
   d.add_one({});
   EXPECT_TRUE(d.axis(0).domain.empty());
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 0);
+  EXPECT_EQ(d.axis(0).domain.size(), 0UL);
 
   d.add_one({});
-  EXPECT_EQ(d.axis(0).domain.size(), 0);
+  EXPECT_EQ(d.axis(0).domain.size(), 0UL);
   d.recalc_axes();
-  EXPECT_EQ(d.axis(0).domain.size(), 0);
+  EXPECT_EQ(d.axis(0).domain.size(), 0UL);
 }
 
 TEST_F(Scalar, SaveLoadEmpty)

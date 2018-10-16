@@ -5,8 +5,8 @@ TEST(Event, Init)
 {
   DAQuiri::Event h;
   ASSERT_EQ(DAQuiri::TimeStamp(), h.timestamp());
-  ASSERT_EQ(0, h.value_count());
-  ASSERT_EQ(0, h.trace_count());
+  ASSERT_EQ(0UL, h.value_count());
+  ASSERT_EQ(0UL, h.trace_count());
   EXPECT_EQ("[t0]", h.debug());
 
   DAQuiri::EventModel hm;
@@ -14,8 +14,8 @@ TEST(Event, Init)
   hm.add_value("energy", 16);
   hm.add_trace("wave", {3});
   DAQuiri::Event h2(hm);
-  ASSERT_EQ(1, h2.value_count());
-  ASSERT_EQ(1, h2.trace_count());
+  ASSERT_EQ(1UL, h2.value_count());
+  ASSERT_EQ(1UL, h2.trace_count());
   EXPECT_EQ("[t0|ntraces=1 0]", h2.debug());
 }
 
@@ -27,7 +27,7 @@ TEST(Event, Value)
   DAQuiri::Event h(hm);
 //  ASSERT_ANY_THROW(h.value(2));
   ASSERT_NO_THROW(h.set_value(0,42));
-  ASSERT_EQ(42, h.value(0));
+  ASSERT_EQ(42UL, h.value(0));
   EXPECT_EQ("[t0 42]", h.debug());
 }
 
@@ -49,7 +49,7 @@ TEST(Event, Time)
   hm.timebase = DAQuiri::TimeBase(2,1);
   DAQuiri::Event h(hm);
   h.set_time(10);
-  ASSERT_EQ(10, h.timestamp());
+  ASSERT_EQ(10UL, h.timestamp());
   EXPECT_EQ("[t10]", h.debug());
 }
 

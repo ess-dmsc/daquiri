@@ -11,7 +11,7 @@ bool Scalar::empty() const
   return !has_data_;
 }
 
-void Scalar::reserve(const Coords& limits)
+void Scalar::reserve(const Coords&)
 {
 }
 
@@ -68,12 +68,12 @@ void Scalar::recalc_axes()
 #endif
 }
 
-PreciseFloat Scalar::get(const Coords& coords) const
+PreciseFloat Scalar::get(const Coords&) const
 {
   return data_;
 }
 
-EntryList Scalar::range(std::vector<Pair> list) const
+EntryList Scalar::range(std::vector<Pair>) const
 {
   EntryList result(new EntryList_t);
   if (has_data_)

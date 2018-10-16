@@ -44,12 +44,12 @@ TEST_F(TimeDomain, HistogramsEvents)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 20);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 20UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 0);
-  EXPECT_EQ(data->at(10).first[0], 10);
+  EXPECT_EQ(data->at(10).first[0], 10UL);
   EXPECT_EQ(data->at(10).second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 20);
+  EXPECT_EQ(data->rbegin()->first[0], 20UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -62,12 +62,12 @@ TEST_F(TimeDomain, HistogramDecimate)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 3);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 3);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 3UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 0);
-  EXPECT_EQ(data->at(1).first[0], 1);
+  EXPECT_EQ(data->at(1).first[0], 1UL);
   EXPECT_EQ(data->at(1).second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 2);
+  EXPECT_EQ(data->rbegin()->first[0], 2UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -127,12 +127,12 @@ TEST_F(TimeDomain, MovingWindow)
   EXPECT_EQ(h.metadata().get_attribute("total_count").get_number(), 2);
 
   auto data = h.data()->range({});
-  EXPECT_GE(data->size(), 3);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 3UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 0);
-  EXPECT_EQ(data->at(1).first[0], 1);
+  EXPECT_EQ(data->at(1).first[0], 1UL);
   EXPECT_EQ(data->at(1).second, 0);
-  EXPECT_EQ(data->rbegin()->first[0], 5);
+  EXPECT_EQ(data->rbegin()->first[0], 5UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
 
@@ -145,11 +145,11 @@ TEST_F(TimeDomain, Clone)
   EXPECT_NE(h_copy.get(), &h);
   EXPECT_EQ(h_copy->metadata().get_attribute("total_count").get_number(), 3);
   auto data = h_copy->data()->range({});
-  EXPECT_GE(data->size(), 20);
-  EXPECT_EQ(data->begin()->first[0], 0);
+  EXPECT_GE(data->size(), 20UL);
+  EXPECT_EQ(data->begin()->first[0], 0UL);
   EXPECT_EQ(data->begin()->second, 0);
-  EXPECT_EQ(data->at(10).first[0], 10);
+  EXPECT_EQ(data->at(10).first[0], 10UL);
   EXPECT_EQ(data->at(10).second, 1);
-  EXPECT_EQ(data->rbegin()->first[0], 20);
+  EXPECT_EQ(data->rbegin()->first[0], 20UL);
   EXPECT_EQ(data->rbegin()->second, 2);
 }
