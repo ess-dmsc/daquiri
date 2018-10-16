@@ -172,7 +172,6 @@ def docker_tests_coverage(image_key) {
 def get_pipeline(image_key) {
     return {
         stage("${image_key}") {
-            node("docker") {
                 try {
                     create_container(image_key)
 
@@ -199,7 +198,6 @@ def get_pipeline(image_key) {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
                 }
-            }
         }
     }
 }
