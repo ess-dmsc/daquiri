@@ -240,7 +240,7 @@ void Project::save(std::string file_name)
     auto f = file.root();
     auto group = f.create_group("project");
 
-    group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
+    group.attributes.create<std::string>("git_version").write(std::string(BI_GIT_HASH));
 
     UNIQUE_LOCK_EVENTUALLY
 
@@ -353,7 +353,7 @@ void Project::_save_metadata(std::string file_name)
   //private, no lock needed
 
   json proj_json;
-  proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
+  proj_json["daquiri_git_version"] = std::string(BI_GIT_HASH);
 
   for (auto& s :spills_)
     proj_json["spills"].push_back(json(s));

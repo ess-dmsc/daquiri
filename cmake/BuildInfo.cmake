@@ -1,48 +1,57 @@
-# Git commit SHA1
-execute_process(COMMAND
-  git rev-parse HEAD
+
+# git info
+execute_process(COMMAND "git" "symbolic-ref" "--short" "HEAD"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE BUILDINFO_GIT_SHA1
+  OUTPUT_VARIABLE GIT_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND "git" "rev-parse" "HEAD"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE GIT_SHA1
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND "git" "rev-parse" "--short" "HEAD"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE GIT_HASH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# Git commit hash
-execute_process(COMMAND
-  git rev-parse --short HEAD
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE BUILDINFO_GIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
+# hostname
+cmake_host_system_information(RESULT HOSTNAME QUERY HOSTNAME)
 
-# Git commit branch name
-execute_process(COMMAND
-  git symbolic-ref --short HEAD
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE BUILDINFO_GIT_BRANCH
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-if (NOT BUILDINFO_GIT_BRANCH)
-  set(BUILDINFO_GIT_BRANCH $ENV{BRANCH_NAME})
-endif ()
-
-string(TIMESTAMP BUILDINFO_DATE %Y-%m-%d)
-string(TIMESTAMP BUILDINFO_TIME %H:%M:%S)
-string(TIMESTAMP BUILDINFO_TIMESTAMP UTC)
-
-#execute_process(COMMAND "date" "+%F %H:%M:%S" OUTPUT_VARIABLE date OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-set(BUILDINFO_SYSTEM "${CMAKE_SYSTEM}")
-set(BUILDINFO_SYSTEM "${CMAKE_SYSTEM_PROCESSOR}")
-
-add_definitions(-DGIT_VERSION="${BUILDINFO_GIT_SHA1}")
-add_definitions(-DCMAKE_SYSTEM="${CMAKE_SYSTEM}")
-add_definitions(-DCMAKE_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}")
+# user
+# todo: test on Windows
+set(USERNAME "$ENV{USER}")
 
 # Build time in UTC ISO 8601
-#FILE (WRITE ${CMAKE_BINARY_DIR}/buildinfo.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(WRITE buildinfo.h \"#ifndef TIMESTAMP_H\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#define TIMESTAMP_H\\n\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#define _TIMEZ_ \\\"\${TIMEZ}\\\"\\n\\n\")\n")
-#FILE (APPEND ${CMAKE_BINARY_DIR}/buildinfo.cmake "FILE(APPEND buildinfo.h \"#endif // TIMESTAMP_H\\n\")\n")
-#ADD_CUSTOM_TARGET (
-#    buildinfo
-#    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/buildinfo.cmake
-#    ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/buildinfo.cmake)
+string(TIMESTAMP UTC_TIMESTAMP UTC)
+
+# OS info
+set(SYSTEM "${CMAKE_SYSTEM}")
+set(PROCESSOR "${CMAKE_SYSTEM_PROCESSOR}")
+
+message(STATUS "BuildInfo.GIT_BRANCH = ${GIT_BRANCH}")
+message(STATUS "BuildInfo.GIT_SHA1 = ${GIT_SHA1}")
+message(STATUS "BuildInfo.GIT_HASH = ${GIT_HASH}")
+message(STATUS "BuildInfo.HOSTNAME = ${HOSTNAME}")
+message(STATUS "BuildInfo.USERNAME = ${USERNAME}")
+message(STATUS "BuildInfo.UTC_TIMESTAMP = ${UTC_TIMESTAMP}")
+message(STATUS "BuildInfo.SYSTEM = ${SYSTEM}")
+message(STATUS "BuildInfo.PROCESSOR = ${PROCESSOR}")
+
+add_definitions(-DBI_GIT_BRANCH="${GIT_BRANCH}")
+add_definitions(-DBI_GIT_SHA1="${GIT_SHA1}")
+add_definitions(-DBI_GIT_HASH="${GIT_HASH}")
+add_definitions(-DBI_HOSTNAME="${HOSTNAME}")
+add_definitions(-DBI_USERNAME="${USERNAME}")
+add_definitions(-DBI_UTC_TIMESTAMP="${UTC_TIMESTAMP}")
+add_definitions(-DBI_SYSTEM="${SYSTEM}")
+add_definitions(-DBI_PROCESSOR="${PROCESSOR}")
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/build_info)
+file(WRITE ${CMAKE_BINARY_DIR}/build_info/build_time.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
+file(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.cmake "FILE(WRITE ${CMAKE_BINARY_DIR}/build_info/build_time.h \"#ifndef BUILD_TIME_H\\n\")\n")
+file(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.cmake "FILE(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.h \"#define BUILD_TIME_H\\n\\n\")\n")
+file(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.cmake "FILE(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.h \"#define BUILD_TIME \\\"\${TIMEZ}\\\"\\n\\n\")\n")
+file(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.cmake "FILE(APPEND ${CMAKE_BINARY_DIR}/build_info/build_time.h \"#endif // BUILD_TIME_H\\n\")\n")
+add_custom_target(
+  build_time
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/build_info/build_time.cmake
+  ADD_DEPENDENCIES ${CMAKE_BINARY_DIR}/build_info/build_time.cmake)

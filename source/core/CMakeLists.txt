@@ -47,9 +47,12 @@ add_library(
   ${${this_target}_sources}
 )
 
+message(STATUS "******** DIR = ${CMAKE_BINARY_DIR}/build_info")
+
 target_include_directories(
   ${this_target}
   PUBLIC ${PROJECT_SOURCE_DIR}/source
+  PUBLIC ${CMAKE_BINARY_DIR}/build_info
   INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -65,4 +68,4 @@ target_link_libraries(
 
 enable_coverage(${this_target})
 
-#ADD_DEPENDENCIES(${this_target} buildinfo)
+ADD_DEPENDENCIES(${this_target} build_time)

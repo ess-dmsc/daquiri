@@ -10,6 +10,7 @@
 #include <core/util/json_file.h>
 
 #include <signal.h>
+#include <build_time.h>
 
 using namespace DAQuiri;
 
@@ -53,6 +54,12 @@ int main(int argc, char **argv) {
   consumers_autoreg();
 
   signal(SIGINT, term_key);
+
+  INFO("BuildInfo.branch: {}", BI_GIT_BRANCH);
+  INFO("BuildInfo.git_hash: {}", BI_GIT_HASH);
+  INFO("BuildInfo.user@host: {}@{}", BI_USERNAME, BI_HOSTNAME);
+  INFO("BuildInfo.system: {} {}", BI_SYSTEM, BI_PROCESSOR);
+  INFO("BuildInfo.build_time: {}", BUILD_TIME);
 
   auto &engine = Engine::singleton();
 
