@@ -296,10 +296,14 @@ bool ESSStream::good(Kafka::MessagePtr message)
       return false;
 
     case RdKafka::ERR__TIMED_OUT:
-//    return 0;
+      WARN( "Kafka time out error: {}", message->low_level->errstr());
+      return false;
 
     case RdKafka::ERR__PARTITION_EOF:
-      /* Last message */
+      WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
+      return false;
+
+          /* Last message */
       //    if (exit_eof && ++eof_cnt == partition_cnt)
       //      WARN( "%% EOF reached for all " << partition_cnt <<
       //                   " partition(s)";
