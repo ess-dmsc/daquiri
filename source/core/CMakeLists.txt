@@ -47,8 +47,6 @@ add_library(
   ${${this_target}_sources}
 )
 
-message(STATUS "******** DIR = ${CMAKE_BINARY_DIR}/build_info")
-
 target_include_directories(
   ${this_target}
   PUBLIC ${PROJECT_SOURCE_DIR}/source
