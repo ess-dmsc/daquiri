@@ -1,6 +1,6 @@
 [requires]
 cli11/1.4-dm3@ess-dmsc/stable
-date/2.4.1@bincrafters/stable
+date/4b46deb@ess-dmsc/testing
 Eigen3/3.2.9@bilke/stable
 fmt/5.1.0@bincrafters/stable
 graylog-logger/1.0.5-dm1@ess-dmsc/stable
