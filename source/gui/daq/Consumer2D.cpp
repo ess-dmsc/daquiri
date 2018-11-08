@@ -20,7 +20,7 @@ Consumer2D::Consumer2D(QWidget *parent)
                        QSizePolicy::MinimumExpanding);
   plot_->setGradient("Spectrum2");
   plot_->setShowGradientLegend(true);
-//  plot_->setFlipY(true);
+  plot_->setFlipY(true);
   plot_->clearAll();
   plot_->replotAll();
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
