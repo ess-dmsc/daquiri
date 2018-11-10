@@ -4,6 +4,9 @@
 #include <core/util/h5json.h>
 #include <core/util/ascii_tree.h>
 
+#include <build_time.h>
+
+
 namespace DAQuiri {
 
 Project::Project(const Project& other)
@@ -238,6 +241,14 @@ void Project::save(std::string file_name)
   {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
+    f.attributes.create_from("git_branch", std::string(BI_GIT_BRANCH));
+    f.attributes.create_from("git_hash", std::string(BI_GIT_HASH));
+    f.attributes.create_from("user", std::string(BI_USERNAME));
+    f.attributes.create_from("host", std::string(BI_HOSTNAME));
+    f.attributes.create_from("system", std::string(BI_SYSTEM));
+    f.attributes.create_from("processor", std::string(BI_PROCESSOR));
+    f.attributes.create_from("build_time", std::string(BUILD_TIME));
+
     auto group = f.create_group("project");
 
     group.attributes.create<std::string>("git_version").write(std::string(BI_GIT_HASH));
