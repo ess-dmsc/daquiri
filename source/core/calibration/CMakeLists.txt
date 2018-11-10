@@ -5,6 +5,7 @@ set(SOURCES
   ${dir}/coef_function.cpp
   ${dir}/parameter.cpp
   ${dir}/uncertain.cpp
+  ${dir}/udouble.cpp
   )
 
 set(HEADERS
@@ -12,6 +13,7 @@ set(HEADERS
   ${dir}/coef_function.h
   ${dir}/parameter.h
   ${dir}/uncertain.h
+  ${dir}/udouble.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

@@ -5,76 +5,80 @@
 #include <string>
 #include <list>
 #include <nlohmann/json.hpp>
-using namespace nlohmann;
+using json = nlohmann::json;
 
 namespace DAQuiri
 {
 
 class UncertainDouble
 {
-public:
+ private:
+  double value_{std::numeric_limits<double>::quiet_NaN()};
+  double sigma_{std::numeric_limits<double>::quiet_NaN()};
+  uint16_t sigfigs_{1};
 
-  UncertainDouble() {}
-  UncertainDouble(double val, double sigma, uint16_t sigf);
+ public:
 
-  static UncertainDouble from_int(int64_t val, double sigma);
-  static UncertainDouble from_uint(uint64_t val, double sigma);
+  UncertainDouble() = default;
+  explicit UncertainDouble(double val, double sigma, uint16_t sigf);
+  explicit UncertainDouble(int64_t val, double sigma);
+  explicit UncertainDouble(uint64_t val, double sigma);
+
   static UncertainDouble from_double(double val, double sigma,
                                      uint16_t sigs_below = 1);
 
-  double value() const;
-  double uncertainty() const;
-  double error() const;
+  void value(double val);
+  void sigma(double sigma);
+  void sigfigs(uint16_t sig);
 
+  void deduce_sigfigs(uint16_t sigs_below = 1);
+  void constrain_sigfigs(uint16_t max_sigs = 6);
+
+  double value() const;
+  double sigma() const;
   uint16_t sigfigs() const;
+
+  int exponent() const;
+
   uint16_t sigdec() const;
 
-  void setValue(double val);
-  void setUncertainty(double sigma);
-  void setSigFigs(uint16_t sig);
-  void autoSigs(uint16_t sigs_below = 1);
-  void constrainSigs(uint16_t max_sigs = 6);
+  double error() const;
+  std::string error_str() const;
 
   bool finite() const;
 
   std::string to_string(bool ommit_tiny = true) const;
-  std::string error_percent() const;
 
   std::string debug() const;
 
-  UncertainDouble & operator*=(const double &other);
-  UncertainDouble operator*(const double &other) const;
-  UncertainDouble & operator/=(const double &other);
-  UncertainDouble operator/(const double &other) const;
+  UncertainDouble& operator*=(const double& other);
+  UncertainDouble operator*(const double& other) const;
+  UncertainDouble& operator/=(const double& other);
+  UncertainDouble operator/(const double& other) const;
 
-  UncertainDouble & operator*=(const UncertainDouble &other);
-  UncertainDouble operator*(const UncertainDouble &other) const;
-  UncertainDouble & operator/=(const UncertainDouble &other);
-  UncertainDouble operator/(const UncertainDouble &other) const;
+  UncertainDouble& operator*=(const UncertainDouble& other);
+  UncertainDouble operator*(const UncertainDouble& other) const;
+  UncertainDouble& operator/=(const UncertainDouble& other);
+  UncertainDouble operator/(const UncertainDouble& other) const;
 
-  UncertainDouble & operator+=(const UncertainDouble &other);
-  UncertainDouble operator+(const UncertainDouble &other) const;
-  UncertainDouble & operator-=(const UncertainDouble &other);
-  UncertainDouble operator-(const UncertainDouble &other) const;
+  UncertainDouble& operator+=(const UncertainDouble& other);
+  UncertainDouble operator+(const UncertainDouble& other) const;
+  UncertainDouble& operator-=(const UncertainDouble& other);
+  UncertainDouble operator-(const UncertainDouble& other) const;
 
-  bool almost (const UncertainDouble &other) const;
-  bool operator == (const UncertainDouble &other) const {return value() == other.value();}
-  bool operator < (const UncertainDouble &other) const {return value() < other.value();}
-  bool operator > (const UncertainDouble &other) const {return value() > other.value();}
+  bool almost(const UncertainDouble& other) const;
+  bool operator==(const UncertainDouble& other) const { return value() == other.value(); }
+  bool operator<(const UncertainDouble& other) const { return value() < other.value(); }
+  bool operator>(const UncertainDouble& other) const { return value() > other.value(); }
 
-  static UncertainDouble average(const std::list<UncertainDouble> &list);
+  static UncertainDouble average(const std::list<UncertainDouble>& list);
 
-private:
-  double value_ {std::numeric_limits<double>::quiet_NaN()};
-  double sigma_ {std::numeric_limits<double>::quiet_NaN()};
-  uint16_t sigfigs_ {0};
-
-  UncertainDouble& additive_uncert(const UncertainDouble &other);
-  UncertainDouble& multipli_uncert(const UncertainDouble &other);
-  int exponent() const;
+ private:
+  UncertainDouble& additive_uncert(const UncertainDouble& other);
+  UncertainDouble& multipli_uncert(const UncertainDouble& other);
 };
 
-void to_json(json& j, const UncertainDouble &s);
-void from_json(const json& j, UncertainDouble &s);
+void to_json(json& j, const UncertainDouble& s);
+void from_json(const json& j, UncertainDouble& s);
 
 }

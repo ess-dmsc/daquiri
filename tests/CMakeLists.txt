@@ -7,7 +7,7 @@ set(${this_target}_sources
   main.cpp)
 
 add_subdirectory(core)
-add_subdirectory(consumers)
+#add_subdirectory(consumers)
 
 add_executable(
     ${this_target} EXCLUDE_FROM_ALL
@@ -24,7 +24,7 @@ target_include_directories(
 target_link_libraries(
     ${this_target}
     PRIVATE ${PROJECT_NAME}_core
-    PRIVATE ${PROJECT_NAME}_consumers
+#    PRIVATE ${PROJECT_NAME}_consumers
     PRIVATE ${GTEST_LIBRARIES}
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE ${COVERAGE_LIBRARIES}
@@ -39,8 +39,8 @@ add_custom_target(run_unit_tests
     DEPENDS ${this_target})
 add_test(NAME "RunGoogleTests" COMMAND run_unit_tests)
 
-add_subdirectory(system_tests)
-add_subdirectory(gui)
+#add_subdirectory(system_tests)
+#add_subdirectory(gui)
 
 #############
 # ALL TESTS #

@@ -16,49 +16,44 @@ namespace DAQuiri
 UncertainDouble::UncertainDouble(double val, double sigma, uint16_t sigf)
   : value_(val)
   , sigma_(std::abs(sigma))
-  , sigfigs_(sigf)
 {
+  sigfigs(sigf);
 }
 
-std::string UncertainDouble::debug() const
-{
-  std::stringstream ss;
-  ss << "[" << value_ << "\u00B1" << sigma_ << " sigs=" << sigfigs_;
-  ss << "] ==> " << to_string();
-  return ss.str();
-}
+UncertainDouble::UncertainDouble(int64_t val, double sigma)
+    : UncertainDouble(double(val), sigma, static_cast<uint16_t>(order_of(val))) {}
 
-UncertainDouble UncertainDouble::from_int(int64_t val, double sigma)
-{
-  return UncertainDouble (double(val), sigma, order_of(val));
-}
+UncertainDouble::UncertainDouble(uint64_t val, double sigma)
+    : UncertainDouble(double(val), sigma, static_cast<uint16_t>(order_of(val))) {}
 
-UncertainDouble UncertainDouble::from_uint(uint64_t val, double sigma)
-{
-  return UncertainDouble (double(val), sigma, order_of(val));
-}
 
 UncertainDouble UncertainDouble::from_double(double val, double sigma,
                                              uint16_t sigs_below)
 {
   UncertainDouble ret(val, sigma, 1);
-  ret.autoSigs(sigs_below);
+  ret.deduce_sigfigs(sigs_below);
   return ret;
 }
 
-int UncertainDouble::exponent() const
-{
-  int orderOfValue = order_of(value_);
-  int orderOfUncert= order_of(sigma_);
-  int targetOrder = std::max(orderOfValue, orderOfUncert);
 
-  if ((targetOrder > 5) || (targetOrder < -3))
-    return targetOrder;
-  else
-    return 0;
+void UncertainDouble::value(double val)
+{
+  value_ = val;
 }
 
-void UncertainDouble::autoSigs(uint16_t sigs_below)
+void UncertainDouble::sigma(double sigma)
+{
+  sigma_ = std::abs(sigma);
+}
+
+void UncertainDouble::sigfigs(uint16_t sig)
+{
+  sigfigs_ = sig;
+  if (!sig)
+    sigfigs_ = 1;
+}
+
+void UncertainDouble::deduce_sigfigs(uint16_t sigs_below)
 {
   if (std::isfinite(sigma_))
   {
@@ -74,10 +69,10 @@ void UncertainDouble::autoSigs(uint16_t sigs_below)
     sigfigs_ = 4;
 }
 
-void UncertainDouble::constrainSigs(uint16_t max_sigs)
+void UncertainDouble::constrain_sigfigs(uint16_t max_sigs)
 {
   if (sigfigs_ > max_sigs)
-    sigfigs_ = max_sigs;
+    sigfigs(max_sigs);
 }
 
 double UncertainDouble::value() const
@@ -85,17 +80,9 @@ double UncertainDouble::value() const
   return value_;
 }
 
-double UncertainDouble::uncertainty() const
+double UncertainDouble::sigma() const
 {
   return sigma_;
-}
-
-double UncertainDouble::error() const
-{
-  if (value_ != 0)
-    return std::abs(sigma_ / value_ * 100.0);
-  else
-    return std::numeric_limits<double>::quiet_NaN();
 }
 
 uint16_t UncertainDouble::sigfigs() const
@@ -113,21 +100,44 @@ uint16_t UncertainDouble::sigdec() const
     return 0;
 }
 
-void UncertainDouble::setValue(double val)
+
+double UncertainDouble::error() const
 {
-  value_ = val;
+  if (value_ != 0)
+    return std::abs(sigma_ / value_ * 100.0);
+  else
+    return std::numeric_limits<double>::quiet_NaN();
 }
 
-void UncertainDouble::setUncertainty(double sigma)
+std::string UncertainDouble::error_str() const
 {
-  sigma_ = std::abs(sigma);
+  if (!finite())
+    return "?";
+  if ((sigma_ == 0.0) || !std::isfinite(sigma_))
+    return "-";
+  if (value_ == 0)
+    return "?";
+
+  double error = std::abs(sigma_ / value_ * 100.0);
+
+  UncertainDouble p(error, 0, 2);
+//  DBG( "perror for " << debug() << " is " << p.debug();
+  if (p.exponent() != 0)
+    return "(" +  p.to_string(false) + ")%";
+  else
+    return p.to_string(false) + "%";
 }
 
-void UncertainDouble::setSigFigs(uint16_t sig)
+int UncertainDouble::exponent() const
 {
-  sigfigs_ = sig;
-  if (!sig)
-    sigfigs_ = 1;
+  int orderOfValue = order_of(value_);
+  int orderOfUncert= order_of(sigma_);
+  int targetOrder = std::max(orderOfValue, orderOfUncert);
+
+  if ((targetOrder > 5) || (targetOrder < -3))
+    return targetOrder;
+  else
+    return 0;
 }
 
 bool UncertainDouble::finite() const
@@ -188,69 +198,50 @@ std::string UncertainDouble::to_string(bool ommit_tiny) const
   return result;
 }
 
-std::string UncertainDouble::error_percent() const
-{
-  if (!finite())
-    return "?";
-  if ((sigma_ == 0.0) || !std::isfinite(sigma_))
-    return "-";
-  if (value_ == 0)
-    return "?";
-
-  double error = std::abs(sigma_ / value_ * 100.0);
-
-  UncertainDouble p(error, 0, 2);
-//  DBG( "perror for " << debug() << " is " << p.debug();
-  if (p.exponent() != 0)
-    return "(" +  p.to_string(false) + ")%";
-  else
-    return p.to_string(false) + "%";
-}
-
 UncertainDouble & UncertainDouble::operator*=(const UncertainDouble &other)
 {
-  setSigFigs(std::min(sigfigs(), other.sigfigs()));
-  setValue(value_ * other.value_);
+  sigfigs(std::min(sigfigs(), other.sigfigs()));
+  value(value_ * other.value_);
   if (finite() && other.finite())
-    setUncertainty(sqrt(value_*value_*other.sigma_*other.sigma_
+    sigma(sqrt(value_*value_*other.sigma_*other.sigma_
                         + other.value_*other.value_*sigma_*sigma_));
   else
-    setUncertainty(std::numeric_limits<double>::quiet_NaN());
+    sigma(std::numeric_limits<double>::quiet_NaN());
   return *this;
 }
 
 UncertainDouble & UncertainDouble::operator/=(const UncertainDouble &other)
 {
-  setSigFigs(std::min(sigfigs(), other.sigfigs()));
-  setValue(value_ / other.value_);
+  sigfigs(std::min(sigfigs(), other.sigfigs()));
+  value(value_ / other.value_);
   if (finite() && other.finite())
-    setUncertainty(sqrt(value_*value_*other.sigma_*other.sigma_
+    sigma(sqrt(value_*value_*other.sigma_*other.sigma_
                         + other.value_*other.value_*sigma_*sigma_));
   else
-    setUncertainty(std::numeric_limits<double>::quiet_NaN());
+    sigma(std::numeric_limits<double>::quiet_NaN());
   return *this;
 }
 
 UncertainDouble & UncertainDouble::operator*=(const double &other)
 {
-  setValue(value_ * other);
-  setUncertainty(std::abs(sigma_ * other));
+  value(value_ * other);
+  sigma(std::abs(sigma_ * other));
   return *this;
 }
 
 UncertainDouble & UncertainDouble::operator/=(const double &other)
 {
-  setValue(value_ / other);
-  setUncertainty(std::abs(sigma_ / other));
+  value(value_ / other);
+  sigma(std::abs(sigma_ / other));
   return *this;
 }
 
 UncertainDouble& UncertainDouble::additive_uncert(const UncertainDouble &other)
 {
   if (finite() && other.finite())
-    setUncertainty(sqrt(pow(sigma_,2) + pow(other.sigma_,2)));
+    sigma(sqrt(pow(sigma_,2) + pow(other.sigma_,2)));
   else
-    setUncertainty(std::numeric_limits<double>::quiet_NaN());
+    sigma(std::numeric_limits<double>::quiet_NaN());
   return *this;
 }
 
@@ -259,8 +250,8 @@ UncertainDouble& UncertainDouble::operator +=(const UncertainDouble &other)
 {
   uint16_t sd1 = sigdec();
   uint16_t sd2 = other.sigdec();
-  setValue(value_ + other.value_);
-  setSigFigs(std::min(sd1, sd2) + order_of(value_) + 1); //what if order negative?
+  value(value_ + other.value_);
+  sigfigs(std::min(sd1, sd2) + order_of(value_) + 1); //what if order negative?
 
   additive_uncert(other);
   return *this;
@@ -270,8 +261,8 @@ UncertainDouble& UncertainDouble::operator -=(const UncertainDouble &other)
 {
   uint16_t sd1 = sigdec();
   uint16_t sd2 = other.sigdec();
-  setValue(value_ - other.value_);
-  setSigFigs(std::min(sd1, sd2) + order_of(value_) + 1); //what if order negative?
+  value(value_ - other.value_);
+  sigfigs(std::min(sd1, sd2) + order_of(value_) + 1); //what if order negative?
 
   additive_uncert(other);
   return *this;
@@ -334,7 +325,7 @@ bool UncertainDouble::almost(const UncertainDouble &other) const
 UncertainDouble UncertainDouble::average(const std::list<UncertainDouble> &list)
 {
   if (list.empty())
-    return UncertainDouble();
+    return {};
 
   double sum = 0;
   for (auto& l : list)
@@ -355,12 +346,20 @@ UncertainDouble UncertainDouble::average(const std::list<UncertainDouble> &list)
   return ret;
 }
 
+std::string UncertainDouble::debug() const
+{
+  std::stringstream ss;
+  ss << "[" << value_ << "\u00B1" << sigma_ << " sigs=" << sigfigs_;
+  ss << "] ==> " << to_string();
+  return ss.str();
+}
+
 void to_json(json& j, const UncertainDouble &s)
 {
   if (!std::isnan(s.value()))
     j["value"] = s.value();
-  if (!std::isnan(s.uncertainty()))
-    j["sigma"] = s.uncertainty();
+  if (!std::isnan(s.sigma()))
+    j["sigma"] = s.sigma();
   j["sigfigs"] = s.sigfigs();
 }
 
@@ -372,7 +371,7 @@ void from_json(const json& j, UncertainDouble &s)
   double sigma = std::numeric_limits<double>::quiet_NaN();
   if (j.count("sigma") && j["sigma"].is_number_float())
     sigma = j["sigma"];
-  double sigfigs = j["sigfigs"];
+  uint16_t sigfigs = j["sigfigs"];
   s = UncertainDouble(val, sigma, sigfigs);
 }
 

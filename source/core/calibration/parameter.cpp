@@ -49,16 +49,16 @@ void FitParam::set(double min, double max, double val)
   lower_ = min;
   upper_ = max;
   if ((min <= val) && (val <= max))
-    value_.setValue(val);
+    value_.value(val);
   else
-    value_.setValue((min + max)/2.0);
+    value_.value((min + max)/2.0);
 }
 
 void FitParam::preset_bounds(double min, double max)
 {
   lower_ = min;
   upper_ = max;
-  value_.setValue((min + max)/2.0);
+  value_.value((min + max)/2.0);
 }
 
 void FitParam::constrain(double min, double max)
@@ -67,7 +67,7 @@ void FitParam::constrain(double min, double max)
   double u = std::max(min, max);
   lower_ = std::max(l, lower_);
   upper_ = std::min(u, upper_);
-  value_.setValue(std::min(std::max(value_.value(), lower()), upper()));
+  value_.value(std::min(std::max(value_.value(), lower()), upper()));
 }
 
 UncertainDouble FitParam::value() const
@@ -113,7 +113,7 @@ FitParam FitParam::enforce_policy()
   if (!ret.enabled_) {
     ret.upper_ = ret.lower_;
     ret.lower_ = 0;
-    ret.value_.setValue(ret.lower_);
+    ret.value_.value(ret.lower_);
   } else if (ret.fixed_) {
     ret.upper_ = ret.value_.value() + ret.lower_  * 0.01;
     ret.lower_ = ret.value_.value() - ret.lower_  * 0.01;
