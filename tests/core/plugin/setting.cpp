@@ -1,5 +1,6 @@
 #include <core/plugin/setting.h>
 #include <gtest/gtest.h>
+#include <thread>
 
 TEST(Setting, Init)
 {
@@ -48,12 +49,14 @@ TEST(Setting, Time)
 TEST(Setting, Duration)
 {
   auto t1 = std::chrono::system_clock::now();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
   auto t2 = std::chrono::system_clock::now();
   auto d = t2 - t1;
   DAQuiri::Setting s("a", d);
   ASSERT_EQ(s.duration(), d);
 
   t1 = std::chrono::system_clock::now();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
   t2 = std::chrono::system_clock::now();
   d = t2 - t1;
   s.set_duration(d);
