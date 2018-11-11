@@ -3,16 +3,16 @@ set(this_target ${PROJECT_NAME}_core)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/consumer.cpp
-  ${dir}/consumer_factory.cpp
-  ${dir}/consumer_metadata.cpp
-  ${dir}/dataspace.cpp
-  ${dir}/detector.cpp
-  ${dir}/engine.cpp
-  ${dir}/producer.cpp
-  ${dir}/producer_factory.cpp
-  ${dir}/project.cpp
-  ${dir}/spill.cpp
+#  ${dir}/consumer.cpp
+#  ${dir}/consumer_factory.cpp
+#  ${dir}/consumer_metadata.cpp
+#  ${dir}/dataspace.cpp
+#  ${dir}/detector.cpp
+#  ${dir}/engine.cpp
+#  ${dir}/producer.cpp
+#  ${dir}/producer_factory.cpp
+#  ${dir}/project.cpp
+#  ${dir}/spill.cpp
   )
 
 set(HEADERS
@@ -38,7 +38,7 @@ set(HEADERS
 set(${this_target}_headers ${HEADERS})
 set(${this_target}_sources ${SOURCES})
 add_subdirectory(calibration)
-add_subdirectory(plugin)
+#add_subdirectory(plugin)
 add_subdirectory(util)
 
 add_library(

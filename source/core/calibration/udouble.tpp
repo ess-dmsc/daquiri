@@ -1,10 +1,8 @@
 // Adapted from "Uncertainty Propagation in C++" by Evan Manning, 1996
 
-#include <core/calibration/udouble.h>
-#include <cmath>
+#pragma once
 
-namespace DAQuiri
-{
+#include <cmath>
 
 //  prints  uncertainty  to  2  digits  and  value  to  same  precision
 inline void uncertain_print(double mean, double sigma,
@@ -55,21 +53,21 @@ inline void uncertain_print(double mean, double sigma,
   os.flags(original_format);
 }
 
-//template<bool is_correlated>
-//UDouble<is_correlated>::UDouble(double val, double unc)
-//    : value(val), uncertainty(unc)
-//{
-//  if ((unc < 0.0) && !is_correlated)
-//  {
-//    std::stringstream ss;
-//    ss << "Error:  negative  uncertainty: " << unc;
-//    throw std::runtime_error(ss.str());
-//  }
-//}
-//
-//template<bool is_correlated>
-//UDouble<is_correlated>::UDouble(const UDouble& ud)
-//    : value(ud.value), uncertainty(ud.uncertainty) {}
+template<bool is_correlated>
+UDouble<is_correlated>::UDouble(double val, double unc)
+    : value(val), uncertainty(unc)
+{
+  if ((unc < 0.0) && !is_correlated)
+  {
+    std::stringstream ss;
+    ss << "Error:  negative  uncertainty: " << unc;
+    throw std::runtime_error(ss.str());
+  }
+}
+
+template<bool is_correlated>
+UDouble<is_correlated>::UDouble(const UDouble& ud)
+    : value(ud.value), uncertainty(ud.uncertainty) {}
 
 template<bool is_correlated>
 UDouble<is_correlated> UDouble<is_correlated>::operator+() const { return *this; }
@@ -81,6 +79,16 @@ UDouble<is_correlated> UDouble<is_correlated>::operator-() const
     return UDouble<is_correlated>(-value, -uncertainty);
   else
     return UDouble<is_correlated>(-value, uncertainty);
+}
+
+template<bool is_correlated>
+double UDouble<is_correlated>::mean() const {
+  return value;
+}
+
+template<bool is_correlated>
+double UDouble<is_correlated>::deviation() const {
+  return uncertainty;
 }
 
 template<bool is_correlated>
@@ -207,6 +215,4 @@ UDouble<is_correlated> atan2(const UDouble<is_correlated>& arg1,
                                slope2 * arg2.uncertainty);
   retval.value = atan2(arg1.value, arg2.value);
   return retval;
-}
-
 }

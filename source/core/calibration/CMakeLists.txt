@@ -1,11 +1,10 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/calibration.cpp
-  ${dir}/coef_function.cpp
-  ${dir}/parameter.cpp
-  ${dir}/uncertain.cpp
-  ${dir}/udouble.cpp
+#  ${dir}/calibration.cpp
+#  ${dir}/coef_function.cpp
+#  ${dir}/parameter.cpp
+#  ${dir}/uncertain.cpp
   )
 
 set(HEADERS
@@ -14,6 +13,7 @@ set(HEADERS
   ${dir}/parameter.h
   ${dir}/uncertain.h
   ${dir}/udouble.h
+  ${dir}/udouble.tpp
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

@@ -6,9 +6,6 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-namespace DAQuiri
-{
-
 //  model  uncertain  number  using  only  mean  and  sigma  (pure  Gaussian)
 template<bool is_correlated>
 class UDouble
@@ -17,19 +14,8 @@ class UDouble
   double value;
   double uncertainty;
  public:
-  UDouble(const double val = 0.0, const double unc = 0.0)
-      : value(val), uncertainty(unc)
-  {
-    if ((unc < 0.0) && !is_correlated)
-    {
-      std::stringstream ss;
-      ss << "Error:  negative  uncertainty:  " << unc;
-      throw std::runtime_error(ss.str());
-    }
-  }
-
-  UDouble(const UDouble& ud)
-      : value(ud.value), uncertainty(ud.uncertainty) {}
+  UDouble(const double val = 0.0, const double unc = 0.0);
+  UDouble(const UDouble& ud);
   ~UDouble() = default;
 
   UDouble<is_correlated> operator+() const;
@@ -93,4 +79,7 @@ class UDouble
       const UDouble<is_correlated>&);
 };
 
-}
+#include <core/calibration/udouble.tpp>
+
+using UDoubleCorr = UDouble<true>;
+using UDoubleUncorr = UDouble<false>;
