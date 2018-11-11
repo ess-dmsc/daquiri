@@ -5,8 +5,7 @@
 #include <cmath>
 
 //  prints  uncertainty  to  2  digits  and  value  to  same  precision
-inline void uncertain_print(double mean, double sigma,
-                            std::ostream& os = std::cout)
+void uncertain_print(double mean, double sigma, std::ostream& os)
 {
   auto original_precision = os.precision();
   auto original_format = os.flags(std::ios::showpoint);
@@ -66,11 +65,24 @@ UDouble<is_correlated>::UDouble(double val, double unc)
 }
 
 template<bool is_correlated>
-UDouble<is_correlated>::UDouble(const UDouble& ud)
-    : value(ud.value), uncertainty(ud.uncertainty) {}
+UDouble<is_correlated>::UDouble(const UDouble& other)
+    : value(other.value), uncertainty(other.uncertainty) {}
 
 template<bool is_correlated>
-UDouble<is_correlated> UDouble<is_correlated>::operator+() const { return *this; }
+double UDouble<is_correlated>::mean() const {
+  return value;
+}
+
+template<bool is_correlated>
+double UDouble<is_correlated>::deviation() const {
+  return uncertainty;
+}
+
+template<bool is_correlated>
+UDouble<is_correlated> UDouble<is_correlated>::operator+() const
+{
+  return *this;
+}
 
 template<bool is_correlated>
 UDouble<is_correlated> UDouble<is_correlated>::operator-() const
@@ -82,14 +94,58 @@ UDouble<is_correlated> UDouble<is_correlated>::operator-() const
 }
 
 template<bool is_correlated>
-double UDouble<is_correlated>::mean() const {
-  return value;
+UDouble<is_correlated>& UDouble<is_correlated>::operator+=(const UDouble<is_correlated>& other)
+{
+  if (is_correlated)
+    uncertainty += other.uncertainty;
+  else
+    uncertainty = hypot(uncertainty, other.uncertainty);
+  value += other.value;
+  return *this;
 }
 
 template<bool is_correlated>
-double UDouble<is_correlated>::deviation() const {
-  return uncertainty;
+UDouble<is_correlated>& UDouble<is_correlated>::operator-=(const UDouble<is_correlated>& other)
+{
+  operator+=(-other);
+  return *this;
 }
+
+template<bool is_correlated>
+UDouble<is_correlated>& UDouble<is_correlated>::operator/=(const UDouble<is_correlated>& other)
+{
+  if (is_correlated)
+    uncertainty = uncertainty / other.value
+        - (other.uncertainty * value) / (other.value * other.value);
+  else
+    uncertainty =
+        hypot(uncertainty / other.value,
+              (other.uncertainty * value) / (other.value * other.value));
+  value /= other.value;
+  return *this;
+}
+
+template<bool is_correlated>
+UDouble<is_correlated>& UDouble<is_correlated>::operator*=(const UDouble<is_correlated>& other)
+{
+  if (is_correlated)
+    uncertainty = uncertainty / other.value
+        - (other.uncertainty * value) / (other.value * other.value);
+  else
+    uncertainty =
+        hypot(uncertainty / other.value,
+              (other.uncertainty * value) / (other.value * other.value));
+  value *= other.value;
+  return *this;
+}
+
+//template<bool is_correlated>
+//UDouble<is_correlated> ceil(UDouble<is_correlated> arg)
+//{
+//  arg.value = ceil(arg.value);
+//  arg.uncertainty = 0.0;
+//  return arg;
+//}
 
 template<bool is_correlated>
 UDouble<is_correlated> sin(UDouble<is_correlated> arg)
@@ -110,14 +166,6 @@ UDouble<is_correlated> exp(UDouble<is_correlated> arg)
     arg.uncertainty *= arg.value;
   else
     arg.uncertainty *= fabs(arg.value);
-  return arg;
-}
-
-template<bool is_correlated>
-UDouble<is_correlated> ceil(UDouble<is_correlated> arg)
-{
-  arg.value = ceil(arg.value);
-  arg.uncertainty = 0.0;
   return arg;
 }
 
@@ -167,31 +215,6 @@ UDouble<is_correlated> PropagateUncertaintiesBySlope(
                                      up_val2 - down_val2);
   }
   return retval;
-}
-
-template<bool is_correlated>
-UDouble<is_correlated>& UDouble<is_correlated>::operator+=(const UDouble<is_correlated>& ud)
-{
-  if (is_correlated)
-    uncertainty += ud.uncertainty;
-  else
-    uncertainty = hypot(uncertainty, ud.uncertainty);
-  value += ud.value;
-  return *this;
-}
-
-template<bool is_correlated>
-UDouble<is_correlated>& UDouble<is_correlated>::operator/=(const UDouble<is_correlated>& ud)
-{
-  if (is_correlated)
-    uncertainty = uncertainty / ud.value
-        - (ud.uncertainty * value) / (ud.value * ud.value);
-  else
-    uncertainty =
-        hypot(uncertainty / ud.value,
-              (ud.uncertainty * value) / (ud.value * ud.value));
-  value /= ud.value;
-  return *this;
 }
 
 template<bool is_correlated>

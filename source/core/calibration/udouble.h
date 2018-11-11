@@ -14,9 +14,13 @@ class UDouble
   double value;
   double uncertainty;
  public:
-  UDouble(const double val = 0.0, const double unc = 0.0);
+  UDouble(double val = 0.0, double unc = 0.0);
   UDouble(const UDouble& ud);
   ~UDouble() = default;
+
+  //  read-only  access  to  data  members
+  double mean() const;
+  double deviation() const;
 
   UDouble<is_correlated> operator+() const;
   UDouble<is_correlated> operator-() const;
@@ -41,8 +45,14 @@ class UDouble
   UDouble<is_correlated>& operator/=(const UDouble<is_correlated>&);
   friend std::ostream& operator<<(std::ostream&, const UDouble<is_correlated>&);
   friend std::istream& operator>(std::istream&, UDouble<is_correlated>);
+
   //  math  library  functions
-  friend UDouble<is_correlated> ceil(UDouble<is_correlated>);
+  friend UDouble ceil(UDouble arg)
+  {
+    arg.value = ceil(arg.value);
+    arg.uncertainty = 0.0;
+    return arg;
+  }
   friend UDouble<is_correlated> floor(UDouble<is_correlated>);
   friend UDouble<is_correlated> fabs(UDouble<is_correlated>);
   friend UDouble<is_correlated> ldexp(UDouble<is_correlated>, int);
@@ -67,9 +77,8 @@ class UDouble
   friend UDouble<is_correlated> tanh(UDouble<is_correlated>);
   friend UDouble<is_correlated> pow(const UDouble<is_correlated>&,
                                     const UDouble<is_correlated>&);
-  //  read-only  access  to  data  members
-  double mean() const;
-  double deviation() const;
+
+  // generic propagation through an unknown function
   friend UDouble<is_correlated> PropagateUncertaintiesBySlope(
       double  (*)(double),
       const UDouble<is_correlated>&);
@@ -78,6 +87,8 @@ class UDouble
       const UDouble<is_correlated>&,
       const UDouble<is_correlated>&);
 };
+
+void uncertain_print(double mean, double sigma, std::ostream& os = std::cout);
 
 #include <core/calibration/udouble.tpp>
 
