@@ -1,10 +1,11 @@
 #pragma once
 
-#include "fb_parser.h"
-#include "senv_data_generated.h"
+#include <producers/ESSStream/fb_parser.h>
 #include <map>
 
 using namespace DAQuiri;
+
+class SampleEnvironmentData;
 
 class SenvParser : public fb_parser
 {
@@ -28,12 +29,10 @@ class SenvParser : public fb_parser
 
     std::string stream_id_{"SenvParser"};
 
-    std::map<std::string, int> PVNameMap;
-
     EventModel event_model_;
 
     bool started_{false};
 
-//    static std::string debug(const LogData& TDCTimeStamp);
+    static std::string debug(const SampleEnvironmentData* TDCTimeStamp);
 };
 
