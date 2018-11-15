@@ -1,31 +1,15 @@
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config/CMakeLists.txt")
-  add_subdirectory(config)
-endif ()
+include(InstallConfig)
+include(BuildInfo)
 
-if (NOT DAQuiri_config)
-  set(DAQuiri_gui TRUE)
-  list(APPEND DAQuiri_enabled_producers ESSStream)
-endif ()
-
-include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
-include(${EXTRA_MODULES_DIR}/DirsOf.cmake)
-include(${EXTRA_MODULES_DIR}/InstallConfig.cmake)
-include(${EXTRA_MODULES_DIR}/BuildInfo.cmake)
-
-include(${EXTRA_MODULES_DIR}/BoostLibraryConfig.cmake)
-find_package(h5cpp 0.0.7 REQUIRED)
+find_package(date REQUIRED)
+find_package(fmt REQUIRED)
+find_package(h5cpp 0.1.0 REQUIRED)
 find_package(Threads REQUIRED)
+find_package(GraylogLogger REQUIRED)
+add_definitions("-DGRAYLOG")
 
 add_subdirectory(core)
 add_subdirectory(consumers)
 add_subdirectory(producers)
-
-if (DAQuiri_cmd)
-  add_subdirectory(cmd)
-endif ()
-
-if (DAQuiri_gui)
-  add_subdirectory(gui)
-endif ()
-
-add_subdirectory(tests)
+add_subdirectory(cmd)
+add_subdirectory(gui)

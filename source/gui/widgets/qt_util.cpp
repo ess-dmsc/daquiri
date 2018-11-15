@@ -1,11 +1,11 @@
-#include "qt_util.h"
+#include <widgets/qt_util.h>
 #include <stdlib.h>
 #include <QFile>
 #include <QDateTime>
 #include <QMessageBox>
 #include <QLayout>
 #include <QLayoutItem>
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 QString QS(const std::string& s)
 {
@@ -21,7 +21,7 @@ void add_to_table(QTableWidget *table, int row, int col,
   item->setData(Qt::UserRole, value);
   item->setData(Qt::BackgroundRole, background);
   table->setItem(row, col, item);
-  //  DBG << "added " << data << " and " << value.toDouble();
+  //  DBG( "added " << data << " and " << value.toDouble();
 }
 
 //void add_to_table(QTableWidget *table,

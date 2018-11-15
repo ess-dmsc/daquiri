@@ -4,9 +4,9 @@
 #include "Profiles.h"
 #include <QMessageBox>
 #include <QBoxLayout>
-#include "qt_util.h"
+#include <widgets/qt_util.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #include <QInputDialog>
 
@@ -207,7 +207,7 @@ void ProfilesForm::create_profile()
 
   if (Profiles::profile_exists(name))
   {
-    DBG << "Already exists";
+    DBG("Profile '{}' already exists", name.toStdString());
     //ask user overwrite?
     return;
   }

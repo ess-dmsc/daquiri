@@ -1,6 +1,6 @@
-#include "DetectorIndex.h"
+#include <producers/DetectorIndex/DetectorIndex.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 DetectorIndex::DetectorIndex()
 {
@@ -92,7 +92,7 @@ void DetectorIndex::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<DetectorIndex> Cannot boot DetectorIndex. Failed flag check (!can_boot)";
+    WARN("<DetectorIndex> Cannot boot DetectorIndex. Failed flag check (!can_boot)");
     return;
   }
   status_ = ProducerStatus::loaded | ProducerStatus::booted;

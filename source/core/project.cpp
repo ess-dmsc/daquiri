@@ -1,10 +1,11 @@
-#include "project.h"
-#include "consumer_factory.h"
-#include "custom_logger.h"
+#include <core/project.h>
+#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
+#include <core/util/h5json.h>
+#include <core/util/ascii_tree.h>
 
-#include "h5json.h"
+#include <build_time.h>
 
-#include "ascii_tree.h"
 
 namespace DAQuiri {
 
@@ -240,9 +241,17 @@ void Project::save(std::string file_name)
   {
     auto file = hdf5::file::create(file_name, hdf5::file::AccessFlags::TRUNCATE);
     auto f = file.root();
+    f.attributes.create_from("git_branch", std::string(BI_GIT_BRANCH));
+    f.attributes.create_from("git_hash", std::string(BI_GIT_HASH));
+    f.attributes.create_from("user", std::string(BI_USERNAME));
+    f.attributes.create_from("host", std::string(BI_HOSTNAME));
+    f.attributes.create_from("system", std::string(BI_SYSTEM));
+    f.attributes.create_from("processor", std::string(BI_PROCESSOR));
+    f.attributes.create_from("build_time", std::string(BUILD_TIME));
+
     auto group = f.create_group("project");
 
-    group.attributes.create<std::string>("git_version").write(std::string(GIT_VERSION));
+    group.attributes.create<std::string>("git_version").write(std::string(BI_GIT_HASH));
 
     UNIQUE_LOCK_EVENTUALLY
 
@@ -328,7 +337,7 @@ void Project::open(std::string file_name, bool with_consumers, bool with_full_co
 
         ConsumerPtr consumer = ConsumerFactory::singleton().create_from_h5(sg, with_full_consumers);
         if (!consumer)
-          WARN << "<Project> Could not parse consumer";
+          WARN("<Project> Could not parse consumer");
         else
         {
           _add_consumer(consumer);
@@ -355,7 +364,7 @@ void Project::_save_metadata(std::string file_name)
   //private, no lock needed
 
   json proj_json;
-  proj_json["daquiri_git_version"] = std::string(GIT_VERSION);
+  proj_json["daquiri_git_version"] = std::string(BI_GIT_HASH);
 
   for (auto& s :spills_)
     proj_json["spills"].push_back(json(s));
@@ -381,7 +390,7 @@ void Project::save_split(std::string base_name)
   {
     std::ofstream ofs(base_name + "_" + vector_idx_minlen(i++, consumers_.size() - 1) + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
-    q->data()->save(ofs);
+    q->data()->export_csv(ofs);
     ofs.close();
   }
 }

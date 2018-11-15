@@ -1,21 +1,14 @@
-set(this_target MockProducer)
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB_RECURSE ${this_target}_SOURCES *.cpp)
-file(GLOB_RECURSE ${this_target}_HEADERS *.h)
-dirs_of(${this_target}_INCLUDE_DIRS "${${this_target}_HEADERS}")
+set(SOURCES
+  ${dir}/MockProducer.cpp
+  ${dir}/ValueDefinition.cpp
+  )
 
-add_library(
-  ${this_target} STATIC
-  ${${this_target}_SOURCES}
-  ${${this_target}_HEADERS}
-)
+set(HEADERS
+  ${dir}/MockProducer.h
+  ${dir}/ValueDefinition.h
+  )
 
-target_include_directories(
-  ${this_target}
-  PRIVATE ${${this_target}_INCLUDE_DIRS}
-)
-
-target_link_libraries(
-  ${this_target}
-  PRIVATE ${PROJECT_NAME}_core
-)
+set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
+set(${this_target}_sources ${${this_target}_sources} ${SOURCES} PARENT_SCOPE)

@@ -1,11 +1,11 @@
 #include "Profiles.h"
-#include "engine.h"
+#include <core/engine.h>
 #include <QSettings>
 #include <QDir>
-#include "json_file.h"
+#include <core/util/json_file.h>
 
 #define PROFILE_FILE_NAME "profile.set"
-#define PROFILE_PATH_DEFAULT "essproj/daquiri_config"
+#define PROFILE_PATH_DEFAULT "essdaq/daquiri"
 
 namespace Profiles
 {

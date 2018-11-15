@@ -5,8 +5,8 @@
 #include <QTableView>
 #include <QTreeView>
 #include <QMenu>
-#include "detector.h"
-#include "SettingDelegate.h"
+#include <core/detector.h>
+#include <widgets/SettingDelegate.h>
 #include "SettingsTreeModel.h"
 
 #include "ThreadRunner.h"

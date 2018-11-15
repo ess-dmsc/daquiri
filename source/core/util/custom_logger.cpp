@@ -1,79 +1,98 @@
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 #include <fstream>
-#include <boost/core/null_deleter.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sinks/async_frontend.hpp>
-#include <boost/log/sinks/sync_frontend.hpp>
 
-namespace logging = boost::log;
-namespace keywords = boost::log::keywords;
-namespace expr = boost::log::expressions;
-namespace sinks = boost::log::sinks;
-namespace date = boost::date_time;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#include <graylog_logger/FileInterface.hpp>
+#include <graylog_logger/ConsoleInterface.hpp>
+#pragma GCC diagnostic pop
 
-using text_sink = sinks::asynchronous_sink<sinks::text_ostream_backend, sinks::unbounded_fifo_queue>;
-using file_sink = sinks::synchronous_sink<sinks::text_file_backend>;
+#include <date/date.h>
 
-void CustomLogger::initLogger(std::ostream *gui_stream, std::string log_file_N)
-{
-  logging::add_common_attributes();
+// \todo use fractional seconds in file
 
-  logging::formatter format_basic =
-      expr::stream << "["
-                   << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%H:%M:%S") << "] "
-      //                   << severity << ": "
-                   << expr::message;
-
-  logging::formatter format_verbose =
-      expr::stream << "["
-                   << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y%m%d %H:%M:%S.%f")
-                   << "] " << g_severity << ": "
-                   << expr::message;
-  
-  boost::shared_ptr< logging::core > core = logging::core::get();
-
-  // GUI
-  if (gui_stream != nullptr) {
-    boost::shared_ptr<sinks::text_ostream_backend> backend_gui = boost::make_shared<sinks::text_ostream_backend>();
-    backend_gui->add_stream(boost::shared_ptr<std::ostream>(gui_stream, boost::null_deleter()));
-    boost::shared_ptr<text_sink> sink_gui(new text_sink(backend_gui));
-    sink_gui->set_formatter(format_basic);
-    sink_gui->set_filter(expr::attr<SeverityLevel>("Severity") >= kInfo);
-    core->add_sink(sink_gui);
+class OstreamInterface : public BaseLogHandler {
+public:
+  OstreamInterface(std::ostream *gui_stream, const size_t maxQueueLength = 100)
+      : BaseLogHandler(maxQueueLength), outStream(gui_stream)
+      , ostreamThread(&OstreamInterface::ThreadFunction, this) {}
+  ~OstreamInterface() {
+    ExitThread();
   }
 
-  // console
-  boost::shared_ptr<text_sink> sink_console = boost::make_shared<text_sink>();
-  boost::shared_ptr<std::ostream> console_stream(&std::cout, boost::null_deleter());
-  sink_console->locked_backend()->add_stream(console_stream);
-  sink_console->locked_backend()->auto_flush(true);
-  sink_console->set_formatter(format_verbose);
-  sink_console->set_filter(expr::attr<SeverityLevel>("Severity") >= kDebug);
-  core->add_sink(sink_console);
+protected:
+  void ExitThread() {
+    LogMessage exitMsg;
+    exitMsg.message = "exit";
+    exitMsg.processId = -1;
+    AddMessage(exitMsg);
+    if (ostreamThread.joinable()) {
+      ostreamThread.join();
+    }
+  }
+  void ThreadFunction() {
+    LogMessage tmpMsg;
+    while (true) {
+      logMessages.wait_and_pop(tmpMsg);
+      if (std::string("exit") == tmpMsg.message and -1 == tmpMsg.processId) {
+        break;
+      }
+      if (outStream) {
+        *outStream << MsgStringCreator(tmpMsg) << std::endl;
+      }
+    }
+  }
+  std::ostream *outStream{nullptr};
+  std::thread ostreamThread;
+};
 
-  // file
-  boost::shared_ptr<sinks::text_file_backend> backend_file = boost::make_shared<sinks::text_file_backend>(
-      // file name pattern
-      keywords::file_name = log_file_N,
-      keywords::open_mode = (std::ios::out | std::ios::app),
-      // rotate the file upon reaching 10 MiB size...
-      keywords::rotation_size = 10 * 1024 * 1024
-                                                                                                          );
-  boost::shared_ptr<file_sink> sink_file(new file_sink(backend_file));
-  sink_file->locked_backend()->auto_flush(true);
-  sink_file->set_formatter(format_verbose);
-  sink_file->set_filter(expr::attr<SeverityLevel >("Severity") >= kTrace);
-  core->add_sink(sink_file);
+std::string ConsoleFormatter(const LogMessage &Msg) {
+  static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
+
+  std::string extras;
+  for (auto &CField : Msg.additionalFields) {
+    if (CField.first == "file") {
+      extras += fmt::format(" {:21}", CField.second.strVal);
+    } else if (CField.first == "line") {
+      extras += fmt::format(":{}", CField.second.intVal);
+    }
+  }
+  return fmt::format("{} {}{} {}",
+                     date::format("%F %T", date::floor<std::chrono::microseconds>(Msg.timestamp)),
+                     SevToString.at(static_cast<uint32_t>(Msg.severity)),
+                     extras, Msg.message);
 }
 
-void CustomLogger::closeLogger()
-{
-  DBG << "<CustomLogger> Closing logger sinks";
-  logging::core::get()->remove_all_sinks();
+std::string GuiFormatter(const LogMessage &Msg) {
+  static const std::vector<std::string> SevToString{"EMG", "ALR", "CRI", "ERR", "WAR", "NOTE", "INF", "DBG"};
+
+  return fmt::format("{} {}",
+                     date::format("%F %T", date::floor<std::chrono::microseconds>(Msg.timestamp)),
+                     Msg.message);
 }
 
+void CustomLogger::initLogger(Severity severity, std::ostream *gui_stream, std::string log_file_N) {
+  // Set-up logging before we start doing important stuff
+  Log::RemoveAllHandlers();
+
+  Log::SetMinimumSeverity(severity);
+
+  auto CI = new ConsoleInterface();
+  CI->SetMessageStringCreatorFunction(ConsoleFormatter);
+  Log::AddLogHandler(CI);
+
+  if (log_file_N.size()) {
+    Log::AddLogHandler(new FileInterface(log_file_N));
+  }
+
+  if (gui_stream) {
+    auto GI = new OstreamInterface(gui_stream);
+    GI->SetMessageStringCreatorFunction(GuiFormatter);
+    Log::AddLogHandler(GI);
+  }
+}
+
+void CustomLogger::closeLogger() {
+
+}

@@ -1,10 +1,12 @@
 #include "ConsumerScalar.h"
 #include <QVBoxLayout>
 
-#include "manometer.h"
-#include "thermometer.h"
+#include <widgets/qt_util.h>
 
-#include "custom_logger.h"
+#include <widgets/AnalogWidgets/manometer.h>
+#include <widgets/AnalogWidgets/thermometer.h>
+
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 
@@ -100,22 +102,21 @@ void ConsumerScalar::update()
     rescale = 1;
 
   DataAxis axis;
-  EntryList spectrum_data;
 
   if (data)
   {
     axis = data->axis(0);
-    thermometer_->setSuffix(QString::fromStdString(axis.label()));
-    manometer_->setSuffix(QString::fromStdString(axis.label()));
+    thermometer_->setSuffix(QS(axis.label()));
+    manometer_->setSuffix(QS(axis.label()));
 
-    spectrum_data = data->range({});
+    EntryList range = data->range({});
+    auto current = data->get({});
 
-    if (!data->empty() && spectrum_data && (spectrum_data->size() == 3))
+    if (!data->empty() && range && (range->size() == 2))
     {
-      auto it = spectrum_data->begin();
-      double min = (it++)->second * rescale;
-      double val = (it++)->second * rescale;
-      double max = (it++)->second * rescale;
+      double min = range->begin()->second * rescale;
+      double val = current;
+      double max = range->rbegin()->second * rescale;
 
       thermometer_->setMinimum(min);
       thermometer_->setMaximum(max);
@@ -130,7 +131,7 @@ void ConsumerScalar::update()
   }
 
   std::string new_label = md.get_attribute("name").get_text();
-  setWindowTitle(QString::fromStdString(new_label).trimmed());
+  setWindowTitle(QS(new_label).trimmed());
 }
 
 void ConsumerScalar::refresh()

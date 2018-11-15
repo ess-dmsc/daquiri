@@ -1,16 +1,14 @@
 //Rework this according to http://arxiv.org/abs/physics/0306138v1 !!!
 
-#include "uncertain.h"
+#include <core/calibration/uncertain.h>
 
 #include <iostream>
 #include <limits>
 #include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include "lexical_extensions.h"
-#include "UTF_extensions.h"
+#include <core/util/lexical_extensions.h>
+#include <core/util/UTF_extensions.h>
 
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri
 {
@@ -202,7 +200,7 @@ std::string UncertainDouble::error_percent() const
   double error = std::abs(sigma_ / value_ * 100.0);
 
   UncertainDouble p(error, 0, 2);
-//  DBG << "perror for " << debug() << " is " << p.debug();
+//  DBG( "perror for " << debug() << " is " << p.debug();
   if (p.exponent() != 0)
     return "(" +  p.to_string(false) + ")%";
   else

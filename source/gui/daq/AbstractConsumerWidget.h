@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "consumer.h"
+#include <core/consumer.h>
 #include <QIcon>
 
 class AbstractConsumerWidget : public QWidget

@@ -2,11 +2,11 @@
 
 #include <QItemSelection>
 #include <QDialog>
-#include "SettingDelegate.h"
+#include <widgets/SettingDelegate.h>
 #include "SettingsTreeModel.h"
 //#include "widget_detectors.h"
-#include "consumer.h"
-#include "spill.h"
+#include <core/consumer.h>
+#include <core/spill.h>
 
 namespace Ui {
 class ConsumerDialog;
@@ -38,6 +38,8 @@ private slots:
     void on_pushDetFromDB_clicked();
     void on_pushDetToDB_clicked();
     void on_spinDets_valueChanged(int arg1);
+
+    void on_pushExpandAll_clicked();
 
     void push_settings();
     void changeDet(DAQuiri::Detector);

@@ -3,7 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.1.0'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.2.0'
         ]
 ]
 
@@ -29,7 +29,6 @@ def get_macos_pipeline() {
                 dir("${project}/code") {
                     try {
                         checkout scm
-                        sh "git submodule update --init"
                     } catch (e) {
                         failure_function(e, 'MacOSX / Checkout failed')
                     }
@@ -37,21 +36,21 @@ def get_macos_pipeline() {
 
                 dir("${project}/build") {
                     try {
-                        sh "cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
-                            -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream ../code"
+                        sh "cmake ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
 
                     try {
-                        sh "make -j4 && make -j4 all_tests"
+                        sh "make everything -j4"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build failed')
                     }
 
                     try {
                         sh "source ./activate_run.sh && \
-                            tests/unit_tests && tests/system_test"
+                            tests/unit_tests && \
+                            tests/system_test"
                     } catch (e) {
                         failure_function(e, 'MacOSX / tests failed')
                     }
@@ -78,15 +77,21 @@ def create_container(image_key) {
           ")
 }
 
+def docker_copy_code(image_key) {
+    sh "docker cp ${project}_code ${container_name(image_key)}:/home/jenkins/${project}"
+    sh """docker exec --user root ${container_name(image_key)} sh -c \"
+                        chown -R jenkins.jenkins /home/jenkins/${project}
+                        \""""
+}
+
 def docker_clone(image_key) {
     def clone_script = """
         git clone \
             --branch ${env.BRANCH_NAME} \
             https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
         cd ${project}
-        git submodule update --init
         """
-    sh "docker exec ${container_name(image_key)} sh -c \"${clone_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${clone_script}\""
 }
 
 def docker_dependencies(image_key) {
@@ -98,27 +103,24 @@ def docker_dependencies(image_key) {
             --insert 0 \\
             ${conan_remote} ${local_conan_server}
                     """
-    sh "docker exec ${container_name(image_key)} sh -c \"${dependencies_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${dependencies_script}\""
 }
 
 def docker_cmake(image_key, xtra_flags) {
     def configure_script = """
         cd ${project}/build
-        cmake -DDAQuiri_config=1 -DDAQuiri_cmd=1 -DDAQuiri_gui=1 \
-              -DDAQuiri_enabled_producers=DummyDevice\\;MockProducer\\;DetectorIndex\\;ESSStream \
-              ${xtra_flags} \
-              ..
+        cmake ${xtra_flags} ..
         """
 
-    sh "docker exec ${container_name(image_key)} sh -c \"${configure_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${configure_script}\""
 }
 
 def docker_build(image_key) {
     def build_script = """
         cd ${project}/build
-        make -j4 && make -j4 all_tests
+        make everything -j4
         """
-    sh "docker exec ${container_name(image_key)} sh -c \"${build_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${build_script}\""
 }
 
 def docker_tests(image_key) {
@@ -127,14 +129,14 @@ def docker_tests(image_key) {
                 . ./activate_run.sh
                 make run_tests
                 """
-    sh "docker exec ${container_name(image_key)} sh -c \"${test_script}\""
+    sh "docker exec ${container_name(image_key)} bash -e -c \"${test_script}\""
 }
 
 def docker_tests_coverage(image_key) {
     abs_dir = pwd()
 
     try {
-        sh """docker exec ${container_name(image_key)} sh -c \"
+        sh """docker exec ${container_name(image_key)} bash -e -c \"
                 cd ${project}/build
                 . ./activate_run.sh
                 make run_tests && make coverage
@@ -148,7 +150,7 @@ def docker_tests_coverage(image_key) {
 
     dir("${project}/build") {
         junit 'tests/test_results.xml'
-        sh "../jenkins/redirect_coverage.sh ./tests/coverage/coverage.xml ${abs_dir}/${project}"
+        sh "../jenkins/redirect_coverage.sh ./tests/coverage/coverage.xml ${abs_dir}/${project}/source/"
 
         step([
                 $class: 'CoberturaPublisher',
@@ -169,10 +171,11 @@ def docker_tests_coverage(image_key) {
 def get_pipeline(image_key) {
     return {
         stage("${image_key}") {
-            node("docker") {
                 try {
                     create_container(image_key)
-                    docker_clone(image_key)
+
+                    docker_copy_code(image_key)
+                    //docker_clone(image_key)
 
                     docker_dependencies(image_key)
 
@@ -194,7 +197,6 @@ def get_pipeline(image_key) {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
                 }
-            }
         }
     }
 }

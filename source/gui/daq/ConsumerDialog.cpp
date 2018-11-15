@@ -1,15 +1,15 @@
 #include "ConsumerDialog.h"
 #include "ui_ConsumerDialog.h"
-#include "custom_logger.h"
+#include <core/util/custom_logger.h>
 #include <QInputDialog>
 #include <QMessageBox>
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
 //#include "dialog_detector.h"
 
-#include "qt_util.h"
-#include "QColorExtensions.h"
+#include <widgets/qt_util.h>
+#include <widgets/QColorExtensions.h>
 
-#include "GradientSelector.h"
+#include <QPlot/GradientSelector.h>
 
 using namespace DAQuiri;
 
@@ -33,7 +33,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
 
   auto consumer_types = ConsumerFactory::singleton().types();
   for (auto &q : consumer_types)
-    ui->comboType->addItem(QString::fromStdString(q));
+    ui->comboType->addItem(QS(q));
 
   std::string default_type = "";
   if (consumer_types.size())
@@ -129,7 +129,7 @@ void ConsumerDialog::updateData()
 {
   auto metadata = consumer_->metadata();
 
-  ui->comboType->setCurrentText(QString::fromStdString(metadata.type()));
+  ui->comboType->setCurrentText(QS(metadata.type()));
 
 //  spectrum_detectors_.clear();
 //  for (auto &q: metadata.detectors)
@@ -139,7 +139,7 @@ void ConsumerDialog::updateData()
 //  Setting pat = metadata.get_attribute("pattern_add");
 //  ui->spinDets->setValue(pat.pattern().gates().size());
 
-  QString descr = QString::fromStdString(metadata.type_description())
+  QString descr = QS(metadata.type_description())
 //        + "   dimensions=" + QString::number(md.dimensions())
       + "\n";
   ui->labelDescription->setText(descr);
@@ -388,6 +388,10 @@ void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
   }
 }
 
+void ConsumerDialog::on_pushExpandAll_clicked()
+{
+  ui->treeAttribs->expandAll();
+}
 
 void ConsumerDialog::on_pushDetEdit_clicked()
 {
@@ -432,7 +436,7 @@ void ConsumerDialog::on_pushDetRename_clicked()
 //  bool ok;
 //  QString text = QInputDialog::getText(this, "Rename Detector",
 //                                       "Detector name:", QLineEdit::Normal,
-//                                       QString::fromStdString(spectrum_detectors_.get(i).name()),
+//                                       QS(spectrum_detectors_.get(i).name()),
 //                                       &ok);
 //  if (ok && !text.isEmpty())
 //  {
@@ -486,7 +490,7 @@ void ConsumerDialog::on_pushDetToDB_clicked()
 //      bool ok;
 //      QString text = QInputDialog::getText(this, "New Detector",
 //                                           "Detector name:", QLineEdit::Normal,
-//                                           QString::fromStdString(newdet.name()),
+//                                           QS(newdet.name()),
 //                                           &ok);
 
 //      if (!ok)
@@ -516,7 +520,7 @@ void ConsumerDialog::on_pushDetToDB_clicked()
 //      }
 //    } else {
 //      QMessageBox::StandardButton reply = QMessageBox::question(this, "Replace existing?",
-//                                    "Detector " + QString::fromStdString(newdet.name()) + " already exists. Replace?",
+//                                    "Detector " + QS(newdet.name()) + " already exists. Replace?",
 //                                     QMessageBox::Yes|QMessageBox::No);
 //      if (reply == QMessageBox::No)
 //        return;

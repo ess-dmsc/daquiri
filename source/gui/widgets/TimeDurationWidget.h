@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QDialog>
-#include <boost/date_time.hpp>
-#include "qt_util.h"
+#include <core/util/time_extensions.h>
+#include <widgets/qt_util.h>
 
 
 namespace Ui {
@@ -20,8 +20,8 @@ public:
   uint64_t total_seconds();
   void set_total_seconds(uint64_t secs);
 
-  void set_duration(boost::posix_time::time_duration duration);
-  boost::posix_time::time_duration get_duration() const;
+  void set_duration(hr_duration_t duration);
+  hr_duration_t get_duration() const;
 
   void set_us_enabled(bool use);
 

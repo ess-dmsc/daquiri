@@ -1,4 +1,4 @@
-#include "producer_factory.h"
+#include <core/producer_factory.h>
 
 namespace DAQuiri {
 
@@ -23,13 +23,13 @@ void ProducerFactory::register_type(std::string name,
                                     std::function<Producer*(void)> constructor)
 {
   if (name.empty())
-    WARN << "<ProducerFactory> failed to register nameless type";
+    WARN("<ProducerFactory> failed to register nameless type");
   else if (constructors_.count(name))
-    WARN << "<ProducerFactory> type '" << name << "' already registered";
+    WARN("<ProducerFactory> type '{}' already registered", name);
   else
   {
     constructors_[name] = constructor;
-    TRC << "<ProducerFactory> registered '" << name << "'";
+    DBG("<ProducerFactory> registered '{}'", name);
   }
 }
 
@@ -40,6 +40,12 @@ std::vector<std::string> ProducerFactory::types() const
     all_types.push_back(q.first);
   return all_types;
 }
+
+void ProducerFactory::clear()
+{
+  constructors_.clear();
+}
+
 
 }
 

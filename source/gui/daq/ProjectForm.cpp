@@ -1,29 +1,29 @@
-#include "consumer_factory.h"
+#include <core/consumer_factory.h>
 #include "ProjectForm.h"
 #include "ui_ProjectForm.h"
 #include "ConsumerTemplatesForm.h"
-#include "custom_logger.h"
-#include "custom_timer.h"
+#include <core/util/custom_logger.h>
+#include <core/util/timer.h>
 #include <QSettings>
 #include <QMessageBox>
 
 #include <QCloseEvent>
 
-#include "QFileExtensions.h"
+#include <widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner& thread,
-                         Container<Detector>& detectors,
                          ProjectPtr proj,
                          QString profile_dir,
+                         QString identity,
                          QWidget* parent)
     : QWidget(parent),
       ui(new Ui::ProjectForm),
       runner_thread_(thread),
       interruptor_(false),
       project_(proj),
-      detectors_(detectors),
+      project_identity_(identity),
       profile_dir_(profile_dir)
 {
   ui->setupUi(this);
@@ -31,7 +31,7 @@ ProjectForm::ProjectForm(ThreadRunner& thread,
   if (!project_)
     project_ = ProjectPtr(new Project());
 //  else
-//    DBG << "project already exists";
+//    DBG( "project already exists";
 
   //connect with runner
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
@@ -133,9 +133,10 @@ void ProjectForm::loadSettings()
     {
       project_->open(fname.toStdString());
     }
-    catch (...)
+    catch (std::exception& e)
     {
-      DBG << "Could not load default prototypes from " << fname.toStdString();
+      DBG("<ProjectForm> Could not load default prototypes from {}\n{}",
+          fname.toStdString(), hdf5::error::print_nested(e, 0));
     }
   }
 
@@ -174,7 +175,7 @@ void ProjectForm::saveSettings()
     }
     catch (...)
     {
-      DBG << "Could not save default prototypes to " << fname.toStdString();
+      DBG("Could not save default prototypes to {}", fname.toStdString());
     }
   }
 }
@@ -211,17 +212,14 @@ void ProjectForm::clearGraphs() //rename this
   project_->activate();
 }
 
-void ProjectForm::update_plots()
+QString ProjectForm::get_label() const
 {
-  //ui->statusBar->showMessage("Updating plots");
-
-  CustomTimer guiside(true);
-
   QString name = project_identity_;
   if (name.isEmpty())
   {
     name = "New project";
-  } else
+  }
+  else
   {
     QStringList slist = name.split("/");
     if (!slist.empty())
@@ -233,6 +231,14 @@ void ProjectForm::update_plots()
   else if (project_->changed())
     name += QString::fromUtf8(" \u2731");
 
+  return name;
+}
+
+
+void ProjectForm::update_plots()
+{
+  QString name = get_label();
+
   if (name != this->windowTitle())
   {
     this->setWindowTitle(name);
@@ -241,9 +247,56 @@ void ProjectForm::update_plots()
 
   if (ui->projectView->isVisible())
     ui->projectView->update_plots();
+}
 
-  //ui->statusBar->showMessage("Spectra acquisition in progress...");
-//  DBG << "<ProjectForm> Gui-side plotting " << guiside.ms() << " ms";
+void ProjectForm::projectOpen()
+{
+  QString formats = "daquiri project file (*.daq)";
+
+  QString fileName = QFileDialog::getOpenFileName(this, "Load project",
+                                                  data_directory_, formats);
+  if (!validateFile(this, fileName, false))
+    return;
+
+  data_directory_ = path_of_file(fileName);
+
+  //save first?
+  if (project_->has_data())
+  {
+    int reply = QMessageBox::warning(this, "Clear existing?",
+                                     "Spectra already open. Clear existing before opening?",
+                                     QMessageBox::Yes | QMessageBox::Cancel);
+    if (reply == QMessageBox::Yes)
+      project_->clear();
+    else
+      return;
+  }
+
+  //toggle_push(false, false);
+  INFO("Reading spectra from file {}", fileName.toStdString());
+  clearGraphs();
+
+  try
+  {
+    project_->open(fileName.toStdString());
+  }
+  catch (std::exception& e)
+  {
+    auto message = "Could not load project:\n" + hdf5::error::print_nested(e, 0);
+    ERR("{}", message);
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(QS(message));
+    msgBox.exec();
+    return;
+  }
+
+  newProject();
+
+  project_identity_ = fileName;
+  project_->activate();
+
+  emit toggleIO(true);
 }
 
 void ProjectForm::projectSave()
@@ -254,14 +307,55 @@ void ProjectForm::projectSave()
                                      "Save changes to existing project: "
                                          + project_identity_,
                                      QMessageBox::Yes | QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes)
+    if (reply != QMessageBox::Yes)
+      return;
+
+    try
     {
       project_->save(project_identity_.toStdString());
-      update_plots();
     }
+    catch (std::exception& e)
+    {
+      auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+      ERR("{}", message);
+      QMessageBox msgBox;
+      msgBox.setIcon(QMessageBox::Warning);
+      msgBox.setText(QS(message));
+      msgBox.exec();
+      return;
+    }
+
+    update_plots();
   } else
     projectSaveAs();
 }
+
+void ProjectForm::save()
+{
+  if (project_identity_.isEmpty() || !project_->changed())
+    return;
+
+  boost::filesystem::path path(project_identity_.toStdString());
+  if (!boost::filesystem::exists(path) || !hdf5::file::is_hdf5_file(path))
+  {
+    path = boost::filesystem::path(data_directory_.toStdString())
+        / (project_identity_.toStdString() + ".daq");
+  }
+
+  try {
+    INFO("Saving project to path {}", path.string());
+    project_->save(path.string());
+  }
+  catch (std::exception &e) {
+    auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+    ERR("{}", message);
+    return;
+  }
+
+  project_identity_ = QS(path.string());
+  update_plots();
+}
+
 
 void ProjectForm::projectSaveAs()
 {
@@ -269,13 +363,26 @@ void ProjectForm::projectSaveAs()
 
   QString fileName = CustomSaveFileDialog(this, "Save project",
                                           data_directory_, formats);
-  if (validateFile(this, fileName, true))
+  if (!validateFile(this, fileName, true))
+    return;
+
+  try
   {
     project_->save(fileName.toStdString());
-    project_identity_ = fileName;
-    update_plots();
+  }
+  catch (std::exception& e)
+  {
+    auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
+    ERR("{}", message);
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(QS(message));
+    msgBox.exec();
+    return;
   }
 
+  project_identity_ = fileName;
+  update_plots();
   data_directory_ = path_of_file(fileName);
 }
 
@@ -287,7 +394,7 @@ void ProjectForm::projectSaveSplit()
                                           data_directory_, formats);
   if (validateFile(this, fileName + "_metadata.json", true))
   {
-    INFO << "Writing project to " << fileName.toStdString();
+    INFO("Writing project to {}", fileName.toStdString());
     project_->save_split(fileName.toStdString());
     update_plots();
   }
@@ -356,43 +463,6 @@ void ProjectForm::start_DAQ()
   runner_thread_.do_run(project_, interruptor_, duration);
 }
 
-void ProjectForm::projectOpen()
-{
-  QString formats = "daquiri project file (*.daq)";
-
-  QString fileName = QFileDialog::getOpenFileName(this, "Load project",
-                                                  data_directory_, formats);
-  if (!validateFile(this, fileName, false))
-    return;
-
-  data_directory_ = path_of_file(fileName);
-
-  //save first?
-  if (project_->has_data())
-  {
-    int reply = QMessageBox::warning(this, "Clear existing?",
-                                     "Spectra already open. Clear existing before opening?",
-                                     QMessageBox::Yes | QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes)
-      project_->clear();
-    else
-      return;
-  }
-
-  //toggle_push(false, false);
-  INFO << "Reading spectra from file " << fileName.toStdString();
-  clearGraphs();
-
-  project_->open(fileName.toStdString());
-
-  newProject();
-
-  project_identity_ = fileName;
-  project_->activate();
-
-  emit toggleIO(true);
-}
-
 void ProjectForm::newProject()
 {
   ui->projectView->setSpectra(project_);
@@ -401,7 +471,7 @@ void ProjectForm::newProject()
 void ProjectForm::on_pushStop_clicked()
 {
   ui->pushStop->setEnabled(false);
-  //INFO << " acquisition interrupted by user";
+  //INFO( " acquisition interrupted by user";
   interruptor_.store(true);
 }
 
@@ -409,7 +479,7 @@ void ProjectForm::run_completed()
 {
   if (my_run_)
   {
-    //INFO << "ProjectForm received signal for run completed";
+    //INFO( "ProjectForm received signal for run completed";
     ui->pushStop->setEnabled(false);
     my_run_ = false;
 
@@ -433,7 +503,7 @@ void ProjectForm::on_pushForceRefresh_clicked()
 //void ProjectForm::on_pushDetails_clicked()
 //{
 ////  for (auto &q : project_->get_consumers())
-////    DBG << "\n" << q.first << "=" << q.second->debug();
+////    DBG( "\n" << q.first << "=" << q.second->debug();
 
 //  FormDaqSettings *DaqInfo = new FormDaqSettings(project_, this);
 //  DaqInfo->setWindowTitle("System settings at the time of acquisition");
@@ -448,4 +518,14 @@ void ProjectForm::on_toggleIndefiniteRun_clicked()
 void ProjectForm::on_doubleSpinMinPause_editingFinished()
 {
   plot_thread_.set_wait_time(ui->doubleSpinMinPause->value() * 1000);
+}
+
+hr_time_t ProjectForm::opened() const
+{
+  return opened_;
+}
+
+bool ProjectForm::running() const
+{
+  return !interruptor_.load();
 }

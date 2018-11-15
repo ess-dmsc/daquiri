@@ -6,10 +6,10 @@
 #include <vector>
 #include <string>
 #include <cstdint>
-#include <boost/atomic.hpp>
+#include <atomic>
 
-#include "engine.h"
-#include "project.h"
+#include <core/engine.h>
+#include <core/project.h>
 
 using namespace DAQuiri;
 
@@ -65,9 +65,9 @@ class ThreadRunner : public QThread
     Engine &engine_;
     QMutex mutex_;
     RunnerAction action_ {kNone};
-    boost::atomic<bool> running_;
-    boost::atomic<bool> idle_refresh_;
-    boost::atomic<int> idle_refresh_frequency_;
+    std::atomic<bool> running_;
+    std::atomic<bool> idle_refresh_;
+    std::atomic<int> idle_refresh_frequency_;
 
 
     ProjectPtr project_;

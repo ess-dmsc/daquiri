@@ -1,12 +1,11 @@
-#include "setting.h"
-#include <boost/lexical_cast.hpp>
-#include "bin_hex_print.h"
-#include "time_extensions.h"
-#include "ascii_tree.h"
-#include "color_bash.h"
-#include <boost/algorithm/string.hpp>
+#include <core/plugin/setting.h>
+#include <core/util/bin_hex_print.h>
+#include <core/util/string_extensions.h>
+#include <core/util/time_extensions.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/color_bash.h>
 
-#include <custom_logger.h>
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 
@@ -66,34 +65,34 @@ std::set<int32_t> Setting::indices() const
   return indices_;
 }
 
-Setting::Setting(std::string sid, boost::posix_time::ptime v)
+Setting::Setting(std::string sid, hr_time_t v)
   : Setting(SettingMeta(sid, SettingType::time))
 {
   value_time = v;
 }
 
-void Setting::set_time(boost::posix_time::ptime v)
+void Setting::set_time(hr_time_t v)
 {
   value_time = v;
 }
 
-boost::posix_time::ptime Setting::time() const
+hr_time_t Setting::time() const
 {
   return value_time;
 }
 
-Setting::Setting(std::string sid, boost::posix_time::time_duration v)
+Setting::Setting(std::string sid, hr_duration_t v)
   : Setting(SettingMeta(sid, SettingType::duration))
 {
   value_duration = v;
 }
 
-void Setting::set_duration(boost::posix_time::time_duration v)
+void Setting::set_duration(hr_duration_t v)
 {
   value_duration = v;
 }
 
-boost::posix_time::time_duration Setting::duration() const
+hr_duration_t Setting::duration() const
 {
   return value_duration;
 }
@@ -180,7 +179,7 @@ std::string Setting::indices_to_string(bool showblanks) const
 
   auto max = metadata_.get_num<size_t>("max_indices", 0);
 
-  std::list<std::string> idcs;
+  std::vector<std::string> idcs;
   for (auto &q : indices_)
     idcs.push_back(std::to_string(q));
 
@@ -189,7 +188,7 @@ std::string Setting::indices_to_string(bool showblanks) const
       idcs.push_back("-");
 
   if (idcs.size())
-    return "{" + boost::join(idcs, " ") + "}";
+    return "{" + join(idcs, " ") + "}";
 
   return "";
 }
@@ -544,7 +543,7 @@ Setting Setting::indicator(std::string sid, integer_t val)
 
 bool Setting::numeric() const
 {
-  return metadata_.numeric();
+  return metadata_.is_numeric();
 }
 
 double Setting::get_number() const
@@ -570,6 +569,16 @@ void Setting::set_number(double val)
   else if (is(SettingType::precise))
     value_precise = val;
   enforce_limits();
+}
+
+void Setting::set_precise(PreciseFloat pf)
+{
+  value_precise = pf;
+}
+
+PreciseFloat Setting::precise() const
+{
+  return value_precise;
 }
 
 void Setting::set_int(integer_t v)
@@ -695,19 +704,9 @@ std::string Setting::val_to_string() const
   else if (is(SettingType::pattern))
     ss << value_pattern.debug();
   else if (is(SettingType::duration))
-  {
-    if (value_duration.is_not_a_date_time())
-      ss << "INVALID";
-    else
-      ss << very_simple(value_duration);
-  }
+    ss << very_simple(value_duration);
   else if (is(SettingType::time))
-  {
-    if (value_time.is_not_a_date_time())
-      ss << "INVALID";
-    else
-      ss << boost::posix_time::to_iso_extended_string(value_time);
-  }
+    ss << to_iso_extended(value_time);
   else if (is(SettingType::boolean))
   {
     if (value_int != 0)
@@ -780,7 +779,7 @@ json Setting::val_to_json() const
   else if (is(SettingType::precise))
     return json(value_precise);
   else if (is(SettingType::duration))
-    return boost::posix_time::to_simple_string(value_duration);
+    return to_simple(value_duration);
   else
     return json(val_to_string());
 }
@@ -808,8 +807,7 @@ void Setting::val_from_json(const json &j)
   else if (is(SettingType::time))
     value_time = from_iso_extended(j.get<std::string>());
   else if (is(SettingType::duration))
-    value_duration =
-        boost::posix_time::duration_from_string(j.get<std::string>());
+    value_duration = duration_from_string(j.get<std::string>());
   else if (is(SettingType::text))
     value_text = j.get<std::string>();
 }

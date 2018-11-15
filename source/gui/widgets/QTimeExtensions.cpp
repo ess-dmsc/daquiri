@@ -1,40 +1,30 @@
-#include "QTimeExtensions.h"\
+#include <widgets/QTimeExtensions.h>
+#include <date/date.h>
 
-QDateTime fromBoostPtime(boost::posix_time::ptime bpt)
+#include <core/util/time_extensions.h>
+#include <core/util/custom_logger.h>
+
+// \todo time zones
+
+QDateTime fromTimePoint(std::chrono::time_point<std::chrono::system_clock> tp)
 {
-  std::string bpt_iso = boost::posix_time::to_iso_extended_string(bpt);
-  std::replace(bpt_iso.begin(), bpt_iso.end(), '-', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), 'T', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), ':', ' ');
-  std::replace(bpt_iso.begin(), bpt_iso.end(), '.', ' ');
+  auto daypoint = date::floor<date::days>(tp);
+  auto ymd = date::year_month_day(daypoint);   // calendar date
 
-  std::stringstream iss;
-  iss.str(bpt_iso);
+  auto tt2 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - daypoint);
 
-  int year, month, day, hour, minute, second;
-  double ms = 0;
-  iss >> year >> month >> day >> hour >> minute >> second >> ms;
+  QDate qdate(static_cast<int>(ymd.year()),
+              static_cast<unsigned int>(ymd.month()),
+              static_cast<unsigned int>(ymd.day()));
 
-  while (ms > 999)
-    ms = ms / 10;
-  ms = round(ms);
-
-  QDate date;
-  date.setDate(year, month, day);
-
-  QTime time;
-  time.setHMS(hour, minute, second, static_cast<int>(ms));
-
-  QDateTime ret;
-  ret.setDate(date);
-  ret.setTime(time);
-
-  return ret;
+  QTime qtime = QTime(0,0,0).addMSecs(tt2.count());
+  return QDateTime(qdate, qtime, Qt::UTC);
 }
 
-boost::posix_time::ptime fromQDateTime(QDateTime qdt)
+std::chrono::time_point<std::chrono::system_clock> toTimePoint(QDateTime qdt)
 {
-  std::string dts = qdt.toString("yyyy-MM-dd hh:mm:ss.zzz").toStdString();
-  boost::posix_time::ptime bpt = boost::posix_time::time_from_string(dts);
-  return bpt;
+  using namespace date;
+  auto ret = date::sys_days(date::year{qdt.date().year()}/qdt.date().month()/qdt.date().day())
+          + std::chrono::milliseconds(qdt.time().msecsSinceStartOfDay());
+  return ret;
 }

@@ -1,15 +1,14 @@
 #include "ProjectView.h"
 #include "ui_ProjectView.h"
 #include "ConsumerDialog.h"
-#include "custom_timer.h"
-#include "boost/algorithm/string.hpp"
-#include "QHist.h"
-//#include "qt_util.h"
+#include <core/util/timer.h>
+#include <QPlot/QHist.h>
+//#include <widgets/qt_util.h>
 #include "ConsumerScalar.h"
 #include "Consumer1D.h"
 #include "Consumer2D.h"
-#include <boost/range/adaptor/reversed.hpp>
-#include "QColorExtensions.h"
+#include <widgets/QColorExtensions.h>
+#include <widgets/qt_util.h>
 
 using namespace DAQuiri;
 
@@ -153,8 +152,8 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
 
   ConsumerMetadata md = consumer->metadata();
 
-  double real = md.get_attribute("real_time").duration().total_milliseconds() * 0.001;
-  double live = md.get_attribute("live_time").duration().total_milliseconds() * 0.001;
+  double real = md.get_attribute("real_time").duration().count() * 0.001;
+  double live = md.get_attribute("live_time").duration().count() * 0.001;
   double total_count = md.get_attribute("total_count").get_number();
   double rate_total = 0;
   if (live > 0)
@@ -162,7 +161,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
   double dead = 100;
   if (real > 0)
     dead = (real - live) * 100.0 / real;
-  double rate_inst = md.get_attribute("instant_rate").get_number();
+  double rate_inst = md.get_attribute("recent_native_time_rate").get_number();
 
   Detector det = Detector();
   if (!md.detectors.empty())
@@ -170,10 +169,10 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
 
   uint16_t bits = md.get_attribute("resolution").selection();
 
-  QString detstr = "Detector: " + QString::fromStdString(det.id());
+  QString detstr = "Detector: " + QS(det.id());
 
   QString infoText =
-      "<nobr>" + itm.text + "(" + QString::fromStdString(consumer->type())
+      "<nobr>" + itm.text + "(" + QS(consumer->type())
       + ", " + QString::number(bits) + "bits)</nobr><br/>"
       "<nobr>" + detstr + "</nobr><br/>"
       "<nobr>Count: " + QString::number(total_count) + "</nobr><br/>"
@@ -201,12 +200,12 @@ void ProjectView::updateUI()
     Setting appearance = md.get_attribute("appearance");
     QColor color;
     if (appearance != Setting())
-      color = QColor(QString::fromStdString(appearance.get_text()));
+      color = QColor(QS(appearance.get_text()));
     else
       color = Qt::black;
 
     SelectorItem consumer_item;
-    consumer_item.text = QString::fromStdString(md.get_attribute("name").get_text());
+    consumer_item.text = QS(md.get_attribute("name").get_text());
     consumer_item.data = QVariant::fromValue(i++);
     consumer_item.color = color;
     consumer_item.visible = md.get_attribute("visible").triggered();
@@ -226,15 +225,16 @@ void ProjectView::updateUI()
 void ProjectView::enforce_all()
 {
   auto initial = consumers_.size();
-  for (auto item :boost::adaptors::reverse(selector_->items()))
-    enforce_item(item);
+  auto items = selector_->items();
+  for (auto it = items.rbegin(); it != items.rend(); it++)
+    enforce_item(*it);
   if (consumers_.size() != initial)
     enforce_tile_policy();
 }
 
 void ProjectView::update_plots()
 {
-//  CustomTimer t(true);
+//  Timer t(true);
   for (auto &consumer_widget : consumers_)
     consumer_widget->update();
 
@@ -242,7 +242,7 @@ void ProjectView::update_plots()
     consumer_widget->refresh();
 
   selectorItemSelected(SelectorItem());
-//  DBG << "<ProjectView> plotting took " << t.s();
+//  DBG( "<ProjectView> plotting took " << t.s();
 }
 
 void ProjectView::on_pushFullInfo_clicked()
@@ -255,7 +255,7 @@ void ProjectView::on_pushFullInfo_clicked()
       new ConsumerDialog(consumer, std::vector<Detector>(),
                          detectors_, stream_manifest_, false, this);
 
-  //DBG << "Consumer:\n" << consumer->debug() << "\n";
+  //DBG( "Consumer:\n" << consumer->debug() << "\n";
 
   if (newSpecDia->exec() == QDialog::Accepted)
   {

@@ -3,8 +3,9 @@
 #include "AbstractConsumerWidget.h"
 #include <QProgressBar>
 #include <QLabel>
-#include "thermometer.h"
-#include "manometer.h"
+
+class ThermoMeter;
+class ManoMeter;
 
 class ConsumerScalar : public AbstractConsumerWidget
 {

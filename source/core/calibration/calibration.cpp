@@ -1,6 +1,7 @@
-#include "calibration.h"
-#include <boost/algorithm/string.hpp>
-#include "time_extensions.h"
+#include <core/calibration/calibration.h>
+#include <core/util/string_extensions.h>
+#include <core/util/time_extensions.h>
+#include <fmt/format.h>
 
 namespace DAQuiri {
 
@@ -144,7 +145,7 @@ void shift(std::vector<double>& vec, int16_t bits)
 
 
 
-boost::posix_time::ptime Calibration::calib_date() const
+hr_time_t Calibration::calib_date() const
 {
   return calib_date_;
 }
@@ -194,7 +195,7 @@ std::string Calibration::fancy_equation(bool with_chi2) const
   if (valid())
     return function_->to_UTF8()
         + (with_chi2
-           ? (" (chi2=" + boost::lexical_cast<std::string>(function_->chi2()) + ")")
+           ? fmt::format("chi2={})", function_->chi2())
            : "");
   return "N/A";
 }
@@ -221,12 +222,12 @@ std::string Calibration::coefs_to_string() const
   std::stringstream dss;
   for (auto &q : function_->coeffs_consecutive())
     dss << q << " ";
-  return boost::algorithm::trim_copy(dss.str());
+  return trim_copy(dss.str());
 }
 
 std::vector<double> Calibration::coefs_from_string(const std::string &coefs)
 {
-  std::stringstream ss(boost::algorithm::trim_copy(coefs));
+  std::stringstream ss(trim_copy(coefs));
   std::vector<double> templist;
   while (ss.rdbuf()->in_avail())
   {
@@ -247,14 +248,14 @@ std::string Calibration::debug() const
   if (valid())
   {
     result += " eqn=" + fancy_equation(true);
-    result += " date=" + to_iso_string(calib_date_);
+    result += " date=" + to_simple(calib_date_);
   }
   return result;
 }
 
 void to_json(json& j, const Calibration &s)
 {
-  j["calibration_creation_date"] = to_iso_extended_string(s.calib_date_);
+  j["calibration_creation_date"] = to_iso_extended(s.calib_date_);
 
   if (s.from_.valid())
     j["from"] = s.from_;

@@ -1,9 +1,17 @@
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#include <core/util/string_extensions.h>
+#include <cmath>
+
+inline bool is_number(std::string s)
+{
+  trim(s);
+  if (s.empty())
+    return false;
+  char* p;
+  strtod(s.c_str(), &p);
+  return (*p == 0);
+}
 
 inline std::string to_max_precision(double number)
 {
@@ -29,37 +37,92 @@ inline std::string to_str_decimals(double number, int decimals = 0)
   return ss.str();
 }
 
-template<typename T> inline bool is_number(T x)
+struct FloatDeconstructed
 {
-  std::string s;
-  std::stringstream ss;
-  ss << x;
-  ss >>s;
-  if(s.empty() || std::isspace(s[0]) || std::isalpha(s[0])) return false ;
-  char * p ;
-  strtod(s.c_str(), &p) ;
-  return (*p == 0) ;
-}
+  std::string sign;
+  std::string mantissa;
+  std::string exponent;
+
+  inline void parse(std::string s)
+  {
+    sign.clear();
+    mantissa.clear();
+    exponent.clear();
+
+    trim(s);
+    if (s.empty())
+      return;
+    if ((s[0] == '+') || (s[0] == '-'))
+    {
+      sign = s[0];
+      s = s.substr(1, s.size() - 1);
+    }
+
+    size_t le = s.find('e');
+    size_t lE = s.find('E');
+    if (le != std::string::npos)
+    {
+      mantissa = s.substr(0, le);
+      exponent = s.substr(le + 1, s.size() - le - 1);
+    }
+    else if (lE != std::string::npos)
+    {
+      mantissa = s.substr(0, lE);
+      exponent = s.substr(lE + 1, s.size() - lE - 1);
+    }
+    else
+    {
+      mantissa = s;
+    }
+  }
+
+  FloatDeconstructed() {}
+  FloatDeconstructed(std::string s)
+  {
+    parse(s);
+  }
+};
 
 inline uint16_t sig_digits(std::string st)
 {
-  boost::to_lower(st);
-  boost::replace_all(st, "+", "");
-  boost::replace_all(st, "-", "");
-  if (boost::contains(st, "e")) {
-    size_t l = st.find('e');
-    st = st.substr(0,l);
-  }
+  FloatDeconstructed parsed(st);
+  if (parsed.mantissa.empty())
+    return 0;
+
   //assume only one number in string
-  uint16_t count=0; bool past_zeros = false;
-  for(size_t i=0;i<st.size();i++) {
-    bool digit = std::isdigit(st[i]);
-    if (digit && (st[i] != '0'))
+  uint16_t count = 0;
+  bool past_zeros = false;
+  bool had_decimal = false;
+  uint16_t trailing_0s = 0;
+  for (size_t i = 0; i < parsed.mantissa.size(); i++)
+  {
+    bool digit = std::isdigit(parsed.mantissa[i]);
+    if (parsed.mantissa[i] == '.')
+      had_decimal = true;
+    if (digit && (parsed.mantissa[i] != '0'))
       past_zeros = true;
-    if(past_zeros && digit)
+    if (past_zeros && digit)
       count++;
+    if (past_zeros && !had_decimal && (parsed.mantissa[i] == '0'))
+      trailing_0s++;
   }
-  return count;
+  if (!had_decimal && trailing_0s)
+  {
+    trailing_0s = 0;
+    size_t i = parsed.mantissa.size();
+    while (i > 0)
+    {
+      i--;
+      if (parsed.mantissa[i] == '0')
+        trailing_0s++;
+      else
+        break;
+    }
+  }
+  else
+    trailing_0s = 0;
+
+  return count - trailing_0s;
 }
 
 inline int16_t order_of(double val)
@@ -72,27 +135,18 @@ inline int16_t order_of(double val)
 
 inline double get_precision(std::string value)
 {
-  boost::trim(value);
-  boost::trim_if(value, boost::is_any_of("+-"));
-  std::vector<std::string> parts;
-  boost::split(parts, value, boost::is_any_of("Ee"));
-
-  std::string mantissa;
-  std::string expstr;
-
-  if (parts.size() >= 1)
-    mantissa = parts.at(0);
-  if (parts.size() >= 2)
-    expstr = parts.at(1);
+  FloatDeconstructed parsed(value);
+  if (parsed.mantissa.empty())
+    return 0;
 
   int exponent = 0;
-  if (!expstr.empty() && is_number(expstr))
-    exponent = boost::lexical_cast<double>(expstr);
+  if (!parsed.exponent.empty() && is_number(parsed.exponent))
+    exponent = std::stoi(parsed.exponent);
 
   int sigpos = 0;
-  size_t pointpos = mantissa.find('.');
+  size_t pointpos = parsed.mantissa.find('.');
   if (pointpos != std::string::npos)
-    sigpos -= mantissa.size() - pointpos - 1;
+    sigpos -= parsed.mantissa.size() - pointpos - 1;
 
   // return factor for shifting according to exponent
   return pow(10.0, double(sigpos + exponent));

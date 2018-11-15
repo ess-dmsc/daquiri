@@ -1,8 +1,8 @@
-#include "ev42_parser.h"
+#include <producers/ESSStream/ev42_parser.h>
 #include "ev42_events_generated.h"
 
-#include "custom_timer.h"
-#include "custom_logger.h"
+#include <core/util/timer.h>
+#include <core/util/custom_logger.h>
 
 ev42_events::ev42_events()
 {
@@ -13,9 +13,9 @@ ev42_events::ev42_events()
   add_definition(streamid);
 
   SettingMeta spoof(r + "/SpoofClock", SettingType::menu, "Spoof pulse time");
-  spoof.set_enum(0, "no");
-  spoof.set_enum(1, "monotonous high-time");
-  spoof.set_enum(2, "use earliest event in buffer");
+  spoof.set_enum(Spoof::None, "no");
+  spoof.set_enum(Spoof::Monotonous, "monotonous high-time");
+  spoof.set_enum(Spoof::Earliest, "use earliest event in buffer");
   add_definition(spoof);
 
   SettingMeta hb(r + "/Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
@@ -31,9 +31,9 @@ ev42_events::ev42_events()
   add_definition(sname);
 
   SettingMeta oor(r + "/MessageOrdering", SettingType::menu, "If message_id out of order");
-  oor.set_enum(0, "ignore");
-  oor.set_enum(1, "warn");
-  oor.set_enum(2, "reject");
+  oor.set_enum(CheckOrdering::Ignore, "ignore");
+  oor.set_enum(CheckOrdering::Warn, "warn");
+  oor.set_enum(CheckOrdering::Reject, "reject");
   add_definition(oor);
 
   int32_t i{0};
@@ -76,9 +76,9 @@ void ev42_events::settings(const Setting& settings)
   filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
   source_name_ = set.find({r + "/SourceName"}).get_text();
   stream_id_ = set.find({r + "/StreamID"}).get_text();
-  spoof_clock_ = set.find({r + "/SpoofClock"}).get_number();
+  spoof_clock_ = static_cast<Spoof>(set.find({r + "/SpoofClock"}).get_int());
   heartbeat_ = set.find({r + "/Heartbeat"}).triggered();
-  ordering_ = set.find({r + "/MessageOrdering"}).get_number();
+  ordering_ = static_cast<CheckOrdering>(set.find({r + "/MessageOrdering"}).get_int());
 
   event_definition_ = EventModel();
 
@@ -104,7 +104,7 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 {
   if (started_)
   {
-    auto ret = std::make_shared<Spill>(stream_id_, StatusType::stop);
+    auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::stop);
     ret->state.branches.add(Setting::precise("native_time", stats.time_end));
     ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
@@ -116,9 +116,9 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
 
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
-  CustomTimer timer(true);
+  Timer timer(true);
   uint64_t pushed_spills = 0;
-  boost::posix_time::ptime start_time {boost::posix_time::microsec_clock::universal_time()};
+  hr_time_t start_time {std::chrono::system_clock::now()};
 
   auto em = GetEventMessage(msg);
 
@@ -130,12 +130,10 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
     return 0;
   }
 
-  if (ordering_ && !in_order(em))
+  if ((ordering_ != Ignore) && !in_order(em))
   {
-    WARN << "Buffer out of order (" << em->message_id()
-         << "<=" << latest_buf_id_ << ") "
-         << debug(em);
-    if (ordering_ == 2)
+    WARN("Buffer out of order ({}<={}) {}", em->message_id(), latest_buf_id_, debug(em));
+    if (ordering_ == Reject)
     {
       stats.time_spent += timer.s();
       return 0;
@@ -146,19 +144,19 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   uint64_t time_high = em->pulse_time();
 
-  if (spoof_clock_ == 1)
+  if (spoof_clock_ == Monotonous)
     time_high = spoofed_time_++ << 32;
 
   stats.time_start = stats.time_end = time_high;
 
-  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, StatusType::running);
+  SpillPtr run_spill = std::make_shared<Spill>(stream_id_, Spill::Type::running);
   run_spill->event_model = event_definition_;
   run_spill->events.reserve(event_count, event_definition_);
 
   for (size_t i=0; i < event_count; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
-    time |= time_high;
+    time += time_high;
     if (i==0)
       stats.time_start = time;
     stats.time_start = std::min(stats.time_start, time);
@@ -170,16 +168,16 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
       evt.set_time(time);
       ++ run_spill->events;
     }
-//    DBG << "Time " << stats.time_start << " - " << stats.time_end;
+//    DBG( "Time " << stats.time_start << " - " << stats.time_end;
   }
   run_spill->events.finalize();
 
   run_spill->state.branches.add(Setting::precise("native_time", stats.time_end));
   run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
 
-  if (spoof_clock_ == 1)
+  if (spoof_clock_ == Monotonous)
     run_spill->state.branches.add(Setting::precise("pulse_time", time_high));
-  else if (spoof_clock_ == 2)
+  else if (spoof_clock_ == Earliest)
     run_spill->state.branches.add(Setting::precise("pulse_time", stats.time_start));
   else
     run_spill->state.branches.add(Setting::precise("pulse_time", em->pulse_time()));
@@ -188,7 +186,7 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 
   if (!started_)
   {
-    auto start_spill = std::make_shared<Spill>(stream_id_, StatusType::start);
+    auto start_spill = std::make_shared<Spill>(stream_id_, Spill::Type::start);
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", time_high));
 //    start_spill->state.branches.add(Setting::text("source_name", source_name));

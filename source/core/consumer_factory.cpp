@@ -1,5 +1,5 @@
-#include "consumer_factory.h"
-#include "custom_logger.h"
+#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
 
 namespace DAQuiri {
 
@@ -14,7 +14,9 @@ ConsumerPtr ConsumerFactory::create_type(std::string type) const
 
 ConsumerPtr ConsumerFactory::create_copy(ConsumerPtr other) const
 {
-  return ConsumerPtr(other->clone());
+  if (other)
+    return ConsumerPtr(other->clone());
+  return ConsumerPtr();
 }
 
 ConsumerPtr ConsumerFactory::create_from_prototype(const ConsumerMetadata& tem) const
@@ -59,14 +61,14 @@ void ConsumerFactory::register_type(ConsumerMetadata tt,
 {
   auto name = tt.type();
   if (name.empty())
-    WARN << "<ConsumerFactory> failed to register nameless type";
+    WARN("<ConsumerFactory> failed to register nameless type");
   else if (constructors_.count(tt.type()))
-    WARN << "<ConsumerFactory> type '" << tt.type() << "' already registered";
+    WARN("<ConsumerFactory> type '{}' already registered", tt.type());
   else
   {
     constructors_[tt.type()] = constructor;
     prototypes_[tt.type()] = tt;
-    TRC << "<ConsumerFactory> registered '" << tt.type() << "'";
+    DBG("<ConsumerFactory> registered '{}'", tt.type());
   }
 }
 
@@ -77,5 +79,12 @@ std::vector<std::string> ConsumerFactory::types() const
     all_types.push_back(q.first);
   return all_types;
 }
+
+void ConsumerFactory::clear()
+{
+  constructors_.clear();
+  prototypes_.clear();
+}
+
 
 }

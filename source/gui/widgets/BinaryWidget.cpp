@@ -1,4 +1,5 @@
-#include "BinaryWidget.h"
+#include <widgets/BinaryWidget.h>
+#include <widgets/qt_util.h>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -19,7 +20,7 @@ BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
   if (wordsize > 64)
     wordsize = 64;
 
-  std::bitset<64> bs(setting.selection());
+  std::bitset<64> bs(setting.get_int());
 
   QLabel *label;
   QFrame* line;
@@ -125,8 +126,8 @@ BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
       num = num >> uint8_t(64 - bits);
 
       for (auto q : sub.metadata().enum_map())
-        menu->addItem(QString::fromStdString(q.second), QVariant::fromValue(q.first));
-      int menuIndex = menu->findText(QString::fromStdString(sub.metadata().enum_name(num)));
+        menu->addItem(QS(q.second), QVariant::fromValue(q.first));
+      int menuIndex = menu->findText(QS(sub.metadata().enum_name(num)));
       if(menuIndex >= 0)
         menu->setCurrentIndex(menuIndex);
       vl_checks->addWidget(menu);
@@ -135,9 +136,9 @@ BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
     label = new QLabel();
     label->setFixedHeight(25);
     if (setting_.metadata().enum_map().count(i) && !is_branch)
-      label->setText(QString::fromStdString(setting_.metadata().enum_name(i)));
+      label->setText(QS(setting_.metadata().enum_name(i)));
     else if (is_branch)
-      label->setText(QString::fromStdString(sub.metadata().get_string("name","")));
+      label->setText(QS(sub.metadata().get_string("name","")));
     else
       label->setText("N/A");
     label->setVisible(visible);
@@ -176,7 +177,7 @@ BinaryWidget::BinaryWidget(Setting setting, QWidget *parent) :
   hl->addLayout(vl_descr);
 
   label = new QLabel();
-  label->setText(QString::fromStdString("<b>" + setting_.id() + ": " +
+  label->setText(QS("<b>" + setting_.id() + ": " +
                                         setting_.metadata().get_string("name", "")
                                         + "</b>"));
 
@@ -223,7 +224,7 @@ void BinaryWidget::change_setting()
     if (spins_[i]->isVisible() && spins_[i]->isEnabled())
     {
       double dbl = (spins_[i]->value() - spins_[i]->minimum()) / spins_[i]->singleStep();
-      //      DBG << "converted dbl " << spins_[i]->value() << " to " << dbl;
+      //      DBG( "converted dbl " << spins_[i]->value() << " to " << dbl;
       int64_t num = static_cast<int64_t>(dbl);
       num = num << i;
       setting_.select(setting_.selection() | num);

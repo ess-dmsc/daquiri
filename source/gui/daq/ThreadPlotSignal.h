@@ -2,8 +2,8 @@
 
 #include <QThread>
 #include <QMutex>
-#include "project.h"
-#include "custom_logger.h"
+#include <core/project.h>
+#include <core/util/custom_logger.h>
 
 class ThreadPlotSignal : public QThread
 {
@@ -47,7 +47,7 @@ signals:
 
 protected:
   void run() {
-//    DBG << "<ThreadPlot> loop starting "
+//    DBG( "<ThreadPlot> loop starting "
 //        << terminating_.load() << " "
 //        << (project_.operator bool());
 
@@ -56,18 +56,18 @@ protected:
            && project_->wait_ready())
     {
       emit plot_ready();
-//      DBG << "<ThreadPlotSignal> Plot ready";
+//      DBG( "<ThreadPlotSignal> Plot ready";
       if (!terminating_.load())
         QThread::msleep(wait_ms_.load());
     }
-//    DBG << "<ThreadPlot> loop ended";
+//    DBG( "<ThreadPlot> loop ended";
   }
 
 private:
   QMutex mutex_;
   DAQuiri::ProjectPtr project_;
-  boost::atomic<bool> terminating_;
-  boost::atomic<uint16_t> wait_ms_;
+  std::atomic<bool> terminating_;
+  std::atomic<uint16_t> wait_ms_;
 
   void terminate_helper()
   {

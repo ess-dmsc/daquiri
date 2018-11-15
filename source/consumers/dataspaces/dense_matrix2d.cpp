@@ -1,6 +1,6 @@
-#include "dense_matrix2d.h"
-#include "ascii_tree.h"
-#include "h5json.h"
+#include <consumers/dataspaces/dense_matrix2d.h>
+#include <core/util/ascii_tree.h>
+#include <core/util/h5json.h>
 
 namespace DAQuiri
 {
@@ -80,7 +80,7 @@ EntryList DenseMatrix2D::range(std::vector<Pair> list) const
   }
   
   EntryList result(new EntryList_t);
-  //  CustomTimer makelist(true);
+  //  Timer makelist(true);
   
   fill_list(result, min0, max0, min1, max1);
   
@@ -102,7 +102,7 @@ void DenseMatrix2D::fill_list(EntryList& result,
   }
 }
 
-void DenseMatrix2D::data_save(hdf5::node::Group g) const
+void DenseMatrix2D::data_save(const hdf5::node::Group& g) const
 {
   std::vector<uint16_t> dx(spectrum_.size());
   std::vector<uint16_t> dy(spectrum_.size());
@@ -146,7 +146,7 @@ void DenseMatrix2D::data_save(hdf5::node::Group g) const
   dcts.write(dc);
 }
 
-void DenseMatrix2D::data_load(hdf5::node::Group g)
+void DenseMatrix2D::data_load(const hdf5::node::Group& g)
 {
   if (!g.has_dataset("indices") ||
       !g.has_dataset("counts"))
@@ -154,8 +154,8 @@ void DenseMatrix2D::data_load(hdf5::node::Group g)
 
   using namespace hdf5;
 
-  auto didx = g.get_dataset("indices");
-  auto dcts = g.get_dataset("counts");
+  auto didx = hdf5::node::Group(g).get_dataset("indices");
+  auto dcts = hdf5::node::Group(g).get_dataset("counts");
 
   auto didx_ds = dataspace::Simple(didx.dataspace()).current_dimensions();
   auto dcts_ds = dataspace::Simple(dcts.dataspace()).current_dimensions();

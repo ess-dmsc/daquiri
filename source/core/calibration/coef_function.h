@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <map>
-#include "parameter.h"
+#include <core/calibration/parameter.h>
 
 namespace DAQuiri
 {

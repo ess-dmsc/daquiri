@@ -1,11 +1,10 @@
 #pragma once
 
-#include "thread_wrappers.h"
+#include <core/thread_wrappers.h>
 #include <atomic>
 
-#include "project.h"
-#include "producer.h"
-#include "sync_queue.h"
+#include <core/project.h>
+#include <core/producer.h>
 
 namespace DAQuiri {
 

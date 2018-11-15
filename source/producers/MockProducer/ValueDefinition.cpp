@@ -1,9 +1,9 @@
-#include "ValueDefinition.h"
+#include <producers/MockProducer/ValueDefinition.h>
 #include <chrono>
 
 ValueDefinition::ValueDefinition()
 {
-  typedef std::chrono::high_resolution_clock myclock;
+  typedef std::chrono::system_clock myclock;
   myclock::time_point beginning = myclock::now();
 
   std::string r{plugin_name()};

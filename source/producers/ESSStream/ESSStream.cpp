@@ -1,9 +1,10 @@
-#include "ESSStream.h"
-#include "ev42_parser.h"
-#include "mo01_parser.h"
-#include "f142_parser.h"
+#include <producers/ESSStream/ESSStream.h>
 
-#include "custom_logger.h"
+#include <producers/ESSStream/ev42_parser.h>
+#include <producers/ESSStream/mo01_parser.h>
+#include <producers/ESSStream/f142_parser.h>
+
+#include <core/util/custom_logger.h>
 
 ESSStream::ESSStream()
 {
@@ -56,13 +57,13 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   {
     if (!s.parser)
     {
-      WARN << "<ESSStream> Could not start worker cuz bad parser";
+      WARN("<ESSStream> Could not start worker cuz bad parser");
       continue;
     }
 
     if (!s.consumer)
     {
-      WARN << "<ESSStream> Could not start worker cuz bad kafka stream";
+      WARN("<ESSStream> Could not start worker cuz bad kafka stream");
       continue;
     }
 
@@ -194,8 +195,7 @@ void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
   {
-    WARN << "<ESSStream> "
-         << "Cannot boot ESSStream. Failed flag check (can_boot == 0)";
+    WARN("<ESSStream> Cannot boot ESSStream. Failed flag check (can_boot == 0)");
     return;
   }
 
@@ -204,8 +204,7 @@ void ESSStream::boot()
   {
     if (!s.parser)
     {
-      WARN << "<ESSStream> "
-           << "Cannot boot ESSStream. No flat buffer parser specified.";
+      WARN("<ESSStream> Cannot boot ESSStream. No flat buffer parser specified.");
       continue;
     }
 
@@ -215,19 +214,18 @@ void ESSStream::boot()
 
     if (!s.consumer)
     {
-      ERR << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
-          << "Failed to start consumer.";
+      ERR("<ESSStream:{}> Failed to start consumer.", s.config.kafka_topic_name_);
       continue;
     }
 
-    INFO << "<ESSStream:" << s.config.kafka_topic_name_ << "> "
-         << " booted with consumer " << s.consumer->low_level->name();
+    INFO("<ESSStream:{}> booted with consumer {}",
+        s.config.kafka_topic_name_, s.consumer->low_level->name());
     total_valid++;
   }
 
   if (!total_valid)
   {
-    ERR << "<ESSStream> Failed to start at least one consumers";
+    ERR("<ESSStream> Failed to start at least one consumers");
     die();
     return;
   }
@@ -238,7 +236,7 @@ void ESSStream::boot()
 
 void ESSStream::die()
 {
-//  INFO << "<ESSStream> Shutting down";
+//  INFO( "<ESSStream> Shutting down";
   for (auto& s : streams_)
     if (s.consumer)
       s.consumer->low_level->close();
@@ -256,8 +254,7 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
                                    uint16_t consume_timeout,
                                    std::atomic<bool>* terminate)
 {
-  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
-      << "Starting run"; //more info!!!
+  DBG("<ESSStream:{}> Starting run", config.kafka_topic_name_); //more info!!!
 
   uint64_t spills {0};
 
@@ -277,14 +274,12 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
 
   spills += parser->stop(spill_queue);
 
-  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
-      << "Finished run"
-      << "  spills=" << spills;
+  DBG("<ESSStream:{}> Finished run, spills={}", config.kafka_topic_name_, spills);
 
-  DBG << "<ESSStream:" << config.kafka_topic_name_ << "> "
-      << "  time=" << parser->stats.time_spent
-      << "  secs/spill=" << parser->stats.time_spent / double(spills)
-      << "  skipped buffers=" << parser->stats.dropped_buffers;
+  DBG("<ESSStream:{}>   time={}  secs/spill={}  skipped buffers={}",
+      config.kafka_topic_name_, parser->stats.time_spent,
+      parser->stats.time_spent / double(spills),
+      parser->stats.dropped_buffers);
 }
 
 bool ESSStream::good(Kafka::MessagePtr message)
@@ -292,29 +287,33 @@ bool ESSStream::good(Kafka::MessagePtr message)
   switch (message->low_level->err())
   {
     case RdKafka::ERR__UNKNOWN_TOPIC:
-      WARN << "<ESSStream> Unknown topic! Err=" << message->low_level->errstr();
+      WARN("<ESSStream> Unknown topic! Err={}", message->low_level->errstr());
       return false;
 
     case RdKafka::ERR__UNKNOWN_PARTITION:
-      WARN << "<ESSStream> topic:" << message->low_level->topic_name()
-           << "  Unknown partition! Err=" << message->low_level->errstr();
+      WARN("<ESSStream> topic:{}  Unknown partition! Err={}",
+          message->low_level->topic_name(), message->low_level->errstr());
       return false;
 
     case RdKafka::ERR__TIMED_OUT:
-//    return 0;
+      //WARN( "Kafka time out error: {}", message->low_level->errstr());
+      return false;
 
     case RdKafka::ERR__PARTITION_EOF:
-      /* Last message */
+      //WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
+      return false;
+
+          /* Last message */
       //    if (exit_eof && ++eof_cnt == partition_cnt)
-      //      WARN << "%% EOF reached for all " << partition_cnt <<
+      //      WARN( "%% EOF reached for all " << partition_cnt <<
       //                   " partition(s)";
-      //    WARN << "Partition EOF error: " << message->errstr();
+      //    WARN( "Partition EOF error: " << message->errstr();
 //    return 0;
 
     case RdKafka::ERR_NO_ERROR:
       //    msg_cnt++;
       //    msg_bytes += message->len();
-      //    DBG << "Read msg at offset " << message->offset();
+      //    DBG( "Read msg at offset " << message->offset();
       RdKafka::MessageTimestamp ts;
       ts = message->low_level->timestamp();
       if (ts.type != RdKafka::MessageTimestamp::MSG_TIMESTAMP_NOT_AVAILABLE)
@@ -324,18 +323,19 @@ bool ESSStream::good(Kafka::MessagePtr message)
           tsname = "create time";
         else if (ts.type == RdKafka::MessageTimestamp::MSG_TIMESTAMP_LOG_APPEND_TIME)
           tsname = "log append time";
-//      DBG << "Timestamp: " << tsname << " " << ts.timestamp;
+//      DBG( "Timestamp: " << tsname << " " << ts.timestamp;
       }
 
 
-      //    DBG << "Received Kafka message " << debug(message);
+      //    DBG( "Received Kafka message " << debug(message);
 
       return (message->low_level->len() > 0);
 
     default:
-      WARN << "<ESSStream> " << message->low_level->topic_name()
-           << ":" << message->low_level->partition()
-           << " Consume failed! Err=" << message->low_level->errstr();
+      WARN("<ESSStream> {}:{} Consume failed! Err={}",
+          message->low_level->topic_name(),
+          message->low_level->partition(),
+          message->low_level->errstr());
       return false;
   }
 }
@@ -347,10 +347,9 @@ uint64_t ESSStream::Stream::ff_stream(Kafka::MessagePtr message,
 
   if ((offsets.hi - message->low_level->offset()) > kafka_max_backlog)
   {
-    DBG << "<ESSStream> topic:" << message->low_level->topic_name() << " "
-        << " partition: " << message->low_level->partition()
-        << " Backlog exceeded with offset=" << message->low_level->offset()
-        << "  hi=" << offsets.hi;
+    DBG("<ESSStream> topic:{} partition:{} Backlog exceeded with offset={}  hi={}",
+        message->low_level->topic_name(), message->low_level->partition(),
+        message->low_level->offset(), offsets.hi);
 
     consumer->seek(message, offsets.hi, 2000);
     return (offsets.hi - message->low_level->offset());

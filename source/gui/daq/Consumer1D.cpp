@@ -1,8 +1,10 @@
 #include "Consumer1D.h"
 #include <QVBoxLayout>
-#include "QHist.h"
+#include <QPlot/QHist.h>
 
-#include "custom_logger.h"
+#include <widgets/qt_util.h>
+
+#include <core/util/custom_logger.h>
 
 
 using namespace DAQuiri;
@@ -47,11 +49,11 @@ void Consumer1D::update()
   {
     auto st = md.get_attribute("preferred_scale");
     auto scale = st.metadata().enum_name(st.selection());
-    plot_->setScaleType(QString::fromStdString(scale));
+    plot_->setScaleType(QS(scale));
     initial_scale_ = true;
   }
 
-  auto pen = QPen(QColor(QString::fromStdString(md.get_attribute("appearance").get_text())), 1);
+  auto pen = QPen(QColor(QS(md.get_attribute("appearance").get_text())), 1);
 
   DataAxis axis;
   EntryList spectrum_data;
@@ -86,10 +88,10 @@ void Consumer1D::update()
     plot_->replotExtras();
   }
 
-  plot_->setAxisLabels(QString::fromStdString(axis.label()), "count");
+  plot_->setAxisLabels(QS(axis.label()), "count");
 
   std::string new_label = md.get_attribute("name").get_text();
-  setWindowTitle(QString::fromStdString(new_label).trimmed());
+  setWindowTitle(QS(new_label).trimmed());
 
   if (!user_zoomed_)
     plot_->zoomOut();
