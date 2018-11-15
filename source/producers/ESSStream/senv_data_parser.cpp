@@ -20,8 +20,8 @@ SenvParser::SenvParser()
   add_definition(root);
   
   event_model_.add_value("channel", 3);
-  event_model_.add_value("value", 65535);
-  event_model_.add_value("time", 0);
+  event_model_.add_trace("wave_form", {100});
+  event_model_.add_trace("times", {100});
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
@@ -108,22 +108,20 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
   if (event_count)
   {
     run_spill->event_model = event_model_;
-    run_spill->events.reserve(event_count, event_model_);
+    run_spill->events.reserve(1, event_model_);
+    auto& evt = run_spill->events.last();
+    evt.set_time(Data->PacketTimestamp());
+    evt.set_value(0, channel);
 
     bool timestamps_included = (Data->Values()->size() == Data->Timestamps()->size());
 
     for (size_t i = 0; i < event_count; ++i)
     {
-      auto& evt = run_spill->events.last();
-
-      evt.set_time(Data->PacketTimestamp());
-      evt.set_value(0, channel);
-      evt.set_value(1, Data->Values()->Get(i));
+      evt.trace(0)[i] = Data->Values()->Get(i);
       if (timestamps_included)
-        evt.set_value(2, Data->Timestamps()->Get(i));
-
-      ++run_spill->events;
+        evt.trace(1)[i] = Data->Timestamps()->Get(i);
     }
+    ++run_spill->events;
     run_spill->events.finalize();
   }
 
