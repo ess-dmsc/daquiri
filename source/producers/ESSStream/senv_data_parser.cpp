@@ -5,20 +5,21 @@
 #include <core/util/custom_logger.h>
 
 SenvParser::SenvParser()
-: fb_parser()
+    : fb_parser()
 {
   std::string r{plugin_name()};
 
-  SettingMeta chopperTDCStreamid(r + "/EventsStream", SettingType::text, "DAQuiri stream ID");
-  chopperTDCStreamid.set_flag("preset");
-  add_definition(chopperTDCStreamid);
+  SettingMeta sid0(r + "/StreamBase", SettingType::text,
+                   "DAQuiri stream ID base (chan num appended)");
+  sid0.set_flag("preset");
+  add_definition(sid0);
 
   int32_t i{0};
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
-  root.set_enum(i++, r + "/EventsStream");
+  root.set_enum(i++, r + "/StreamBase");
   add_definition(root);
-  
+
   event_model_.add_value("channel", 3);
   event_model_.add_trace("wave_form", {100});
   event_model_.add_trace("times", {100});
@@ -29,13 +30,16 @@ SenvParser::SenvParser()
 StreamManifest SenvParser::stream_manifest() const
 {
   StreamManifest ret;
-  ret[stream_id_].event_model = event_model_;
-  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
-  ret[stream_id_].stats.branches.add(SettingMeta("senv_name", SettingType::text));
-  ret[stream_id_].stats.branches.add(SettingMeta("senv_chan", SettingType::integer));
-  ret[stream_id_].stats.branches.add(SettingMeta("senv_delta", SettingType::floating));
-  ret[stream_id_].stats.branches.add(SettingMeta("senv_counter", SettingType::integer));
+  for (size_t i=0; i < 4; ++i) {
+    auto sid = stream_id_base_ + std::to_string(i);
+    ret[sid].event_model = event_model_;
+    ret[sid].stats.branches.add(SettingMeta("native_time", SettingType::precise));
+    ret[sid].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+    ret[sid].stats.branches.add(SettingMeta("senv_name", SettingType::text));
+    ret[sid].stats.branches.add(SettingMeta("senv_chan", SettingType::integer));
+    ret[sid].stats.branches.add(SettingMeta("senv_delta", SettingType::floating));
+    ret[sid].stats.branches.add(SettingMeta("senv_counter", SettingType::integer));
+  }
   return ret;
 }
 
@@ -44,8 +48,8 @@ Setting SenvParser::settings() const
   std::string r{plugin_name()};
   auto set = get_rich_setting(r);
 
-  set.set(Setting::text(r + "/EventsStream", stream_id_));
-  
+  set.set(Setting::text(r + "/StreamBase", stream_id_base_));
+
   set.branches.add_a(TimeBasePlugin(event_model_.timebase).settings());
 
   set.enable_if_flag(!(status_ & booted), "preset");
@@ -56,7 +60,7 @@ void SenvParser::settings(const Setting& settings)
 {
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
-  stream_id_ = set.find({r + "/EventsStream"}).get_text();
+  stream_id_base_ = set.find({r + "/StreamBase"}).get_text();
 
   TimeBasePlugin tbs;
   tbs.settings(set.find({tbs.plugin_name()}));
@@ -66,28 +70,42 @@ void SenvParser::settings(const Setting& settings)
 uint64_t SenvParser::stop(SpillQueue spill_queue)
 {
   if (started_)
-    {
-    auto ret = std::make_shared<Spill>(stream_id_, Spill::Type::stop);
-    ret->state.branches.add(Setting::precise("native_time", stats.time_end));
-    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
-
-    spill_queue->enqueue(ret);
-    
-    started_ = false;
-    return 1;
+  {
+    for (size_t i=0; i <4; ++i) {
+      auto sid = stream_id_base_ + std::to_string(i);
+      auto ret = std::make_shared<Spill>(sid, Spill::Type::stop);
+      ret->state.branches.add(Setting::precise("native_time", stats.time_end));
+      ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+      spill_queue->enqueue(ret);
     }
-  
+    started_ = false;
+    return 4;
+  }
   return 0;
 }
 
-uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
+uint64_t SenvParser::start(SpillQueue spill_queue)
+{
+  for (size_t i=0; i <4; ++i)
+  {
+    auto sid = stream_id_base_ + std::to_string(i);
+    auto run_spill = std::make_shared<Spill>(sid, Spill::Type::start);
+    run_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
+    run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    spill_queue->enqueue(run_spill);
+  }
+  return 4;
+}
+
+uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
+{
   Timer timer(true);
-  uint64_t pushed_spills = 1;
-  hr_time_t start_time {std::chrono::system_clock::now()};
+  uint64_t pushed_spills = 0;
+  hr_time_t start_time{std::chrono::system_clock::now()};
 
   auto Data = GetSampleEnvironmentData(msg);
 //  INFO("\n{}", debug(Data));
-  
+
   stats.time_start = stats.time_end = Data->PacketTimestamp();
   auto name = Data->Name()->str();
   auto channel = Data->Channel();
@@ -95,7 +113,14 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
   auto messagectr = Data->MessageCounter();
   // \todo delta
 
-  auto run_spill = std::make_shared<Spill>(stream_id_, Spill::Type::running);
+  if (!started_)
+  {
+    pushed_spills += start(spill_queue);
+    started_ = true;
+  }
+
+  auto sid = stream_id_base_ + std::to_string(channel);
+  auto run_spill = std::make_shared<Spill>(sid, Spill::Type::running);
   run_spill->state.branches.add(Setting::precise("native_time", Data->PacketTimestamp()));
   run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   run_spill->state.branches.add(Setting::text("senv_name", name));
@@ -124,24 +149,9 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg) {
     ++run_spill->events;
     run_spill->events.finalize();
   }
-
-  if (!started_)
-  {
-    auto start_spill = std::make_shared<Spill>(stream_id_, Spill::Type::start);
-    start_spill->time = start_time;
-    start_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
-    start_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
-    start_spill->state.branches.add(Setting::text("senv_name", name));
-    start_spill->state.branches.add(Setting::integer("senv_chan", channel));
-    start_spill->state.branches.add(Setting::floating("senv_delta", delta));
-    start_spill->state.branches.add(Setting::integer("senv_counter", messagectr));
-    spill_queue->enqueue(start_spill);
-    started_ = true;
-    pushed_spills++;
-  }
-  
   spill_queue->enqueue(run_spill);
-  
+  pushed_spills++;
+
   stats.time_spent = timer.s();
   return pushed_spills;
 }
