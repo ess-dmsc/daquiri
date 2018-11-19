@@ -20,7 +20,6 @@ Consumer2D::Consumer2D(QWidget *parent)
                        QSizePolicy::MinimumExpanding);
   plot_->setGradient("Spectrum2");
   plot_->setShowGradientLegend(true);
-  plot_->setFlipY(true);
   plot_->clearAll();
   plot_->replotAll();
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
@@ -28,6 +27,7 @@ Consumer2D::Consumer2D(QWidget *parent)
 
   connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
   connect(plot_, SIGNAL(gradientChanged(QString)), this, SLOT(gradientChanged(QString)));
+  connect(plot_, SIGNAL(flipYChanged(bool)), this, SLOT(flipYChanged(bool)));
 
   setLayout(fl);
 }
@@ -57,6 +57,9 @@ void Consumer2D::update()
     auto app = md.get_attribute("appearance").get_text();
     plot_->setGradient(QS(app));
     initial_scale_ = true;
+
+    auto flipy = md.get_attribute("flip-y").get_bool();
+    plot_->setFlipY(flipy);
   }
 
   double rescale  = md.get_attribute("rescale").get_number();
@@ -129,6 +132,19 @@ void Consumer2D::gradientChanged(QString g)
   ConsumerMetadata md = consumer_->metadata();
   auto st = md.get_attribute("appearance");
   st.set_text(g.toStdString());
+  consumer_->set_attribute(st);
+}
+
+void Consumer2D::flipYChanged(bool flip_y)
+{
+  if (!plot_
+      || !consumer_
+      || (consumer_->dimensions() != 2))
+    return;
+
+  ConsumerMetadata md = consumer_->metadata();
+  auto st = md.get_attribute("flip-y");
+  st.set_bool(flip_y);
   consumer_->set_attribute(st);
 }
 

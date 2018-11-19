@@ -9,7 +9,7 @@ h5cpp/0.1.0@ess-dmsc/testing
 jsonformoderncpp/3.1.0@vthiery/stable
 librdkafka/0.11.5@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
-qplot/b4a8639@ess-dmsc/stable
+qplot/933b38c@ess-dmsc/stable
 Qt-Color-Widgets/fbeaae4@ess-dmsc/stable
 streaming-data-types/d429d55@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
