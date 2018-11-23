@@ -321,7 +321,7 @@ void SettingsTreeModel::set_show_read_only(bool show_ro)
   show_read_only_ = show_ro;
 }
 
-void SettingsTreeModel::set_show_address_(bool show_ad)
+void SettingsTreeModel::set_show_address(bool show_ad)
 {
   show_address_ = show_ad;
   emit layoutChanged();

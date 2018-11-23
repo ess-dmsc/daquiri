@@ -20,11 +20,11 @@
 using namespace DAQuiri;
 
 SettingsForm::SettingsForm(ThreadRunner& thread,
-                           QWidget *parent)
-  : QWidget(parent)
-  , ui(new Ui::SettingsForm)
-  , runner_thread_(thread)
-  , tree_settings_model_(this)
+                           QWidget* parent)
+    : QWidget(parent)
+      , ui(new Ui::SettingsForm)
+      , runner_thread_(thread)
+      , tree_settings_model_(this)
 {
   ui->setupUi(this);
 
@@ -45,10 +45,10 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
           SLOT(ask_execute_tree(DAQuiri::Setting, QModelIndex)));
   connect(&tree_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
           this, SLOT(ask_binary_tree(DAQuiri::Setting, QModelIndex)));
-  connect(&tree_delegate_, SIGNAL(ask_gradient(QString,QModelIndex)),
-          this, SLOT(ask_gradient_tree(QString,QModelIndex)));
-  connect(&tree_delegate_, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
-          this, SLOT(stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)));
+  connect(&tree_delegate_, SIGNAL(ask_gradient(QString, QModelIndex)),
+          this, SLOT(ask_gradient_tree(QString, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(closeEditor(QWidget * , QAbstractItemDelegate::EndEditHint)),
+          this, SLOT(stop_editing(QWidget * , QAbstractItemDelegate::EndEditHint)));
 
   connect(&tree_settings_model_, SIGNAL(tree_changed()),
           this, SLOT(push_settings()));
@@ -63,7 +63,7 @@ void SettingsForm::exit()
   exiting_ = true;
 }
 
-void SettingsForm::update(const Setting &tree,
+void SettingsForm::update(const Setting& tree,
                           ProducerStatus status,
                           StreamManifest manifest)
 {
@@ -85,6 +85,8 @@ void SettingsForm::update(const Setting &tree,
 
   ui->treeViewSettings->clearSelection();
   tree_settings_model_.update(settings_tree_);
+  if (ui->pushExpandAll->isChecked())
+    ui->treeViewSettings->expandAll();
 }
 
 void SettingsForm::begin_editing()
@@ -92,7 +94,7 @@ void SettingsForm::begin_editing()
   editing_ = true;
 }
 
-void SettingsForm::stop_editing(QWidget*,QAbstractItemDelegate::EndEditHint)
+void SettingsForm::stop_editing(QWidget*, QAbstractItemDelegate::EndEditHint)
 {
   editing_ = false;
 }
@@ -111,7 +113,7 @@ void SettingsForm::ask_binary_tree(Setting set, QModelIndex index)
     return;
 
   editing_ = true;
-  BinaryWidget *editor = new BinaryWidget(set, qobject_cast<QWidget *> (parent()));
+  BinaryWidget* editor = new BinaryWidget(set, qobject_cast<QWidget*>(parent()));
   editor->setModal(true);
   editor->exec();
 
@@ -124,7 +126,7 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index)
 {
   editing_ = true;
 
-  QMessageBox *editor = new QMessageBox(qobject_cast<QWidget *> (parent()));
+  QMessageBox* editor = new QMessageBox(qobject_cast<QWidget*>(parent()));
   editor->setText("Run " + QS(command.id()));
   editor->setInformativeText("Will run command: " + QS(command.id()) + "\n Are you sure?");
   editor->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -141,7 +143,7 @@ void SettingsForm::ask_gradient_tree(QString gname, QModelIndex index)
 
   auto gs = new QPlot::GradientSelector(QPlot::Gradients::defaultGradients(),
                                         gname,
-                                        qobject_cast<QWidget*> (parent()));
+                                        qobject_cast<QWidget*>(parent()));
   gs->setModal(true);
   gs->exec();
 
@@ -156,7 +158,7 @@ void SettingsForm::refresh()
   runner_thread_.do_refresh_settings();
 }
 
-void SettingsForm::closeEvent(QCloseEvent *event)
+void SettingsForm::closeEvent(QCloseEvent* event)
 {
   if (exiting_)
   {
@@ -215,6 +217,7 @@ void SettingsForm::loadSettings()
   QSettings settings;
   settings.beginGroup("Program");
   ui->checkShowRO->setChecked(settings.value("settings_show_readonly", true).toBool());
+  ui->pushExpandAll->setChecked(settings.value("settings_expand_all", false).toBool());
   on_checkShowRO_clicked();
 }
 
@@ -223,6 +226,7 @@ void SettingsForm::saveSettings()
   QSettings settings;
   settings.beginGroup("Program");
   settings.setValue("settings_show_readonly", ui->checkShowRO->isChecked());
+  settings.setValue("settings_expand_all", ui->pushExpandAll->isChecked());
   settings.setValue("boot_on_startup", bool(current_status_ & ProducerStatus::booted));
 }
 
@@ -299,9 +303,12 @@ void SettingsForm::profile_chosen(QString name, bool boot)
   runner_thread_.do_initialize(name, boot);
 }
 
-void SettingsForm::on_pushExpandAll_clicked()
+void SettingsForm::on_pushExpandAll_toggled(bool checked)
 {
-  ui->treeViewSettings->expandAll();
+  if (checked)
+    ui->treeViewSettings->expandAll();
+  else
+    ui->treeViewSettings->collapseAll();
 }
 
 void SettingsForm::on_pushAddProducer_clicked()

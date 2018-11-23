@@ -60,7 +60,7 @@ ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent)
   ui->treeAttribs->setModel(&attr_model_);
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
   ui->treeAttribs->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  attr_model_.set_show_address_(false);
+  attr_model_.set_show_address(false);
 
   ui->timeDuration->set_us_enabled(false);
 
