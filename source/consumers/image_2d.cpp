@@ -18,7 +18,10 @@ Image2D::Image2D()
 
   SettingMeta app("appearance", SettingType::text, "Appearance");
   app.set_flag("gradient-name");
-  base_options.branches.add(Setting(app));
+  base_options.branches.add(app);
+
+  SettingMeta flip("flip-y", SettingType::boolean, "Flip Y axis");
+  base_options.branches.add(flip);
 
   base_options.branches.add_a(value_latch_x_.settings(0, "X value"));
   base_options.branches.add_a(value_latch_y_.settings(1, "Y value"));

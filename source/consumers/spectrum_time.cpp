@@ -14,7 +14,10 @@ TimeSpectrum::TimeSpectrum()
 
   SettingMeta app("appearance", SettingType::text, "Plot appearance");
   app.set_flag("gradient-name");
-  base_options.branches.add(Setting(app));
+  base_options.branches.add(app);
+
+  SettingMeta flip("flip-y", SettingType::boolean, "Flip Y axis");
+  base_options.branches.add(flip);
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");

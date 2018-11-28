@@ -18,6 +18,7 @@ private slots:
   void zoomedOut();
   void scaleChanged(QString);
   void gradientChanged(QString);
+  void flipYChanged(bool);
 
 private:
   QPlot::Plot2D* plot_ {nullptr};
