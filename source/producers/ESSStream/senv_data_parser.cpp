@@ -138,7 +138,7 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
     evt.set_time(Data->PacketTimestamp());
     evt.set_value(0, channel);
 
-    bool timestamps_included = (Data->Values()->size() == Data->Timestamps()->size());
+    bool timestamps_included = bool(Data->Timestamps());
 
     for (size_t i = 0; i < event_count; ++i)
     {
