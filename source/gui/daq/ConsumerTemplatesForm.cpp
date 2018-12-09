@@ -216,7 +216,8 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
   QString fileName = QFileDialog::getOpenFileName(this, "Import consumer prototypes",
-                                                  data_dir_, "DAQuiri project (*.daq)");
+                                                  data_dir_, "DAQuiri project (*.daq)", nullptr,
+                                                  QFileDialog::DontUseNativeDialog);
   if (!validateFile(this, fileName, false))
     return;
 

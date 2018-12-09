@@ -242,6 +242,7 @@ void DummyDevice::add_dummy_settings()
   add_definition(a21);
 
   SettingMeta a22(r + "/Command", SettingType::command);
+  a22.set_val("command_name", "Do something");
   add_definition(a22);
 
   SettingMeta a23(r + "/Menu", SettingType::menu);

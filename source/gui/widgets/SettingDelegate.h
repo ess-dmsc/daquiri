@@ -39,6 +39,8 @@ signals:
   void ask_execute(DAQuiri::Setting command, QModelIndex index) const;
   void ask_binary(DAQuiri::Setting command, QModelIndex index) const;
   void ask_gradient(QString gname, QModelIndex index) const;
+  void ask_file(DAQuiri::Setting file_setting, QModelIndex index) const;
+  void ask_dir(DAQuiri::Setting file_setting, QModelIndex index) const;
 
 private:
   Container<DAQuiri::Detector> detectors_;

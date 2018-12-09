@@ -25,6 +25,7 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
       , ui(new Ui::SettingsForm)
       , runner_thread_(thread)
       , tree_settings_model_(this)
+      , tree_delegate_(this)
 {
   ui->setupUi(this);
 
@@ -45,6 +46,10 @@ SettingsForm::SettingsForm(ThreadRunner& thread,
           SLOT(ask_execute_tree(DAQuiri::Setting, QModelIndex)));
   connect(&tree_delegate_, SIGNAL(ask_binary(DAQuiri::Setting, QModelIndex)),
           this, SLOT(ask_binary_tree(DAQuiri::Setting, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(ask_file(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_file_tree(DAQuiri::Setting, QModelIndex)));
+  connect(&tree_delegate_, SIGNAL(ask_dir(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_dir_tree(DAQuiri::Setting, QModelIndex)));
   connect(&tree_delegate_, SIGNAL(ask_gradient(QString, QModelIndex)),
           this, SLOT(ask_gradient_tree(QString, QModelIndex)));
   connect(&tree_delegate_, SIGNAL(closeEditor(QWidget * , QAbstractItemDelegate::EndEditHint)),
@@ -68,6 +73,7 @@ void SettingsForm::update(const Setting& tree,
                           StreamManifest manifest)
 {
   Q_UNUSED(status)
+  Q_UNUSED(manifest)
 //  bool can_run = ((status & ProducerStatus::can_run) != 0);
 //  bool can_gain_match = false;
 //  bool can_optimize = false;
@@ -126,14 +132,45 @@ void SettingsForm::ask_execute_tree(Setting command, QModelIndex index)
 {
   editing_ = true;
 
+  QString txt = QS(command.metadata().get_string("command_name", ""));
+  if (txt.isEmpty())
+    txt = QS(command.id());
+
   QMessageBox* editor = new QMessageBox(qobject_cast<QWidget*>(parent()));
-  editor->setText("Run " + QS(command.id()));
-  editor->setInformativeText("Will run command: " + QS(command.id()) + "\n Are you sure?");
+  editor->setText(txt + "?");
+  editor->setInformativeText("Run command: \"" + txt + "\"\n Are you sure?");
   editor->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   editor->exec();
 
   if (editor->standardButton(editor->clickedButton()) == QMessageBox::Yes)
     tree_settings_model_.setData(index, QVariant::fromValue(1), Qt::EditRole);
+  editing_ = false;
+}
+
+void SettingsForm::ask_file_tree(Setting set, QModelIndex index)
+{
+  editing_ = true;
+
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose File"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath(),
+                            QS(set.metadata().get_string("wildcards","")));
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::ExistingFile);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    tree_settings_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
+  editing_ = false;
+}
+
+void SettingsForm::ask_dir_tree(Setting set, QModelIndex index)
+{
+  editing_ = true;
+
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose Directory"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath());
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::Directory);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    tree_settings_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
   editing_ = false;
 }
 
@@ -172,6 +209,7 @@ void SettingsForm::closeEvent(QCloseEvent* event)
 
 void SettingsForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
+  Q_UNUSED(manifest);
   //  bool online = (status & ProducerStatus::can_run);
 
   //busy status?!?!
