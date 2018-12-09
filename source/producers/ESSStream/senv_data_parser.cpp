@@ -21,8 +21,8 @@ SenvParser::SenvParser()
   add_definition(root);
 
   event_model_.add_value("channel", 3);
-  event_model_.add_trace("wave_form", {100});
-  event_model_.add_trace("times", {100});
+  event_model_.add_trace("wave_form", {5000});
+  event_model_.add_trace("times", {5000});
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
