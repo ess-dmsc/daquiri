@@ -78,7 +78,7 @@ void ListModeForm::loadSettings()
   QSettings settings_;
 
   settings_.beginGroup("ListDaq");
-  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
+  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 10).toULongLong());
   settings_.endGroup();
 }
 

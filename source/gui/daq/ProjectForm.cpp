@@ -142,8 +142,8 @@ void ProjectForm::loadSettings()
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
-  ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", false).toBool());
-  ui->doubleSpinMinPause->setValue(settings.value("min_pause", 1.0).toDouble());
+  ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", true).toBool());
+  ui->doubleSpinMinPause->setValue(settings.value("min_pause", 0.2).toDouble());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 
   on_doubleSpinMinPause_editingFinished();
