@@ -72,6 +72,7 @@ class ProjectForm : public QWidget
     DAQuiri::ProjectPtr  project_;
     bool my_run_ {false};
     bool close_me_ {false};
+    bool restarting_ {false};
 
     std::vector<DAQuiri::Detector> current_dets_;
     DAQuiri::StreamManifest stream_manifest_;
