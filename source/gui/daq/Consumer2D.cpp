@@ -7,9 +7,9 @@
 
 using namespace DAQuiri;
 
-Consumer2D::Consumer2D(QWidget *parent)
-  : AbstractConsumerWidget(parent)
-  , plot_ (new QPlot::Plot2D())
+Consumer2D::Consumer2D(QWidget* parent)
+    : AbstractConsumerWidget(parent)
+      , plot_(new QPlot::Plot2D())
 {
   QVBoxLayout* fl = new QVBoxLayout();
   fl->addWidget(plot_);
@@ -22,12 +22,15 @@ Consumer2D::Consumer2D(QWidget *parent)
   plot_->setShowGradientLegend(true);
   plot_->clearAll();
   plot_->replotAll();
-  connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
+  connect(plot_, SIGNAL(mouseWheel(QWheelEvent * )), this, SLOT(mouseWheel(QWheelEvent * )));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
   connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
   connect(plot_, SIGNAL(gradientChanged(QString)), this, SLOT(gradientChanged(QString)));
   connect(plot_, SIGNAL(flipYChanged(bool)), this, SLOT(flipYChanged(bool)));
+
+  connect(plot_, SIGNAL(clickedPlot(double, double, Qt::MouseButton)), this,
+          SLOT(clickedPlot(double, double, Qt::MouseButton)));
 
   setLayout(fl);
 }
@@ -62,7 +65,7 @@ void Consumer2D::update()
     plot_->setFlipY(flipy);
   }
 
-  double rescale  = md.get_attribute("rescale").get_number();
+  double rescale = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)
     rescale = 1;
 
@@ -82,15 +85,59 @@ void Consumer2D::update()
     DataAxis axis_x = data->axis(0);
     DataAxis axis_y = data->axis(1);
 
+    x_domain = axis_x.domain;
+    y_domain = axis_y.domain;
+
     uint32_t res_x = axis_x.bounds().second;
     uint32_t res_y = axis_y.bounds().second;
 
     plot_->clearExtras();
     plot_->clearData();
     plot_->setAxes(
-          QS(axis_x.label()), axis_x.domain[0], axis_x.domain[res_x],
-          QS(axis_y.label()), axis_y.domain[0], axis_y.domain[res_y],
-          "count");
+        QS(axis_x.label()), x_domain[0], x_domain[res_x],
+        QS(axis_y.label()), y_domain[0], y_domain[res_y],
+        "count");
+
+    if (box_visible)
+    {
+      QPlot::MarkerBox2D box;
+
+      box.border = Qt::black;
+      box.fill = QColor(0, 0, 0, 32);
+
+      box.x1 = box.x2 = x_domain[box_x];
+      if (box_x > 0)
+      {
+        box.x1 += x_domain[box_x - 1];
+        box.x1 /= 2;
+      }
+      if ((box_x + 1) < x_domain.size())
+      {
+        box.x2 += x_domain[box_x + 1];
+        box.x2 /= 2;
+      }
+
+      box.y1 = box.y2 = y_domain[box_y];
+      if (box_y > 0)
+      {
+        box.y1 += y_domain[box_y - 1];
+        box.y1 /= 2;
+      }
+      if ((box_y + 1) < y_domain.size())
+      {
+        box.y2 += y_domain[box_y + 1];
+        box.y2 /= 2;
+      }
+
+      QPlot::Label2D label;
+      label.text = QString::number(double(data->get({box_x, box_y})));
+      label.x = box.x2;
+      label.y = plot_->flipY() ? box.y2 : box.y1;
+
+      plot_->addBoxes({box});
+      plot_->addLabels({label});
+    }
+
     plot_->updatePlot(res_x + 1, res_y + 1, hist);
     plot_->replotExtras();
   }
@@ -153,8 +200,7 @@ void Consumer2D::refresh()
   plot_->replot(QCustomPlot::rpQueuedRefresh);
 }
 
-
-void Consumer2D::mouseWheel (QWheelEvent *event)
+void Consumer2D::mouseWheel(QWheelEvent* event)
 {
   Q_UNUSED(event)
   user_zoomed_ = true;
@@ -164,5 +210,17 @@ void Consumer2D::zoomedOut()
 {
   user_zoomed_ = false;
 }
+
+void Consumer2D::clickedPlot(double x, double y, Qt::MouseButton button)
+{
+  box_visible = (button == Qt::MouseButton::LeftButton) &&
+      (x >= 0) && (x < x_domain.size()) &&  (y >= 0) && (y < y_domain.size());
+
+  box_x = static_cast<uint16_t>(x);
+  box_y = static_cast<uint16_t>(y);
+
+  update();
+}
+
 
 
