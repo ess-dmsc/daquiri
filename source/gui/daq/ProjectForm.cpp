@@ -183,14 +183,28 @@ void ProjectForm::saveSettings()
 void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
   stream_manifest_ = manifest;
-  bool online = (status & ProducerStatus::can_run);
   bool has_data = project_->has_data();
   bool empty = project_->empty();
 
-  ui->pushStart->setEnabled(enable && online && !my_run_ && !empty);
+  bool can_start = (status & ProducerStatus::can_run) && !my_run_;
+  bool can_restart = (status & ProducerStatus::running) && my_run_;
+  ui->pushStart->setEnabled(enable && !empty && (can_start || can_restart));
+  if (status & ProducerStatus::running)
+  {
+    ui->pushStart->setToolTip("Restart acquisition");
+    ui->pushStart->setIcon(QIcon(":/icons/oxy/32/edit-redo.png"));
+  }
+  else
+  {
+    ui->pushStart->setToolTip("Start acquisition");
+    ui->pushStart->setIcon(QIcon(":/icons/oxy/32/1rightarrow.png"));
+  }
 
-  ui->timeDuration->setEnabled(enable && online && !ui->toggleIndefiniteRun->isChecked());
-  ui->toggleIndefiniteRun->setEnabled(enable && online);
+  ui->timeDuration->setEnabled(enable &&
+      (status & ProducerStatus::can_run) &&
+      !ui->toggleIndefiniteRun->isChecked());
+  ui->toggleIndefiniteRun->setEnabled(enable &&
+      (status & ProducerStatus::can_run));
 
   ui->toolOpen->setEnabled(enable && !my_run_);
   ui->toolSave->setEnabled(enable && has_data && !my_run_);
@@ -417,8 +431,41 @@ void ProjectForm::on_pushEditSpectra_clicked()
   update_plots();
 }
 
+void ProjectForm::on_pushStop_clicked()
+{
+  ui->pushStop->setEnabled(false);
+  interruptor_.store(true);
+}
+
+void ProjectForm::run_completed()
+{
+  if (my_run_)
+  {
+    //INFO( "ProjectForm received signal for run completed";
+    ui->pushStop->setEnabled(false);
+    my_run_ = false;
+
+    update_plots();
+
+    if (restarting_)
+    {
+      restarting_ = false;
+      on_pushStart_clicked();
+    }
+    else
+      emit toggleIO(true);
+  }
+}
+
 void ProjectForm::on_pushStart_clicked()
 {
+  if (my_run_)
+  {
+    restarting_ = true;
+    on_pushStop_clicked();
+    return;
+  }
+
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
   auto do_what = settings.value("on_restart", "ask").toString();
@@ -467,27 +514,6 @@ void ProjectForm::start_DAQ()
 void ProjectForm::newProject()
 {
   ui->projectView->setSpectra(project_);
-}
-
-void ProjectForm::on_pushStop_clicked()
-{
-  ui->pushStop->setEnabled(false);
-  //INFO( " acquisition interrupted by user";
-  interruptor_.store(true);
-}
-
-void ProjectForm::run_completed()
-{
-  if (my_run_)
-  {
-    //INFO( "ProjectForm received signal for run completed";
-    ui->pushStop->setEnabled(false);
-    my_run_ = false;
-
-    update_plots();
-
-    emit toggleIO(true);
-  }
 }
 
 //void ProjectForm::replot()
