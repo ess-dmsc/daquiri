@@ -1,8 +1,8 @@
 #include "TimeDurationWidget.h"
 #include "ui_TimeDurationWidget.h"
-#include <core/util/custom_logger.h>
-
 #include <date/date.h>
+
+#include <core/util/custom_logger.h>
 
 static constexpr uint64_t kFactorMetricOrder {1000};
 static constexpr uint64_t kFactorMinutesHours {60};
@@ -32,7 +32,13 @@ void TimeDurationWidget::set_us_enabled(bool use)
 
 uint64_t TimeDurationWidget::total_seconds()
 {
-  return (60 * (60 * (ui->spinDays->value() * 24 + ui->spinH->value()) + ui->spinM->value()) + ui->spinS->value());
+  uint64_t time = kFactorDay * ui->spinDays->value();
+  time += ui->spinH->value();
+  time *= kFactorMinutesHours;
+  time += ui->spinM->value();
+  time *= kFactorMinutesHours;
+  time += ui->spinS->value();
+  return time;
 }
 
 void TimeDurationWidget::set_total_seconds(uint64_t secs)
@@ -47,7 +53,6 @@ void TimeDurationWidget::set_total_seconds(uint64_t secs)
   ui->spinDays->setValue(whole_hours / kFactorDay);
 }
 
-// \todo fix this
 void TimeDurationWidget::set_duration(hr_duration_t duration)
 {
   using namespace date;
