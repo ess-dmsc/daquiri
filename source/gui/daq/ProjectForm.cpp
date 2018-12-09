@@ -254,7 +254,8 @@ void ProjectForm::projectOpen()
   QString formats = "daquiri project file (*.daq)";
 
   QString fileName = QFileDialog::getOpenFileName(this, "Load project",
-                                                  data_directory_, formats);
+                                                  data_directory_, formats, nullptr,
+                                                  QFileDialog::DontUseNativeDialog);
   if (!validateFile(this, fileName, false))
     return;
 
