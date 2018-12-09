@@ -26,6 +26,9 @@ Consumer1D::Consumer1D(QWidget *parent)
 
   connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
 
+  connect(plot_, SIGNAL(clickedPlot(double, double, Qt::MouseButton)), this,
+          SLOT(clickedPlot(double, double, Qt::MouseButton)));
+
   setLayout(fl);
 }
 
@@ -84,6 +87,7 @@ void Consumer1D::update()
 
   if (!hist.empty())
   {
+    plot_->setMarkers({marker});
     plot_->addGraph(hist, pen);
     plot_->replotExtras();
   }
@@ -131,4 +135,16 @@ void Consumer1D::mouseWheel (QWheelEvent *event)
 void Consumer1D::zoomedOut()
 {
   user_zoomed_ = false;
+}
+
+void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
+{
+  marker.appearance.default_pen = QPen(Qt::black, 2);
+  marker.pos = x;
+  marker.closest_val = y;
+  marker.alignment = Qt::AlignAbsolute;
+  marker.visible = (button == Qt::MouseButton::LeftButton);
+  //&& (x >= 0) && (x < x_domain.size());
+
+  update();
 }
