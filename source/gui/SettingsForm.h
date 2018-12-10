@@ -45,6 +45,7 @@ class SettingsForm : public QWidget
 
  public slots:
   void updateDetDB();
+  void on_pushChangeProfile_clicked();
 
  private slots:
   void begin_editing();
@@ -66,8 +67,6 @@ class SettingsForm : public QWidget
   void on_bootButton_clicked();
 
   void on_spinRefreshFrequency_valueChanged(int arg1);
-
-  void on_pushChangeProfile_clicked();
 
   void profile_chosen(QString name, bool boot);
   void init_profile();

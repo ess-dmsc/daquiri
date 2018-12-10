@@ -18,6 +18,7 @@ class Profiles
   static QString default_settings_dir();
   static void select_settings_dir(QString dir);
   static QString profiles_dir();
+  static bool is_valid_settings_dir(QString dir);
 
   void select_profile(QString name, bool boot);
   void auto_boot(bool boot);
@@ -34,10 +35,11 @@ class Profiles
   static void create_profile(QString name);
   static void remove_profile(QString name);
   static bool profile_exists(QString name);
+  static bool is_valid_profile(QString name);
 
  private:
   QString current_profile_name_;
-  bool auto_boot_ {false};
+  bool auto_boot_{false};
 
   //singleton assurance
   Profiles() = default;

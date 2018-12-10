@@ -1,7 +1,8 @@
-#include "ui_SettingsForm.h"
-#include <gui/Profiles.h>
 #include <gui/SettingsForm.h>
+#include "ui_SettingsForm.h"
+
 #include <gui/ProfilesForm.h>
+#include <gui/Profiles.h>
 #include <gui/widgets/BinaryWidget.h>
 #include <gui/widgets/qt_util.h>
 

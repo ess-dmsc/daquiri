@@ -188,11 +188,19 @@ void ProfilesForm::on_pushSelectRoot_clicked()
   QString dirName =
       QFileDialog::getExistingDirectory(this, "Open Directory", Profiles::settings_dir(),
                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (!dirName.isEmpty())
+  if (dirName.isEmpty())
+    return;
+
+  if (!Profiles::is_valid_settings_dir(dirName))
   {
-    Profiles::select_settings_dir(dirName);
-    update_profiles();
+    QMessageBox msgBox;
+    msgBox.setText("Not a valid settings root. Must contain a valid 'profiles' subdirectory.");
+    msgBox.exec();
+    return;
   }
+
+  Profiles::select_settings_dir(dirName);
+  update_profiles();
 }
 
 void ProfilesForm::create_profile()

@@ -166,8 +166,6 @@ void ProjectForm::saveSettings()
 void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
   stream_manifest_ = manifest;
-  bool has_data = project_->has_data();
-  bool empty = project_->empty();
 
   bool can_start = (status & ProducerStatus::can_run) && !my_run_;
   bool can_restart = (status & ProducerStatus::running) && my_run_;
@@ -193,9 +191,9 @@ void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest
       (status & ProducerStatus::can_run));
 
   ui->toolOpen->setEnabled(enable && !my_run_);
-  ui->toolSave->setEnabled(enable && has_data && !my_run_);
+  ui->toolSave->setEnabled(enable && project_->has_data() && !my_run_);
   ui->pushDetails->setVisible(false);
-//  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
+//  ui->pushDetails->setEnabled(enable && project_->has_data() && !my_run_);
   ui->projectView->set_manifest(manifest);
 
   ui->pushEditSpectra->setEnabled(enable && !my_run_);

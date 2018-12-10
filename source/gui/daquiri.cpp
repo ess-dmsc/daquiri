@@ -335,6 +335,15 @@ void daquiri::initialize_settings_dir()
   if (Profiles::has_settings_dir())
     return;
 
+  if (Profiles::is_valid_settings_dir(Profiles::default_settings_dir()))
+  {
+    INFO("Found profiles in default settings dir ({}).",
+         Profiles::default_settings_dir().toStdString());
+    Profiles::select_settings_dir(Profiles::default_settings_dir());
+    main_tab_->on_pushChangeProfile_clicked();
+    return;
+  }
+
   bool ok {false};
 
   QString text = QInputDialog::getText(this, tr("First run?"),

@@ -4,20 +4,23 @@
 #include <QDir>
 #include <core/util/json_file.h>
 
+#include <core/util/custom_logger.h>
+
+#define DEFAULT_SETTINGS_PATH "essdaq/daquiri"
+#define PROFILES_SUBDIR "/profiles"
 #define PROFILE_FILE_NAME "profile.set"
-#define PROFILE_PATH_DEFAULT "essdaq/daquiri"
 
 bool Profiles::has_settings_dir()
 {
   QSettings settings;
   settings.beginGroup("Program");
   return (settings.contains("settings_directory") &&
-          !settings.value("settings_directory", "").toString().isEmpty());
+      !settings.value("settings_directory", "").toString().isEmpty());
 }
 
 QString Profiles::default_settings_dir()
 {
-  return QDir::homePath() + "/" + PROFILE_PATH_DEFAULT;
+  return QDir::homePath() + "/" + DEFAULT_SETTINGS_PATH;
 }
 
 QString Profiles::settings_dir()
@@ -41,14 +44,44 @@ void Profiles::select_settings_dir(QString dir)
     profpath.mkpath(".");
 }
 
+bool Profiles::is_valid_settings_dir(QString dir)
+{
+  QDir profpath(dir + PROFILES_SUBDIR);
+  if (!profpath.exists())
+    return false;
+  profpath.setFilter(QDir::Dirs |
+      QDir::NoDot |
+      QDir::NoDotDot |
+      QDir::NoSymLinks);
+
+  QFileInfoList list = profpath.entryInfoList();
+  for (int i = 0; i < list.size(); ++i)
+  {
+    QFileInfo fileInfo = list.at(i);
+    try
+    {
+      if (!from_json_file(fileInfo.absoluteFilePath().toStdString()
+                              + "/" + PROFILE_FILE_NAME).empty())
+        return true;
+    }
+    catch (...) {}
+  }
+  return false;
+}
+
 QString Profiles::profiles_dir()
 {
-  return settings_dir() + "/profiles";
+  return settings_dir() + PROFILES_SUBDIR;
 }
 
 QString Profiles::current_profile_name()
 {
   return current_profile_name_;
+}
+
+bool Profiles::is_valid_profile(QString name)
+{
+  return !get_profile(name).empty();
 }
 
 QString Profiles::profile_dir(QString name)
@@ -72,9 +105,9 @@ nlohmann::json Profiles::get_profile(QString name)
     try
     {
       profile = from_json_file(dir.toStdString()
-                               + "/" + PROFILE_FILE_NAME);
+                                   + "/" + PROFILE_FILE_NAME);
     }
-    catch(...) {}
+    catch (...) {}
   }
   return profile;
 }
@@ -89,7 +122,7 @@ void Profiles::save_profile(const nlohmann::json& data)
   auto name = current_profile_name();
   if (!name.isEmpty())
     to_json_file(data, current_profile_dir().toStdString()
-                 + "/" + PROFILE_FILE_NAME);
+        + "/" + PROFILE_FILE_NAME);
 }
 
 void Profiles::select_profile(QString name, bool boot)
