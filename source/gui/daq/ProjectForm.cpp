@@ -1,5 +1,6 @@
-#include "ui_ProjectForm.h"
 #include <gui/daq/ProjectForm.h>
+#include "ui_ProjectForm.h"
+
 #include <gui/Profiles.h>
 #include <gui/widgets/QFileExtensions.h>
 #include <gui/daq/ConsumerTemplatesForm.h>

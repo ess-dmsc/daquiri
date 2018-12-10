@@ -2,10 +2,10 @@
 
 #include <QWidget>
 #include <core/spill.h>
-#include "ThreadRunner.h"
+#include <gui/ThreadRunner.h>
 #include <widgets/SettingDelegate.h>
 //#include "widget_detectors.h"
-#include "SettingsTreeModel.h"
+#include <gui/SettingsTreeModel.h>
 
 #include <QItemSelectionModel>
 #include <QAbstractTableModel>

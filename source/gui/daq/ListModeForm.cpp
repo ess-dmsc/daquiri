@@ -1,12 +1,14 @@
-#include "ListModeForm.h"
+#include <gui/daq/ListModeForm.h>
 #include "ui_ListModeForm.h"
-#include <core/util/custom_logger.h>
-#include <widgets/qt_util.h>
+
+#include <gui/widgets/qt_util.h>
+#include <core/util/lexical_extensions.h>
+#include <core/consumer_factory.h>
+
 #include <QSettings>
 #include <QMessageBox>
 
-#include <core/util/lexical_extensions.h>
-#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 
