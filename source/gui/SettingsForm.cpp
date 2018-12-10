@@ -1,21 +1,19 @@
-#include "SettingsForm.h"
 #include "ui_SettingsForm.h"
-#include "ProfilesForm.h"
-#include <widgets/BinaryWidget.h>
-#include <widgets/qt_util.h>
+#include <gui/Profiles.h>
+#include <gui/SettingsForm.h>
+#include <gui/ProfilesForm.h>
+#include <gui/widgets/BinaryWidget.h>
+#include <gui/widgets/qt_util.h>
 
+#include <core/util/json_file.h>
+#include <core/producer_factory.h>
+
+#include <QPlot/GradientSelector.h>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <QSettings>
 #include <QTimer>
 #include <QDir>
-
-#include <core/util/json_file.h>
-
-#include <core/producer_factory.h>
-#include <QInputDialog>
-#include "Profiles.h"
-
-#include <QPlot/GradientSelector.h>
 
 using namespace DAQuiri;
 
@@ -265,7 +263,6 @@ void SettingsForm::saveSettings()
   settings.beginGroup("Program");
   settings.setValue("settings_show_readonly", ui->checkShowRO->isChecked());
   settings.setValue("settings_expand_all", ui->pushExpandAll->isChecked());
-  settings.setValue("boot_on_startup", bool(current_status_ & ProducerStatus::booted));
 }
 
 void SettingsForm::updateDetDB()
@@ -297,19 +294,14 @@ void SettingsForm::on_bootButton_clicked()
 {
   if (ui->bootButton->text() == "Boot")
   {
+    Profiles::singleton().auto_boot(true);
     emit toggleIO(false);
-    //    INFO( "Booting system...";
-
     runner_thread_.do_boot();
   }
   else
   {
+    Profiles::singleton().auto_boot(false);
     emit toggleIO(false);
-    QSettings settings;
-    settings.beginGroup("Program");
-    settings.setValue("boot_on_startup", false);
-
-    //    INFO( "Shutting down";
     runner_thread_.do_shutdown();
   }
 }
@@ -329,10 +321,7 @@ void SettingsForm::on_pushChangeProfile_clicked()
 
 void SettingsForm::init_profile()
 {
-  QSettings settings;
-  settings.beginGroup("Program");
-  bool boot = settings.value("boot_on_startup", false).toBool();
-  profile_chosen(Profiles::current_profile_name(), boot);
+  profile_chosen(Profiles::singleton().current_profile_name(), Profiles::singleton().auto_boot());
 }
 
 void SettingsForm::profile_chosen(QString name, bool boot)

@@ -1,14 +1,13 @@
-#include "ProfilesForm.h"
+#include <gui/ProfilesForm.h>
 #include "ui_ProfilesForm.h"
 
-#include "Profiles.h"
+#include <gui/Profiles.h>
+#include <gui/widgets/qt_util.h>
 #include <QMessageBox>
 #include <QBoxLayout>
-#include <widgets/qt_util.h>
+#include <QInputDialog>
 
 #include <core/util/custom_logger.h>
-
-#include <QInputDialog>
 
 using namespace DAQuiri;
 
@@ -121,7 +120,7 @@ void ProfilesForm::update_profiles()
   ui->tableProfiles2->setRowCount(profiles_.size() + 1);
   ui->tableProfiles2->setColumnCount(2);
 
-  auto thisprofile = Profiles::current_profile_name();
+  auto thisprofile = Profiles::singleton().current_profile_name();
   for (auto i=0; i < profiles_.size(); ++i)
   {
     QBrush background = (thisprofile == profiles_[i].id) ?

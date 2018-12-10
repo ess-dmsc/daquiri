@@ -1,12 +1,13 @@
 #pragma once
 
-#include <QMainWindow>
-#include "SettingsForm.h"
+#include <gui/SettingsForm.h>
+#include <gui/Server.h>
 
-#include <core/util/custom_logger.h>
+#include <QMainWindow>
 #include <QStreamBuffer.h>
 #include <core/producer.h>
-#include "Server.h"
+
+#include <core/util/custom_logger.h>
 
 namespace Ui {
 class daquiri;

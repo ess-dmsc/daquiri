@@ -1,15 +1,15 @@
 #pragma once
 
+#include <gui/widgets/SettingDelegate.h>
+#include <gui/SettingsTreeModel.h>
+#include <gui/ThreadRunner.h>
+#include <core/detector.h>
+
 #include <QWidget>
 #include <QCloseEvent>
 #include <QTableView>
 #include <QTreeView>
 #include <QMenu>
-#include <core/detector.h>
-#include <widgets/SettingDelegate.h>
-#include "SettingsTreeModel.h"
-
-#include "ThreadRunner.h"
 
 namespace Ui
 {
