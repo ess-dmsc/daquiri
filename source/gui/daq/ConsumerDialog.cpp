@@ -18,21 +18,22 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
                                Container<Detector>& detDB,
                                StreamManifest stream_manifest,
                                bool allow_edit_type,
-                               QWidget *parent)
-  : QDialog(parent)
-  , ui(new Ui::ConsumerDialog)
-  , consumer_(consumer)
+                               QWidget* parent)
+    : QDialog(parent)
+      , ui(new Ui::ConsumerDialog)
+      , consumer_(consumer)
 //,  det_selection_model_(&det_table_model_)
-  , attr_model_(this)
-  , detectors_(detDB)
-  , current_detectors_(current_detectors)
-  , stream_manifest_(stream_manifest)
-  , changed_(false)
+      , attr_model_(this)
+      , detectors_(detDB)
+      , current_detectors_(current_detectors)
+      , stream_manifest_(stream_manifest)
+      , changed_(false)
 {
   ui->setupUi(this);
+  loadSettings();
 
   auto consumer_types = ConsumerFactory::singleton().types();
-  for (auto &q : consumer_types)
+  for (auto& q : consumer_types)
     ui->comboType->addItem(QS(q));
 
   std::string default_type = "";
@@ -58,8 +59,12 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
   ui->treeAttribs->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-  connect(&attr_delegate_, SIGNAL(ask_gradient(QString,QModelIndex)),
-          this, SLOT(ask_gradient(QString,QModelIndex)));
+  connect(&attr_delegate_, SIGNAL(ask_gradient(QString, QModelIndex)),
+          this, SLOT(ask_gradient(QString, QModelIndex)));
+  connect(&attr_delegate_, SIGNAL(ask_file(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_file(DAQuiri::Setting, QModelIndex)));
+  connect(&attr_delegate_, SIGNAL(ask_dir(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_dir(DAQuiri::Setting, QModelIndex)));
 
 //  det_table_model_.setDB(spectrum_detectors_);
 
@@ -71,7 +76,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
 //  ui->tableDetectors->setSelectionMode(QAbstractItemView::SingleSelection);
 //  ui->tableDetectors->show();
 
-  attr_model_.set_show_address_(false);
+  attr_model_.set_show_address(false);
 
   //this could be done better!!
   bool advanced = !consumer_->data()->empty();
@@ -86,6 +91,7 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
   }
 
   updateData();
+  on_pushExpandAll_toggled(ui->pushExpandAll->isChecked());
 }
 
 ConsumerDialog::~ConsumerDialog()
@@ -149,7 +155,6 @@ void ConsumerDialog::updateData()
   open_close_locks();
 }
 
-
 void ConsumerDialog::enforce_everything()
 {
   auto metadata = consumer_->metadata();
@@ -174,6 +179,9 @@ void ConsumerDialog::push_settings()
 {
   enforce_everything();
   changed_ = true;
+
+  if (ui->pushExpandAll->isChecked())
+    ui->treeAttribs->expandAll();
 }
 
 void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
@@ -262,7 +270,6 @@ void ConsumerDialog::enforce_streams(DAQuiri::Setting& tree,
   attr_delegate_.set_valid_streams(selected_streams);
 }
 
-
 void ConsumerDialog::toggle_push()
 {
   ui->pushDetEdit->setEnabled(false);
@@ -295,6 +302,8 @@ void ConsumerDialog::on_pushLock_clicked()
 
 void ConsumerDialog::on_buttonBox_accepted()
 {
+  saveSettings();
+
   if (!changed_)
     reject();
   else
@@ -317,11 +326,32 @@ void ConsumerDialog::on_buttonBox_accepted()
   }
 }
 
+void ConsumerDialog::ask_file(Setting set, QModelIndex index)
+{
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose File"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath(),
+                            QS(set.metadata().get_string("wildcards","")));
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::ExistingFile);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    attr_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
+}
+
+void ConsumerDialog::ask_dir(Setting set, QModelIndex index)
+{
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose Directory"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath());
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::Directory);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    attr_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
+}
+
 void ConsumerDialog::ask_gradient(QString gname, QModelIndex index)
 {
   auto gs = new QPlot::GradientSelector(QPlot::Gradients::defaultGradients(),
                                         gname,
-                                        qobject_cast<QWidget*> (parent()));
+                                        qobject_cast<QWidget*>(parent()));
   gs->setModal(true);
   gs->exec();
 
@@ -348,8 +378,7 @@ void ConsumerDialog::on_spinDets_valueChanged(int arg1)
   open_close_locks();
 }
 
-
-void ConsumerDialog::on_comboType_activated(const QString &arg1)
+void ConsumerDialog::on_comboType_activated(const QString& arg1)
 {
   std::list<Setting> old;
   if (consumer_)
@@ -363,7 +392,6 @@ void ConsumerDialog::on_comboType_activated(const QString &arg1)
 
   updateData();
 }
-
 
 void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
 {
@@ -388,10 +416,28 @@ void ConsumerDialog::initialize_gui_specific(DAQuiri::ConsumerMetadata& md)
   }
 }
 
-void ConsumerDialog::on_pushExpandAll_clicked()
+void ConsumerDialog::on_pushExpandAll_toggled(bool checked)
 {
-  ui->treeAttribs->expandAll();
+  if (checked)
+    ui->treeAttribs->expandAll();
+  else
+    ui->treeAttribs->collapseAll();
 }
+
+void ConsumerDialog::loadSettings()
+{
+  QSettings settings;
+  settings.beginGroup("ConsumerDialog");
+  ui->pushExpandAll->setChecked(settings.value("settings_expand_all", false).toBool());
+}
+
+void ConsumerDialog::saveSettings()
+{
+  QSettings settings;
+  settings.beginGroup("ConsumerDialog");
+  settings.setValue("settings_expand_all", ui->pushExpandAll->isChecked());
+}
+
 
 void ConsumerDialog::on_pushDetEdit_clicked()
 {

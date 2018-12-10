@@ -68,7 +68,7 @@ public:
 
   void set_edit_read_only(bool edit_ro);
   void set_show_read_only(bool show_ro);
-  void set_show_address_(bool show_ad);
+  void set_show_address(bool show_ad);
 
 //  bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
 //  bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;

@@ -1,12 +1,14 @@
-#include "ListModeForm.h"
+#include <gui/daq/ListModeForm.h>
 #include "ui_ListModeForm.h"
-#include <core/util/custom_logger.h>
-#include <widgets/qt_util.h>
+
+#include <gui/widgets/qt_util.h>
+#include <core/util/lexical_extensions.h>
+#include <core/consumer_factory.h>
+
 #include <QSettings>
 #include <QMessageBox>
 
-#include <core/util/lexical_extensions.h>
-#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 
@@ -60,7 +62,7 @@ ListModeForm::ListModeForm(ThreadRunner &thread, QWidget *parent)
   ui->treeAttribs->setModel(&attr_model_);
   ui->treeAttribs->setItemDelegate(&attr_delegate_);
   ui->treeAttribs->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  attr_model_.set_show_address_(false);
+  attr_model_.set_show_address(false);
 
   ui->timeDuration->set_us_enabled(false);
 
@@ -78,7 +80,7 @@ void ListModeForm::loadSettings()
   QSettings settings_;
 
   settings_.beginGroup("ListDaq");
-  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
+  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 10).toULongLong());
   settings_.endGroup();
 }
 
@@ -324,7 +326,6 @@ void ListModeForm::event_selection_changed(QItemSelection, QItemSelection)
 void ListModeForm::trace_selection_changed(QItemSelection, QItemSelection)
 {
   ConsumerMetadata md = ConsumerFactory::singleton().create_prototype("Prebinned 1D");
-
   if (!ui->tableEvents->selectionModel()->selectedIndexes().empty() &&
       !ui->tableTraces->selectionModel()->selectedIndexes().empty())
   {
@@ -334,8 +335,8 @@ void ListModeForm::trace_selection_changed(QItemSelection, QItemSelection)
 
     SpillPtr sp = list_data_.at(spill_i);
     md.set_attribute(Setting::text("stream_id", sp->stream_id));
-    md.set_attribute(Setting::text("value_name", event_model_.trace_names.at(trace_i)));
-    md.set_attribute(Setting::text("appearance", QColor(Qt::darkGreen).name().toStdString()));
+    md.set_attribute(Setting::text("trace_id", event_model_.trace_names.at(trace_i)));
+    md.set_attribute(Setting::text("appearance", QColor(Qt::darkRed).name().toStdString()));
     trace_ = ConsumerFactory::singleton().create_from_prototype(md);
 
     SpillPtr sp3 = std::make_shared<Spill>(sp->stream_id, Spill::Type::running);

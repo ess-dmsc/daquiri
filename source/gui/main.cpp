@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   QString profile = parser.value(profileOption);
 
   if (!profile.isEmpty())
-    Profiles::select_profile(profile, true);
+    Profiles::singleton().select_profile(profile, true);
 
   if (!parser.isSet("h"))
   {

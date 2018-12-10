@@ -1,11 +1,13 @@
 #pragma once
 
+#include <core/project.h>
+
+#include <gui/widgets/SelectorWidget.h>
+#include <gui/daq/AbstractConsumerWidget.h>
+
 #include <QWidget>
 #include <QMenu>
 #include <QMdiArea>
-#include <core/project.h>
-#include <widgets/SelectorWidget.h>
-#include "AbstractConsumerWidget.h"
 
 namespace Ui {
 class ProjectView;

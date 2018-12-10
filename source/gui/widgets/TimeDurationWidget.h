@@ -34,12 +34,14 @@ private slots:
   void on_spinH_valueChanged(int);
   void on_spinS_valueChanged(int);
   void on_spin_ms_valueChanged(int);
+  void on_spin_us_valueChanged(int);
 
   void on_spinDays_editingFinished();
   void on_spinH_editingFinished();
   void on_spinM_editingFinished();
   void on_spinS_editingFinished();
   void on_spin_ms_editingFinished();
+  void on_spin_us_editingFinished();
 
 private:
   Ui::TimeDurationWidget *ui;

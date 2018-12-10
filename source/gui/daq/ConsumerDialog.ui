@@ -258,6 +258,47 @@
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
+      <widget class="QPushButton" name="pushExpandAll">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Keep tree expanded</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/daquiri.qrc">
+         <normaloff>:/icons/format-indent-more.png</normaloff>:/icons/format-indent-more.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_3">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
@@ -373,44 +414,6 @@
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushExpandAll">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Expand tree</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources/daquiri.qrc">
-         <normaloff>:/icons/format-indent-more.png</normaloff>:/icons/format-indent-more.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
        </property>
       </widget>
      </item>

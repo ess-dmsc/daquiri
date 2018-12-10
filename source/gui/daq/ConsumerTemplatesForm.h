@@ -3,9 +3,9 @@
 #include <QDialog>
 #include <QAbstractTableModel>
 #include <QItemSelectionModel>
-#include <widgets/SettingDelegate.h>
-#include <widgets/qt_util.h>
-#include "SettingsTreeModel.h"
+#include <gui/widgets/SettingDelegate.h>
+#include <gui/widgets/qt_util.h>
+#include <gui/SettingsTreeModel.h>
 #include <core/project.h>
 
 namespace Ui {
@@ -79,6 +79,4 @@ class ConsumerTemplatesForm : public QDialog
 
     void loadSettings();
     void saveSettings();
-
-    void save_default();
 };

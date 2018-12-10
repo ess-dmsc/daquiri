@@ -1,9 +1,7 @@
-#include <QSettings>
-#include <QDir>
-#include "ThreadRunner.h"
-#include <core/util/custom_logger.h>
+#include <gui/ThreadRunner.h>
+#include <gui/Profiles.h>
 
-#include "Profiles.h"
+#include <core/util/custom_logger.h>
 
 ThreadRunner::ThreadRunner(QObject *parent)
   : QThread(parent)
@@ -247,8 +245,8 @@ void ThreadRunner::run()
     else if (action_ == kChooseProfile)
     {
       save_profile();
-      Profiles::select_profile(profile_name_, and_boot_);
-      engine_.initialize(Profiles::get_profile(profile_name_));
+      Profiles::singleton().select_profile(profile_name_, and_boot_);
+      engine_.initialize(Profiles::singleton().get_profile(profile_name_));
       if (and_boot_)
         action_ = kBoot;
       else
@@ -337,5 +335,5 @@ void ThreadRunner::save_profile()
   dev_settings.condense();
   dev_settings.strip_metadata();
   if (dev_settings)
-    Profiles::save_profile(dev_settings);
+    Profiles::singleton().save_profile(dev_settings);
 }
