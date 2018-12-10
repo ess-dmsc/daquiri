@@ -1,14 +1,14 @@
-#include "ProjectView.h"
+#include <gui/daq/ProjectView.h>
 #include "ui_ProjectView.h"
-#include "ConsumerDialog.h"
+
+#include <gui/daq/ConsumerDialog.h>
+#include <gui/daq/ConsumerScalar.h>
+#include <gui/daq/Consumer1D.h>
+#include <gui/daq/Consumer2D.h>
+#include <gui/widgets/QColorExtensions.h>
+#include <gui/widgets/qt_util.h>
 #include <core/util/timer.h>
 #include <QPlot/QHist.h>
-//#include <widgets/qt_util.h>
-#include "ConsumerScalar.h"
-#include "Consumer1D.h"
-#include "Consumer2D.h"
-#include <widgets/QColorExtensions.h>
-#include <widgets/qt_util.h>
 
 using namespace DAQuiri;
 

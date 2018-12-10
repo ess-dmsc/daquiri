@@ -1,5 +1,12 @@
-#include "daquiri.h"
+#include <gui/daquiri.h>
 #include "ui_daquiri.h"
+
+#include <gui/Profiles.h>
+#include <gui/daq/ListModeForm.h>
+#include <gui/daq/ProjectForm.h>
+#include <gui/widgets/TabCloseButton.h>
+#include <gui/widgets/QFileExtensions.h>
+#include <gui/widgets/qt_util.h>
 
 #include <QSettings>
 #include <QScrollBar>
@@ -7,16 +14,8 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QTimer>
-#include "Profiles.h"
-#include <widgets/TabCloseButton.h>
-#include <widgets/qt_util.h>
-
-#include <daq/ListModeForm.h>
-#include <daq/ProjectForm.h>
-
 #include <QDir>
-#include <QCoreApplication>
-#include <widgets/QFileExtensions.h>
+#include <QApplication>
 #include <date/date.h>
 
 using namespace DAQuiri;
@@ -120,10 +119,6 @@ void daquiri::closeEvent(QCloseEvent *event)
                                      QMessageBox::Yes|QMessageBox::Cancel);
     if (reply == QMessageBox::Yes)
     {
-      /*for (int i = ui->tabs->count() - 1; i >= 0; --i)
-        if (ui->tabs->widget(i) != main_tab_)
-          ui->tabs->widget(i)->exit();*/
-
       runner_thread_.terminate();
       runner_thread_.wait();
     }
@@ -199,7 +194,7 @@ void daquiri::update_settings(Setting sets,
   auto description = sets.find({"ProfileDescr"}, Match::id);
   profile_description_ = QS(description.get_text());
   if (profile_description_.isEmpty())
-    profile_description_ = Profiles::current_profile_name();
+    profile_description_ = Profiles::singleton().current_profile_name();
 
   toggleIO(true);
 
@@ -241,9 +236,12 @@ void daquiri::loadSettings()
 {
   QSettings settings;
   settings.beginGroup("Program");
+  Profiles::singleton().select_profile(
+      settings.value("current_profile","").toString(),
+      settings.value("auto_boot","").toBool());
   QRect myrect = settings.value("position",QRect(20,20,1234,650)).toRect();
-  ui->splitter->restoreState(settings.value("splitter").toByteArray());
   setGeometry(myrect);
+  ui->splitter->restoreState(settings.value("splitter").toByteArray());
 }
 
 void daquiri::saveSettings()
@@ -252,6 +250,8 @@ void daquiri::saveSettings()
   settings.beginGroup("Program");
   settings.setValue("position", this->geometry());
   settings.setValue("splitter", ui->splitter->saveState());
+  settings.setValue("current_profile", Profiles::singleton().current_profile_name());
+  settings.setValue("auto_boot", Profiles::singleton().auto_boot());
 }
 
 void daquiri::on_splitter_splitterMoved(int /*pos*/, int /*index*/)
@@ -313,8 +313,7 @@ void daquiri::open_new_proj()
 
 void daquiri::open_project(ProjectPtr proj, bool start, QString name)
 {
-  auto newSpectraForm = new ProjectForm(runner_thread_, proj,
-      Profiles::current_profile_dir(), name, this);
+  auto newSpectraForm = new ProjectForm(runner_thread_, proj, name, this);
   connect(newSpectraForm, SIGNAL(requestClose(QWidget*)),
           this, SLOT(close_tab_widget(QWidget*)));
 
@@ -335,6 +334,15 @@ void daquiri::initialize_settings_dir()
 {
   if (Profiles::has_settings_dir())
     return;
+
+  if (Profiles::is_valid_settings_dir(Profiles::default_settings_dir()))
+  {
+    INFO("Found profiles in default settings dir ({}).",
+         Profiles::default_settings_dir().toStdString());
+    Profiles::select_settings_dir(Profiles::default_settings_dir());
+    main_tab_->on_pushChangeProfile_clicked();
+    return;
+  }
 
   bool ok {false};
 

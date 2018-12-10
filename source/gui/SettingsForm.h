@@ -1,15 +1,15 @@
 #pragma once
 
+#include <gui/widgets/SettingDelegate.h>
+#include <gui/SettingsTreeModel.h>
+#include <gui/ThreadRunner.h>
+#include <core/detector.h>
+
 #include <QWidget>
 #include <QCloseEvent>
 #include <QTableView>
 #include <QTreeView>
 #include <QMenu>
-#include <core/detector.h>
-#include <widgets/SettingDelegate.h>
-#include "SettingsTreeModel.h"
-
-#include "ThreadRunner.h"
 
 namespace Ui
 {
@@ -45,6 +45,7 @@ class SettingsForm : public QWidget
 
  public slots:
   void updateDetDB();
+  void on_pushChangeProfile_clicked();
 
  private slots:
   void begin_editing();
@@ -66,8 +67,6 @@ class SettingsForm : public QWidget
   void on_bootButton_clicked();
 
   void on_spinRefreshFrequency_valueChanged(int arg1);
-
-  void on_pushChangeProfile_clicked();
 
   void profile_chosen(QString name, bool boot);
   void init_profile();
