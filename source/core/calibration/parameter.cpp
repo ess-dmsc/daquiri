@@ -1,76 +1,47 @@
 #include <core/calibration/parameter.h>
 #include <fmt/format.h>
-#include <iomanip>
-#include <numeric>
-
-#include <core/util/custom_logger.h>
+#include <core/util/compare.h>
 
 namespace DAQuiri
 {
 
-FitParam::FitParam()
-  : FitParam(std::numeric_limits<double>::quiet_NaN())
-{}
-
 FitParam::FitParam(double v)
-  : FitParam(v,
-             std::numeric_limits<double>::min(),
-             std::numeric_limits<double>::max())
+    : value_(v)
 {}
 
-FitParam::FitParam(double v, double lower, double upper)
-  : value_(UncertainDouble::from_double(v, std::numeric_limits<double>::quiet_NaN()))
-  , lower_(lower)
-  , upper_(upper)
-{}
+FitParam::FitParam(double v1, double v2, double v3)
+{
+  set(v1, v2, v3);
+}
 
-FitParam::FitParam(double lower, double upper)
-  : FitParam((lower + upper) * 0.5, lower, upper)
-{}
+FitParam::FitParam(double v1, double v2)
+{
+  constrain(v1, v2);
+}
 
-void FitParam::set_value(UncertainDouble v)
+void FitParam::value(double v)
 {
   value_ = v;
 
   //if out of bounds?
 }
 
-void FitParam::set(const FitParam& other)
+void FitParam::set(double v1, double v2, double v3)
 {
-  value_ = other.value_;
-  lower_ = other.lower_;
-  upper_ = other.upper_;
-  enabled_ = other.enabled_;
-  fixed_ = other.fixed_;
+  lower_ = min(v1, v2, v3);
+  upper_ = max(v1, v2, v3);
+  value_ = mid(v1, v2, v3);
 }
 
-void FitParam::set(double min, double max, double val)
+void FitParam::constrain(double v1, double v2)
 {
-  lower_ = min;
-  upper_ = max;
-  if ((min <= val) && (val <= max))
-    value_.value(val);
-  else
-    value_.value((min + max)/2.0);
+  lower_ = std::min(v1, v2);
+  upper_ = std::max(v1, v2);
+  if ((value_ < lower_) || (value_ > upper_))
+    value_ = (v1 + v2) / 2.0;
 }
 
-void FitParam::preset_bounds(double min, double max)
-{
-  lower_ = min;
-  upper_ = max;
-  value_.value((min + max)/2.0);
-}
-
-void FitParam::constrain(double min, double max)
-{
-  double l = std::min(min, max);
-  double u = std::max(min, max);
-  lower_ = std::max(l, lower_);
-  upper_ = std::min(u, upper_);
-  value_.value(std::min(std::max(value_.value(), lower()), upper()));
-}
-
-UncertainDouble FitParam::value() const
+double FitParam::value() const
 {
   return value_;
 }
@@ -97,41 +68,32 @@ bool FitParam::fixed() const
 
 bool FitParam::implicitly_fixed() const
 {
-  return (value_.finite() &&
-          (value_.value() == lower_) &&
-          (lower_ == upper_));
+  return (std::isfinite(value_) &&
+      (value_ == lower_) &&
+      (lower_ == upper_));
 }
 
-void FitParam::set_enabled(bool e)
+void FitParam::enabled(bool e)
 {
   enabled_ = e;
 }
 
-FitParam FitParam::enforce_policy()
-{
-  FitParam ret = *this;
-  if (!ret.enabled_) {
-    ret.upper_ = ret.lower_;
-    ret.lower_ = 0;
-    ret.value_.value(ret.lower_);
-  } else if (ret.fixed_) {
-    ret.upper_ = ret.value_.value() + ret.lower_  * 0.01;
-    ret.lower_ = ret.value_.value() - ret.lower_  * 0.01;
-  }
-  return ret;
-}
-
 std::string FitParam::to_string() const
 {
-  return fmt::format("{} [{}:{}]", value_.to_string(), lower_, upper_);
+  return fmt::format("{}[{},{}]", value_, lower_, upper_);
 }
 
-bool FitParam::same_bounds_and_policy(const FitParam &other) const
+bool FitParam::same_bounds(const FitParam& other) const
 {
   if (lower_ != other.lower_)
     return false;
   if (upper_ != other.upper_)
     return false;
+  return true;
+}
+
+bool FitParam::same_policy(const FitParam& other) const
+{
   if (enabled_ != other.enabled_)
     return false;
   if (fixed_ != other.fixed_)
@@ -139,7 +101,7 @@ bool FitParam::same_bounds_and_policy(const FitParam &other) const
   return true;
 }
 
-void to_json(json& j, const FitParam& s)
+void to_json(nlohmann::json& j, const FitParam& s)
 {
   j["enabled"] = s.enabled_;
   j["fixed"] = s.fixed_;
@@ -148,7 +110,7 @@ void to_json(json& j, const FitParam& s)
   j["value"] = s.value_;
 }
 
-void from_json(const json& j, FitParam& s)
+void from_json(const nlohmann::json& j, FitParam& s)
 {
   s.enabled_ = j["enabled"];
   s.fixed_ = j["fixed"];

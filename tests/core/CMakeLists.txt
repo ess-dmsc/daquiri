@@ -18,7 +18,7 @@ set(SOURCES
 #  ${dir}/engine.cpp
   )
 
-#add_subdirectory(util)
+add_subdirectory(util)
 add_subdirectory(calibration)
 #add_subdirectory(plugin)
 
