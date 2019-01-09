@@ -45,3 +45,26 @@ TEST_F(Compare, mid3unordered_d)
 {
   EXPECT_EQ(mid(1.0, 3.0, 2.0), 2.0);
 }
+
+TEST_F(Compare, mid3same2a)
+{
+  EXPECT_EQ(mid(4.0, 3.0, 4.0), 4.0);
+  EXPECT_EQ(mid(4.0, 5.0, 4.0), 4.0);
+}
+
+TEST_F(Compare, mid3same2b)
+{
+  EXPECT_EQ(mid(3.0, 4.0, 4.0), 4.0);
+  EXPECT_EQ(mid(5.0, 4.0, 4.0), 4.0);
+}
+
+TEST_F(Compare, mid3same2c)
+{
+  EXPECT_EQ(mid(4.0, 4.0, 3.0), 4.0);
+  EXPECT_EQ(mid(4.0, 4.0, 5.0), 4.0);
+}
+
+TEST_F(Compare, mid3same3)
+{
+  EXPECT_EQ(mid(4.0, 4.0, 4.0), 4.0);
+}

@@ -5,114 +5,93 @@
 namespace DAQuiri
 {
 
-FitParam::FitParam(double v)
+Parameter::Parameter(double v)
     : value_(v)
 {}
 
-FitParam::FitParam(double v1, double v2, double v3)
+Parameter::Parameter(double v1, double v2, double v3)
 {
   set(v1, v2, v3);
 }
 
-FitParam::FitParam(double v1, double v2)
+Parameter::Parameter(double v1, double v2)
 {
   constrain(v1, v2);
 }
 
-void FitParam::value(double v)
+void Parameter::value(double v)
 {
   value_ = v;
 
-  //if out of bounds?
+  if (upper_ < v)
+    upper_ = v;
+  if (lower_ > v)
+    lower_ = v;
 }
 
-void FitParam::set(double v1, double v2, double v3)
+void Parameter::set(double v1, double v2, double v3)
 {
   lower_ = min(v1, v2, v3);
   upper_ = max(v1, v2, v3);
   value_ = mid(v1, v2, v3);
 }
 
-void FitParam::constrain(double v1, double v2)
+void Parameter::constrain(double v1, double v2)
 {
   lower_ = std::min(v1, v2);
   upper_ = std::max(v1, v2);
-  if ((value_ < lower_) || (value_ > upper_))
-    value_ = (v1 + v2) / 2.0;
+  if ((lower_ <= value_) && (value_ <= upper_))
+    return;
+  value_ = (v1 + v2) / 2.0;
 }
 
-double FitParam::value() const
+double Parameter::value() const
 {
   return value_;
 }
 
-double FitParam::lower() const
+double Parameter::lower() const
 {
   return lower_;
 }
 
-double FitParam::upper() const
+double Parameter::upper() const
 {
   return upper_;
 }
 
-bool FitParam::enabled() const
-{
-  return enabled_;
-}
-
-bool FitParam::fixed() const
+bool Parameter::fixed() const
 {
   return fixed_ || implicitly_fixed();
 }
 
-bool FitParam::implicitly_fixed() const
+bool Parameter::implicitly_fixed() const
 {
   return (std::isfinite(value_) &&
       (value_ == lower_) &&
       (lower_ == upper_));
 }
 
-void FitParam::enabled(bool e)
-{
-  enabled_ = e;
-}
-
-std::string FitParam::to_string() const
+std::string Parameter::to_string() const
 {
   return fmt::format("{}[{},{}]", value_, lower_, upper_);
 }
 
-bool FitParam::same_bounds(const FitParam& other) const
+bool Parameter::equal_bounds(const Parameter& other) const
 {
-  if (lower_ != other.lower_)
-    return false;
-  if (upper_ != other.upper_)
-    return false;
-  return true;
+  return (lower_ == other.lower_) && (upper_ == other.upper_);
 }
 
-bool FitParam::same_policy(const FitParam& other) const
+void to_json(nlohmann::json& j, const Parameter& s)
 {
-  if (enabled_ != other.enabled_)
-    return false;
-  if (fixed_ != other.fixed_)
-    return false;
-  return true;
-}
-
-void to_json(nlohmann::json& j, const FitParam& s)
-{
-  j["enabled"] = s.enabled_;
   j["fixed"] = s.fixed_;
   j["lower"] = s.lower_;
   j["upper"] = s.upper_;
   j["value"] = s.value_;
 }
 
-void from_json(const nlohmann::json& j, FitParam& s)
+void from_json(const nlohmann::json& j, Parameter& s)
 {
-  s.enabled_ = j["enabled"];
   s.fixed_ = j["fixed"];
   s.lower_ = j["lower"];
   s.upper_ = j["upper"];
