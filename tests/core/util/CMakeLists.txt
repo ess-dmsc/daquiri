@@ -2,6 +2,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
   ${dir}/bin_hex_print.cpp
+  ${dir}/compare.cpp
   ${dir}/h5json.cpp
   ${dir}/json_file.cpp
   ${dir}/lexical_extensions.cpp

@@ -1,17 +1,19 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/calibration.cpp
-  ${dir}/coef_function.cpp
   ${dir}/parameter.cpp
-  ${dir}/uncertain.cpp
+  ${dir}/coef_function.cpp
+  ${dir}/coef_function_factory.cpp
+  ${dir}/polynomial.cpp
+  ${dir}/calibration.cpp
   )
 
 set(HEADERS
-  ${dir}/calibration.h
-  ${dir}/coef_function.h
   ${dir}/parameter.h
-  ${dir}/uncertain.h
+  ${dir}/coef_function.h
+  ${dir}/coef_function_factory.h
+  ${dir}/polynomial.h
+  ${dir}/calibration.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

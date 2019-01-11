@@ -5,70 +5,68 @@
 
 #include <type_traits>
 
-namespace DAQuiri {
+namespace DAQuiri
+{
 
 struct CalibID
 {
-    std::string detector;
-    std::string value;
-    std::string units;
+  std::string value;
+  std::string detector;
+  std::string units;
 
-    CalibID() {}
-    CalibID(std::string val, std::string det = "",
-            std::string unit = "");
+  CalibID() = default;
 
-    bool valid() const;
-    bool operator== (const CalibID& other) const;
-    std::string debug() const;
+  CalibID(std::string val,
+          std::string det = "",
+          std::string unit = "");
 
-    friend void to_json(json& j, const CalibID &s);
-    friend void from_json(const json& j, CalibID &s);
+  bool valid() const;
+  bool operator==(const CalibID& other) const;
+  bool operator!=(const CalibID& other) const;
+  std::string debug() const;
 
-    bool compare(const CalibID& other);
+  friend void to_json(nlohmann::json& j, const CalibID& s);
+  friend void from_json(const nlohmann::json& j, CalibID& s);
+
+  bool compare(const CalibID& other);
 };
 
 class Calibration
 {
-  private:
-    hr_time_t calib_date_{std::chrono::system_clock::now()};
-    CalibID from_, to_;
-    std::shared_ptr<CoefFunction> function_;
+ private:
+  hr_time_t created_{std::chrono::system_clock::now()};
+  CalibID from_, to_;
+  std::shared_ptr<CoefFunction> function_;
 
-  public:
-    Calibration() {}
-    Calibration(CalibID from, CalibID to);
+ public:
+  Calibration() = default;
+  Calibration(CalibID from, CalibID to);
 
-    bool valid() const;
+  bool valid() const;
+  CalibID from() const;
+  CalibID to() const;
+  hr_time_t created() const;
 
-    double transform(double) const;
-    double inverse_transform(double) const;
+  CoefFunctionPtr function() const;
+  void function(CoefFunctionPtr f);
+  void function(const std::string& type, const std::vector<double>& coefs);
 
-    void transform_ref(std::vector<double>&) const;
-    std::vector<double> transform_copy(const std::vector<double>&data) const;
+  bool shallow_equals(const Calibration& other) const;
+  bool operator==(const Calibration& other) const;
+  bool operator!=(const Calibration& other) const;
 
-    CalibID to() const;
-    CalibID from() const;
-    std::string model() const;
-    hr_time_t calib_date() const;
-    std::string debug() const;
-    std::string fancy_equation(bool with_chi2=false) const;
+  double transform(double) const;
+  double inverse(double val, double e) const;
+  void transform_by_ref(std::vector<double>&) const;
+  std::vector<double> transform(const std::vector<double>& data) const;
 
-    void set_function(std::shared_ptr<CoefFunction> f);
-    void set_function(const std::string& type, const std::vector<double>& coefs);
+  std::string debug() const;
 
-    bool shallow_equals(const Calibration& other) const
-    {return ((from_ == other.from_) && (to_ == other.to_));}
-    bool operator!= (const Calibration& other) const;
-    bool operator== (const Calibration& other) const;
-
-    friend void to_json(json& j, const Calibration &s);
-    friend void from_json(const json& j, Calibration &s);
-
-    std::string coefs_to_string() const;
-    static std::vector<double> coefs_from_string(const std::string&);
+  friend void to_json(nlohmann::json& j, const Calibration& s);
+  friend void from_json(const nlohmann::json& j, Calibration& s);
 };
 
-//use traits!!!
+//\todo use traits
 
 double shift_down(double v, uint16_t bits);
 double shift_up(double v, uint16_t bits);
@@ -77,6 +75,5 @@ double shift(double v, int16_t bits);
 void shift_down(std::vector<double>& vec, uint16_t bits);
 void shift_up(std::vector<double>& vec, uint16_t bits);
 void shift(std::vector<double>& vec, int16_t bits);
-
 
 }

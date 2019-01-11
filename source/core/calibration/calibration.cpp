@@ -1,22 +1,25 @@
 #include <core/calibration/calibration.h>
+#include <core/calibration/coef_function_factory.h>
 #include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>
 #include <fmt/format.h>
 
-namespace DAQuiri {
+namespace DAQuiri
+{
 
-CalibID::CalibID(std::string val, std::string det,
+CalibID::CalibID(std::string val,
+                 std::string det,
                  std::string unit)
-  : detector(det)
-  , value(val)
-  , units(unit)
+    : value(val)
+      , detector(det)
+      , units(unit)
 {}
 
 bool CalibID::valid() const
 {
   return (!detector.empty() ||
-          !value.empty() ||
-          !units.empty());
+      !value.empty() ||
+      !units.empty());
 }
 
 bool CalibID::compare(const CalibID& other)
@@ -30,11 +33,16 @@ bool CalibID::compare(const CalibID& other)
   return true;
 }
 
-bool CalibID::operator== (const CalibID& other) const
+bool CalibID::operator==(const CalibID& other) const
 {
   return (detector == other.detector)
       && (value == other.value)
       && (units == other.units);
+}
+
+bool CalibID::operator!=(const CalibID& other) const
+{
+  return !operator==(other);
 }
 
 std::string CalibID::debug() const
@@ -49,8 +57,7 @@ std::string CalibID::debug() const
   return result;
 }
 
-
-void to_json(json& j, const CalibID &s)
+void to_json(nlohmann::json& j, const CalibID& s)
 {
   if (s.detector.size())
     j["detector"] = s.detector;
@@ -60,7 +67,7 @@ void to_json(json& j, const CalibID &s)
     j["units"] = s.units;
 }
 
-void from_json(const json& j, CalibID &s)
+void from_json(const nlohmann::json& j, CalibID& s)
 {
   if (j.count("detector"))
     s.detector = j["detector"];
@@ -71,26 +78,14 @@ void from_json(const json& j, CalibID &s)
 }
 
 Calibration::Calibration(CalibID from, CalibID to)
-  : from_(from)
-  , to_(to)
+    : from_(from)
+      , to_(to)
 {}
 
-std::string Calibration::model() const
+bool Calibration::valid() const
 {
-  if (function_)
-    return function_->type();
-  return "undefined";
-}
-
-bool Calibration::operator== (const Calibration& other) const
-{
-  return shallow_equals(other) &&
-      (model() == other.model());
-}
-
-CalibID Calibration::to() const
-{
-  return to_;
+  // \todo should require to & from
+  return (function_ && !function_->coeffs().empty());
 }
 
 CalibID Calibration::from() const
@@ -98,6 +93,129 @@ CalibID Calibration::from() const
   return from_;
 }
 
+CalibID Calibration::to() const
+{
+  return to_;
+}
+
+hr_time_t Calibration::created() const
+{
+  return created_;
+}
+
+void Calibration::function(const std::string& type,
+                           const std::vector<double>& coefs)
+{
+  function_ = CoefFunctionFactory::singleton().create_type(type);
+  if (function_)
+  {
+    for (size_t i = 0; i < coefs.size(); ++i)
+      function_->set_coeff(i, coefs.at(i));
+  }
+}
+
+void Calibration::function(CoefFunctionPtr f)
+{
+  function_ = f;
+}
+
+CoefFunctionPtr Calibration::function() const
+{
+  return function_;
+}
+
+bool Calibration::shallow_equals(const Calibration& other) const
+{
+  return ((from_ == other.from_) && (to_ == other.to_));
+}
+
+bool Calibration::operator==(const Calibration& other) const
+{
+  if (!shallow_equals(other))
+    return false;
+  if (!function_ && !other.function_)
+    return true;
+  if (!function_ || !other.function_)
+    return false;
+  return (function_->type() == other.function_->type())
+      && (function_->coeffs() == other.function_->coeffs());
+}
+
+bool Calibration::operator!=(const Calibration& other) const
+{
+  return !operator==(other);
+}
+
+double Calibration::transform(double chan) const
+{
+  if (valid())
+    return (*function_)(chan);
+  return chan;
+}
+
+double Calibration::inverse(double val, double e) const
+{
+  if (valid())
+    return function_->inverse(val, e);
+  return val;
+}
+
+void Calibration::transform_by_ref(std::vector<double>& data) const
+{
+  if (valid())
+    for (auto& d : data)
+      d = (*function_)(d);
+}
+
+std::vector<double> Calibration::transform(const std::vector<double>& data) const
+{
+  std::vector<double> ret = data;
+  transform_by_ref(ret);
+  return ret;
+}
+
+std::string Calibration::debug() const
+{
+  std::string result;
+  if (from_.valid())
+    result += "[" + from_.debug() + "]";
+  if (to_.valid())
+    result += "->[" + to_.debug() + "]";
+  if (valid())
+  {
+    result += " created=" + to_simple(created_);
+    result += "\n    model=" + function_->debug();
+  }
+  return result;
+}
+
+void to_json(nlohmann::json& j, const Calibration& s)
+{
+  j["calibration_creation_date"] = to_iso_extended(s.created_);
+
+  if (s.from_.valid())
+    j["from"] = s.from_;
+
+  if (s.to_.valid())
+    j["to"] = s.to_;
+
+  if (s.function_)
+    j["function"] = (*s.function_);
+}
+
+void from_json(const nlohmann::json& j, Calibration& s)
+{
+  s.created_ = from_iso_extended(j["calibration_creation_date"]);
+
+  if (j.count("from"))
+    s.from_ = j["from"];
+
+  if (j.count("to"))
+    s.to_ = j["to"];
+
+  if (j.count("function"))
+    s.function_ = CoefFunctionFactory::singleton().create_from_json(j["function"]);
+}
 
 double shift_down(double v, uint16_t bits)
 {
@@ -143,152 +261,27 @@ void shift(std::vector<double>& vec, int16_t bits)
     shift_up(vec, bits);
 }
 
-
-
-hr_time_t Calibration::calib_date() const
-{
-  return calib_date_;
 }
 
-void Calibration::set_function(const std::string& type,
-                  const std::vector<double>& coefs)
-{
-  function_ = CoefFuncFactory::singleton().create_type(type);
-  if (function_)
-  {
-    for (size_t i=0; i < coefs.size(); ++i)
-      function_->set_coeff(i, UncertainDouble(coefs.at(i), 0, 6));
-  }
-}
-
-void Calibration::set_function(std::shared_ptr<CoefFunction> f)
-{
-  function_ = f;
-}
-
-bool Calibration::operator!= (const Calibration& other) const
-{
-  return !operator==(other);
-}
-
-bool Calibration::valid() const
-{
-  return (function_ && function_->coeff_count());
-}
-
-double Calibration::transform(double chan) const
-{
-  if (valid())
-    return function_->eval(chan);
-  return chan;
-}
-
-double Calibration::inverse_transform(double energy) const
-{
-  if (valid())
-    return function_->eval_inverse(energy);
-  return energy;
-}
-
-std::string Calibration::fancy_equation(bool with_chi2) const
-{
-  if (valid())
-    return function_->to_UTF8()
-        + (with_chi2
-           ? fmt::format("chi2={})", function_->chi2())
-           : "");
-  return "N/A";
-}
-
-void Calibration::transform_ref(std::vector<double>& data) const
-{
-  if (valid())
-    for (auto& d : data)
-      d = function_->eval(d);
-}
-
-std::vector<double> Calibration::transform_copy(const std::vector<double> &data) const
-{
-  std::vector<double> ret;
-  for (auto &q : data)
-    ret.push_back(transform(q));
-  return ret;
-}
-
-std::string Calibration::coefs_to_string() const
-{
-  if (!valid())
-    return "";
-  std::stringstream dss;
-  for (auto &q : function_->coeffs_consecutive())
-    dss << q << " ";
-  return trim_copy(dss.str());
-}
-
-std::vector<double> Calibration::coefs_from_string(const std::string &coefs)
-{
-  std::stringstream ss(trim_copy(coefs));
-  std::vector<double> templist;
-  while (ss.rdbuf()->in_avail())
-  {
-    double coef;
-    ss >> coef;
-    templist.push_back(coef);
-  }
-  return templist;
-}
-
-std::string Calibration::debug() const
-{
-  std::string result;
-  if (from_.valid())
-    result += "[" + from_.debug() + "]";
-  if (to_.valid())
-    result += "->[" + to_.debug() + "]";
-  if (valid())
-  {
-    result += " eqn=" + fancy_equation(true);
-    result += " date=" + to_simple(calib_date_);
-  }
-  return result;
-}
-
-void to_json(json& j, const Calibration &s)
-{
-  j["calibration_creation_date"] = to_iso_extended(s.calib_date_);
-
-  if (s.from_.valid())
-    j["from"] = s.from_;
-
-  if (s.to_.valid())
-    j["to"] = s.to_;
-
-  if (s.function_)
-  {
-    j["function"] = (*s.function_);
-    j["function"]["type"] = s.function_->type();
-  }
-}
-
-void from_json(const json& j, Calibration &s)
-{
-  s.calib_date_ = from_iso_extended(j["calibration_creation_date"]);
-
-  if (j.count("from"))
-    s.from_ = j["from"];
-
-  if (j.count("to"))
-    s.to_ = j["to"];
-
-  if (j.count("function"))
-  {
-    std::string type = j["function"]["type"];
-    s.function_ = CoefFuncFactory::singleton().create_type(type);
-    if (s.function_)
-      from_json(j["function"], *s.function_);
-  }
-}
-
-
-
-}
+//std::string Calibration::coefs_to_string() const
+//{
+//  if (!valid())
+//    return "";
+//  std::stringstream dss;
+//  for (auto& q : function_->coeffs())
+//    dss << q.second.value() << " ";
+//  return trim_copy(dss.str());
+//}
+//
+//std::vector<double> Calibration::coefs_from_string(const std::string& coefs)
+//{
+//  std::stringstream ss(trim_copy(coefs));
+//  std::vector<double> templist;
+//  while (ss.rdbuf()->in_avail())
+//  {
+//    double coef;
+//    ss >> coef;
+//    templist.push_back(coef);
+//  }
+//  return templist;
+//}

@@ -1,156 +1,97 @@
 #include <core/calibration/parameter.h>
 #include <fmt/format.h>
-#include <iomanip>
-#include <numeric>
-
-#include <core/util/custom_logger.h>
+#include <core/util/compare.h>
 
 namespace DAQuiri
 {
 
-FitParam::FitParam()
-  : FitParam(std::numeric_limits<double>::quiet_NaN())
+Parameter::Parameter(double v)
+    : value_(v)
 {}
 
-FitParam::FitParam(double v)
-  : FitParam(v,
-             std::numeric_limits<double>::min(),
-             std::numeric_limits<double>::max())
-{}
+Parameter::Parameter(double v1, double v2, double v3)
+{
+  set(v1, v2, v3);
+}
 
-FitParam::FitParam(double v, double lower, double upper)
-  : value_(UncertainDouble::from_double(v, std::numeric_limits<double>::quiet_NaN()))
-  , lower_(lower)
-  , upper_(upper)
-{}
+Parameter::Parameter(double v1, double v2)
+{
+  constrain(v1, v2);
+}
 
-FitParam::FitParam(double lower, double upper)
-  : FitParam((lower + upper) * 0.5, lower, upper)
-{}
-
-void FitParam::set_value(UncertainDouble v)
+void Parameter::value(double v)
 {
   value_ = v;
 
-  //if out of bounds?
+  if (upper_ < v)
+    upper_ = v;
+  if (lower_ > v)
+    lower_ = v;
 }
 
-void FitParam::set(const FitParam& other)
+void Parameter::set(double v1, double v2, double v3)
 {
-  value_ = other.value_;
-  lower_ = other.lower_;
-  upper_ = other.upper_;
-  enabled_ = other.enabled_;
-  fixed_ = other.fixed_;
+  lower_ = min(v1, v2, v3);
+  upper_ = max(v1, v2, v3);
+  value_ = mid(v1, v2, v3);
 }
 
-void FitParam::set(double min, double max, double val)
+void Parameter::constrain(double v1, double v2)
 {
-  lower_ = min;
-  upper_ = max;
-  if ((min <= val) && (val <= max))
-    value_.setValue(val);
-  else
-    value_.setValue((min + max)/2.0);
+  lower_ = std::min(v1, v2);
+  upper_ = std::max(v1, v2);
+  if ((lower_ <= value_) && (value_ <= upper_))
+    return;
+  value_ = (v1 + v2) / 2.0;
 }
 
-void FitParam::preset_bounds(double min, double max)
-{
-  lower_ = min;
-  upper_ = max;
-  value_.setValue((min + max)/2.0);
-}
-
-void FitParam::constrain(double min, double max)
-{
-  double l = std::min(min, max);
-  double u = std::max(min, max);
-  lower_ = std::max(l, lower_);
-  upper_ = std::min(u, upper_);
-  value_.setValue(std::min(std::max(value_.value(), lower()), upper()));
-}
-
-UncertainDouble FitParam::value() const
+double Parameter::value() const
 {
   return value_;
 }
 
-double FitParam::lower() const
+double Parameter::lower() const
 {
   return lower_;
 }
 
-double FitParam::upper() const
+double Parameter::upper() const
 {
   return upper_;
 }
 
-bool FitParam::enabled() const
-{
-  return enabled_;
-}
-
-bool FitParam::fixed() const
+bool Parameter::fixed() const
 {
   return fixed_ || implicitly_fixed();
 }
 
-bool FitParam::implicitly_fixed() const
+bool Parameter::implicitly_fixed() const
 {
-  return (value_.finite() &&
-          (value_.value() == lower_) &&
-          (lower_ == upper_));
+  return (std::isfinite(value_) &&
+      (value_ == lower_) &&
+      (lower_ == upper_));
 }
 
-void FitParam::set_enabled(bool e)
+std::string Parameter::to_string() const
 {
-  enabled_ = e;
+  return fmt::format("{}[{},{}]", value_, lower_, upper_);
 }
 
-FitParam FitParam::enforce_policy()
+bool Parameter::equal_bounds(const Parameter& other) const
 {
-  FitParam ret = *this;
-  if (!ret.enabled_) {
-    ret.upper_ = ret.lower_;
-    ret.lower_ = 0;
-    ret.value_.setValue(ret.lower_);
-  } else if (ret.fixed_) {
-    ret.upper_ = ret.value_.value() + ret.lower_  * 0.01;
-    ret.lower_ = ret.value_.value() - ret.lower_  * 0.01;
-  }
-  return ret;
+  return (lower_ == other.lower_) && (upper_ == other.upper_);
 }
 
-std::string FitParam::to_string() const
+void to_json(nlohmann::json& j, const Parameter& s)
 {
-  return fmt::format("{} [{}:{}]", value_.to_string(), lower_, upper_);
-}
-
-bool FitParam::same_bounds_and_policy(const FitParam &other) const
-{
-  if (lower_ != other.lower_)
-    return false;
-  if (upper_ != other.upper_)
-    return false;
-  if (enabled_ != other.enabled_)
-    return false;
-  if (fixed_ != other.fixed_)
-    return false;
-  return true;
-}
-
-void to_json(json& j, const FitParam& s)
-{
-  j["enabled"] = s.enabled_;
   j["fixed"] = s.fixed_;
   j["lower"] = s.lower_;
   j["upper"] = s.upper_;
   j["value"] = s.value_;
 }
 
-void from_json(const json& j, FitParam& s)
+void from_json(const nlohmann::json& j, Parameter& s)
 {
-  s.enabled_ = j["enabled"];
   s.fixed_ = j["fixed"];
   s.lower_ = j["lower"];
   s.upper_ = j["upper"];
