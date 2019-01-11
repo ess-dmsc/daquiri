@@ -49,8 +49,7 @@ def get_macos_pipeline() {
 
                     try {
                         sh "source ./activate_run.sh && \
-                            tests/unit_tests && \
-                            tests/system_test"
+                            tests/unit_tests // && tests/system_test"
                     } catch (e) {
                         failure_function(e, 'MacOSX / tests failed')
                     }
