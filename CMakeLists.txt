@@ -48,8 +48,8 @@ if(GTest_FOUND)
   add_subdirectory(tests)
   add_custom_target(everything DEPENDS
     all_tests
-#    acquire
-#    daquiri
+    acquire
+    daquiri
     )
   create_coverage_targets(
     coverage
