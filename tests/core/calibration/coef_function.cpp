@@ -1,5 +1,9 @@
-#include <gtest/gtest.h>
+#include "gtest_color_print.h"
 #include <core/calibration/coef_function.h>
+
+class CoefFunction : public TestBase
+{
+};
 
 class MockFunction : public DAQuiri::CoefFunction
 {
@@ -17,7 +21,7 @@ class MockFunction : public DAQuiri::CoefFunction
   std::string to_markup() const override { return ""; }
 };
 
-TEST(CoefFunction, InitDefault)
+TEST_F(CoefFunction, InitDefault)
 {
   MockFunction cf;
   EXPECT_TRUE(cf.coeffs().empty());
@@ -27,14 +31,14 @@ TEST(CoefFunction, InitDefault)
   EXPECT_DOUBLE_EQ(cf.chi2(), 0.0);
 }
 
-TEST(CoefFunction, SetChi2)
+TEST_F(CoefFunction, SetChi2)
 {
   MockFunction cf;
   cf.chi2(1.5);
   EXPECT_DOUBLE_EQ(cf.chi2(), 1.5);
 }
 
-TEST(CoefFunction, SetXOffset)
+TEST_F(CoefFunction, SetXOffset)
 {
   MockFunction cf;
   cf.x_offset({1, 3});
@@ -43,7 +47,7 @@ TEST(CoefFunction, SetXOffset)
   EXPECT_DOUBLE_EQ(cf.x_offset().upper(), 3.0);
 }
 
-TEST(CoefFunction, SetCoef)
+TEST_F(CoefFunction, SetCoef)
 {
   MockFunction cf;
   cf.set_coeff(0, {1, 2, 3});
@@ -56,7 +60,7 @@ TEST(CoefFunction, SetCoef)
   EXPECT_EQ(c0.upper(), 3);
 }
 
-TEST(CoefFunction, InitCoefs)
+TEST_F(CoefFunction, InitCoefs)
 {
   MockFunction cf({5.0, 3.0}, 0.5, 1.0);
   EXPECT_DOUBLE_EQ(cf.chi2(), 1.0);
@@ -76,7 +80,7 @@ TEST(CoefFunction, InitCoefs)
   EXPECT_EQ(c1.upper(), 3.5);
 }
 
-TEST(CoefFunction, Eval)
+TEST_F(CoefFunction, Eval)
 {
   MockFunction cf;
   auto ev = cf.eval({3.0, 5.0, 7.0});
@@ -86,13 +90,13 @@ TEST(CoefFunction, Eval)
   EXPECT_EQ(ev[2], 8.0);
 }
 
-TEST(CoefFunction, Inverse)
+TEST_F(CoefFunction, Inverse)
 {
   MockFunction cf;
   EXPECT_DOUBLE_EQ(cf.inverse(12.0), 11.0);
 }
 
-TEST(CoefFunction, Json)
+TEST_F(CoefFunction, Json)
 {
   MockFunction cf({5.0, 3.0}, 0.5, 1.0);
   cf.x_offset({1, 3});

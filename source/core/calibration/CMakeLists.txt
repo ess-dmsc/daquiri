@@ -4,14 +4,14 @@ set(SOURCES
   ${dir}/parameter.cpp
   ${dir}/coef_function.cpp
   ${dir}/coef_function_factory.cpp
-#  ${dir}/calibration.cpp
+  ${dir}/calibration.cpp
   )
 
 set(HEADERS
   ${dir}/parameter.h
   ${dir}/coef_function.h
   ${dir}/coef_function_factory.h
-#  ${dir}/calibration.h
+  ${dir}/calibration.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

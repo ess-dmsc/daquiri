@@ -4,7 +4,7 @@ set(SOURCES
   ${dir}/parameter.cpp
   ${dir}/coef_function.cpp
   ${dir}/coef_function_factory.cpp
-#  ${dir}/calibration.cpp
+  ${dir}/calibration.cpp
   )
 
 set(${this_target}_sources ${${this_target}_sources} ${SOURCES} PARENT_SCOPE)
