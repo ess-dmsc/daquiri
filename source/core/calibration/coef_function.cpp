@@ -75,6 +75,7 @@ double CoefFunction::inverse(double y, double e) const
 
 void to_json(nlohmann::json& j, const CoefFunction& s)
 {
+  j["type"] = s.type();
   for (auto c : s.coeffs())
   {
     nlohmann::json cc;

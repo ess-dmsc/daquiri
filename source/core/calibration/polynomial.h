@@ -15,7 +15,7 @@ class Polynomial : public CoefFunction
   double operator() (double x) const override;
   double derivative(double) const override;
 
-  std::string to_string() const override;
+  std::string debug() const override;
   std::string to_UTF8(int precision, bool with_rsq) const override;
   std::string to_markup(int precision, bool with_rsq) const override;
 };

@@ -16,7 +16,7 @@ class MockFunction : public DAQuiri::CoefFunction
   double operator() (double x) const override { return 1 + x; }
   double derivative(double) const override { return 1; }
 
-  std::string to_string() const override { return ""; }
+  std::string debug() const override { return ""; }
   std::string to_UTF8(int precision, bool with_rsq) const override { return ""; }
   std::string to_markup(int precision, bool with_rsq) const override { return ""; }
 };

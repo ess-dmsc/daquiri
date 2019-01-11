@@ -5,6 +5,20 @@
 namespace DAQuiri
 {
 
+void CoefFunctionFactory::register_type(std::function<CoefFunction*(void)> constructor)
+{
+  auto name = CoefFunctionPtr(constructor())->type();
+  if (name.empty())
+    WARN("<CoefFunctionFactory> failed to register nameless type");
+  else if (constructors_.count(name))
+    WARN("<CoefFunctionFactory> type '{}' already registered", name);
+  else
+  {
+    constructors_[name] = constructor;
+    DBG("<CoefFunctionFactory> registered '{}'", name);
+  }
+}
+
 CoefFunctionPtr CoefFunctionFactory::create_type(std::string type) const
 {
   auto it = constructors_.find(type);
@@ -21,18 +35,12 @@ CoefFunctionPtr CoefFunctionFactory::create_copy(CoefFunctionPtr other) const
   return CoefFunctionPtr();
 }
 
-void CoefFunctionFactory::register_type(std::function<CoefFunction*(void)> constructor)
+CoefFunctionPtr CoefFunctionFactory::create_from_json(const nlohmann::json& j) const
 {
-  auto name = CoefFunctionPtr(constructor())->type();
-  if (name.empty())
-    WARN("<CoefFunctionFactory> failed to register nameless type");
-  else if (constructors_.count(name))
-    WARN("<CoefFunctionFactory> type '{}' already registered", name);
-  else
-  {
-    constructors_[name] = constructor;
-    DBG("<CoefFunctionFactory> registered '{}'", name);
-  }
+  std::string type = j["type"];
+  auto ret = create_type(type);
+  from_json(j, *ret);
+  return ret;
 }
 
 std::vector<std::string> CoefFunctionFactory::types() const

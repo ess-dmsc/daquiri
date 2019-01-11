@@ -77,13 +77,15 @@ TEST_F(Polynomial, Eval)
 TEST_F(Polynomial, Inverse)
 {
   DAQuiri::Polynomial cf{{5.0, 2.0, 1.0}, 0, 0};
+  EXPECT_DOUBLE_EQ(cf.inverse(8.0, 0.000000001), 1.0);
+  EXPECT_DOUBLE_EQ(cf.inverse(13.0, 0.000000001), 2.0);
   EXPECT_DOUBLE_EQ(cf.inverse(20.0, 0.000000001), 3.0);
 }
 
-TEST_F(Polynomial, String)
+TEST_F(Polynomial, Debug)
 {
   DAQuiri::Polynomial cf{{5.0, 2.0, 1.0}, 0, 0};
-  MESSAGE() << cf.to_string() << "\n";
+  MESSAGE() << cf.debug() << "\n";
 }
 
 TEST_F(Polynomial, UTF8)

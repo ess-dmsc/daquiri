@@ -3,6 +3,9 @@
 
 class CoefFunctionFactory : public TestBase
 {
+  virtual void TearDown() {
+    DAQuiri::CoefFunctionFactory::singleton().clear();
+  }
 };
 
 class FakeFunction : public DAQuiri::CoefFunction
@@ -11,9 +14,19 @@ class FakeFunction : public DAQuiri::CoefFunction
   // Inherit constructors
   using DAQuiri::CoefFunction::CoefFunction;
 
-  std::string to_string() const override { return ""; }
-  std::string to_UTF8(int precision, bool with_rsq) const override { return ""; }
-  std::string to_markup(int precision, bool with_rsq) const override { return ""; }
+  std::string debug() const override { return ""; }
+  std::string to_UTF8(int precision, bool with_rsq) const override
+  {
+    (void) precision;
+    (void) with_rsq;
+    return "";
+  }
+  std::string to_markup(int precision, bool with_rsq) const override
+  {
+    (void) precision;
+    (void) with_rsq;
+    return "";
+  }
   double operator() (double x) const override { return 1 + x; }
   double derivative(double) const override { return 1; }
 };
@@ -51,7 +64,6 @@ TEST_F(CoefFunctionFactory, Singleton)
 TEST_F(CoefFunctionFactory, types)
 {
   auto& cf = DAQuiri::CoefFunctionFactory::singleton();
-  cf.clear();
 
   EXPECT_TRUE(cf.types().empty());
   EXPECT_EQ(cf.types().size(), 0UL);
@@ -73,7 +85,6 @@ TEST_F(CoefFunctionFactory, types)
 TEST_F(CoefFunctionFactory, create_type)
 {
   auto& cf = DAQuiri::CoefFunctionFactory::singleton();
-  cf.clear();
   DAQUIRI_REGISTER_COEF_FUNCTION(Function1);
   DAQUIRI_REGISTER_COEF_FUNCTION(Function2);
 
@@ -85,7 +96,6 @@ TEST_F(CoefFunctionFactory, create_type)
 TEST_F(CoefFunctionFactory, create_copy)
 {
   auto& cf = DAQuiri::CoefFunctionFactory::singleton();
-  cf.clear();
   DAQUIRI_REGISTER_COEF_FUNCTION(Function1);
 
   auto c1 = cf.create_type("Function1");
@@ -95,4 +105,22 @@ TEST_F(CoefFunctionFactory, create_copy)
   EXPECT_NE(c1.get(), c2.get());
 
   EXPECT_FALSE(cf.create_copy(nullptr));
+}
+
+TEST_F(CoefFunctionFactory, create_from_json)
+{
+  auto& cf = DAQuiri::CoefFunctionFactory::singleton();
+  DAQUIRI_REGISTER_COEF_FUNCTION(Function1);
+
+  auto c1 = cf.create_type("Function1");
+  c1->set_coeff(1, {1,2,3});
+  c1->set_coeff(5, {6,7,8});
+
+  nlohmann::json j = *c1;
+
+  auto c2 = cf.create_from_json(j);
+
+  EXPECT_EQ(c2->type(), "Function1");
+  EXPECT_NE(c1.get(), c2.get());
+  EXPECT_EQ(c1->coeffs(), c2->coeffs());
 }

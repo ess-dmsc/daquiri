@@ -32,7 +32,7 @@ class CoefFunction
   virtual double operator() (double x) const = 0;
   virtual double derivative(double x) const = 0;
 
-  virtual std::string to_string() const = 0;
+  virtual std::string debug() const = 0;
   virtual std::string to_UTF8(int precision, bool with_rsq) const = 0;
   virtual std::string to_markup(int precision, bool with_rsq) const = 0;
 

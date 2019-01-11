@@ -17,6 +17,7 @@ class CoefFunctionFactory
 
   CoefFunctionPtr create_type(std::string type) const;
   CoefFunctionPtr create_copy(CoefFunctionPtr other) const;
+  CoefFunctionPtr create_from_json(const nlohmann::json&) const;
 
   void register_type(std::function<CoefFunction*(void)> constructor);
   std::vector<std::string> types() const;

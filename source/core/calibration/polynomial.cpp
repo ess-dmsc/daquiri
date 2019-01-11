@@ -6,7 +6,7 @@
 namespace DAQuiri
 {
 
-std::string Polynomial::to_string() const
+std::string Polynomial::debug() const
 {
   std::string ret = type() + " = ";
   std::string vars;
@@ -17,13 +17,13 @@ std::string Polynomial::to_string() const
       ret += " + ";
     ret += "p" + std::to_string(c.first);
     if (c.first > 0)
-      ret += "*(x-xoffset)";
+      ret += "*(x - x_offset)";
     if (c.first > 1)
       ret += "^" + std::to_string(c.first);
     i++;
     vars += "     p" + std::to_string(c.first) + "=" + c.second.to_string() + "\n";
   }
-  vars += "     X_offset=" + xoffset_.to_string();
+  vars += "     x_offset=" + xoffset_.to_string();
 
   ret += "   rsq=" + std::to_string(chi2_) + "    where:\n" + vars;
 

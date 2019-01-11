@@ -56,12 +56,11 @@ class Calibration
   bool operator!=(const Calibration& other) const;
 
   double transform(double) const;
-  double inverse(double) const;
+  double inverse(double val, double e) const;
   void transform_by_ref(std::vector<double>&) const;
   std::vector<double> transform(const std::vector<double>& data) const;
 
   std::string debug() const;
-  std::string fancy_equation(bool with_chi2 = false) const;
 
   friend void to_json(nlohmann::json& j, const Calibration& s);
   friend void from_json(const nlohmann::json& j, Calibration& s);
