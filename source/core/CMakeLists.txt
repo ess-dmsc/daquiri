@@ -3,44 +3,44 @@ set(this_target ${PROJECT_NAME}_core)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-#  ${dir}/consumer.cpp
-#  ${dir}/consumer_factory.cpp
-#  ${dir}/consumer_metadata.cpp
-#  ${dir}/dataspace.cpp
-#  ${dir}/detector.cpp
-#  ${dir}/engine.cpp
-#  ${dir}/producer.cpp
-#  ${dir}/producer_factory.cpp
-#  ${dir}/project.cpp
-#  ${dir}/spill.cpp
+  ${dir}/consumer.cpp
+  ${dir}/consumer_factory.cpp
+  ${dir}/consumer_metadata.cpp
+  ${dir}/dataspace.cpp
+  ${dir}/detector.cpp
+  ${dir}/engine.cpp
+  ${dir}/producer.cpp
+  ${dir}/producer_factory.cpp
+  ${dir}/project.cpp
+  ${dir}/spill.cpp
   )
 
-#set(HEADERS
-#  ${dir}/consumer.h
-#  ${dir}/consumer_factory.h
-#  ${dir}/consumer_metadata.h
-#  ${dir}/dataspace.h
-#  ${dir}/detector.h
-#  ${dir}/engine.h
-#  ${dir}/producer.h
-#  ${dir}/producer_factory.h
-#  ${dir}/project.h
-#  ${dir}/spill.h
-#
-#  ${dir}/event.h
-#  ${dir}/event_model.h
-#  ${dir}/spill_dequeue.h
-#  ${dir}/thread_wrappers.h
-#  ${dir}/time_base.h
-#  ${dir}/time_stamp.h
-#  )
+set(HEADERS
+  ${dir}/consumer.h
+  ${dir}/consumer_factory.h
+  ${dir}/consumer_metadata.h
+  ${dir}/dataspace.h
+  ${dir}/detector.h
+  ${dir}/engine.h
+  ${dir}/producer.h
+  ${dir}/producer_factory.h
+  ${dir}/project.h
+  ${dir}/spill.h
+
+  ${dir}/event.h
+  ${dir}/event_model.h
+  ${dir}/spill_dequeue.h
+  ${dir}/thread_wrappers.h
+  ${dir}/time_base.h
+  ${dir}/time_stamp.h
+  )
 
 set(${this_target}_headers ${HEADERS})
 set(${this_target}_sources ${SOURCES})
 
 add_subdirectory(util)
 add_subdirectory(calibration)
-#add_subdirectory(plugin)
+add_subdirectory(plugin)
 
 add_library(
   ${this_target} STATIC
