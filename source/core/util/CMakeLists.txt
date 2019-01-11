@@ -15,14 +15,14 @@ set(HEADERS
 #  ${dir}/custom_logger.h
 #  ${dir}/h5json.h
 #  ${dir}/json_file.h
-#  ${dir}/lexical_extensions.h
+  ${dir}/lexical_extensions.h
 #  ${dir}/print_exception.h
 #  ${dir}/string_extensions.h
 #  ${dir}/sync_queue.h
 #  ${dir}/timer.h
   ${dir}/time_extensions.h
 #  ${dir}/unique_mangle.h
-#  ${dir}/UTF_extensions.h
+  ${dir}/UTF_extensions.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

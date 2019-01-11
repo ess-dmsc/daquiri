@@ -74,4 +74,26 @@ TEST_F(Calibration, Init)
 {
   DAQuiri::Calibration c;
   EXPECT_FALSE(c.valid());
+  EXPECT_FALSE(c.from().valid());
+  EXPECT_FALSE(c.to().valid());
+  EXPECT_FALSE(c.function());
 }
+
+TEST_F(Calibration, Created)
+{
+  hr_time_t c1{std::chrono::system_clock::now()};
+  DAQuiri::Calibration c;
+  hr_time_t c2{std::chrono::system_clock::now()};
+  auto ct = c.created();
+
+  EXPECT_LE(c1, ct);
+  EXPECT_LE(ct, c2);
+}
+
+TEST_F(Calibration, FromTo)
+{
+  DAQuiri::Calibration c({"v1"}, {"v2"});
+  EXPECT_EQ(c.from().value, "v1");
+  EXPECT_EQ(c.to().value, "v2");
+}
+

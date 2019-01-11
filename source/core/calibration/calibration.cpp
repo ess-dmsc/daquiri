@@ -174,10 +174,7 @@ std::vector<double> Calibration::transform(const std::vector<double>& data) cons
 std::string Calibration::fancy_equation(bool with_chi2) const
 {
   if (valid())
-    return function_->to_UTF8()
-        + (with_chi2
-           ? fmt::format("chi2={})", function_->chi2())
-           : "");
+    return function_->to_UTF8(3, with_chi2);
   return "N/A";
 }
 

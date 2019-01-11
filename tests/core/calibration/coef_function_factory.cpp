@@ -12,8 +12,8 @@ class FakeFunction : public DAQuiri::CoefFunction
   using DAQuiri::CoefFunction::CoefFunction;
 
   std::string to_string() const override { return ""; }
-  std::string to_UTF8() const override { return ""; }
-  std::string to_markup() const override { return ""; }
+  std::string to_UTF8(int precision, bool with_rsq) const override { return ""; }
+  std::string to_markup(int precision, bool with_rsq) const override { return ""; }
   double operator() (double x) const override { return 1 + x; }
   double derivative(double) const override { return 1; }
 };
