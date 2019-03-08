@@ -168,6 +168,10 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
       evt.set_time(time);
       ++ run_spill->events;
     }
+    else
+    {
+      WARN("Out of range Pixid={}", em->detector_id()->Get(i));
+    }
 //    DBG( "Time " << stats.time_start << " - " << stats.time_end;
   }
   run_spill->events.finalize();
