@@ -3,7 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:2.0.0'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:2.1.0'
         ]
 ]
 
