@@ -1,12 +1,14 @@
-#include "ListModeForm.h"
+#include <gui/daq/ListModeForm.h>
 #include "ui_ListModeForm.h"
-#include <core/util/custom_logger.h>
-#include <widgets/qt_util.h>
+
+#include <gui/widgets/qt_util.h>
+#include <core/util/lexical_extensions.h>
+#include <core/consumer_factory.h>
+
 #include <QSettings>
 #include <QMessageBox>
 
-#include <core/util/lexical_extensions.h>
-#include <core/consumer_factory.h>
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 
@@ -78,7 +80,7 @@ void ListModeForm::loadSettings()
   QSettings settings_;
 
   settings_.beginGroup("ListDaq");
-  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 60).toULongLong());
+  ui->timeDuration->set_total_seconds(settings_.value("run_secs", 10).toULongLong());
   settings_.endGroup();
 }
 

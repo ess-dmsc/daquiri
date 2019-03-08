@@ -1,14 +1,13 @@
-#include "ProfilesForm.h"
+#include <gui/ProfilesForm.h>
 #include "ui_ProfilesForm.h"
 
-#include "Profiles.h"
+#include <gui/Profiles.h>
+#include <gui/widgets/qt_util.h>
 #include <QMessageBox>
 #include <QBoxLayout>
-#include <widgets/qt_util.h>
+#include <QInputDialog>
 
 #include <core/util/custom_logger.h>
-
-#include <QInputDialog>
 
 using namespace DAQuiri;
 
@@ -121,7 +120,7 @@ void ProfilesForm::update_profiles()
   ui->tableProfiles2->setRowCount(profiles_.size() + 1);
   ui->tableProfiles2->setColumnCount(2);
 
-  auto thisprofile = Profiles::current_profile_name();
+  auto thisprofile = Profiles::singleton().current_profile_name();
   for (auto i=0; i < profiles_.size(); ++i)
   {
     QBrush background = (thisprofile == profiles_[i].id) ?
@@ -189,11 +188,19 @@ void ProfilesForm::on_pushSelectRoot_clicked()
   QString dirName =
       QFileDialog::getExistingDirectory(this, "Open Directory", Profiles::settings_dir(),
                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (!dirName.isEmpty())
+  if (dirName.isEmpty())
+    return;
+
+  if (!Profiles::is_valid_settings_dir(dirName))
   {
-    Profiles::select_settings_dir(dirName);
-    update_profiles();
+    QMessageBox msgBox;
+    msgBox.setText("Not a valid settings root. Must contain a valid 'profiles' subdirectory.");
+    msgBox.exec();
+    return;
   }
+
+  Profiles::select_settings_dir(dirName);
+  update_profiles();
 }
 
 void ProfilesForm::create_profile()

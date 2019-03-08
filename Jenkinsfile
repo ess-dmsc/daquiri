@@ -3,7 +3,7 @@ coverage_on = "ubuntu18"
 
 images = [
         'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:1.2.0'
+                'name'  : 'essdmscdm/ubuntu18.04-build-node:2.0.0'
         ]
 ]
 
@@ -14,8 +14,6 @@ def failure_function(exception_obj, failureMessage) {
     emailext body: '${DEFAULT_CONTENT}\n\"' + failureMessage + '\"\n\nCheck console output at $BUILD_URL to view the results.',
             recipientProviders: toEmails,
             subject: '${DEFAULT_SUBJECT}'
-    slackSend color: 'danger',
-            message: "${base_container_name}: " + failureMessage
     throw exception_obj
 }
 
@@ -50,7 +48,8 @@ def get_macos_pipeline() {
                     try {
                         sh "source ./activate_run.sh && \
                             tests/unit_tests && \
-                            tests/system_test"
+                            tests/system_test && \
+                            bin/gui_tests"
                     } catch (e) {
                         failure_function(e, 'MacOSX / tests failed')
                     }

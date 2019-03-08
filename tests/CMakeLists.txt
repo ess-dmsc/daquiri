@@ -46,8 +46,14 @@ add_subdirectory(gui)
 # ALL TESTS #
 #############
 
-add_custom_target(all_tests
-    DEPENDS unit_tests system_test gui_tests)
+add_custom_target(all_tests DEPENDS
+  unit_tests
+  system_test
+  gui_tests
+  )
 
-add_custom_target(run_tests
-    DEPENDS run_unit_tests run_system_test run_gui_tests)
+add_custom_target(run_tests DEPENDS
+  run_unit_tests
+  run_system_test
+  run_gui_tests
+  )

@@ -6,7 +6,7 @@
 #include <core/plugin/plugin.h>
 
 #include <nlohmann/json.hpp>
-using namespace nlohmann;
+using json = nlohmann::json;
 
 namespace DAQuiri {
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <core/engine.h>
+#include <core/project.h>
+
 #include <QThread>
 #include <QMutex>
 #include <QVector>
@@ -7,9 +10,6 @@
 #include <string>
 #include <cstdint>
 #include <atomic>
-
-#include <core/engine.h>
-#include <core/project.h>
 
 using namespace DAQuiri;
 

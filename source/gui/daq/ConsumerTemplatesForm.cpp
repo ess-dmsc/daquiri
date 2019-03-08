@@ -1,13 +1,14 @@
-#include "ConsumerTemplatesForm.h"
+#include <gui/daq/ConsumerTemplatesForm.h>
 #include "ui_ConsumerTemplatesForm.h"
-#include "ConsumerDialog.h"
+
+#include <gui/daq/ConsumerDialog.h>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
 #include <QCloseEvent>
 #include <core/project.h>
 #include <core/consumer_factory.h>
-#include <widgets/QFileExtensions.h>
+#include <gui/widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
 
@@ -216,7 +217,8 @@ void ConsumerTemplatesForm::on_pushImport_clicked()
 {
   //ask clear or append?
   QString fileName = QFileDialog::getOpenFileName(this, "Import consumer prototypes",
-                                                  data_dir_, "DAQuiri project (*.daq)");
+                                                  data_dir_, "DAQuiri project (*.daq)", nullptr,
+                                                  QFileDialog::DontUseNativeDialog);
   if (!validateFile(this, fileName, false))
     return;
 
@@ -327,7 +329,20 @@ void ConsumerTemplatesForm::on_pushSetDefault_clicked()
   {
     return;
   }
-  save_default();
+
+  ProjectPtr project = ProjectPtr(new Project());
+  for (auto cons : project_->get_consumers())
+    project->add_consumer(ConsumerFactory::singleton().create_from_prototype(cons->metadata().prototype()));
+
+  auto fname = profile_dir_ + "/default_consumers.daq";
+  try
+  {
+    project->save(fname.toStdString());
+  }
+  catch (...)
+  {
+    DBG("Could not save default prototypes to {}", fname.toStdString());
+  }
 }
 
 void ConsumerTemplatesForm::on_pushUseDefault_clicked()
@@ -354,32 +369,6 @@ void ConsumerTemplatesForm::on_pushUseDefault_clicked()
   selection_model_.reset();
   table_model_.update(project_);
   toggle_push();
-}
-
-void ConsumerTemplatesForm::save_default()
-{
-  int reply = QMessageBox::warning(this, "Save as default",
-                                   "Save as default prototype configuration?",
-                                   QMessageBox::Yes | QMessageBox::Cancel);
-  if (reply != QMessageBox::Yes)
-  {
-    return;
-  }
-
-  ProjectPtr project = ProjectPtr(new Project());
-  for (auto cons : project_->get_consumers())
-    project->add_consumer(ConsumerFactory::singleton().create_from_prototype(cons->metadata().prototype()));
-
-  auto fname = profile_dir_ + "/default_consumers.daq";
-  try
-  {
-    project->save(fname.toStdString());
-  }
-  catch (...)
-  {
-    DBG("Could not save default prototypes to {}", fname.toStdString());
-  }
-
 }
 
 void ConsumerTemplatesForm::on_pushClear_clicked()

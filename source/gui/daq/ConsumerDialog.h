@@ -49,6 +49,8 @@ class ConsumerDialog : public QDialog
   void on_comboType_activated(const QString& arg1);
 
   void ask_gradient(QString gname, QModelIndex index);
+  void ask_file(DAQuiri::Setting, QModelIndex index);
+  void ask_dir(DAQuiri::Setting, QModelIndex index);
 
  private:
   Ui::ConsumerDialog* ui;

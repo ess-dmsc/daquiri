@@ -3,6 +3,9 @@
 
 class ConsumerFactory : public TestBase
 {
+  virtual void TearDown() {
+    DAQuiri::ConsumerFactory::singleton().clear();
+  }
 };
 
 class FakeConsumer : public DAQuiri::Consumer

@@ -1,4 +1,4 @@
-#include <CLI11.hpp>
+#include <CLI/CLI.hpp>
 
 #include <core/engine.h>
 
@@ -20,7 +20,7 @@ void term_key(int /*sig*/) {
 }
 
 struct AcquireOptions {
-  CLI::App app;
+  CLI::App app{"acquire -- when having a GUI is just too much"};
 
   uint64_t duration{0};
   std::string profile_file;
@@ -30,8 +30,6 @@ struct AcquireOptions {
   std::string save_csv;
 
   AcquireOptions() {
-    app = CLI::App{"acquire -- when having a GUI is just too much"};
-
     app.add_option("-t,--time", duration, "How long shall we run?", true)
         ->check(CLI::Range(uint64_t(1), std::numeric_limits<uint64_t>::max()));
     app.add_option("-i,--input", profile_file, "DAQ producer config profile")
@@ -48,7 +46,7 @@ int main(int argc, char **argv) {
   AcquireOptions opts;
   CLI11_PARSE(opts.app, argc, argv);
 
-  CustomLogger::initLogger(Severity::Informational, nullptr, "acquire.log");
+  CustomLogger::initLogger(Log::Severity::Info, nullptr, "acquire.log");
   hdf5::error::Singleton::instance().auto_print(false);
   producers_autoreg();
   consumers_autoreg();

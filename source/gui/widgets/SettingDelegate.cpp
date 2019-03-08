@@ -4,8 +4,6 @@
 #include <QDoubleSpinBox>
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QDialogButtonBox>
@@ -89,9 +87,10 @@ QString SettingDelegate::get_string(const DAQuiri::Setting& val) const
   }
   else if (val.is(SettingType::command))
   {
-    QString txt = QS(val.metadata().get_string("name", ""));
+    QString txt = QS(val.metadata().get_string("command_name", ""));
     if (txt.isEmpty())
       txt = QS(val.id());
+    return txt;
   }
   else if (val.is(SettingType::duration))
   {
@@ -386,18 +385,13 @@ QWidget* SettingDelegate::createEditor(QWidget *parent,
     }
     else if (set.metadata().has_flag("file"))
     {
-      auto fd = new QFileDialog(parent, QString("Chose File"),
-                                QFileInfo(QS(set.get_text())).dir().absolutePath(),
-                                QS(set.metadata().get_string("wildcards","")));
-      fd->setFileMode(QFileDialog::ExistingFile);
-      return fd;
+      emit ask_file(set, index);
+      return nullptr;
     }
     else if (set.metadata().has_flag("directory"))
     {
-      auto fd = new QFileDialog(parent, QString("Chose Directory"),
-                                QFileInfo(QS(set.get_text())).dir().absolutePath());
-      fd->setFileMode(QFileDialog::Directory);
-      return fd;
+      emit ask_dir(set, index);
+      return nullptr;
     }
     else if (set.metadata().has_flag("detector"))
     {
@@ -519,10 +513,6 @@ void SettingDelegate::setModelData(QWidget *editor,
     model->setData(index, cp->color().name(QColor::HexArgb), Qt::EditRole);
   else if (QCheckBox *cb = qobject_cast<QCheckBox*>(editor))
     model->setData(index, QVariant::fromValue(cb->isChecked()), Qt::EditRole);
-  else if (QFileDialog *fd = qobject_cast<QFileDialog*>(editor)) {
-    if ((!fd->selectedFiles().isEmpty()) /*&& (validateFile(parent, fd->selectedFiles().front(), false))*/)
-      model->setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
-  }
   else
     QStyledItemDelegate::setModelData(editor, model, index);
 }

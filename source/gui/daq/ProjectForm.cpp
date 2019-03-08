@@ -1,45 +1,33 @@
-#include <core/consumer_factory.h>
-#include "ProjectForm.h"
+#include <gui/daq/ProjectForm.h>
 #include "ui_ProjectForm.h"
-#include "ConsumerTemplatesForm.h"
-#include <core/util/custom_logger.h>
+
+#include <gui/Profiles.h>
+#include <gui/widgets/QFileExtensions.h>
+#include <gui/daq/ConsumerTemplatesForm.h>
+
+#include <core/consumer_factory.h>
 #include <core/util/timer.h>
+
 #include <QSettings>
 #include <QMessageBox>
-
 #include <QCloseEvent>
 
-#include <widgets/QFileExtensions.h>
+#include <core/util/custom_logger.h>
 
 using namespace DAQuiri;
 
 ProjectForm::ProjectForm(ThreadRunner& thread,
                          ProjectPtr proj,
-                         QString profile_dir,
                          QString identity,
                          QWidget* parent)
-    : QWidget(parent),
-      ui(new Ui::ProjectForm),
-      runner_thread_(thread),
-      interruptor_(false),
-      project_(proj),
-      project_identity_(identity),
-      profile_dir_(profile_dir)
+    : QWidget(parent)
+      , ui(new Ui::ProjectForm)
+      , runner_thread_(thread)
+      , interruptor_(false)
+      , project_(proj)
+      , project_identity_(identity)
 {
   ui->setupUi(this);
-
-  if (!project_)
-    project_ = ProjectPtr(new Project());
-//  else
-//    DBG( "project already exists";
-
-  //connect with runner
-  connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
-
-  //1d
-  ui->projectView->setSpectra(project_);
-  connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
-//  ui->projectView->setDetDB(detectors_);
 
   menuLoad.addAction(QIcon(":/icons/oxy/16/document_open.png"), "Open daquiri project", this, SLOT(projectOpen()));
   ui->toolOpen->setMenu(&menuLoad);
@@ -51,25 +39,24 @@ ProjectForm::ProjectForm(ThreadRunner& thread,
                      this,
                      SLOT(projectSaveSplit()));
   ui->toolSave->setMenu(&menuSave);
-
-  this->setWindowTitle("New project");
-
   ui->timeDuration->set_us_enabled(false);
 
+  profile_dir_ = Profiles::singleton().current_profile_dir();
+
+  if (!project_)
+    project_ = ProjectPtr(new Project());
   plot_thread_.monitor_source(project_);
+  ui->projectView->setSpectra(project_);
+//  ui->projectView->setDetDB(detectors_);
+  connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
+  connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
 
   loadSettings();
 
-  ui->projectView->setSpectra(project_);
-  update_plots();
+  on_pushForceRefresh_clicked();
 }
 
-ProjectForm::~ProjectForm()
-{
-//  delete ui;
-}
-
-QString ProjectForm::profile() const
+QString ProjectForm::profile_dir() const
 {
   return profile_dir_;
 }
@@ -85,12 +72,9 @@ void ProjectForm::closeEvent(QCloseEvent* event)
     {
       close_me_ = true;
       on_pushStop_clicked();
-//      interruptor_.store(true);
-//      runner_thread_.terminate();
-//      runner_thread_.wait();
-//      emit toggleIO(true);
       return;
-    } else
+    }
+    else
     {
       event->ignore();
       return;
@@ -142,8 +126,8 @@ void ProjectForm::loadSettings()
 
   settings.beginGroup("Daq");
   ui->timeDuration->set_total_seconds(settings.value("run_secs", 60).toULongLong());
-  ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", false).toBool());
-  ui->doubleSpinMinPause->setValue(settings.value("min_pause", 1.0).toDouble());
+  ui->toggleIndefiniteRun->setChecked(settings.value("run_indefinite", true).toBool());
+  ui->doubleSpinMinPause->setValue(settings.value("min_pause", 0.2).toDouble());
   ui->timeDuration->setEnabled(!ui->toggleIndefiniteRun->isChecked());
 
   on_doubleSpinMinPause_editingFinished();
@@ -183,19 +167,34 @@ void ProjectForm::saveSettings()
 void ProjectForm::toggle_push(bool enable, ProducerStatus status, StreamManifest manifest)
 {
   stream_manifest_ = manifest;
-  bool online = (status & ProducerStatus::can_run);
-  bool has_data = project_->has_data();
-  bool empty = project_->empty();
 
-  ui->pushStart->setEnabled(enable && online && !my_run_ && !empty);
+  bool can_start = (status & ProducerStatus::can_run) && !my_run_;
+  bool can_restart = (status & ProducerStatus::running) && my_run_;
+  ui->pushStart->setEnabled(enable &&
+      !project_->empty() &&
+      (profile_dir_ == Profiles::singleton().current_profile_dir()) &&
+      (can_start || can_restart));
+  if (status & ProducerStatus::running)
+  {
+    ui->pushStart->setToolTip("Restart acquisition");
+    ui->pushStart->setIcon(QIcon(":/icons/oxy/32/edit-redo.png"));
+  }
+  else
+  {
+    ui->pushStart->setToolTip("Start acquisition");
+    ui->pushStart->setIcon(QIcon(":/icons/oxy/32/1rightarrow.png"));
+  }
 
-  ui->timeDuration->setEnabled(enable && online && !ui->toggleIndefiniteRun->isChecked());
-  ui->toggleIndefiniteRun->setEnabled(enable && online);
+  ui->timeDuration->setEnabled(enable &&
+      (status & ProducerStatus::can_run) &&
+      !ui->toggleIndefiniteRun->isChecked());
+  ui->toggleIndefiniteRun->setEnabled(enable &&
+      (status & ProducerStatus::can_run));
 
   ui->toolOpen->setEnabled(enable && !my_run_);
-  ui->toolSave->setEnabled(enable && has_data && !my_run_);
+  ui->toolSave->setEnabled(enable && project_->has_data() && !my_run_);
   ui->pushDetails->setVisible(false);
-//  ui->pushDetails->setEnabled(enable && has_data && !my_run_);
+//  ui->pushDetails->setEnabled(enable && project_->has_data() && !my_run_);
   ui->projectView->set_manifest(manifest);
 
   ui->pushEditSpectra->setEnabled(enable && !my_run_);
@@ -234,7 +233,6 @@ QString ProjectForm::get_label() const
   return name;
 }
 
-
 void ProjectForm::update_plots()
 {
   QString name = get_label();
@@ -254,7 +252,8 @@ void ProjectForm::projectOpen()
   QString formats = "daquiri project file (*.daq)";
 
   QString fileName = QFileDialog::getOpenFileName(this, "Load project",
-                                                  data_directory_, formats);
+                                                  data_directory_, formats, nullptr,
+                                                  QFileDialog::DontUseNativeDialog);
   if (!validateFile(this, fileName, false))
     return;
 
@@ -326,7 +325,8 @@ void ProjectForm::projectSave()
     }
 
     update_plots();
-  } else
+  }
+  else
     projectSaveAs();
 }
 
@@ -342,11 +342,13 @@ void ProjectForm::save()
         / (project_identity_.toStdString() + ".daq");
   }
 
-  try {
+  try
+  {
     INFO("Saving project to path {}", path.string());
     project_->save(path.string());
   }
-  catch (std::exception &e) {
+  catch (std::exception& e)
+  {
     auto message = "Could not save project:\n" + hdf5::error::print_nested(e, 0);
     ERR("{}", message);
     return;
@@ -355,7 +357,6 @@ void ProjectForm::save()
   project_identity_ = QS(path.string());
   update_plots();
 }
-
 
 void ProjectForm::projectSaveAs()
 {
@@ -416,8 +417,41 @@ void ProjectForm::on_pushEditSpectra_clicked()
   update_plots();
 }
 
+void ProjectForm::on_pushStop_clicked()
+{
+  ui->pushStop->setEnabled(false);
+  interruptor_.store(true);
+}
+
+void ProjectForm::run_completed()
+{
+  if (my_run_)
+  {
+    //INFO( "ProjectForm received signal for run completed";
+    ui->pushStop->setEnabled(false);
+    my_run_ = false;
+
+    update_plots();
+
+    if (restarting_)
+    {
+      restarting_ = false;
+      on_pushStart_clicked();
+    }
+    else
+        emit toggleIO(true);
+  }
+}
+
 void ProjectForm::on_pushStart_clicked()
 {
+  if (my_run_)
+  {
+    restarting_ = true;
+    on_pushStop_clicked();
+    return;
+  }
+
   QSettings settings;
   settings.beginGroup("DAQ_behavior");
   auto do_what = settings.value("on_restart", "ask").toString();
@@ -467,32 +501,6 @@ void ProjectForm::newProject()
 {
   ui->projectView->setSpectra(project_);
 }
-
-void ProjectForm::on_pushStop_clicked()
-{
-  ui->pushStop->setEnabled(false);
-  //INFO( " acquisition interrupted by user";
-  interruptor_.store(true);
-}
-
-void ProjectForm::run_completed()
-{
-  if (my_run_)
-  {
-    //INFO( "ProjectForm received signal for run completed";
-    ui->pushStop->setEnabled(false);
-    my_run_ = false;
-
-    update_plots();
-
-    emit toggleIO(true);
-  }
-}
-
-//void ProjectForm::replot()
-//{
-//  update_plots();
-//}
 
 void ProjectForm::on_pushForceRefresh_clicked()
 {

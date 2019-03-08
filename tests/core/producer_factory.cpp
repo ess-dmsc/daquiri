@@ -3,6 +3,9 @@
 
 class ProducerFactory : public TestBase
 {
+  virtual void TearDown() {
+    DAQuiri::ProducerFactory::singleton().clear();
+  }
 };
 
 class FakeProducer : public DAQuiri::Producer

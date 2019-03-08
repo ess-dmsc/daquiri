@@ -6,7 +6,7 @@
 #include <iomanip>
 
 #include <nlohmann/json.hpp>
-using namespace nlohmann;
+using json = nlohmann::json;
 
 //#define PF_DOUBLE 1
 #define PF_LONG_DOUBLE 1

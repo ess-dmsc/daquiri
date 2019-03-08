@@ -61,6 +61,10 @@ ConsumerDialog::ConsumerDialog(ConsumerPtr consumer,
 
   connect(&attr_delegate_, SIGNAL(ask_gradient(QString, QModelIndex)),
           this, SLOT(ask_gradient(QString, QModelIndex)));
+  connect(&attr_delegate_, SIGNAL(ask_file(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_file(DAQuiri::Setting, QModelIndex)));
+  connect(&attr_delegate_, SIGNAL(ask_dir(DAQuiri::Setting, QModelIndex)),
+          this, SLOT(ask_dir(DAQuiri::Setting, QModelIndex)));
 
 //  det_table_model_.setDB(spectrum_detectors_);
 
@@ -320,6 +324,27 @@ void ConsumerDialog::on_buttonBox_accepted()
       accept();
     }
   }
+}
+
+void ConsumerDialog::ask_file(Setting set, QModelIndex index)
+{
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose File"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath(),
+                            QS(set.metadata().get_string("wildcards","")));
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::ExistingFile);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    attr_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
+}
+
+void ConsumerDialog::ask_dir(Setting set, QModelIndex index)
+{
+  auto fd = new QFileDialog(qobject_cast<QWidget*>(parent()), QString("Chose Directory"),
+                            QFileInfo(QS(set.get_text())).dir().absolutePath());
+  fd->setOption(QFileDialog::DontUseNativeDialog, true);
+  fd->setFileMode(QFileDialog::Directory);
+  if (fd->exec() && !fd->selectedFiles().isEmpty()) // && (validateFile(parent, fd->selectedFiles().front(), false))
+    attr_model_.setData(index, QVariant::fromValue(fd->selectedFiles().front()), Qt::EditRole);
 }
 
 void ConsumerDialog::ask_gradient(QString gname, QModelIndex index)
