@@ -17,6 +17,7 @@ StatsScalar::StatsScalar()
   app.set_enum(0, "Label");
   app.set_enum(1, "Manometer");
   app.set_enum(2, "Thermometer");
+  app.set_enum(3, "Knight rider");
   base_options.branches.add(Setting(app));
 
   SettingMeta stat("what_stats", SettingType::text, "Stat of choice");

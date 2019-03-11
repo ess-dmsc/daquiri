@@ -5,6 +5,7 @@
 
 #include <widgets/AnalogWidgets/manometer.h>
 #include <widgets/AnalogWidgets/thermometer.h>
+#include <widgets/KnightRiderWidget.h>
 
 #include <core/util/custom_logger.h>
 
@@ -12,11 +13,13 @@ using namespace DAQuiri;
 
 ConsumerScalar::ConsumerScalar(QWidget* parent)
     : AbstractConsumerWidget(parent)
-    , thermometer_(new ThermoMeter())
-    , manometer_(new ManoMeter())
-    , label_(new QLabel())
+      , thermometer_(new ThermoMeter())
+      , manometer_(new ManoMeter())
+      , rider_(new KnightRiderWidget())
+      , label_(new QLabel())
 {
   QVBoxLayout* fl = new QVBoxLayout();
+  fl->addWidget(rider_);
   fl->addWidget(thermometer_);
   fl->addWidget(manometer_);
   fl->addWidget(label_);
@@ -31,11 +34,22 @@ ConsumerScalar::ConsumerScalar(QWidget* parent)
   manometer_->setSuffix(QString());
   manometer_->setPrefix(QString());
 
+  rider_->setMinimumWidth(40);
+  rider_->setMinimumHeight(12);
+  rider_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                        QSizePolicy::MinimumExpanding);
+  rider_->setSuffix(QString());
+  //rider_->setPrefix(QString());
+
   label_->setSizePolicy(QSizePolicy::MinimumExpanding,
                         QSizePolicy::MinimumExpanding);
   label_->setAlignment(Qt::AlignCenter);
 
   setLayout(fl);
+//  layout()->setContentsMargins(0, 0, 0, 0);
+//  layout()->setSpacing(0);
+//  layout()->setMargin(0);
+//  setContentsMargins(0, 0, 0, 0);
 }
 
 void ConsumerScalar::update()
@@ -52,6 +66,7 @@ void ConsumerScalar::update()
   {
     manometer_->setVisible(true);
     thermometer_->setVisible(false);
+    rider_->setVisible(false);
     label_->setVisible(false);
 
     if (md.get_attribute("enforce_upper_limit").get_bool())
@@ -61,22 +76,34 @@ void ConsumerScalar::update()
   {
     manometer_->setVisible(false);
     thermometer_->setVisible(true);
+    rider_->setVisible(false);
     label_->setVisible(false);
 
     if (md.get_attribute("enforce_upper_limit").get_bool())
       thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
   }
+  else if (app == 3)
+  {
+    manometer_->setVisible(false);
+    thermometer_->setVisible(false);
+    rider_->setVisible(true);
+    label_->setVisible(false);
+//    label_->setVisible(true);
+
+//    if (md.get_attribute("enforce_upper_limit").get_bool())
+//      thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
+  }
   else
   {
     manometer_->setVisible(false);
     thermometer_->setVisible(false);
+    rider_->setVisible(false);
     label_->setVisible(true);
-
 
     QFont font = label_->font();
     QRect cRect = label_->contentsRect();
 
-    if(!label_->text().isEmpty())
+    if (!label_->text().isEmpty())
     {
 
       int fontSize = 1;
@@ -108,6 +135,7 @@ void ConsumerScalar::update()
     axis = data->axis(0);
     thermometer_->setSuffix(QS(axis.label()));
     manometer_->setSuffix(QS(axis.label()));
+    rider_->setSuffix(QS(axis.label()));
 
     EntryList range = data->range({});
     auto current = data->get({});
@@ -125,6 +153,10 @@ void ConsumerScalar::update()
       manometer_->setMinimum(min);
       manometer_->setMaximum(max);
       manometer_->setValue(val);
+
+      rider_->setMinimum(min);
+      rider_->setMaximum(max);
+      rider_->setValue(val);
 
       label_->setText(QString::number(val));
     }

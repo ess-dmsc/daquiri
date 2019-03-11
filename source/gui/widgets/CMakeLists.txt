@@ -3,6 +3,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/BinaryWidget.cpp
   ${dir}/PatternWidget.cpp
+  ${dir}/KnightRiderWidget.cpp
   ${dir}/QColorExtensions.cpp
   ${dir}/QFileExtensions.cpp
   ${dir}/qt_util.cpp
@@ -25,6 +26,7 @@ set(UI
 set(HEADERS
   ${dir}/BinaryWidget.h
   ${dir}/PatternWidget.h
+  ${dir}/KnightRiderWidget.h
   ${dir}/QColorExtensions.h
   ${dir}/QFileExtensions.h
   ${dir}/qt_util.h
