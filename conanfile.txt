@@ -10,7 +10,7 @@ jsonformoderncpp/3.1.0@vthiery/stable
 librdkafka/0.11.5@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
 qplot/2bbce67@ess-dmsc/testing
-Qt-Color-Widgets/fbeaae4@ess-dmsc/stable
+Qt-Color-Widgets/a95f72e@ess-dmsc/testing
 streaming-data-types/6cd05e4@ess-dmsc/stable
 cmake_installer/3.10.0@conan/stable
 
