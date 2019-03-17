@@ -143,22 +143,31 @@ void ConsumerScalar::update()
     if (!data->empty() && range && (range->size() == 2))
     {
       double min = range->begin()->second * rescale;
-      double val = current;
+      double val = current * rescale;
       double max = range->rbegin()->second * rescale;
 
-      thermometer_->setMinimum(min);
-      thermometer_->setMaximum(max);
-      thermometer_->setValue(val);
-
-      manometer_->setMinimum(min);
-      manometer_->setMaximum(max);
-      manometer_->setValue(val);
-
-      rider_->setMinimum(min);
-      rider_->setMaximum(max);
-      rider_->setValue(val);
-
-      label_->setText(QString::number(val));
+      if (app == 1)
+      {
+        manometer_->setMinimum(min);
+        manometer_->setMaximum(max);
+        manometer_->setValue(val);
+      }
+      else if (app == 2)
+      {
+        thermometer_->setMinimum(min);
+        thermometer_->setMaximum(max);
+        thermometer_->setValue(val);
+      }
+      else if (app == 3)
+      {
+        rider_->setMinimum(min);
+        rider_->setMaximum(max);
+        rider_->setValue(val);
+      }
+      else
+      {
+        label_->setText(QString::number(val));
+      }
     }
   }
 
