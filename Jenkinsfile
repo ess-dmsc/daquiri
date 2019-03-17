@@ -17,10 +17,12 @@ images = [
     'centos7': [
         'name': 'essdmscdm/centos7-build-node:4.2.0',
         'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
+        'cmake': 'cmake3',
         'cmake_flags': '-DCOV=ON'
     ],
     'ubuntu1804': [
         'name': 'essdmscdm/ubuntu18.04-build-node:2.1.0',
+        'cmake': 'cmake',
         'sh': 'bash -e',
         'cmake_flags': ''
     ]
@@ -120,11 +122,12 @@ def docker_dependencies(image_key) {
 
 def docker_cmake(image_key, xtra_flags) {
     def custom_sh = images[image_key]['sh']
+    def cmake_exec = images[image_key]['cmake']
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         cd ${project}
         cd build
-        cmake --version
-        cmake ${xtra_flags} ..
+        ${cmake_exec} --version
+        ${cmake_exec} ${xtra_flags} ..
     \""""
 }
 
