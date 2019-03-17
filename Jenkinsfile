@@ -1,5 +1,5 @@
 project = "daquiri"
-coverage_on = "ubuntu18"
+coverage_on = "ubuntu1804"
 
 // Set number of old builds to keep.
 properties([[
@@ -200,6 +200,9 @@ def get_pipeline(image_key)
 
                     if (image_key == coverage_on) {
                       docker_tests_coverage(image_key)
+                    }
+                    else {
+                      docker_tests(image_key)
                     }
 
                 } finally {
