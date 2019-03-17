@@ -1,5 +1,5 @@
 project = "daquiri"
-coverage_on = "ubuntu1804"
+coverage_on = "centos"
 
 // Set number of old builds to keep.
 properties([[
@@ -14,13 +14,13 @@ properties([[
 ]]);
 
 images = [
-    'centos7': [
+    'centos': [
         'name': 'essdmscdm/centos7-build-node:4.2.0',
         'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
         'cmake': 'cmake3',
         'cmake_flags': '-DCOV=ON'
     ],
-    'ubuntu1804': [
+    'ubuntu': [
         'name': 'essdmscdm/ubuntu18.04-build-node:2.1.0',
         'cmake': 'cmake',
         'sh': 'bash -e',
