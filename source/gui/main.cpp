@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 //  QApplication::setApplicationVersion("1.0");
 
   QCommandLineParser parser;
-  parser.setApplicationDescription("DAQ-UI-ri: have a drink while you physics ;)");
+  parser.setApplicationDescription("daquiri: snapping at the heels of the martini");
   parser.addHelpOption();
 //  parser.addVersionOption();
 
