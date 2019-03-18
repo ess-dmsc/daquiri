@@ -3,7 +3,7 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 
 [![DOI](https://zenodo.org/badge/94489375.svg)](https://zenodo.org/badge/latestdoi/94489375)
 
-![screenshot](screenshot.png)
+![screenshot](docs/screenshot.png)
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Supported platforms:
 
 You are very likely using this within the ESS data acquisition framework. In this case you will want to automatically install and update DAQuiri using [ESS DAQ](https://github.com/ess-dmsc/essdaq)
 
-The gory details of manually configuring all the dependencies can be found [here](manual_building.md)
+The gory details of manually configuring all the dependencies can be found [here](docs/manual_building.md)
 
 ## Running
 
