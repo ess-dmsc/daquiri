@@ -38,7 +38,13 @@ int main(int argc, char *argv[])
   QString profile = parser.value(profileOption);
 
   if (!profile.isEmpty())
-    Profiles::singleton().select_profile(profile, true);
+  {
+    QSettings settings;
+    settings.beginGroup("Program");
+    settings.setValue("current_profile", profile);
+    settings.setValue("auto_boot", true);
+    // \todo this might be overkill?
+  }
 
   if (!parser.isSet("h"))
   {
