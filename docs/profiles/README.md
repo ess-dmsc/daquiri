@@ -1,10 +1,10 @@
-#Configuring profiles
+# Configuring profiles
 The profile defines how data is to be acquired and displayed. You can have several 
 profiles on the same computer for hardware or network contexts you might find yourself in.
 The first screen you should see when opening daquiri should be the DAQ config tab. It is here that
 you can begin configuring your profiles.
 
-##Managing profiles
+## Managing profiles
 Click "Change profile" to open the profile manager:
 
 ![screenshot](change_profiles.png)
