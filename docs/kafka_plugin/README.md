@@ -31,16 +31,16 @@ For each topic you must select a flat buffer schema for parsing. There is curren
 auto-detection of schema or multiplexing support implemented, so if you have different
 types of data incoming, you must stream them on separate topics.
 
-Here is where you select an identifier for the internal daquiri stream. These ids will
-reappear when configuring histograms to bin specific values. Depending on the chosen schema,
-a single Kafka topic may translate into multiple daquiri streams.
-
 ## The ev42 schema
 ![screenshot](stream_geometry.png)
 
+Here is where you must provide an identifier string for the internal daquiri stream. These ids will
+reappear when configuring histograms to bin specific values. Depending on the chosen schema,
+a single Kafka topic may translate into multiple daquiri streams.
+
 If your schema requires a logical geometry configuration, it must match that used by the EFU
 when producing the data. This tells the plugin how to translate pixel ids into coordinate
-values. 
+values. The EFU's logical geometry configuration is most likely in the detector-specific json file.
 <br><br>
 
 When working with prototype detectors, timing information may not be fully available. If your
@@ -50,13 +50,14 @@ to keep a local "high clock" to ensure that timestamps are monotonically increas
 ![screenshot](time_interpretation.png)
 
 If you are getting valid timing data and expect to have meaningful TOF (or other time-based)
-histograms, you should also configure the time-base of your clock. You may not be able to construct
+histograms, you should also configure the time-base of your clock. You will not be able to construct
 meaningful TOF histograms if pulse information is not provided by the EFU.
 <br><br>
 
 ## Other schema
 Here is an example of a schema that results in multiple daquiri data streams. Since these 
-fields constitute independent sets of information, we separate them out for before binning.
+fields constitute independent sets of information, we separate them out for before binning. Make sure the
+stream identifiers are unique.
 
 ![screenshot](more_streams.png)
 <br><br>
