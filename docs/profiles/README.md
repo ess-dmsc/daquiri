@@ -21,7 +21,7 @@ default location is assumed to be /home/essdaq/daquiri
 3. This is your currently active profile.
 4. Double-click on this to create a new profile.
 
-When you double-click a profile, you get to chose what to do. More on what booting means 
+When you double-click a profile, you get to chose what to do. More on what booting means in a moment.
 
 ![screenshot](profile_actions.png)
 <br><br>
