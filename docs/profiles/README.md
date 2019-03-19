@@ -1,67 +1,50 @@
 #Configuring profiles
 The profile defines how data is to be acquired and displayed. You can have several 
-profiles on the same computer for different devices or data streams. The first screen you 
-should see when opening daquiri should be the DAQ config tab. It is here that you can
-configure your
+profiles on the same computer for hardware or network contexts you might find yourself in.
+The first screen you should see when opening daquiri should be the DAQ config tab. It is here that
+you can begin configuring your profiles.
 
-##Managing profiles.
+##Managing profiles
 Click "Change profile" to open the profile manager:
 
 ![screenshot](change_profiles.png)
 <br><br>
 
 
-You may want to choose a home folder for where you keep all your profiles stored:
+Which should bring you to this:
 
-![screenshot](choose_folder.png)
+![screenshot](profile_manager.png)
+
+1. You may want to choose a home folder for where you keep all your profiles stored. The
+default location is assumed to be /home/essdaq/daquiri
+2. You can use daquiri with a "null" profile, for viewing saved histograms.
+3. This is your currently active profile.
+4. Double-click on this to create a new profile.
+
+When you double-click a profile, you get to chose what to do. More on what booting means 
+
+![screenshot](profile_actions.png)
 <br><br>
 
 
-Here you see your currently selected profile:
-
-![screenshot](chosen_profile.png)
-<br><br>
-
-If you double-click it, you get to chose what you want to do:
-
-![screenshot](profile_action.png)
-<br><br>
-
-You can also use daquiri with a "null" profile, for viewing saved histograms:
-
-![screenshot](null_profile.png)
-<br><br>
-
-
-Double-click on this to create a new profile:
-
-![screenshot](create_profile.png)
-<br><br>
 
 ## Using a profile
 
-To acquire data, you will need to "boot" into the profile. Depending on your acquisition 
-device, this might entail connecting with hardware or a streaming service:
+![screenshot](unbooted.png)
 
-![screenshot](boot.png)
+1. To acquire data, you will need to "boot" into the profile. Depending on your acquisition 
+device, this might entail connecting with hardware or a streaming service. You cannot edit a
+profile while "booted", so if you wish to change your hardware or stream configuration, you
+must "Reset".
+2. These two buttons will allow you to either add or remove a daquiri producer plugin.
+ You most likely want to configure an [ESSStream plugin](../kafka_plugin/README.md) for Kafka.
+3. Here you can adjust how the daquiri engine behaves in case of saturation. If binning
+histograms takes too long, there may be a backlog of spills in the queue. Here you can adjust the
+policy for dropping data to reduce lag.
 <br><br>
 
-You cannot edit a profile while "booted", so if you wish to change your hardware or stream
-configuration, you must "Reset":
-
-![screenshot](reset.png)
-<br><br>
-
-These two buttons will allow you to either add or remove a daquiri producer plugin:
-
-![screenshot](add_remove_plugin.png)
-
-<br><br>
-
-Upon newly configuring a data source, or for trouble-shooting, you may want to examine
-the interpreted data using list mode:
+Upon newly configuring your profile, or for trouble-shooting, you may also want to examine
+the interpreted data using [list mode](../list/README.md) which you can access here:
 
 ![screenshot](access_list_mode.png)
 <br><br>
-
-Once you have all of this working, you should configure your histograms.
