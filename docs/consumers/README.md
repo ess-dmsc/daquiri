@@ -1,4 +1,4 @@
-#Project view
+# Project view
 A DAQ project consists of a set of consumers, which are most commonly histograms. You can have
 multiple projects open at the same time. Open a new project right here: 
 
