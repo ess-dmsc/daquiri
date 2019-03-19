@@ -1,13 +1,13 @@
-#ESS Stream plugin
+# ESS Stream plugin
 
-##Background
+## Background
 This plugin receives data from a Kafka broker and provides values for histogramming. 
 In the Kafka context, this entails establishing consumers. However, from the perspective of 
 daquiri, the plugin constitutes a producer. Once the plugin has interpreted a buffer 
 according to the appropriate flatbuffer schema, the event data is delivered to the histogramming 
 service via internal "streams".
 
-##Kafka broker configuration
+## Kafka broker configuration
 Once you have added an "ESSStream" plugin to your profile configuration, you should set your
 Kafka broker: 
 
@@ -22,7 +22,7 @@ desirable if you want to see the most up-to-date images, but you will have no gu
 they are representative. If you wish to faithfully histogram the data, this option should
 be off.
 
-##Kafka topic configuration
+## Kafka topic configuration
 
 ![screenshot](topic.png)
 <br><br>
@@ -35,7 +35,7 @@ Here is where you select an identifier for the internal daquiri stream. These id
 reappear when configuring histograms to bin specific values. Depending on the chosen schema,
 a single Kafka topic may translate into multiple daquiri streams.
 
-##EV42 schema
+## The ev42 schema
 ![screenshot](stream_geometry.png)
 
 If your schema requires a logical geometry configuration, it must match that used by the EFU
@@ -54,7 +54,7 @@ histograms, you should also configure the time-base of your clock. You may not b
 meaningful TOF histograms if pulse information is not provided by the EFU.
 <br><br>
 
-##Other schema
+## Other schema
 Here is an example of a schema that results in multiple daquiri data streams. Since these 
 fields constitute independent sets of information, we separate them out for before binning.
 
