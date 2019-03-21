@@ -86,15 +86,23 @@ function(create_coverage_targets target_base_name run_target bin_dir source_dir 
     elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
       add_custom_target(${target_base_name}_xml
         COMMAND ${COVERAGE_GCOVR_PATH}
-        "-r" "${source_dir}"
-        "-x" "${bin_dir}"
-        "-o" "${output_path}/coverage.xml" "${bin_dir}"
+        "${bin_dir}"
+        #          "--verbose"
+        "--xml"
+        "--exclude-unreachable-branches"
+        "--print-summary"
+        "--root=${source_dir}"
+        "--output=${output_path}/coverage.xml"
         DEPENDS ${run_target})
       add_custom_target(${target_base_name}_html
         COMMAND ${COVERAGE_GCOVR_PATH}
-        "-r" "${source_dir}"
-        "--html" "--html-details"
-        "-o" "${output_path}/index.html" "${bin_dir}"
+        "${bin_dir}"
+        #          "--verbose"
+        "--html"
+        "--html-details"
+        "--exclude-unreachable-branches"
+        "--root=${source_dir}"
+        "--output=${output_path}/index.html"
         DEPENDS ${run_target})
       add_custom_target(${target_base_name}
         DEPENDS ${target_base_name}_xml ${target_base_name}_html)

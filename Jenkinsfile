@@ -1,10 +1,31 @@
 project = "daquiri"
-coverage_on = "ubuntu18"
+coverage_on = "centos"
+
+// Set number of old builds to keep.
+properties([[
+  $class: 'BuildDiscarderProperty',
+  strategy: [
+    $class: 'LogRotator',
+    artifactDaysToKeepStr: '',
+    artifactNumToKeepStr: '10',
+    daysToKeepStr: '',
+    numToKeepStr: ''
+  ]
+]]);
 
 images = [
-        'ubuntu18' : [
-                'name'  : 'essdmscdm/ubuntu18.04-build-node:2.0.0'
-        ]
+    'centos': [
+        'name': 'essdmscdm/centos7-build-node:4.2.0',
+        'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
+        'cmake': 'cmake3',
+        'cmake_flags': '-DCOV=ON'
+    ],
+    'ubuntu': [
+        'name': 'essdmscdm/ubuntu18.04-build-node:2.1.0',
+        'cmake': 'cmake',
+        'sh': 'bash -e',
+        'cmake_flags': ''
+    ]
 ]
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
@@ -64,62 +85,59 @@ def Object container_name(image_key) {
     return "${base_container_name}-${image_key}"
 }
 
-def create_container(image_key) {
+def Object get_container(image_key) {
     def image = docker.image(images[image_key]['name'])
     def container = image.run("\
-            --name ${container_name(image_key)} \
+        --name ${container_name(image_key)} \
         --tty \
-        --network=host \
         --env http_proxy=${env.http_proxy} \
         --env https_proxy=${env.https_proxy} \
         --env local_conan_server=${env.local_conan_server} \
-          ")
+        ")
+    return container
 }
 
 def docker_copy_code(image_key) {
+    def custom_sh = images[image_key]['sh']
+    dir("${project}_code") {
+        checkout scm
+    }
     sh "docker cp ${project}_code ${container_name(image_key)}:/home/jenkins/${project}"
-    sh """docker exec --user root ${container_name(image_key)} sh -c \"
+    sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
                         chown -R jenkins.jenkins /home/jenkins/${project}
                         \""""
 }
 
-def docker_clone(image_key) {
-    def clone_script = """
-        git clone \
-            --branch ${env.BRANCH_NAME} \
-            https://github.com/ess-dmsc/${project}.git /home/jenkins/${project}
-        cd ${project}
-        """
-    sh "docker exec ${container_name(image_key)} bash -e -c \"${clone_script}\""
-}
-
 def docker_dependencies(image_key) {
     def conan_remote = "ess-dmsc-local"
-    def dependencies_script = """
+    def custom_sh = images[image_key]['sh']
+    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         mkdir ${project}/build
         cd ${project}/build
-        conan remote add \\
-            --insert 0 \\
+        conan remote add \
+            --insert 0 \
             ${conan_remote} ${local_conan_server}
-                    """
-    sh "docker exec ${container_name(image_key)} bash -e -c \"${dependencies_script}\""
+    \""""
 }
 
 def docker_cmake(image_key, xtra_flags) {
-    def configure_script = """
-        cd ${project}/build
-        cmake ${xtra_flags} ..
-        """
-
-    sh "docker exec ${container_name(image_key)} bash -e -c \"${configure_script}\""
+    def custom_sh = images[image_key]['sh']
+    def cmake_exec = images[image_key]['cmake']
+    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+        cd ${project}
+        cd build
+        ${cmake_exec} --version
+        ${cmake_exec} ${xtra_flags} ..
+    \""""
 }
 
 def docker_build(image_key) {
-    def build_script = """
+    def custom_sh = images[image_key]['sh']
+    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
         cd ${project}/build
+        make --version
         make everything -j4
-        """
-    sh "docker exec ${container_name(image_key)} bash -e -c \"${build_script}\""
+    \""""
 }
 
 def docker_tests(image_key) {
@@ -167,42 +185,38 @@ def docker_tests_coverage(image_key) {
 }
 
 
-def get_pipeline(image_key) {
+def get_pipeline(image_key)
+{
     return {
-        stage("${image_key}") {
+        node('docker') {
+            stage("${image_key}") {
                 try {
-                    create_container(image_key)
+                    def container = get_container(image_key)
 
                     docker_copy_code(image_key)
-                    //docker_clone(image_key)
-
                     docker_dependencies(image_key)
-
-                    if (image_key == coverage_on) {
-                        docker_cmake(image_key, "-DCOV=1")
-                    } else {
-                        docker_cmake(image_key, "")
-                    }
-
+                    docker_cmake(image_key, images[image_key]['cmake_flags'])
                     docker_build(image_key)
 
                     if (image_key == coverage_on) {
-                        docker_tests_coverage(image_key)
-                    } else {
-                        docker_tests(image_key)
+                      docker_tests_coverage(image_key)
+                    }
+                    else {
+                      docker_tests(image_key)
                     }
 
                 } finally {
                     sh "docker stop ${container_name(image_key)}"
                     sh "docker rm -f ${container_name(image_key)}"
+                    cleanWs()
                 }
+            }
         }
     }
 }
 
-node('docker') {
-    cleanWs()
 
+node('docker') {
     dir("${project}_code") {
         stage('Checkout') {
             try {
@@ -224,6 +238,7 @@ node('docker') {
     }
 
     def builders = [:]
+
     for (x in images.keySet()) {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
@@ -231,11 +246,14 @@ node('docker') {
     builders['macOS'] = get_macos_pipeline()
 
     try {
-        parallel builders
+        timeout(time: 2, unit: 'HOURS') {
+            parallel builders
+        }
     } catch (e) {
         failure_function(e, 'Job failed')
+        throw e
+    } finally {
+        // Delete workspace when build is done
+        cleanWs()
     }
-
-    // Delete workspace if build was successful
-    cleanWs()
 }

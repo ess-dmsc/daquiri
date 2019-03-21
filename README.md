@@ -10,6 +10,7 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 Supported platforms:
 - Ubuntu 18.04
 - macOS High Sierra
+- Centos 7
 
 ## Installing
 
