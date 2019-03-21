@@ -4,6 +4,7 @@
 #include <producers/ESSStream/mo01_parser.h>
 #include <producers/ESSStream/f142_parser.h>
 #include <producers/ESSStream/senv_data_parser.h>
+#include <producers/ESSStream/senv_data_wrong.h>
 
 #include <core/util/custom_logger.h>
 
@@ -14,6 +15,7 @@ ESSStream::ESSStream()
   parser_names_["mo01_nmx"] = 2;
   parser_names_["ChopperTDC"] = 3;
   parser_names_["SenvParser"] = 4;
+  parser_names_["SenvParserWrong"] = 5;
 
   std::string r {plugin_name()};
 
@@ -193,6 +195,8 @@ void ESSStream::select_parser(size_t i, std::string t)
     streams_[i].parser = std::make_shared<ChopperTDC>();
   else if (t == "SenvParser")
     streams_[i].parser = std::make_shared<SenvParser>();
+  else if (t == "SenvParserWrong")
+    streams_[i].parser = std::make_shared<SenvParserWrong>();
 }
 
 void ESSStream::boot()
