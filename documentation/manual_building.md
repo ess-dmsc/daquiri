@@ -25,7 +25,7 @@ conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
 conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 ```
 If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
-If said file does not exists, you are likely yet to run `conan` for the frist time. Do the following to generate the above-mentioned file:
+If said file does not exists, you are likely yet to run `conan` for the first time. Do the following to generate the above-mentioned file:
 ```
 conan profile new --detect default
 ```
