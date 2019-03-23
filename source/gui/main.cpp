@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 //  QApplication::setApplicationVersion("1.0");
 
   QCommandLineParser parser;
-  parser.setApplicationDescription("DAQ-UI-ri: have a drink while you physics ;)");
+  parser.setApplicationDescription("daquiri: snapping at the heels of the martini");
   parser.addHelpOption();
 //  parser.addVersionOption();
 
@@ -38,7 +38,13 @@ int main(int argc, char *argv[])
   QString profile = parser.value(profileOption);
 
   if (!profile.isEmpty())
-    Profiles::singleton().select_profile(profile, true);
+  {
+    QSettings settings;
+    settings.beginGroup("Program");
+    settings.setValue("current_profile", profile);
+    settings.setValue("auto_boot", true);
+    // \todo this might be overkill?
+  }
 
   if (!parser.isSet("h"))
   {

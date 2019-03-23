@@ -12,7 +12,7 @@ class QTimeExtensions : public QObject {
 Q_OBJECT
 private slots:
   void initTestCase() {
-    CustomLogger::initLogger(Severity::Debug, nullptr, "gui_tests.log");
+    CustomLogger::initLogger(Log::Severity::Debug, nullptr, "gui_tests.log");
     qDebug("called before everything else");
   }
 

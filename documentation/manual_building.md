@@ -7,12 +7,13 @@ In case you want to do everything manually, here are some of the gory details.
 Supported platforms:
 - Ubuntu 18.04
 - macOS High Sierra
+- Centos 7
 
 You definitely need these:
 - git
 - recent C++ compiler
 - CMake 3.0
-- Qt5 (on Ubuntu systems, the `qt5-default` package)
+- Qt5
 - conan 1.0 (via pip)
 
 ## Conan setup
@@ -24,12 +25,19 @@ conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
 conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 ```
 If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
-If said file does not exists, you are likely yet to run `conan` for the frist time. Do the following to generate the above-mentioned file:
+If said file does not exists, you are likely yet to run `conan` for the first time. Do the following to generate the above-mentioned file:
 ```
 conan profile new --detect default
 ```
 
-## Custom location of Qt
+## Installation of Qt
+
+There is currently no fully portable conan package of Qt so it should be installed in
+a platform-specific way. For each platform it's the following:
+
+- Ubuntu: `qt5-default` package from apt
+- Centos: `qt5-qtbase-devel` package from yum
+- macOS: whatever default qt package from brew
 
 It is easiest if you have Qt installed via brew or apt.
 
