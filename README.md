@@ -3,14 +3,14 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 
 [![DOI](https://zenodo.org/badge/94489375.svg)](https://zenodo.org/badge/latestdoi/94489375)
 
-![screenshot](docs/screenshot.png)
+![screenshot](documentation/screenshot.png)
 
 
 ## Documentation
 
-[Installation](docs/installation.md)
+[Installation](documentation/installation.md)
 
-[User's guide](docs/README.md)
+[User's guide](documentation/README.md)
 
 ## The future
 

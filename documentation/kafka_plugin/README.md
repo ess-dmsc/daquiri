@@ -41,6 +41,8 @@ a single Kafka topic may translate into multiple daquiri streams.
 If your schema requires a logical geometry configuration, it must match that used by the EFU
 when producing the data. This tells the plugin how to translate pixel ids into coordinate
 values. The EFU's logical geometry configuration is most likely in the detector-specific json file.
+
+<!-- TODO: add link to public document on logical geometry -->
 <br><br>
 
 When working with prototype detectors, timing information may not be fully available. If your
@@ -52,9 +54,12 @@ to keep a local "high clock" to ensure that timestamps are monotonically increas
 If you are getting valid timing data and expect to have meaningful TOF (or other time-based)
 histograms, you should also configure the time-base of your clock. You will not be able to construct
 meaningful TOF histograms if pulse information is not provided by the EFU.
+
+<!-- TODO: add time base examples -->
+
 <br><br>
 
-## Other schema
+## Other schema (mo01_nmx)
 Here is an example of a schema that results in multiple daquiri data streams. Since these 
 fields constitute independent sets of information, we separate them out for before binning. Make sure the
 stream identifiers are unique.

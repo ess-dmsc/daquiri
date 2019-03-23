@@ -4,6 +4,8 @@ multiple projects open at the same time. Open a new project right here:
 
 ![screenshot](open_new.png)
 
+<!-- TODO: overview of main tool bar for project view -->
+
 On the right you have controls for refreshing the visualization. If the GUI is unresponsive, you
 may have too many graphics updates taking place.
 
