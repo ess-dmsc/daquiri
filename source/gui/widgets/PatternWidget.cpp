@@ -3,7 +3,7 @@
 #include <limits>
 
 #include <widgets/PatternWidget.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 
 void PatternWidget::set_pattern(DAQuiri::Pattern pattern, double size, size_t wrap)

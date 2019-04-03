@@ -46,7 +46,7 @@ daquiri::daquiri(QWidget *parent,
   qRegisterMetaType<hr_duration_t>("hr_duration_t");
   qRegisterMetaType<hr_time_t >("hr_time_t");
 
-  CustomLogger::initLogger(Log::Severity::Info, &log_stream_, "daquiri.log");
+  CustomLogger::initLogger(spdlog::level::info, "daquiri.log", &log_stream_);
   ui->setupUi(this);
   connect(&my_emitter_, SIGNAL(writeLine(QString)), this, SLOT(add_log_text(QString)));
 

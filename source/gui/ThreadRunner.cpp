@@ -1,7 +1,7 @@
 #include <gui/ThreadRunner.h>
 #include <gui/Profiles.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 ThreadRunner::ThreadRunner(QObject *parent)
   : QThread(parent)

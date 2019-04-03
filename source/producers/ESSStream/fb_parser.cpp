@@ -1,5 +1,5 @@
 #include <producers/ESSStream/fb_parser.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 fb_parser::fb_parser()
     : Producer()

@@ -7,6 +7,8 @@
 
 int main(int argc, char *argv[])
 {
+  CustomLogger::initLogger(spdlog::level::info, "daquiri.log");
+
   QApplication app(argc, argv);
   QApplication::setOrganizationName("ESS");
   QApplication::setApplicationName("daquiri");

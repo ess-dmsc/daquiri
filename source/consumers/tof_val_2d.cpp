@@ -1,7 +1,7 @@
 #include <consumers/tof_val_2d.h>
 #include <consumers/dataspaces/sparse_map2d.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 namespace DAQuiri {
 

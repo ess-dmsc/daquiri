@@ -1,7 +1,7 @@
 #include <producers/ESSStream/mo01_parser.h>
 
 #include <core/util/timer.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 mo01_nmx::mo01_nmx()
   : fb_parser()

@@ -4,7 +4,7 @@
 //#include <consumers/dataspaces/sparse_matrix3d.h>
 //#include <consumers/dataspaces/dense_matrix3d.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 namespace DAQuiri {
 
