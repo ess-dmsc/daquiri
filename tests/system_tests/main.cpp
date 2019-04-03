@@ -68,7 +68,7 @@ ProjectPtr get_project()
 int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
-  CustomLogger::initLogger(Log::Severity::Debug, nullptr, "systemtest.log");
+  CustomLogger::initLogger(spdlog::level::trace, "systemtest.log");
 
   producers_autoreg();
   consumers_autoreg();

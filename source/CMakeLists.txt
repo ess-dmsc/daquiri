@@ -5,7 +5,6 @@ find_package(date REQUIRED)
 find_package(fmt REQUIRED)
 find_package(h5cpp 0.1.0 REQUIRED)
 find_package(Threads REQUIRED)
-find_package(GraylogLogger REQUIRED)
 add_definitions("-DGRAYLOG")
 
 add_subdirectory(core)
