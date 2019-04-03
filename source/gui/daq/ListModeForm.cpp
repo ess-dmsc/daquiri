@@ -8,7 +8,7 @@
 #include <QSettings>
 #include <QMessageBox>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 using namespace DAQuiri;
 

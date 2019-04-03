@@ -9,7 +9,7 @@
 #include <vector>
 #include <bitset>
 #include <core/plugin/pattern.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 Q_DECLARE_METATYPE(DAQuiri::Pattern)
 

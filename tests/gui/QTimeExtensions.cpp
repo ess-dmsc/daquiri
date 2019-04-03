@@ -1,7 +1,7 @@
 #include <QTest>
 #include <gui/widgets/QTimeExtensions.h>
 #include <core/util/time_extensions.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 #include <date/date.h>
 
 #include <QDebug>

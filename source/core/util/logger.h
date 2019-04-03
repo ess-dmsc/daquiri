@@ -14,10 +14,6 @@
 namespace CustomLogger
 {
 
-using SharedLogger = std::shared_ptr<spdlog::logger>;
-
-SharedLogger getLogger();
-
 void initLogger(const spdlog::level::level_enum& LoggingLevel,
                 const std::string& log_file_name,
                 std::ostream* gui_stream = nullptr);

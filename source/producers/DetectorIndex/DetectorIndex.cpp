@@ -1,6 +1,6 @@
 #include <producers/DetectorIndex/DetectorIndex.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 DetectorIndex::DetectorIndex()
 {

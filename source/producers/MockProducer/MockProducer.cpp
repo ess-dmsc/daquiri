@@ -1,7 +1,7 @@
 #include <producers/MockProducer/MockProducer.h>
 #include <core/util/timer.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 MockProducer::MockProducer()
 {

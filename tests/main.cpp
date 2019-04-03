@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <h5cpp/hdf5.hpp>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 int main(int argc, char **argv)
 {

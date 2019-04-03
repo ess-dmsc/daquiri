@@ -4,7 +4,7 @@
 #include <producers/ESSStream/mo01_parser.h>
 #include <producers/ESSStream/f142_parser.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 ESSStream::ESSStream()
 {

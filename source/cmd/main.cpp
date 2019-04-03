@@ -2,7 +2,7 @@
 
 #include <core/engine.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 #include <consumers/consumers_autoreg.h>
 #include <producers/producers_autoreg.h>
