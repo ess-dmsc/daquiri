@@ -3,8 +3,8 @@
 
 #include <widgets/qt_util.h>
 
-#include <widgets/AnalogWidgets/manometer.h>
-#include <widgets/AnalogWidgets/thermometer.h>
+#include <QPlot/KnightRiderWidget.h>
+#include <QPlot/GradientSelector.h>
 
 #include <core/util/custom_logger.h>
 
@@ -12,30 +12,27 @@ using namespace DAQuiri;
 
 ConsumerScalar::ConsumerScalar(QWidget* parent)
     : AbstractConsumerWidget(parent)
-    , thermometer_(new ThermoMeter())
-    , manometer_(new ManoMeter())
-    , label_(new QLabel())
+      , rider_(new QPlot::KnightRiderWidget())
 {
   QVBoxLayout* fl = new QVBoxLayout();
-  fl->addWidget(thermometer_);
-  fl->addWidget(manometer_);
-  fl->addWidget(label_);
+  fl->addWidget(rider_);
 
-  thermometer_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                              QSizePolicy::MinimumExpanding);
-  thermometer_->setSuffix(QString());
-  thermometer_->setPrefix(QString());
-
-  manometer_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                            QSizePolicy::MinimumExpanding);
-  manometer_->setSuffix(QString());
-  manometer_->setPrefix(QString());
-
-  label_->setSizePolicy(QSizePolicy::MinimumExpanding,
+  rider_->setMinimumWidth(40);
+  rider_->setMinimumHeight(12);
+  rider_->setSizePolicy(QSizePolicy::MinimumExpanding,
                         QSizePolicy::MinimumExpanding);
-  label_->setAlignment(Qt::AlignCenter);
+  rider_->setSuffix(QString());
+  //rider_->setPrefix(QString());
+
+  gradients_.addStandardGradients();
+  gradients_.set("RedOnly", {"#ff0000", "#ff0000"});
+  gradients_.set("GYR", {"#00ff00", "#ffff00", "#ff0000"});
 
   setLayout(fl);
+//  layout()->setContentsMargins(0, 0, 0, 0);
+//  layout()->setSpacing(0);
+//  layout()->setMargin(0);
+//  setContentsMargins(0, 0, 0, 0);
 }
 
 void ConsumerScalar::update()
@@ -47,55 +44,14 @@ void ConsumerScalar::update()
   ConsumerMetadata md = consumer_->metadata();
   DataspacePtr data = consumer_->data();
 
-  auto app = md.get_attribute("appearance").get_int();
-  if (app == 1)
-  {
-    manometer_->setVisible(true);
-    thermometer_->setVisible(false);
-    label_->setVisible(false);
+  auto app = md.get_attribute("appearance").get_text();
 
-    if (md.get_attribute("enforce_upper_limit").get_bool())
-      manometer_->setCritical(md.get_attribute("upper_limit").get_number());
-  }
-  else if (app == 2)
-  {
-    manometer_->setVisible(false);
-    thermometer_->setVisible(true);
-    label_->setVisible(false);
+  rider_->gradient_ = gradients_.get("GYR");
+  rider_->gradient_ = gradients_.get(QS(app));
 
-    if (md.get_attribute("enforce_upper_limit").get_bool())
-      thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
-  }
-  else
-  {
-    manometer_->setVisible(false);
-    thermometer_->setVisible(false);
-    label_->setVisible(true);
-
-
-    QFont font = label_->font();
-    QRect cRect = label_->contentsRect();
-
-    if(!label_->text().isEmpty())
-    {
-
-      int fontSize = 1;
-
-      while (true)
-      {
-        QFont f(font);
-        f.setPixelSize(fontSize);
-        QRect r = QFontMetrics(f).boundingRect(label_->text());
-        if (r.height() <= cRect.height() && r.width() <= cRect.width())
-          fontSize++;
-        else
-          break;
-      }
-
-      font.setPixelSize(fontSize);
-      label_->setFont(font);
-    }
-  }
+  rider_->setVisible(true);
+//    if (md.get_attribute("enforce_upper_limit").get_bool())
+//      thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
 
   double rescale = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)
@@ -106,8 +62,7 @@ void ConsumerScalar::update()
   if (data)
   {
     axis = data->axis(0);
-    thermometer_->setSuffix(QS(axis.label()));
-    manometer_->setSuffix(QS(axis.label()));
+    rider_->setSuffix(QS(axis.label()));
 
     EntryList range = data->range({});
     auto current = data->get({});
@@ -115,18 +70,11 @@ void ConsumerScalar::update()
     if (!data->empty() && range && (range->size() == 2))
     {
       double min = range->begin()->second * rescale;
-      double val = current;
+      double val = current * rescale;
       double max = range->rbegin()->second * rescale;
 
-      thermometer_->setMinimum(min);
-      thermometer_->setMaximum(max);
-      thermometer_->setValue(val);
-
-      manometer_->setMinimum(min);
-      manometer_->setMaximum(max);
-      manometer_->setValue(val);
-
-      label_->setText(QString::number(val));
+      rider_->setRange(min, max);
+      rider_->setValue(val);
     }
   }
 
@@ -136,5 +84,5 @@ void ConsumerScalar::update()
 
 void ConsumerScalar::refresh()
 {
-//  plot_->replot(QCustomPlot::rpQueuedRefresh);
+  rider_->repaint();
 }

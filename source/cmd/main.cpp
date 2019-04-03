@@ -20,7 +20,7 @@ void term_key(int /*sig*/) {
 }
 
 struct AcquireOptions {
-  CLI::App app{"acquire -- when having a GUI is just too much"};
+  CLI::App app{"acquire: when you can't afford a daquiri"};
 
   uint64_t duration{0};
   std::string profile_file;
