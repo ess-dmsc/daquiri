@@ -2,7 +2,7 @@
 #include "senv_data_generated.h"
 
 #include <core/util/timer.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 SenvParserWrong::SenvParserWrong()
     : fb_parser()
