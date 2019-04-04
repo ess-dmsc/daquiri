@@ -93,5 +93,7 @@
         <file>noun_583391_cc_b.png</file>
         <file>blank.png</file>
         <file>blank16.png</file>
+        <file>fonts/Ruben.ttf</file>
+        <file>fonts/SF_Fedora_Titles.ttf</file>
     </qresource>
 </RCC>

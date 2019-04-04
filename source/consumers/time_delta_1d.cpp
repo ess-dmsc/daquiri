@@ -1,7 +1,7 @@
 #include <consumers/time_delta_1d.h>
 #include <consumers/dataspaces/dense1d.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 namespace DAQuiri {
 

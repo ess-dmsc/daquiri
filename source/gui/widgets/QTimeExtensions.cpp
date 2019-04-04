@@ -2,7 +2,7 @@
 #include <date/date.h>
 
 #include <core/util/time_extensions.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 // \todo time zones
 

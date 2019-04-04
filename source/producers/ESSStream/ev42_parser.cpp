@@ -2,7 +2,7 @@
 #include "ev42_events_generated.h"
 
 #include <core/util/timer.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 ev42_events::ev42_events()
 {

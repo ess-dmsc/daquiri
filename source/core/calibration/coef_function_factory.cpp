@@ -1,6 +1,6 @@
 #include <core/calibration/coef_function_factory.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 namespace DAQuiri
 {

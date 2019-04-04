@@ -1,5 +1,5 @@
 #include <core/engine.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 #include <core/util/timer.h>
 #include <core/producer_factory.h>
 

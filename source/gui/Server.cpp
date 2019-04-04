@@ -1,5 +1,5 @@
 #include "Server.h"
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 CommandServer::CommandServer(QObject* parent) : QTcpServer(parent)
 {

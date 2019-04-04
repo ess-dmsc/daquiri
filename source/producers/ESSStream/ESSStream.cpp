@@ -6,7 +6,7 @@
 #include <producers/ESSStream/senv_data_parser.h>
 #include <producers/ESSStream/senv_data_wrong.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 ESSStream::ESSStream()
 {

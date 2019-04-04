@@ -10,12 +10,6 @@ set(SOURCES
   ${dir}/SelectorWidget.cpp
   ${dir}/SettingDelegate.cpp
   ${dir}/TimeDurationWidget.cpp
-
-  ${dir}/AnalogWidgets/abstractmeter.cpp
-  ${dir}/AnalogWidgets/functions.cpp
-  ${dir}/AnalogWidgets/manometer.cpp
-  ${dir}/AnalogWidgets/thermometer.cpp
-  ${dir}/AnalogWidgets/widgetwithbackground.cpp
   )
 
 set(UI
@@ -33,12 +27,6 @@ set(HEADERS
   ${dir}/SettingDelegate.h
   ${dir}/TabCloseButton.h
   ${dir}/TimeDurationWidget.h
-
-  ${dir}/AnalogWidgets/abstractmeter.h
-  ${dir}/AnalogWidgets/functions.h
-  ${dir}/AnalogWidgets/manometer.h
-  ${dir}/AnalogWidgets/thermometer.h
-  ${dir}/AnalogWidgets/widgetwithbackground.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

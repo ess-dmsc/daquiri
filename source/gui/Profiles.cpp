@@ -4,7 +4,7 @@
 #include <QDir>
 #include <core/util/json_file.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 #define DEFAULT_SETTINGS_PATH "essdaq/daquiri"
 #define PROFILES_SUBDIR "/profiles"

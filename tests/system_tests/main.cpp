@@ -1,6 +1,6 @@
 #include <core/engine.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 #include <core/util/lexical_extensions.h>
 
 #include <consumers/consumers_autoreg.h>
@@ -68,7 +68,7 @@ ProjectPtr get_project()
 int main(int argc, char** argv)
 {
   hdf5::error::Singleton::instance().auto_print(false);
-  CustomLogger::initLogger(Log::Severity::Debug, nullptr, "systemtest.log");
+  CustomLogger::initLogger(spdlog::level::trace, "systemtest.log");
 
   producers_autoreg();
   consumers_autoreg();

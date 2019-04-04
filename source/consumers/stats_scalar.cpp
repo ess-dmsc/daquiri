@@ -1,7 +1,7 @@
 #include <consumers/stats_scalar.h>
 #include <consumers/dataspaces/scalar.h>
 
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 
 namespace DAQuiri {
 
@@ -13,11 +13,9 @@ StatsScalar::StatsScalar()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Scalar stats value");
 
-  SettingMeta app("appearance", SettingType::menu, "Appearance");
-  app.set_enum(0, "Label");
-  app.set_enum(1, "Manometer");
-  app.set_enum(2, "Thermometer");
-  base_options.branches.add(Setting(app));
+  SettingMeta app("appearance", SettingType::text, "Appearance");
+  app.set_flag("gradient-name");
+  base_options.branches.add(app);
 
   SettingMeta stat("what_stats", SettingType::text, "Stat of choice");
   stat.set_flag("stat_value");

@@ -1,22 +1,26 @@
 #include <QTest>
 #include <gui/widgets/QTimeExtensions.h>
 #include <core/util/time_extensions.h>
-#include <core/util/custom_logger.h>
+#include <core/util/logger.h>
 #include <date/date.h>
 
 #include <QDebug>
 
 // \todo time zones
 
-class QTimeExtensions : public QObject {
-Q_OBJECT
-private slots:
-  void initTestCase() {
-    CustomLogger::initLogger(Log::Severity::Debug, nullptr, "gui_tests.log");
+class QTimeExtensions : public QObject
+{
+ Q_OBJECT
+ private slots:
+
+  void initTestCase()
+  {
+    CustomLogger::initLogger(spdlog::level::trace, "gui_tests.log");
     qDebug("called before everything else");
   }
 
-  void from_time_point() {
+  void from_time_point()
+  {
     hr_time_t t =
         date::sys_days(date::year{2011} / 12 / 13)
             + std::chrono::hours{14} + std::chrono::minutes{15} +
@@ -32,8 +36,9 @@ private slots:
     QVERIFY(converted.time().msec() == 777);
   }
 
-  void to_time_point() {
-    QDateTime qdt(QDate(2011,12,13), QTime(14,15,16,777));
+  void to_time_point()
+  {
+    QDateTime qdt(QDate(2011, 12, 13), QTime(14, 15, 16, 777));
 
     auto converted = toTimePoint(qdt);
 
@@ -43,15 +48,15 @@ private slots:
     auto tod = make_time(converted - daypoint); // Yields time_of_day type
 
     auto tod2 = std::chrono::duration_cast<std::chrono::milliseconds>(converted
-        - date::floor<std::chrono::seconds>(converted)); // Yields time_of_day type
+                                                                          - date::floor<std::chrono::seconds>(converted)); // Yields time_of_day type
 
 // Obtain individual components as integers
-    auto y   = int(ymd.year());
-    auto m   = unsigned(ymd.month());
-    auto d   = unsigned(ymd.day());
-    auto h   = tod.hours().count();
+    auto y = int(ymd.year());
+    auto m = unsigned(ymd.month());
+    auto d = unsigned(ymd.day());
+    auto h = tod.hours().count();
     auto min = tod.minutes().count();
-    auto s   = tod.seconds().count();
+    auto s = tod.seconds().count();
 
     QVERIFY(y == 2011);
     QVERIFY(m == 12);
@@ -62,18 +67,20 @@ private slots:
     QVERIFY(tod2.count() == 777);
   }
 
-  void from_to_tp() {
+  void from_to_tp()
+  {
     hr_time_t in = date::floor<std::chrono::milliseconds>(std::chrono::system_clock::now());
     QVERIFY(toTimePoint(fromTimePoint(in)) == in);
   }
 
-  void to_from_tp() {
+  void to_from_tp()
+  {
     QDateTime in = QDateTime::currentDateTimeUtc();
     QVERIFY(fromTimePoint(toTimePoint(in)) == in);
   }
 
-
 };
 
 QTEST_MAIN(QTimeExtensions)
+
 #include "QTimeExtensions.moc"

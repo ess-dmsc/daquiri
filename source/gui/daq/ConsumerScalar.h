@@ -1,24 +1,26 @@
 #pragma once
 
 #include "AbstractConsumerWidget.h"
-#include <QProgressBar>
-#include <QLabel>
+#include <QPlot/GradientSelector.h>
 
-class ThermoMeter;
-class ManoMeter;
+
+namespace QPlot
+{
+class KnightRiderWidget;
+}
 
 class ConsumerScalar : public AbstractConsumerWidget
 {
-  Q_OBJECT
+ Q_OBJECT
 
-  public:
-    ConsumerScalar(QWidget* parent = 0);
+ public:
+  ConsumerScalar(QWidget* parent = 0);
 
-    void update() override;
-    void refresh() override;
+  void update() override;
+  void refresh() override;
 
-  private:
-    ThermoMeter* thermometer_ {nullptr};
-    ManoMeter* manometer_ {nullptr};
-    QLabel* label_ {nullptr};
+ private:
+  QPlot::KnightRiderWidget* rider_{nullptr};
+  QPlot::Gradients gradients_;
+
 };
