@@ -60,4 +60,5 @@ class ESSStream : public Producer
 
     static bool good(Kafka::MessagePtr message);
 
+    static std::string get_fb_id(Kafka::MessagePtr message);
 };

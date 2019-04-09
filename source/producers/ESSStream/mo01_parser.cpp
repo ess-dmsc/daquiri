@@ -8,6 +8,14 @@ mo01_nmx::mo01_nmx()
 {
   std::string r{plugin_name()};
 
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
+  fsname.set_flag("preset");
+  add_definition(fsname);
+
+  SettingMeta sname(r + "/SourceName", SettingType::text, "Source name");
+  sname.set_flag("preset");
+  add_definition(sname);
+
   SettingMeta hstreamid(r + "/HistsStream", SettingType::text, "DAQuiri stream ID for prebinned histograms");
   hstreamid.set_flag("preset");
   add_definition(hstreamid);
@@ -31,6 +39,8 @@ mo01_nmx::mo01_nmx()
   root.set_enum(i++, r + "/XStream");
   root.set_enum(i++, r + "/YStream");
   root.set_enum(i++, r + "/HitsStream");
+  root.set_enum(i++, r + "/FilterSourceName");
+  root.set_enum(i++, r + "/SourceName");
   add_definition(root);
 
   hists_model_.add_trace("strips_x", {UINT16_MAX+1});
@@ -59,6 +69,8 @@ Setting mo01_nmx::settings() const
   set.set(Setting::text(r + "/XStream", x_stream_id_));
   set.set(Setting::text(r + "/YStream", y_stream_id_));
   set.set(Setting::text(r + "/HitsStream", hit_stream_id_));
+  set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
+  set.set(Setting::text(r + "/SourceName", source_name_));
 
   set.branches.add_a(TimeBasePlugin(hists_model_.timebase).settings());
 
@@ -75,6 +87,8 @@ void mo01_nmx::settings(const Setting& settings)
   x_stream_id_ = set.find({r + "/XStream"}).get_text();
   y_stream_id_ = set.find({r + "/YStream"}).get_text();
   hit_stream_id_ = set.find({r + "/HitsStream"}).get_text();
+  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
+  source_name_ = set.find({r + "/SourceName"}).get_text();
 
   TimeBasePlugin tbs;
   tbs.settings(set.find({tbs.plugin_name()}));
@@ -133,12 +147,36 @@ uint64_t mo01_nmx::stop(SpillQueue spill_queue)
   return 0;
 }
 
+std::string mo01_nmx::schema_id() const
+{
+  return std::string(MonitorMessageIdentifier());
+}
+
+std::string mo01_nmx::get_source_name(void* msg) const
+{
+  auto em = GetMonitorMessage(msg);
+  auto NamePtr = em->source_name();
+  if (NamePtr == nullptr)
+  {
+    ERR("<mo01_nmx> message has no source_name");
+    return "";
+  }
+  return NamePtr->str();
+}
+
 uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 0;
 
   auto em = GetMonitorMessage(msg);
+
+  std::string source_name = em->source_name()->str();
+  if (filter_source_name_ && (source_name_ != source_name))
+  {
+    stats.time_spent += timer.s();
+    return 0;
+  }
 
   spoofed_time_++;
 

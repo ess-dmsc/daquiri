@@ -1,7 +1,15 @@
 #pragma once
 
 #include <core/plugin/plugin.h>
+
+#pragma GCC diagnostic push
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+#endif
 #include <librdkafka/rdkafkacpp.h>
+#pragma GCC diagnostic pop
 
 namespace Kafka
 {
