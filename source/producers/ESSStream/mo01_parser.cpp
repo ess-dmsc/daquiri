@@ -171,12 +171,12 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
 
   auto em = GetMonitorMessage(msg);
 
-//  std::string source_name = em->source_name()->str();
-//  if (filter_source_name_ && (source_name_ != source_name))
-//  {
-//    stats.time_spent += timer.s();
-//    return 0;
-//  }
+  std::string source_name = em->source_name()->str();
+  if (filter_source_name_ && (source_name_ != source_name))
+  {
+    stats.time_spent += timer.s();
+    return 0;
+  }
 
   spoofed_time_++;
 

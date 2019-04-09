@@ -32,7 +32,8 @@ class ChopperTDC : public fb_parser
 
   std::string stream_id_{"ChopperTDC"};
 
-  std::map<std::string, int> PVNameMap;
+  bool filter_source_name_{false};
+  std::string source_name_;
 
   EventModel event_model_;
 

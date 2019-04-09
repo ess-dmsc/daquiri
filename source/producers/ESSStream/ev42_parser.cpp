@@ -139,7 +139,6 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   auto em = GetEventMessage(msg);
 
   std::string source_name = em->source_name()->str();
-
   if (filter_source_name_ && (source_name_ != source_name))
   {
     stats.time_spent += timer.s();
