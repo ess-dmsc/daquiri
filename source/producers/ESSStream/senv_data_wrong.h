@@ -18,6 +18,9 @@ class SenvParserWrong : public fb_parser
   std::string plugin_name() const override
   { return "SenvParserWrong"; }
 
+  std::string schema_id() const override;
+  std::string get_source_name(void* msg) const override;
+
   void settings(const Setting&) override;
   Setting settings() const override;
 

@@ -18,6 +18,9 @@ class SenvParser : public fb_parser
   std::string plugin_name() const override
   { return "SenvParser"; }
 
+  std::string schema_id() const override;
+  std::string get_source_name(void* msg) const override;
+
   void settings(const Setting&) override;
   Setting settings() const override;
 
@@ -30,6 +33,9 @@ class SenvParser : public fb_parser
   // cached params
 
   std::string stream_id_base_{"Senv"};
+
+  bool filter_source_name_{false};
+  std::string source_name_;
 
   EventModel event_model_;
 

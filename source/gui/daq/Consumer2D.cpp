@@ -111,7 +111,7 @@ void Consumer2D::update()
         box.x1 += x_domain[box_x - 1];
         box.x1 /= 2;
       }
-      if ((box_x + 1) < x_domain.size())
+      if ((box_x + 1u) < x_domain.size())
       {
         box.x2 += x_domain[box_x + 1];
         box.x2 /= 2;
@@ -123,7 +123,7 @@ void Consumer2D::update()
         box.y1 += y_domain[box_y - 1];
         box.y1 /= 2;
       }
-      if ((box_y + 1) < y_domain.size())
+      if ((box_y + 1u) < y_domain.size())
       {
         box.y2 += y_domain[box_y + 1];
         box.y2 /= 2;

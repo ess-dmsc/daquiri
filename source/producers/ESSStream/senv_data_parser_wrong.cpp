@@ -109,6 +109,23 @@ uint64_t SenvParserWrong::start(SpillQueue spill_queue)
   return 4;
 }
 
+std::string SenvParserWrong::schema_id() const
+{
+  return std::string(SampleEnvironmentDataIdentifier());
+}
+
+std::string SenvParserWrong::get_source_name(void* msg) const
+{
+  auto em = GetSampleEnvironmentData(msg);
+  auto NamePtr = em->Name();
+  if (NamePtr == nullptr)
+  {
+    ERR("<mo01_nmx> message has no source_name");
+    return "";
+  }
+  return NamePtr->str();
+}
+
 uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
 {
   Timer timer(true);
@@ -118,18 +135,18 @@ uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
   auto Data = GetSampleEnvironmentData(msg);
 //  INFO("\n{}", debug(Data));
 
-  stats.time_start = stats.time_end = Data->PacketTimestamp();
   auto name = Data->Name()->str();
-  auto channel = Data->Channel();
-  auto delta = Data->TimeDelta();
-  auto messagectr = Data->MessageCounter();
-  // \todo delta
-
   if (filter_source_name_ && (source_name_ != name))
   {
     stats.time_spent += timer.s();
     return 0;
   }
+
+  stats.time_start = stats.time_end = Data->PacketTimestamp();
+  auto channel = Data->Channel();
+  auto delta = Data->TimeDelta();
+  auto messagectr = Data->MessageCounter();
+  // \todo delta
 
   if (!started_)
   {

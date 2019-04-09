@@ -9,6 +9,14 @@ SenvParser::SenvParser()
 {
   std::string r{plugin_name()};
 
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
+  fsname.set_flag("preset");
+  add_definition(fsname);
+
+  SettingMeta sname(r + "/SourceName", SettingType::text, "Source name");
+  sname.set_flag("preset");
+  add_definition(sname);
+
   SettingMeta sid0(r + "/StreamBase", SettingType::text,
                    "DAQuiri stream ID base (chan num appended)");
   sid0.set_flag("preset");
@@ -18,6 +26,8 @@ SenvParser::SenvParser()
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
   root.set_enum(i++, r + "/StreamBase");
+  root.set_enum(i++, r + "/FilterSourceName");
+  root.set_enum(i++, r + "/SourceName");
   add_definition(root);
 
   event_model_.add_value("channel", 3);
@@ -49,6 +59,8 @@ Setting SenvParser::settings() const
   auto set = get_rich_setting(r);
 
   set.set(Setting::text(r + "/StreamBase", stream_id_base_));
+  set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
+  set.set(Setting::text(r + "/SourceName", source_name_));
 
   set.branches.add_a(TimeBasePlugin(event_model_.timebase).settings());
 
@@ -61,6 +73,8 @@ void SenvParser::settings(const Setting& settings)
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
   stream_id_base_ = set.find({r + "/StreamBase"}).get_text();
+  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
+  source_name_ = set.find({r + "/SourceName"}).get_text();
 
   TimeBasePlugin tbs;
   tbs.settings(set.find({tbs.plugin_name()}));
@@ -97,6 +111,23 @@ uint64_t SenvParser::start(SpillQueue spill_queue)
   return 4;
 }
 
+std::string SenvParser::schema_id() const
+{
+  return std::string(SampleEnvironmentDataIdentifier());
+}
+
+std::string SenvParser::get_source_name(void* msg) const
+{
+  auto em = GetSampleEnvironmentData(msg);
+  auto NamePtr = em->Name();
+  if (NamePtr == nullptr)
+  {
+    ERR("<mo01_nmx> message has no source_name");
+    return "";
+  }
+  return NamePtr->str();
+}
+
 uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
 {
   Timer timer(true);
@@ -106,8 +137,15 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
   auto Data = GetSampleEnvironmentData(msg);
 //  INFO("\n{}", debug(Data));
 
+  std::string source_name = Data->Name()->str();
+  if (filter_source_name_ && (source_name_ != source_name))
+  {
+    stats.time_spent += timer.s();
+    return 0;
+  }
+
+
   stats.time_start = stats.time_end = Data->PacketTimestamp();
-  auto name = Data->Name()->str();
   auto channel = Data->Channel();
   auto delta = Data->TimeDelta();
   auto messagectr = Data->MessageCounter();
@@ -123,7 +161,7 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
   auto run_spill = std::make_shared<Spill>(sid, Spill::Type::running);
   run_spill->state.branches.add(Setting::precise("native_time", Data->PacketTimestamp()));
   run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
-  run_spill->state.branches.add(Setting::text("senv_name", name));
+  run_spill->state.branches.add(Setting::text("senv_name", source_name));
   run_spill->state.branches.add(Setting::integer("senv_chan", channel));
   run_spill->state.branches.add(Setting::floating("senv_delta", delta));
   run_spill->state.branches.add(Setting::integer("senv_counter", messagectr));

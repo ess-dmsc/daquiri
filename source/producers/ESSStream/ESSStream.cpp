@@ -277,8 +277,8 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
     {
 //      auto ch = reinterpret_cast<char const *const>(message->low_level->payload());
 //      std::string c(ch, message->low_level->len());
-      WARN("<ESSStream:{}> fb schema id mismatch {}!={}\ncontents:{}",
-          config.kafka_topic_name_, get_fb_id(message), parser->schema_id());
+//      WARN("<ESSStream:{}> fb schema id mismatch {}!={}\ncontents:{}",
+//          config.kafka_topic_name_, get_fb_id(message), parser->schema_id());
       continue;
     }
 
