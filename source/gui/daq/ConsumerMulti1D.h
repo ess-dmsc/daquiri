@@ -3,12 +3,12 @@
 #include <gui/daq/AbstractConsumerWidget.h>
 #include <QPlot/QPlot1D.h>
 
-class Consumer1D : public AbstractConsumerWidget
+class ConsumerMulti1D : public AbstractConsumerWidget
 {
  Q_OBJECT
 
  public:
-  Consumer1D(QWidget* parent = 0);
+  ConsumerMulti1D(QWidget* parent = 0);
 
   void update() override;
   void refresh() override;

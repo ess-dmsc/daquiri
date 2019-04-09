@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractConsumerWidget.h"
+#include <gui/daq/AbstractConsumerWidget.h>
 #include <QPlot/QPlot2D.h>
 
 class Consumer2D : public AbstractConsumerWidget

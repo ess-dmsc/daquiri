@@ -1,5 +1,5 @@
-#include "Consumer2D.h"
-#include <widgets/qt_util.h>
+#include <gui/daq/Consumer2D.h>
+#include <gui/widgets/qt_util.h>
 
 #include <core/util/timer.h>
 

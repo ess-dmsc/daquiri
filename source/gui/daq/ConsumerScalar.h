@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractConsumerWidget.h"
+#include <gui/daq/AbstractConsumerWidget.h>
 #include <QPlot/GradientSelector.h>
 
 

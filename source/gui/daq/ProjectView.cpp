@@ -92,6 +92,16 @@ void ProjectView::selectorItemToggled(SelectorItem item)
   update_plots();
 }
 
+void ProjectView::enforce_all()
+{
+  auto initial = consumers_.size();
+  auto items = selector_->items();
+  for (auto it = items.rbegin(); it != items.rend(); it++)
+    enforce_item(*it);
+  if (consumers_.size() != initial)
+    enforce_tile_policy();
+}
+
 void ProjectView::enforce_item(SelectorItem item)
 {
   int64_t id = item.data.toLongLong();
@@ -223,16 +233,6 @@ void ProjectView::updateUI()
 
   ui->toolColors->setEnabled(selector_->items().size());
   ui->toolDelete->setEnabled(selector_->items().size());
-}
-
-void ProjectView::enforce_all()
-{
-  auto initial = consumers_.size();
-  auto items = selector_->items();
-  for (auto it = items.rbegin(); it != items.rend(); it++)
-    enforce_item(*it);
-  if (consumers_.size() != initial)
-    enforce_tile_policy();
 }
 
 void ProjectView::update_plots()

@@ -1,4 +1,4 @@
-#include <gui/daq/Consumer1D.h>
+#include <gui/daq/ConsumerMulti1D.h>
 #include <QVBoxLayout>
 #include <QPlot/QHist.h>
 
@@ -9,7 +9,7 @@
 
 using namespace DAQuiri;
 
-Consumer1D::Consumer1D(QWidget *parent)
+ConsumerMulti1D::ConsumerMulti1D(QWidget *parent)
   : AbstractConsumerWidget(parent)
   , plot_ (new QPlot::Multi1D())
 {
@@ -32,7 +32,7 @@ Consumer1D::Consumer1D(QWidget *parent)
   setLayout(fl);
 }
 
-void Consumer1D::update()
+void ConsumerMulti1D::update()
 {
   if (!plot_
       || !consumer_
@@ -101,7 +101,7 @@ void Consumer1D::update()
     plot_->zoomOut();
 }
 
-void Consumer1D::scaleChanged(QString sn)
+void ConsumerMulti1D::scaleChanged(QString sn)
 {
   if (!plot_
       || !consumer_
@@ -121,23 +121,23 @@ void Consumer1D::scaleChanged(QString sn)
   consumer_->set_attribute(st);
 }
 
-void Consumer1D::refresh()
+void ConsumerMulti1D::refresh()
 {
   plot_->replot(QCustomPlot::rpQueuedRefresh);
 }
 
-void Consumer1D::mouseWheel (QWheelEvent *event)
+void ConsumerMulti1D::mouseWheel (QWheelEvent *event)
 {
   Q_UNUSED(event)
   user_zoomed_ = true;
 }
 
-void Consumer1D::zoomedOut()
+void ConsumerMulti1D::zoomedOut()
 {
   user_zoomed_ = false;
 }
 
-void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
+void ConsumerMulti1D::clickedPlot(double x, double y, Qt::MouseButton button)
 {
   marker.appearance.default_pen = QPen(Qt::black, 2);
   marker.pos = x;

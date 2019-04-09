@@ -1,4 +1,4 @@
-#include "ConsumerDialog.h"
+#include <gui/daq/ConsumerDialog.h>
 #include "ui_ConsumerDialog.h"
 #include <core/util/logger.h>
 #include <QInputDialog>
@@ -6,8 +6,8 @@
 #include <core/consumer_factory.h>
 //#include "dialog_detector.h"
 
-#include <widgets/qt_util.h>
-#include <widgets/QColorExtensions.h>
+#include <gui/widgets/qt_util.h>
+#include <gui/widgets/QColorExtensions.h>
 
 #include <QPlot/GradientSelector.h>
 

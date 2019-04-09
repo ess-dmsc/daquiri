@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <core/spill.h>
 #include <gui/ThreadRunner.h>
-#include <widgets/SettingDelegate.h>
+#include <gui/widgets/SettingDelegate.h>
 //#include "widget_detectors.h"
 #include <gui/SettingsTreeModel.h>
 

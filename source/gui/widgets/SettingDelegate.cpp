@@ -1,4 +1,4 @@
-#include <widgets/SettingDelegate.h>
+#include <gui/widgets/SettingDelegate.h>
 #include <QComboBox>
 #include <QPainter>
 #include <QDoubleSpinBox>
@@ -11,15 +11,15 @@
 #include <QDateTimeEdit>
 #include <QPushButton>
 #include <QColorDialog>
-#include "TimeDurationWidget.h"
-#include "QtColorWidgets/color_selector.hpp"
+#include <gui/widgets/TimeDurationWidget.h>
+#include <QtColorWidgets/color_selector.hpp>
 
 #include <QApplication>
 
 #include <QPlot/QPlot.h>
 
-#include <widgets/QColorExtensions.h>
-#include <widgets/QTimeExtensions.h>
+#include <gui/widgets/QColorExtensions.h>
+#include <gui/widgets/QTimeExtensions.h>
 #include <QPlot/GradientSelector.h>
 
 using namespace color_widgets;

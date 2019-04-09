@@ -1,7 +1,7 @@
-#include "ConsumerScalar.h"
+#include <gui/daq/ConsumerScalar.h>
 #include <QVBoxLayout>
 
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 #include <QPlot/KnightRiderWidget.h>
 #include <QPlot/GradientSelector.h>

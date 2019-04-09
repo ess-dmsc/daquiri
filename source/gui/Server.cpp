@@ -1,4 +1,4 @@
-#include "Server.h"
+#include <gui/Server.h>
 #include <core/util/logger.h>
 
 CommandServer::CommandServer(QObject* parent) : QTcpServer(parent)
