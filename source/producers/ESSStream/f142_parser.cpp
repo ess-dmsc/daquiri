@@ -73,6 +73,23 @@ uint64_t ChopperTDC::stop(SpillQueue spill_queue)
   return 0;
 }
 
+std::string ChopperTDC::schema_id() const
+{
+  return std::string(LogDataIdentifier());
+}
+
+std::string ChopperTDC::get_source_name(void* msg) const
+{
+  auto em = GetLogData(msg);
+  auto NamePtr = em->source_name();
+  if (NamePtr == nullptr)
+  {
+    ERR("<ChopperTDC> message has no source_name");
+    return "";
+  }
+  return NamePtr->str();
+}
+
 uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg) {
   Timer timer(true);
   uint64_t pushed_spills = 1;

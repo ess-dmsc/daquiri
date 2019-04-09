@@ -8,32 +8,36 @@ using namespace DAQuiri;
 
 class ChopperTDC : public fb_parser
 {
-  public:
-    ChopperTDC();
+ public:
+  ChopperTDC();
 
-    ~ChopperTDC() {}
+  ~ChopperTDC() = default;
 
-    std::string plugin_name() const override { return "ChopperTDC"; }
+  std::string plugin_name() const override
+  { return "ChopperTDC"; }
 
-    void settings(const Setting&) override;
-    Setting settings() const override;
+  std::string schema_id() const override;
+  std::string get_source_name(void* msg) const override;
 
-    uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
-    uint64_t stop(SpillQueue spill_queue) override;
+  void settings(const Setting&) override;
+  Setting settings() const override;
 
-    StreamManifest stream_manifest() const override;
+  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
+  uint64_t stop(SpillQueue spill_queue) override;
 
-  private:
-    // cached params
+  StreamManifest stream_manifest() const override;
 
-    std::string stream_id_{"ChopperTDC"};
+ private:
+  // cached params
 
-    std::map<std::string, int> PVNameMap;
+  std::string stream_id_{"ChopperTDC"};
 
-    EventModel event_model_;
+  std::map<std::string, int> PVNameMap;
 
-    bool started_{false};
+  EventModel event_model_;
 
-    static std::string debug(const LogData& TDCTimeStamp);
+  bool started_{false};
+
+  static std::string debug(const LogData& TDCTimeStamp);
 };
 

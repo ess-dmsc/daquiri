@@ -21,7 +21,6 @@ ev42_events::ev42_events()
   SettingMeta hb(r + "/Heartbeat", SettingType::boolean, "Send empty heartbeat buffers");
   add_definition(hb);
 
-
   SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
   fsname.set_flag("preset");
   add_definition(fsname);
@@ -112,6 +111,23 @@ uint64_t ev42_events::stop(SpillQueue spill_queue)
     return 1;
   }
   return 0;
+}
+
+std::string ev42_events::schema_id() const
+{
+  return std::string(EventMessageIdentifier());
+}
+
+std::string ev42_events::get_source_name(void* msg) const
+{
+  auto em = GetEventMessage(msg);
+  auto NamePtr = em->source_name();
+  if (NamePtr == nullptr)
+  {
+    ERR("<ev42_events> message has no source_name");
+    return "";
+  }
+  return NamePtr->str();
 }
 
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
