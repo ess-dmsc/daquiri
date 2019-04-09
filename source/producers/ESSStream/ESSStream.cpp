@@ -265,6 +265,15 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
     if (!good(message))
       continue;
 
+    if (get_fb_id(message) != parser->schema_id())
+    {
+//      auto ch = reinterpret_cast<char const *const>(message->low_level->payload());
+//      std::string c(ch, message->low_level->len());
+      WARN("<ESSStream:{}> fb schema id mismatch {}!={}\ncontents:{}",
+          config.kafka_topic_name_, get_fb_id(message), parser->schema_id());
+      continue;
+    }
+
     spills += parser->process_payload(spill_queue, message->low_level->payload());
 
     if (config.kafka_ff_)
@@ -339,6 +348,18 @@ bool ESSStream::good(Kafka::MessagePtr message)
       return false;
   }
 }
+
+std::string ESSStream::get_fb_id(Kafka::MessagePtr message)
+{
+  if (message->low_level->len() < 8)
+  {
+    ERR("Could not extract id. Flatbuffer was only {} bytes. Expected ≥ 8 bytes.", message->low_level->len());
+    return {};
+  }
+  auto ch = reinterpret_cast<char const *const>(message->low_level->payload());
+  return std::string(ch + 4, 4);
+}
+
 
 uint64_t ESSStream::Stream::ff_stream(Kafka::MessagePtr message,
                                       int64_t kafka_max_backlog)
