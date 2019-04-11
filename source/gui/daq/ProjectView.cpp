@@ -1,10 +1,13 @@
 #include <gui/daq/ProjectView.h>
 #include "ui_ProjectView.h"
 
-#include <gui/daq/ConsumerDialog.h>
 #include <gui/daq/ConsumerScalar.h>
 #include <gui/daq/Consumer1D.h>
 #include <gui/daq/Consumer2D.h>
+
+#include <gui/daq/ConsumerMulti1D.h>
+
+#include <gui/daq/ConsumerDialog.h>
 #include <gui/widgets/QColorExtensions.h>
 #include <gui/widgets/qt_util.h>
 #include <core/util/timer.h>
@@ -108,8 +111,12 @@ void ProjectView::enforce_item(SelectorItem item)
   ConsumerPtr consumer = project_->get_consumer(id);
   if (!consumer)
     return;
+
   if (consumer->metadata().get_attribute("visible").get_bool() != item.visible)
     consumer->set_attribute(Setting::boolean("visible", item.visible));
+
+  int group = consumer->metadata().get_attribute("window_group").get_int();
+
   if (consumers_.count(id) && !item.visible)
   {
     consumers_[id]->parentWidget()->close();
@@ -117,24 +124,24 @@ void ProjectView::enforce_item(SelectorItem item)
   }
   else if (!consumers_.count(id) && item.visible)
   {
-    AbstractConsumerWidget* widget;
+    AbstractConsumerWidget* consumer_widget;
     if (consumer->dimensions() == 0)
-      widget = new ConsumerScalar();
+      consumer_widget = new ConsumerScalar();
     else if (consumer->dimensions() == 1)
-      widget = new Consumer1D();
+      consumer_widget = new Consumer1D();
     else if (consumer->dimensions() == 2)
-      widget = new Consumer2D();
+      consumer_widget = new Consumer2D();
     else
       return;
 
-    widget->setAttribute(Qt::WA_DeleteOnClose);
-    connect(widget, SIGNAL(destroyed(QObject * )),
+    consumer_widget->setAttribute(Qt::WA_DeleteOnClose);
+    connect(consumer_widget, SIGNAL(destroyed(QObject * )),
             this, SLOT(consumerWidgetDestroyed(QObject * )));
-    auto w = ui->area->addSubWindow(widget);
+    auto w = ui->area->addSubWindow(consumer_widget);
     w->setContentsMargins(0, 0, 0, 0);
-    consumers_[id] = widget;
-    widget->show();
-    widget->setConsumer(consumer);
+    consumers_[id] = consumer_widget;
+    consumer_widget->show();
+    consumer_widget->setConsumer(consumer);
   }
 }
 

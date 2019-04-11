@@ -10,9 +10,11 @@
 using namespace DAQuiri;
 
 ConsumerMulti1D::ConsumerMulti1D(QWidget *parent)
-  : AbstractConsumerWidget(parent)
+    : QWidget(parent)
   , plot_ (new QPlot::Multi1D())
 {
+  setWindowIcon(QIcon(":/icons/noun_583391_cc_b.png"));
+
   QVBoxLayout* fl = new QVBoxLayout();
   fl->addWidget(plot_);
 

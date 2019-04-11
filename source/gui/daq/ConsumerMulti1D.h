@@ -1,17 +1,30 @@
 #pragma once
 
-#include <gui/daq/AbstractConsumerWidget.h>
 #include <QPlot/QPlot1D.h>
+#include <QWidget>
+#include <core/consumer.h>
+#include <QIcon>
 
-class ConsumerMulti1D : public AbstractConsumerWidget
+class ConsumerMulti1D : public QWidget
 {
  Q_OBJECT
 
  public:
   ConsumerMulti1D(QWidget* parent = 0);
 
-  void update_data() override;
-  void refresh() override;
+  inline void setConsumer(DAQuiri::ConsumerPtr consumer)
+  {
+    consumer_ = consumer;
+    update();
+  }
+
+  inline DAQuiri::ConsumerPtr consumer() const
+  {
+    return consumer_;
+  }
+
+  void update_data();
+  void refresh();
 
  private slots:
   void mouseWheel(QWheelEvent* event);
@@ -21,6 +34,8 @@ class ConsumerMulti1D : public AbstractConsumerWidget
   void clickedPlot(double x, double y, Qt::MouseButton button);
 
  private:
+  DAQuiri::ConsumerPtr consumer_;
+
   QPlot::Multi1D* plot_{nullptr};
   bool initial_scale_{false};
   bool user_zoomed_{false};
