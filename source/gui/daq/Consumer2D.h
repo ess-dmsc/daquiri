@@ -10,7 +10,7 @@ class Consumer2D : public AbstractConsumerWidget
  public:
   Consumer2D(QWidget* parent = 0);
 
-  void update() override;
+  void update_data() override;
   void refresh() override;
 
  private slots:

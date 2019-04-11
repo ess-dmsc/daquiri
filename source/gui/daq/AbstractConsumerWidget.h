@@ -26,7 +26,7 @@ public:
     return consumer_;
   }
 
-  virtual void update() = 0;
+  virtual void update_data() = 0;
   virtual void refresh() = 0;
 
 protected:

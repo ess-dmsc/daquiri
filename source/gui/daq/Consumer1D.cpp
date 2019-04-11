@@ -32,7 +32,7 @@ Consumer1D::Consumer1D(QWidget *parent)
   setLayout(fl);
 }
 
-void Consumer1D::update()
+void Consumer1D::update_data()
 {
   if (!plot_
       || !consumer_
@@ -146,5 +146,5 @@ void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
   marker.visible = (button == Qt::MouseButton::LeftButton);
   //&& (x >= 0) && (x < x_domain.size());
 
-  update();
+  update_data();
 }

@@ -16,7 +16,7 @@ class ConsumerScalar : public AbstractConsumerWidget
  public:
   ConsumerScalar(QWidget* parent = 0);
 
-  void update() override;
+  void update_data() override;
   void refresh() override;
 
  private:

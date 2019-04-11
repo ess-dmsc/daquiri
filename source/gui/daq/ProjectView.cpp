@@ -239,7 +239,7 @@ void ProjectView::update_plots()
 {
 //  Timer t(true);
   for (auto& consumer_widget : consumers_)
-    consumer_widget->update();
+    consumer_widget->update_data();
 
   for (auto& consumer_widget : consumers_)
     consumer_widget->refresh();
