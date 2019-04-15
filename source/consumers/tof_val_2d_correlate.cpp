@@ -13,10 +13,10 @@ TOFVal2DCorrelate::TOFVal2DCorrelate()
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Time of flight 1D spectrum (with correlation across streams)");
 
-  SettingMeta app("appearance", SettingType::text, "Appearance");
-  app.set_flag("color");
-  base_options.branches.add(Setting(app));
-
+  SettingMeta app("appearance", SettingType::text, "Plot appearance");
+  app.set_flag("gradient-name");
+  base_options.branches.add(app);
+  
   SettingMeta flip("flip-y", SettingType::boolean, "Flip Y axis");
   base_options.branches.add(flip);
 
