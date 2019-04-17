@@ -3,7 +3,7 @@
 #include <shared_mutex>
 #include <thread>
 
-#define MUTEX_LOCK_TIMEOUT std::chrono::microseconds(100)
+#define MUTEX_LOCK_TIMEOUT std::chrono::microseconds(1)
 #define WAIT_MUTEX_LOCK std::this_thread::sleep_for(MUTEX_LOCK_TIMEOUT)
 #define DEFER std::defer_lock
 
