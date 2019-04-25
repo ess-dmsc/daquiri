@@ -80,7 +80,7 @@ void DetectorIndex::settings(const Setting& settings)
     if (indices.size() != 1)
       continue;
     auto idx = *indices.begin();
-    if (idx < 0 || idx >= detectors_.size())
+    if (idx < 0 || idx >= static_cast<int>(detectors_.size()))
       continue;
 
     //hackity hack

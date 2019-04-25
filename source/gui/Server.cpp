@@ -93,6 +93,8 @@ void CommandServer::acceptNew()
 
 void CommandServer::tcpError(QAbstractSocket::SocketError error)
 {
+  Q_UNUSED(error);
+
   if (server_socket)
   {
     if (server_socket->error() == QAbstractSocket::RemoteHostClosedError)
