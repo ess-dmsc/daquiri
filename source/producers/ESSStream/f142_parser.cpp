@@ -8,6 +8,14 @@ ChopperTDC::ChopperTDC()
 {
   std::string r{plugin_name()};
 
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
+  fsname.set_flag("preset");
+  add_definition(fsname);
+
+  SettingMeta sname(r + "/SourceName", SettingType::text, "Source name");
+  sname.set_flag("preset");
+  add_definition(sname);
+
   SettingMeta
       chopperTDCStreamid(r + "/EventsStream", SettingType::text, "DAQuiri stream ID for Chopper TDC time stamps");
   chopperTDCStreamid.set_flag("preset");
@@ -17,6 +25,8 @@ ChopperTDC::ChopperTDC()
   SettingMeta root(r, SettingType::stem);
   root.set_flag("producer");
   root.set_enum(i++, r + "/EventsStream");
+  root.set_enum(i++, r + "/FilterSourceName");
+  root.set_enum(i++, r + "/SourceName");
   add_definition(root);
 
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
@@ -37,6 +47,8 @@ Setting ChopperTDC::settings() const
   auto set = get_rich_setting(r);
 
   set.set(Setting::text(r + "/EventsStream", stream_id_));
+  set.set(Setting::boolean(r + "/FilterSourceName", filter_source_name_));
+  set.set(Setting::text(r + "/SourceName", source_name_));
 
   set.branches.add_a(TimeBasePlugin(event_model_.timebase).settings());
 
@@ -49,6 +61,8 @@ void ChopperTDC::settings(const Setting& settings)
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
   stream_id_ = set.find({r + "/EventsStream"}).get_text();
+  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
+  source_name_ = set.find({r + "/SourceName"}).get_text();
 
   TimeBasePlugin tbs;
   tbs.settings(set.find({tbs.plugin_name()}));

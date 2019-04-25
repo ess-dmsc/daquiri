@@ -3,6 +3,8 @@
 #include <producers/ESSStream/ev42_parser.h>
 #include <producers/ESSStream/mo01_parser.h>
 #include <producers/ESSStream/f142_parser.h>
+#include <producers/ESSStream/senv_data_parser.h>
+#include <producers/ESSStream/senv_data_wrong.h>
 
 #include <core/util/logger.h>
 
@@ -12,6 +14,8 @@ ESSStream::ESSStream()
   parser_names_["ev42_events"] = 1;
   parser_names_["mo01_nmx"] = 2;
   parser_names_["ChopperTDC"] = 3;
+  parser_names_["SenvParser"] = 4;
+  parser_names_["SenvParserWrong"] = 5;
 
   std::string r {plugin_name()};
 
@@ -189,6 +193,10 @@ void ESSStream::select_parser(size_t i, std::string t)
     streams_[i].parser = std::make_shared<mo01_nmx>();
   else if (t == "ChopperTDC")
     streams_[i].parser = std::make_shared<ChopperTDC>();
+  else if (t == "SenvParser")
+    streams_[i].parser = std::make_shared<SenvParser>();
+  else if (t == "SenvParserWrong")
+    streams_[i].parser = std::make_shared<SenvParserWrong>();
 }
 
 void ESSStream::boot()
@@ -269,8 +277,8 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
     {
 //      auto ch = reinterpret_cast<char const *const>(message->low_level->payload());
 //      std::string c(ch, message->low_level->len());
-      WARN("<ESSStream:{}> fb schema id mismatch {}!={}\ncontents:{}",
-          config.kafka_topic_name_, get_fb_id(message), parser->schema_id());
+//      WARN("<ESSStream:{}> fb schema id mismatch {}!={}\ncontents:{}",
+//          config.kafka_topic_name_, get_fb_id(message), parser->schema_id());
       continue;
     }
 

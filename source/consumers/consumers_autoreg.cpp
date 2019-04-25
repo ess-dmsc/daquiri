@@ -12,6 +12,7 @@
 #include "time_delta_1d.h"
 
 #include "tof_val_2d.h"
+#include "tof_val_2d_correlate.h"
 #include "histogram_2d.h"
 #include "image_2d.h"
 #include "spectrum_time.h"
@@ -34,6 +35,7 @@ void consumers_autoreg()
   DAQUIRI_REGISTER_CONSUMER(Histogram2D)
   DAQUIRI_REGISTER_CONSUMER(Image2D)
   DAQUIRI_REGISTER_CONSUMER(TOFVal2D)
+  DAQUIRI_REGISTER_CONSUMER(TOFVal2DCorrelate)
   DAQUIRI_REGISTER_CONSUMER(TimeSpectrum)
 
   DAQUIRI_REGISTER_CONSUMER(Histogram3D)
