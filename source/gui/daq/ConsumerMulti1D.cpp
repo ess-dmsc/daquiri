@@ -1,17 +1,16 @@
 #include <gui/daq/ConsumerMulti1D.h>
+#include <QIcon>
 #include <QVBoxLayout>
 #include <QPlot/QHist.h>
-
 #include <gui/widgets/qt_util.h>
 
 #include <core/util/logger.h>
 
-
 using namespace DAQuiri;
 
-ConsumerMulti1D::ConsumerMulti1D(QWidget *parent)
+ConsumerMulti1D::ConsumerMulti1D(QWidget* parent)
     : QWidget(parent)
-  , plot_ (new QPlot::Multi1D())
+      , plot_(new QPlot::Multi1D())
 {
   setWindowIcon(QIcon(":/icons/noun_583391_cc_b.png"));
 
@@ -23,7 +22,7 @@ ConsumerMulti1D::ConsumerMulti1D(QWidget *parent)
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
   plot_->setLineThickness(2);
-  connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
+  connect(plot_, SIGNAL(mouseWheel(QWheelEvent * )), this, SLOT(mouseWheel(QWheelEvent * )));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
   connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
@@ -36,67 +35,96 @@ ConsumerMulti1D::ConsumerMulti1D(QWidget *parent)
 
 void ConsumerMulti1D::update_data()
 {
-  if (!plot_
-      || !consumer_
-      || (consumer_->dimensions() != 1))
+  if (!plot_ || !project_)
     return;
 
+  if (group_ == invalid_group)
+  {
+    plot_->clearAll();
+    return;
+  }
+
   plot_->clearPrimary();
+  bool empty{true};
 
-  ConsumerMetadata md = consumer_->metadata();
-  DataspacePtr data = consumer_->data();
+  std::string new_label;
 
-  double rescale  = md.get_attribute("rescale").get_number();
-  if (!std::isfinite(rescale) || !rescale)
-    rescale = 1;
-
-  if (!initial_scale_)
+  for (const auto& consumer : project_->get_consumers())
   {
-    auto st = md.get_attribute("preferred_scale");
-    auto scale = st.metadata().enum_name(st.selection());
-    plot_->setScaleType(QS(scale));
-    initial_scale_ = true;
-  }
+    ConsumerMetadata md = consumer->metadata();
 
-  auto pen = QPen(QColor(QS(md.get_attribute("appearance").get_text())), 1);
+    if (md.get_attribute("window_group").get_int() != group_)
+      continue;
 
-  DataAxis axis;
-  EntryList spectrum_data;
+    if (!md.get_attribute("visible").get_bool())
+      continue;
 
-  if (data)
-  {
-    axis = data->axis(0);
-    auto bounds = axis.bounds();
-    if (md.get_attribute("trim").get_bool() &&
-        ((bounds.second - bounds.first) > 1))
+    if (consumer->dimensions() != 1)
+      continue;
+
+    double rescale = md.get_attribute("rescale").get_number();
+    if (!std::isfinite(rescale) || (rescale == 0.0))
+      rescale = 1.0;
+
+    if (!initial_scale_)
     {
-      bounds.second--;
+      auto st = md.get_attribute("preferred_scale");
+      auto scale = st.metadata().enum_name(st.selection());
+      plot_->setScaleType(QS(scale));
+      initial_scale_ = true;
     }
 
-    spectrum_data = data->range({bounds});
-  }
+    auto pen = QPen(QColor(QS(md.get_attribute("appearance").get_text())), 1);
 
-  QPlot::HistMap1D hist;
-  if (spectrum_data)
-  {
-    for (auto it : *spectrum_data)
+    DataAxis axis;
+    EntryList spectrum_data;
+
+    DataspacePtr data = consumer->data();
+    if (data)
     {
-      double xx = axis.domain[it.first[0]];
-      double yy = to_double( it.second ) * rescale;
-      hist[xx] = yy;
+      axis = data->axis(0);
+      auto bounds = axis.bounds();
+      if (md.get_attribute("trim").get_bool() &&
+          ((bounds.second - bounds.first) > 1))
+      {
+        bounds.second--;
+      }
+
+      spectrum_data = data->range({bounds});
     }
+
+    QPlot::HistMap1D hist;
+    if (spectrum_data)
+    {
+      for (auto it : *spectrum_data)
+      {
+        double xx = axis.domain[it.first[0]];
+        double yy = to_double(it.second) * rescale;
+        hist[xx] = yy;
+      }
+    }
+
+    auto name = md.get_attribute("name").get_text();
+
+    if (!hist.empty())
+    {
+      plot_->addGraph(hist, pen, QS(name));
+      empty = false;
+    }
+
+    plot_->setAxisLabels(QS(axis.label()), "count");
+    if (!new_label.empty())
+      new_label += " + ";
+    new_label += name;
   }
 
-  if (!hist.empty())
+  if (!empty)
   {
     plot_->setMarkers({marker});
-    plot_->addGraph(hist, pen);
     plot_->replotExtras();
+    plot_->legend->setVisible(true);
   }
 
-  plot_->setAxisLabels(QS(axis.label()), "count");
-
-  std::string new_label = md.get_attribute("name").get_text();
   setWindowTitle(QS(new_label).trimmed());
 
   if (!user_zoomed_)
@@ -105,22 +133,27 @@ void ConsumerMulti1D::update_data()
 
 void ConsumerMulti1D::scaleChanged(QString sn)
 {
-  if (!plot_
-      || !consumer_
-      || (consumer_->dimensions() != 1))
+  if (!plot_ || !project_ || (group_ == invalid_group))
     return;
 
-  ConsumerMetadata md = consumer_->metadata();
-  auto st = md.get_attribute("preferred_scale");
-  for (auto e : st.metadata().enum_map())
+  for (const auto& consumer : project_->get_consumers())
   {
-    if (e.second == sn.toStdString())
+    ConsumerMetadata md = consumer->metadata();
+
+    if (md.get_attribute("window_group").get_int() != group_)
+      continue;
+
+    auto st = md.get_attribute("preferred_scale");
+    for (auto e : st.metadata().enum_map())
     {
-      st.select(e.first);
-      break;
+      if (e.second == sn.toStdString())
+      {
+        st.select(e.first);
+        break;
+      }
     }
+    consumer->set_attribute(st);
   }
-  consumer_->set_attribute(st);
 }
 
 void ConsumerMulti1D::refresh()
@@ -128,7 +161,7 @@ void ConsumerMulti1D::refresh()
   plot_->replot(QCustomPlot::rpQueuedRefresh);
 }
 
-void ConsumerMulti1D::mouseWheel (QWheelEvent *event)
+void ConsumerMulti1D::mouseWheel(QWheelEvent* event)
 {
   Q_UNUSED(event)
   user_zoomed_ = true;

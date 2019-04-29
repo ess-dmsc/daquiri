@@ -1,26 +1,28 @@
 #pragma once
 
 #include <QPlot/QPlot1D.h>
+#include <core/project.h>
 #include <QWidget>
-#include <core/consumer.h>
-#include <QIcon>
 
 class ConsumerMulti1D : public QWidget
 {
  Q_OBJECT
 
+ static constexpr size_t invalid_group {0};
+
  public:
   ConsumerMulti1D(QWidget* parent = 0);
 
-  inline void setConsumer(DAQuiri::ConsumerPtr consumer)
+  inline void set_project(DAQuiri::ProjectPtr project, size_t group)
   {
-    consumer_ = consumer;
+    project_ = project;
+    group_ = group;
     update();
   }
 
-  inline DAQuiri::ConsumerPtr consumer() const
+  inline size_t group() const
   {
-    return consumer_;
+    return group_;
   }
 
   void update_data();
@@ -34,7 +36,8 @@ class ConsumerMulti1D : public QWidget
   void clickedPlot(double x, double y, Qt::MouseButton button);
 
  private:
-  DAQuiri::ConsumerPtr consumer_;
+  DAQuiri::ProjectPtr project_;
+  size_t group_ {invalid_group};
 
   QPlot::Multi1D* plot_{nullptr};
   bool initial_scale_{false};

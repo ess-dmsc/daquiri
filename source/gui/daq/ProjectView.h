@@ -24,7 +24,7 @@ class ProjectView : public QWidget
   explicit ProjectView(QWidget* parent = 0);
   ~ProjectView();
 
-  void setSpectra(DAQuiri::ProjectPtr new_set);
+  void set_project(DAQuiri::ProjectPtr project);
 
   void set_manifest(DAQuiri::StreamManifest);
 
@@ -56,6 +56,7 @@ class ProjectView : public QWidget
   void tile_vertical();
 
   void consumerWidgetDestroyed(QObject*);
+  void groupWidgetDestroyed(QObject*);
 
   void on_pushHideControls_clicked();
 
@@ -73,7 +74,7 @@ class ProjectView : public QWidget
   QMap<int64_t, AbstractConsumerWidget*> consumers_;
 
   // window_group->widget
-  QMap<int, ConsumerMulti1D*> groups_;
+  QMap<size_t, ConsumerMulti1D*> groups_;
 
   SelectorWidget* selector_;
 
@@ -83,7 +84,6 @@ class ProjectView : public QWidget
   QMenu delete_menu_;
   QMenu tile_menu_;
 
-  void enforce_item(SelectorItem);
   void enforce_all();
 
   static void tile_grid(QMdiArea*);
