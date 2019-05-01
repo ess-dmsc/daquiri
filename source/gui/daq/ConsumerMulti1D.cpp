@@ -53,7 +53,7 @@ void ConsumerMulti1D::update_data()
   {
     ConsumerMetadata md = consumer->metadata();
 
-    if (md.get_attribute("window_group").get_int() != group_)
+    if (static_cast<size_t>(md.get_attribute("window_group").get_int()) != group_)
       continue;
 
     if (!md.get_attribute("visible").get_bool())
@@ -140,7 +140,7 @@ void ConsumerMulti1D::scaleChanged(QString sn)
   {
     ConsumerMetadata md = consumer->metadata();
 
-    if (md.get_attribute("window_group").get_int() != group_)
+    if (static_cast<size_t>(md.get_attribute("window_group").get_int()) != group_)
       continue;
 
     auto st = md.get_attribute("preferred_scale");

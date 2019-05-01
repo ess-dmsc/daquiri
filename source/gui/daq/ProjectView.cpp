@@ -260,8 +260,14 @@ void ProjectView::updateUI()
     else
       color = Qt::black;
 
+    size_t group = md.get_attribute("window_group").get_int();
+
     SelectorItem consumer_item;
-    consumer_item.text = QS(md.get_attribute("name").get_text());
+    if (group != 0u)
+      consumer_item.text = "[" + QString::number(group) + "] ";
+    else
+      consumer_item.text = "";
+    consumer_item.text += QS(md.get_attribute("name").get_text());
     consumer_item.data = QVariant::fromValue(i++);
     consumer_item.color = color;
     consumer_item.visible = md.get_attribute("visible").triggered();
@@ -496,7 +502,7 @@ void ProjectView::groupWidgetDestroyed(QObject* o)
       auto id = it.key();
       for (auto& c : project_->get_consumers())
       {
-        if (c->metadata().get_attribute("window_group").get_int() == id)
+        if (static_cast<size_t>(c->metadata().get_attribute("window_group").get_int()) == id)
           c->set_attribute(Setting::boolean("visible", false));
       }
       groups_.erase(it++);
