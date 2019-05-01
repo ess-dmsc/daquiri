@@ -15,6 +15,11 @@ Spectrum::Spectrum()
   SettingMeta vis("visible", SettingType::boolean, "Visible");
   base_options.branches.add(vis);
 
+  SettingMeta grp("window_group", SettingType::integer, "Window group");
+  grp.set_val("min", 0);
+  grp.set_val("max", 100);
+  base_options.branches.add(grp);
+
   SettingMeta sca("preferred_scale", SettingType::menu, "Plot scale for counts");
   sca.set_enum(0, "Linear");
   sca.set_enum(1, "Logarithmic");

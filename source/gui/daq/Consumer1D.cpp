@@ -1,8 +1,8 @@
-#include "Consumer1D.h"
+#include <gui/daq/Consumer1D.h>
 #include <QVBoxLayout>
 #include <QPlot/QHist.h>
 
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 #include <core/util/logger.h>
 
@@ -32,7 +32,7 @@ Consumer1D::Consumer1D(QWidget *parent)
   setLayout(fl);
 }
 
-void Consumer1D::update()
+void Consumer1D::update_data()
 {
   if (!plot_
       || !consumer_
@@ -146,5 +146,5 @@ void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
   marker.visible = (button == Qt::MouseButton::LeftButton);
   //&& (x >= 0) && (x < x_domain.size());
 
-  update();
+  update_data();
 }

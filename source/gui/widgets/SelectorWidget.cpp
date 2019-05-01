@@ -1,9 +1,9 @@
 #include <QtWidgets>
 #include <math.h>
 
-#include "SelectorWidget.h"
+#include <gui/widgets/SelectorWidget.h>
 #include <core/util/logger.h>
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 SelectorWidget::SelectorWidget(QWidget *parent)
   : QWidget(parent)

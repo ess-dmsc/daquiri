@@ -1,4 +1,4 @@
-#include "QFileExtensions.h"
+#include <gui/widgets/QFileExtensions.h>
 #include <stdlib.h>
 #include <QFile>
 #include <QDateTime>

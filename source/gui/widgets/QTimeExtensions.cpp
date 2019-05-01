@@ -1,4 +1,4 @@
-#include <widgets/QTimeExtensions.h>
+#include <gui/widgets/QTimeExtensions.h>
 #include <date/date.h>
 
 #include <core/util/time_extensions.h>

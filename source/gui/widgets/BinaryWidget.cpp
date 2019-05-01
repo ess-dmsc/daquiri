@@ -1,5 +1,5 @@
-#include <widgets/BinaryWidget.h>
-#include <widgets/qt_util.h>
+#include <gui/widgets/BinaryWidget.h>
+#include <gui/widgets/qt_util.h>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QCheckBox>

@@ -1,4 +1,4 @@
-#include "TimeDurationWidget.h"
+#include <gui/widgets/TimeDurationWidget.h>
 #include "ui_TimeDurationWidget.h"
 #include <date/date.h>
 

@@ -1,5 +1,5 @@
-#include "Consumer2D.h"
-#include <widgets/qt_util.h>
+#include <gui/daq/Consumer2D.h>
+#include <gui/widgets/qt_util.h>
 
 #include <core/util/timer.h>
 
@@ -35,7 +35,7 @@ Consumer2D::Consumer2D(QWidget* parent)
   setLayout(fl);
 }
 
-void Consumer2D::update()
+void Consumer2D::update_data()
 {
   if (!this->isVisible()
       || !plot_
@@ -219,7 +219,7 @@ void Consumer2D::clickedPlot(double x, double y, Qt::MouseButton button)
   box_x = static_cast<uint16_t>(x);
   box_y = static_cast<uint16_t>(y);
 
-  update();
+  update_data();
 }
 
 

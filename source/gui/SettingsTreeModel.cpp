@@ -1,12 +1,12 @@
-#include "SettingsTreeModel.h"
-#include <widgets/PatternWidget.h>
+#include <gui/SettingsTreeModel.h>
+#include <gui/widgets/PatternWidget.h>
 #include <QDateTime>
 #include <core/util/bin_hex_print.h>
 
-//#include <widgets/qt_util.h>
-#include <widgets/QTimeExtensions.h>
-#include <widgets/QColorExtensions.h>
-#include <widgets/qt_util.h>
+//#include <gui/widgets/qt_util.h>
+#include <gui/widgets/QTimeExtensions.h>
+#include <gui/widgets/QColorExtensions.h>
+#include <gui/widgets/qt_util.h>
 
 Q_DECLARE_METATYPE(Setting)
 Q_DECLARE_METATYPE(std::chrono::duration<double>)
