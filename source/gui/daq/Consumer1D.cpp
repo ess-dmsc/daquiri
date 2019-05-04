@@ -20,7 +20,11 @@ Consumer1D::Consumer1D(QWidget *parent)
 
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
-  plot_->setLineThickness(2);
+
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  plot_->setLineThickness(settings.value("default_1d_thickness", 1).toInt());
+
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
