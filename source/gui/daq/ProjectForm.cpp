@@ -1,5 +1,5 @@
 #include <gui/daq/ProjectForm.h>
-#include "ui_ProjectForm.h"
+#include <daquiri_autogen/include/ui_ProjectForm.h>
 
 #include <gui/Profiles.h>
 #include <gui/widgets/QFileExtensions.h>

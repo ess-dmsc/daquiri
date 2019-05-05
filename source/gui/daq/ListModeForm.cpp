@@ -1,5 +1,5 @@
 #include <gui/daq/ListModeForm.h>
-#include "ui_ListModeForm.h"
+#include <daquiri_autogen/include/ui_ListModeForm.h>
 
 #include <gui/widgets/qt_util.h>
 #include <core/util/lexical_extensions.h>

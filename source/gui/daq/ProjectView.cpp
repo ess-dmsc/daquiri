@@ -1,5 +1,5 @@
 #include <gui/daq/ProjectView.h>
-#include "ui_ProjectView.h"
+#include <daquiri_autogen/include/ui_ProjectView.h>
 
 #include <gui/daq/ConsumerScalar.h>
 #include <gui/daq/Consumer1D.h>

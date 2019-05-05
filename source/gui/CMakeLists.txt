@@ -7,9 +7,6 @@ find_package(qplot REQUIRED)
 #OpenGL for plots
 #add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
-
-#find package for QtColorWidgets
-
 set(${this_target}_sources
   ${dir}/daquiri.cpp
   ${dir}/main.cpp
@@ -34,17 +31,18 @@ set(${this_target}_headers
   ${dir}/UnitConverter.h
   )
 
-set(CMAKE_AUTOUIC ON)
 set(${this_target}_ui
   ${dir}/ProfilesForm.ui
   ${dir}/SettingsForm.ui
   )
 
+add_subdirectory(widgets)
+add_subdirectory(daq)
+
 qt5_add_resources(${this_target}_resources
   ${dir}/resources/daquiri.qrc)
 
-add_subdirectory(widgets)
-add_subdirectory(daq)
+set(CMAKE_AUTOUIC ON)
 
 add_executable(
   ${this_target}

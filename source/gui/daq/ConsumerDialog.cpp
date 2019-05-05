@@ -1,5 +1,6 @@
 #include <gui/daq/ConsumerDialog.h>
-#include "ui_ConsumerDialog.h"
+#include <daquiri_autogen/include/ui_ConsumerDialog.h>
+
 #include <core/util/logger.h>
 #include <QInputDialog>
 #include <QMessageBox>
