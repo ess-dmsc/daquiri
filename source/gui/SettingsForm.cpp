@@ -1,5 +1,5 @@
 #include <gui/SettingsForm.h>
-#include "ui_SettingsForm.h"
+#include <daquiri_autogen/include/ui_SettingsForm.h>
 
 #include <gui/ProfilesForm.h>
 #include <gui/Profiles.h>

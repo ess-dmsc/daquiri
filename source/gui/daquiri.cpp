@@ -1,5 +1,5 @@
 #include <gui/daquiri.h>
-#include "ui_daquiri.h"
+#include <daquiri_autogen/include/ui_daquiri.h>
 
 #include <gui/Profiles.h>
 #include <gui/daq/ListModeForm.h>

@@ -1,5 +1,5 @@
 #include <gui/daq/ConsumerTemplatesForm.h>
-#include "ui_ConsumerTemplatesForm.h"
+#include <daquiri_autogen/include/ui_ConsumerTemplatesForm.h>
 
 #include <gui/daq/ConsumerDialog.h>
 #include <QFileDialog>

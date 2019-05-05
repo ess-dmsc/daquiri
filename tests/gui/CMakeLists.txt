@@ -5,7 +5,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 include(QtLibraryConfig)
 
 add_executable(
-  ${this_target}
+  ${this_target} EXCLUDE_FROM_ALL
   QTimeExtensions.cpp
   ../../source/gui/widgets/QTimeExtensions.cpp
 )

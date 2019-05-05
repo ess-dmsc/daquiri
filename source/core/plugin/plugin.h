@@ -1,6 +1,6 @@
 #pragma once
 
-#include "setting.h"
+#include <core/plugin/setting.h>
 
 namespace DAQuiri {
 
