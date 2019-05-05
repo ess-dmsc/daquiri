@@ -4,8 +4,9 @@
 #include <core/util/h5json.h>
 #include <core/util/ascii_tree.h>
 
-#include <build_time.h>
-
+#ifdef BUILD_TIME
+#include "build_time.h"
+#endif
 
 namespace DAQuiri {
 
@@ -247,7 +248,10 @@ void Project::save(std::string file_name)
     f.attributes.create_from("host", std::string(BI_HOSTNAME));
     f.attributes.create_from("system", std::string(BI_SYSTEM));
     f.attributes.create_from("processor", std::string(BI_PROCESSOR));
-    f.attributes.create_from("build_time", std::string(BUILD_TIME));
+    f.attributes.create_from("cmake_time", std::string(BI_CMAKE_TIME));
+#ifdef BUILD_TIME
+    f.attributes.create_from("build_time", std::string(BI_BUILD_TIME));
+#endif
 
     auto group = f.create_group("project");
 
