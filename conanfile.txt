@@ -29,3 +29,5 @@ lib, *.dll -> ./bin
 lib, *.so.* -> ./lib
 lib, *.so -> ./lib
 share, * -> ./share
+filesystem/lib, *.so* -> ./lib
+system/lib, *.so* -> ./lib

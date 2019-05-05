@@ -55,7 +55,6 @@ add_executable(
 target_include_directories(
   ${this_target}
   PRIVATE ${PROJECT_SOURCE_DIR}/source
-  PRIVATE ${${this_target}_include_dirs}
 )
 
 target_link_libraries(

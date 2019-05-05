@@ -67,4 +67,8 @@ target_link_libraries(
 
 enable_coverage(${this_target})
 
-ADD_DEPENDENCIES(${this_target} build_time)
+option(BI "Update build info at compile time" ON)
+
+if(${BI})
+  add_dependencies(${this_target} build_time)
+endif()
