@@ -29,6 +29,7 @@ class TOF1DCorrelate : public Spectrum
     double time_resolution_{1};
     std::string units_name_;
     double units_multiplier_{1};
+    double time_cutoff_{0};
 
     std::string chopper_stream_id_;
 

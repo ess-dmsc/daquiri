@@ -17,11 +17,10 @@ TOF1DCorrelate::TOF1DCorrelate()
   app.set_flag("color");
   base_options.branches.add(Setting(app));
 
-  SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
-  res.set_flag("preset");
-  res.set_val("min", 1);
-  res.set_val("units", "units (see below)");
-  base_options.branches.add(res);
+  SettingMeta stream("chopper_stream_id", SettingType::text, "Chopper stream ID");
+  stream.set_flag("preset");
+  stream.set_flag("stream");
+  base_options.branches.add(stream);
 
   SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
@@ -31,10 +30,16 @@ TOF1DCorrelate::TOF1DCorrelate()
   units.set_enum(9, "s");
   base_options.branches.add(units);
 
-  SettingMeta stream("chopper_stream_id", SettingType::text, "Chopper stream ID");
-  stream.set_flag("preset");
-  stream.set_flag("stream");
-  base_options.branches.add(stream);
+  SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
+  res.set_flag("preset");
+  res.set_val("min", 1);
+  res.set_val("units", "units (see above)");
+  base_options.branches.add(res);
+
+  SettingMeta tcutoff("time_cutoff", SettingType::floating, "Max time cutoff (if !=0)");
+  tcutoff.set_val("min", 0);
+  tcutoff.set_val("units", "units (see above)");
+  base_options.branches.add(tcutoff);
 
   metadata_.overwrite_all_attributes(base_options);
 }
@@ -46,10 +51,14 @@ void TOF1DCorrelate::_apply_attributes()
   time_resolution_ = 0;
   if (metadata_.get_attribute("time_resolution").get_number() > 0)
     time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+
+  time_cutoff_ = metadata_.get_attribute("time_cutoff").get_number();
+
   auto unit = metadata_.get_attribute("time_units").selection();
   units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
+  time_cutoff_ *= units_multiplier_;
 
   chopper_stream_id_ = metadata_.get_attribute("chopper_stream_id").get_text();
 
@@ -140,6 +149,9 @@ bool TOF1DCorrelate::bin_events()
     double nsecs = t - offset;
 
     if (nsecs < 0.0)
+      continue;
+
+    if ((time_cutoff_ > 0.) && (nsecs > time_cutoff_))
       continue;
 
     coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
