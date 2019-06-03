@@ -161,23 +161,23 @@ node('docker') {
     // Delete workspace when build is done.
     cleanWs()
 
-    stage('Checkout') {
-        dir("${project}") {
+    dir("${project}") {
+        stage('Checkout') {
             try {
                 scm_vars = checkout scm
             } catch (e) {
                 failure_function(e, 'Checkout failed')
             }
         }
-    }
-  
-    stage("Static analysis") {
-        try {
-            sh "cloc --by-file --xml --out=cloc.xml ."
-            sh "xsltproc jenkins/cloc2sloccount.xsl cloc.xml > sloccount.sc"
-            sloccountPublish encoding: '', pattern: ''
-        } catch (e) {
-            failure_function(e, 'Static analysis failed')
+    
+        stage("Static analysis") {
+            try {
+                sh "cloc --by-file --xml --out=cloc.xml ."
+                sh "xsltproc jenkins/cloc2sloccount.xsl cloc.xml > sloccount.sc"
+                sloccountPublish encoding: '', pattern: ''
+            } catch (e) {
+                failure_function(e, 'Static analysis failed')
+            }
         }
     }
 
