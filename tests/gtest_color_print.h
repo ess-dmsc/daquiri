@@ -1,5 +1,6 @@
 #pragma once
 #include <gtest/gtest.h>
+#include <core/util/color_bash.h>
 
 namespace testing {
 namespace internal {
@@ -17,10 +18,8 @@ class TestBase : public ::testing::Test
       public:
         ~Message()
         {
-          testing::internal::ColoredPrintf(testing::internal::COLOR_GREEN,
-                                           "[          ] ");
-          testing::internal::ColoredPrintf(testing::internal::COLOR_YELLOW, "%s",
-                                           str().c_str());
+          std::cout << col(BashColor::GREEN) <<  "[          ] ";
+          std::cout << col(BashColor::YELLOW) <<  str();
         }
     };
 #define MESSAGE Message

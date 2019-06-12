@@ -1,5 +1,5 @@
 [requires]
-cli11/1.6.0@bincrafters/stable
+CLI11/1.8.0@cliutils/stable
 date/4b46deb@ess-dmsc/stable
 Eigen3/3.2.9@bilke/stable
 fmt/5.2.0@bincrafters/stable
