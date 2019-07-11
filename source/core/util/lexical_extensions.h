@@ -2,6 +2,7 @@
 
 #include <core/util/string_extensions.h>
 #include <cmath>
+#include <iomanip>
 
 inline bool is_number(std::string s)
 {
