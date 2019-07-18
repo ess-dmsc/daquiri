@@ -85,31 +85,32 @@ builders = pipeline_builder.createBuilders { container ->
         container.copyTo(pipeline_builder.project, pipeline_builder.project)
     }  // stage
 
-    pipeline_builder.stage("${container.key}: get dependencies") {
+    pipeline_builder.stage("${container.key}: configure conan") {
         container.sh """
+            cd ${project}
             mkdir build
             cd build
             conan remote add --insert 0 ess-dmsc-local ${local_conan_server}
         """
     }  // stage
 
-    pipeline_builder.stage("${container.key}: configure") {
-        def coverage_on
+    pipeline_builder.stage("${container.key}: CMake") {
+        def coverage_flag
         if (container.key == coverage_on) {
-            coverage_on = "-DCOV=1"
+            coverage_flag = "-DCOV=1"
         } else {
-            coverage_on = ""
+            coverage_flag = ""
         }
 
         container.sh """
-            cd build
-            cmake ../${pipeline_builder.project} ${coverage_on}
+            cd ${project}/build
+            cmake .. ${coverage_flag}
         """
     }  // stage
 
     pipeline_builder.stage("${container.key}: build") {
         container.sh """
-            cd build
+            cd ${project}/build
             . ./activate_run.sh
             make everything -j4
         """
