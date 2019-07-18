@@ -118,6 +118,8 @@ builders = pipeline_builder.createBuilders { container ->
 
     pipeline_builder.stage("${container.key}: test") {
         if (container.key == coverage_on) {
+            abs_dir = pwd()
+
             try {
                 container.sh """
                         cd ${project}/build
