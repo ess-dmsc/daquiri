@@ -124,11 +124,11 @@ builders = pipeline_builder.createBuilders { container ->
                         . ./activate_run.sh
                         make run_tests && make coverage
                     """
-                container.copyFrom('${project}/build', '.')
+                container.copyFrom("${project}/build", '.')
             } catch(e) {
-                container.copyFrom('${project}/build/test', '.')
+                container.copyFrom("${project}/build/test", '.')
                 junit 'tests/test_results.xml'
-                failure_function(e, 'Run tests (${container_name(image_key)}) failed')
+                failure_function(e, "Run tests (${container_name(image_key)}) failed")
             }
             dir("${project}/build") {
                 junit 'tests/test_results.xml'
