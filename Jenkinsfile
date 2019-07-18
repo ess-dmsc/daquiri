@@ -124,7 +124,7 @@ builders = pipeline_builder.createBuilders { container ->
                         . ./activate_run.sh
                         make run_tests && make coverage
                     """
-                container.copyFrom("${project}/build", '.')
+                container.copyFrom("${project}", '.')
             } catch(e) {
                 container.copyFrom("${project}/build/test", '.')
                 junit 'tests/test_results.xml'
