@@ -23,11 +23,9 @@ gtest:shared=True
 librdkafka:shared=True
 
 [imports]
-bin, cmake -> ./bin
-bin, *.dll -> ./bin
-lib, *.dll -> ./bin
-lib, *.so.* -> ./lib
-lib, *.so -> ./lib
-share, * -> ./share
-filesystem/lib, *.so* -> ./lib
-system/lib, *.so* -> ./lib
+system/lib, * -> ./lib
+lib, * -> ./lib
+lib64, * -> ./lib
+filesystem/lib, * -> ./lib
+system/lib, * -> ./lib
+., LICENSE* -> ./licenses @ folder=True, ignore_case=True

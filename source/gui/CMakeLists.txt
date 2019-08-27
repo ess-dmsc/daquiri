@@ -67,4 +67,11 @@ target_link_libraries(
   Qt5::Widgets
   Qt5::PrintSupport
   Qt5::Network
+  
 )
+
+get_filename_component(DAQ_RUN_INSTRUCTIONS "Executing artefacts.md" ABSOLUTE)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${DAQ_RUN_INSTRUCTIONS}
+                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/")
