@@ -1,10 +1,9 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
-inline nlohmann::json from_json_file(std::string fname)
-{
+inline nlohmann::json from_json_file(std::string fname) {
   std::ifstream ifs(fname, std::ofstream::in);
   nlohmann::json j;
   if (ifs.good())
@@ -12,7 +11,6 @@ inline nlohmann::json from_json_file(std::string fname)
   return j;
 }
 
-inline void to_json_file(const nlohmann::json& j, std::string fname)
-{
+inline void to_json_file(const nlohmann::json &j, std::string fname) {
   std::ofstream(fname, std::ofstream::trunc) << j.dump(1);
 }

@@ -1,49 +1,37 @@
 #pragma once
 
-#include <producers/ESSStream/fb_parser.h>
 #include <producers/ESSStream/ESSGeometryPlugin.h>
+#include <producers/ESSStream/fb_parser.h>
 
 using namespace DAQuiri;
 
 struct EventMessage;
 
-class ev42_events : public fb_parser
-{
- public:
+class ev42_events : public fb_parser {
+public:
   ev42_events();
 
   ~ev42_events() = default;
 
-  std::string plugin_name() const override
-  { return "ev42_events"; }
+  std::string plugin_name() const override { return "ev42_events"; }
 
   std::string schema_id() const override;
-  std::string get_source_name(void* msg) const override;
+  std::string get_source_name(void *msg) const override;
 
-  void settings(const Setting&) override;
+  void settings(const Setting &) override;
   Setting settings() const override;
 
-  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
+  uint64_t process_payload(SpillQueue spill_queue, void *msg) override;
   uint64_t stop(SpillQueue spill_queue) override;
 
   StreamManifest stream_manifest() const override;
 
- private:
+private:
   // cached params
 
-  enum Spoof : int32_t
-  {
-    None = 0,
-    Monotonous = 1,
-    Earliest = 2
-  };
+  enum Spoof : int32_t { None = 0, Monotonous = 1, Earliest = 2 };
 
-  enum CheckOrdering : int32_t
-  {
-    Ignore = 0,
-    Warn = 1,
-    Reject = 2
-  };
+  enum CheckOrdering : int32_t { Ignore = 0, Warn = 1, Reject = 2 };
 
   std::string stream_id_;
   ESSGeometryPlugin geometry_;
@@ -62,7 +50,7 @@ class ev42_events : public fb_parser
   // stream error checking
   uint64_t latest_buf_id_{0};
 
-  bool in_order(const EventMessage*);
-  size_t events_in_buffer(const EventMessage*);
-  std::string debug(const EventMessage*);
+  bool in_order(const EventMessage *);
+  size_t events_in_buffer(const EventMessage *);
+  std::string debug(const EventMessage *);
 };

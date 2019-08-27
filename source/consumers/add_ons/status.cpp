@@ -3,8 +3,7 @@
 
 namespace DAQuiri {
 
-Status Status::extract(const Spill& spill)
-{
+Status Status::extract(const Spill &spill) {
   Status ret;
   ret.valid = true;
   ret.type = spill.type;
@@ -21,8 +20,8 @@ Status Status::extract(const Spill& spill)
 }
 
 // TODO: make this work with nanoseconds
-hr_duration_t Status::calc_diff(const Status& from, const Status& to, std::string name)
-{
+hr_duration_t Status::calc_diff(const Status &from, const Status &to,
+                                std::string name) {
   if (!from.stats.count(name) || !to.stats.count(name))
     return hr_duration_t();
   auto diff = to.stats.at(name).get_number() - from.stats.at(name).get_number();
@@ -30,22 +29,18 @@ hr_duration_t Status::calc_diff(const Status& from, const Status& to, std::strin
   return std::chrono::microseconds(static_cast<uint64_t>(diff_us));
 }
 
-hr_duration_t Status::total_elapsed(const std::vector<Status>& stats, std::string name)
-{
-  hr_duration_t t {std::chrono::seconds(0)};
-  hr_duration_t ret {std::chrono::seconds(0)};
+hr_duration_t Status::total_elapsed(const std::vector<Status> &stats,
+                                    std::string name) {
+  hr_duration_t t{std::chrono::seconds(0)};
+  hr_duration_t ret{std::chrono::seconds(0)};
 
   Status start = stats.front();
 
-  for (const auto& q : stats)
-  {
-    if (q.type == Spill::Type::start)
-    {
+  for (const auto &q : stats) {
+    if (q.type == Spill::Type::start) {
       ret += t;
       start = q;
-    }
-    else
-    {
+    } else {
       t = calc_diff(start, q, name);
       if (t == hr_duration_t())
         return t;
@@ -58,4 +53,4 @@ hr_duration_t Status::total_elapsed(const std::vector<Status>& stats, std::strin
   return ret;
 }
 
-}
+} // namespace DAQuiri

@@ -1,23 +1,22 @@
 #pragma once
 
-#include <core/plugin/plugin.h>
 #include <core/event.h>
+#include <core/plugin/plugin.h>
 #include <logical_geometry/ESSGeometry.h>
 
 using namespace DAQuiri;
 
-class ESSGeometryPlugin : public Plugin
-{
-  public:
-    ESSGeometryPlugin();
+class ESSGeometryPlugin : public Plugin {
+public:
+  ESSGeometryPlugin();
 
-    std::string plugin_name() const override { return "ESSGeometry"; }
-    Setting settings() const override;
-    void settings(const Setting&) override;
+  std::string plugin_name() const override { return "ESSGeometry"; }
+  Setting settings() const override;
+  void settings(const Setting &) override;
 
-    void define(EventModel& definition);
-    bool fill(Event& event, uint32_t pixel_id);
+  void define(EventModel &definition);
+  bool fill(Event &event, uint32_t pixel_id);
 
-  private:
-    ESSGeometry geometry_{1, 1, 1, 1};
+private:
+  ESSGeometry geometry_{1, 1, 1, 1};
 };

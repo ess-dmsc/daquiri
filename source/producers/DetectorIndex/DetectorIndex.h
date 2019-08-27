@@ -4,22 +4,21 @@
 
 using namespace DAQuiri;
 
-class DetectorIndex : public Producer
-{
-  public:
-    DetectorIndex();
-    ~DetectorIndex();
+class DetectorIndex : public Producer {
+public:
+  DetectorIndex();
+  ~DetectorIndex();
 
-    std::string plugin_name() const override { return "DetectorIndex"; }
+  std::string plugin_name() const override { return "DetectorIndex"; }
 
-    void settings(const Setting&) override;
-    Setting settings() const override;
+  void settings(const Setting &) override;
+  Setting settings() const override;
 
-    void boot() override;
-    void die() override;
+  void boot() override;
+  void die() override;
 
-  protected:
-    std::vector<Detector> detectors_;
+protected:
+  std::vector<Detector> detectors_;
 
-    void define_settings();
+  void define_settings();
 };

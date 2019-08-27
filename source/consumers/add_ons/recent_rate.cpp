@@ -4,19 +4,15 @@
 
 namespace DAQuiri {
 
-RecentRate::RecentRate(const std::string& clock)
-    : divisor_clock(clock)
-{
-}
+RecentRate::RecentRate(const std::string &clock) : divisor_clock(clock) {}
 
-void RecentRate::settings(const Setting& s)
-{
+void RecentRate::settings(const Setting &s) {
   divisor_clock = s.find(Setting("divisor_clock")).get_text();
 }
 
-Setting RecentRate::settings(int32_t index) const
-{
-  SettingMeta divm("divisor_clock", SettingType::text, "Recent rate divisor clock");
+Setting RecentRate::settings(int32_t index) const {
+  SettingMeta divm("divisor_clock", SettingType::text,
+                   "Recent rate divisor clock");
   divm.set_flag("preset");
   divm.set_flag("native_clock");
   Setting div(divm);
@@ -26,8 +22,7 @@ Setting RecentRate::settings(int32_t index) const
   return div;
 }
 
-Setting RecentRate::update(const Status& current, PreciseFloat new_count)
-{
+Setting RecentRate::update(const Status &current, PreciseFloat new_count) {
   if (!previous_status.valid)
     previous_status = current;
 
@@ -35,7 +30,9 @@ Setting RecentRate::update(const Status& current, PreciseFloat new_count)
 
   double recent_s = 0;
   if (recent_t != hr_duration_t())
-    recent_s = std::chrono::duration_cast<std::chrono::microseconds>(recent_t).count() * 0.000001;
+    recent_s = std::chrono::duration_cast<std::chrono::microseconds>(recent_t)
+                   .count() *
+               0.000001;
 
   if (recent_s != 0)
     current_rate = (new_count - previous_count) / recent_s;
@@ -45,8 +42,7 @@ Setting RecentRate::update(const Status& current, PreciseFloat new_count)
   previous_status = current;
   previous_count = new_count;
 
-  SettingMeta ratem("recent_" + divisor_clock + "_rate",
-                    SettingType::precise,
+  SettingMeta ratem("recent_" + divisor_clock + "_rate", SettingType::precise,
                     "Recent counts/" + divisor_clock + " rate");
   ratem.set_flag("readonly");
   ratem.set_val("units", "counts/s");
@@ -56,4 +52,4 @@ Setting RecentRate::update(const Status& current, PreciseFloat new_count)
   return rate;
 }
 
-}
+} // namespace DAQuiri

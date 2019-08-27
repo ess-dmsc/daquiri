@@ -17,6 +17,8 @@ using condition_variable = std::condition_variable;
 #define UNIQUE_LOCK unique_lock ulock(mutex_, DEFER);
 #define UNIQUE_LOCK_ST unique_lock_st ulock(mutex_, DEFER);
 #define SHARED_LOCK_ST shared_lock_st lock(mutex_);
-#define EVENTUALLY_LOCK while (!ulock.try_lock()) WAIT_MUTEX_LOCK;
+#define EVENTUALLY_LOCK                                                        \
+  while (!ulock.try_lock())                                                    \
+    WAIT_MUTEX_LOCK;
 #define UNIQUE_LOCK_EVENTUALLY UNIQUE_LOCK EVENTUALLY_LOCK
 #define UNIQUE_LOCK_EVENTUALLY_ST UNIQUE_LOCK_ST EVENTUALLY_LOCK

@@ -4,8 +4,7 @@
 
 namespace DAQuiri {
 
-class ConsumerMetadata
-{
+class ConsumerMetadata {
 public:
   ConsumerMetadata();
   ConsumerMetadata(std::string tp, std::string descr);
@@ -23,10 +22,9 @@ public:
   void set_attributes(const std::list<Setting> &s, bool greedy = false);
   void overwrite_all_attributes(Setting settings);
 
-  //read only
-  std::string type() const {return type_;}
-  std::string type_description() const {return type_description_;}
-
+  // read only
+  std::string type() const { return type_; }
+  std::string type_description() const { return type_description_; }
 
   void disable_presets();
   void set_det_limit(uint16_t limit);
@@ -34,24 +32,23 @@ public:
 
   std::string debug(std::string prepend, bool verbose = true) const;
 
-  bool shallow_equals(const ConsumerMetadata& other) const;
-  bool operator!= (const ConsumerMetadata& other) const;
-  bool operator== (const ConsumerMetadata& other) const;
+  bool shallow_equals(const ConsumerMetadata &other) const;
+  bool operator!=(const ConsumerMetadata &other) const;
+  bool operator==(const ConsumerMetadata &other) const;
 
-  friend void to_json(json& j, const ConsumerMetadata &s);
-  friend void from_json(const json& j, ConsumerMetadata &s);
+  friend void to_json(json &j, const ConsumerMetadata &s);
+  friend void from_json(const json &j, ConsumerMetadata &s);
 
 private:
-  //this stuff from factory, immutable upon initialization
+  // this stuff from factory, immutable upon initialization
   std::string type_;
   std::string type_description_;
 
-  //can change these
-  Setting attributes_ {SettingMeta("Attributes", SettingType::stem)};
+  // can change these
+  Setting attributes_{SettingMeta("Attributes", SettingType::stem)};
 
 public:
   std::vector<Detector> detectors;
-
 };
 
-}
+} // namespace DAQuiri

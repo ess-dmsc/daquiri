@@ -4,25 +4,23 @@
 
 namespace DAQuiri {
 
-struct FilterBlock
-{
-  void settings(const Setting& s);
+struct FilterBlock {
+  void settings(const Setting &s);
   Setting settings() const;
 
-  void configure(const Spill& spill);
+  void configure(const Spill &spill);
 
-  inline bool accept(const Event& event) const
-  {
+  inline bool accept(const Event &event) const {
     if (!valid)
       return true;
-    for (auto& f : filters_)
+    for (auto &f : filters_)
       if (!f.accept(event))
         return false;
     return true;
   }
 
   std::vector<ValueFilter> filters_;
-  bool valid {false};
+  bool valid{false};
 };
 
-}
+} // namespace DAQuiri

@@ -1,35 +1,32 @@
 #pragma once
 
-#include <producers/ESSStream/fb_parser.h>
 #include <map>
+#include <producers/ESSStream/fb_parser.h>
 
 using namespace DAQuiri;
 
 struct SampleEnvironmentData;
 
-class SenvParser : public fb_parser
-{
- public:
+class SenvParser : public fb_parser {
+public:
   SenvParser();
 
-  ~SenvParser()
-  {}
+  ~SenvParser() {}
 
-  std::string plugin_name() const override
-  { return "SenvParser"; }
+  std::string plugin_name() const override { return "SenvParser"; }
 
   std::string schema_id() const override;
-  std::string get_source_name(void* msg) const override;
+  std::string get_source_name(void *msg) const override;
 
-  void settings(const Setting&) override;
+  void settings(const Setting &) override;
   Setting settings() const override;
 
-  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
+  uint64_t process_payload(SpillQueue spill_queue, void *msg) override;
   uint64_t stop(SpillQueue spill_queue) override;
 
   StreamManifest stream_manifest() const override;
 
- private:
+private:
   // cached params
 
   std::string stream_id_base_{"Senv"};
@@ -41,9 +38,7 @@ class SenvParser : public fb_parser
 
   bool started_{false};
 
-  static std::string debug(const SampleEnvironmentData* TDCTimeStamp);
+  static std::string debug(const SampleEnvironmentData *TDCTimeStamp);
 
   uint64_t start(SpillQueue spill_queue);
-
 };
-

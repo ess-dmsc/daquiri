@@ -1,14 +1,12 @@
 #pragma once
 
 #include <exception>
-#include <system_error>
 #include <future>
-#include <iostream>
 #include <ios>
+#include <iostream>
+#include <system_error>
 
-template <typename T>
-void processCodeException(const T& e)
-{
+template <typename T> void processCodeException(const T &e) {
   auto c = e.code();
   std::cERR( "- category:         " << c.category().name() << std::endl;
   std::cERR( "- value:            " << c.value() << std::endl;
@@ -18,37 +16,23 @@ void processCodeException(const T& e)
   std::cERR( "- def message:      " << c.default_error_condition().message() << std::endl;
 }
 
-inline void printException()
-{
-  try
-  {
+inline void printException() {
+  try {
     throw;
-  }
-  catch (const std::ios_base::failure& e)
-  {
+  } catch (const std::ios_base::failure &e) {
     std::cERR( "I/O EXCEPTION: " << e.what() << std::endl;
-//    processCodeException(e);
-  }
-  catch (const std::system_error& e)
-  {
+    //    processCodeException(e);
+  } catch (const std::system_error &e) {
     std::cERR( "SYSTEM EXCEPTION: " << e.what() << std::endl;
     processCodeException(e);
-  }
-  catch (const std::future_error& e)
-  {
+  } catch (const std::future_error &e) {
     std::cERR( "FUTURE EXCEPTION: " << e.what() << std::endl;
     processCodeException(e);
-  }
-  catch (const std::bad_alloc& e)
-  {
+  } catch (const std::bad_alloc &e) {
     std::cERR( "BAD ALLOC EXCEPTION: " << e.what() << std::endl;
-  }
-  catch (const std::exception& e)
-  {
+  } catch (const std::exception &e) {
     std::cERR( "EXCEPTION: " << e.what() << std::endl;
-  }
-  catch (...)
-  {
+  } catch (...) {
     std::cERR( "EXCEPTION (unknown)" << std::endl;
   }
 }

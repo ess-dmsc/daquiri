@@ -1,25 +1,21 @@
 #pragma once
 
-#include <QWidget>
 #include <QMenu>
+#include <QWidget>
 #include <core/project.h>
 #include <gui/ThreadRunner.h>
 #include <gui/daq/ThreadPlotSignal.h>
 
-namespace Ui
-{
+namespace Ui {
 class ProjectForm;
 }
 
-class ProjectForm : public QWidget
-{
- Q_OBJECT
+class ProjectForm : public QWidget {
+  Q_OBJECT
 
- public:
-  explicit ProjectForm(ThreadRunner& thread,
-                       ProjectPtr proj,
-                       QString identity,
-                       QWidget* parent = 0);
+public:
+  explicit ProjectForm(ThreadRunner &thread, ProjectPtr proj, QString identity,
+                       QWidget *parent = 0);
   ~ProjectForm() = default;
 
   QString profile_dir() const;
@@ -27,20 +23,19 @@ class ProjectForm : public QWidget
   hr_time_t opened() const;
   bool running() const;
 
- signals:
+signals:
   void toggleIO(bool);
-  void requestClose(QWidget*);
+  void requestClose(QWidget *);
 
- protected:
-  void closeEvent(QCloseEvent*);
+protected:
+  void closeEvent(QCloseEvent *);
 
- public slots:
-  void toggle_push(bool, DAQuiri::ProducerStatus,
-                   DAQuiri::StreamManifest);
+public slots:
+  void toggle_push(bool, DAQuiri::ProducerStatus, DAQuiri::StreamManifest);
   void start_DAQ();
   void on_pushStop_clicked();
 
- private slots:
+private slots:
   void on_pushStart_clicked();
   void run_completed();
   void on_pushEditSpectra_clicked();
@@ -62,13 +57,13 @@ class ProjectForm : public QWidget
 
   void on_doubleSpinMinPause_editingFinished();
 
- private:
-  Ui::ProjectForm* ui;
+private:
+  Ui::ProjectForm *ui;
   QMenu menuLoad;
   QMenu menuSave;
   hr_time_t opened_{std::chrono::system_clock::now()};
 
-  ThreadRunner& runner_thread_;
+  ThreadRunner &runner_thread_;
   DAQuiri::Interruptor interruptor_{true};
   DAQuiri::ProjectPtr project_;
   bool my_run_{false};

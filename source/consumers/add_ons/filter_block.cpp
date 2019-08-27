@@ -2,8 +2,7 @@
 
 namespace DAQuiri {
 
-void FilterBlock::settings(const Setting& s)
-{
+void FilterBlock::settings(const Setting &s) {
   size_t filter_count = 0;
   auto newsize = s.find(Setting("filter_count"));
   if (newsize)
@@ -11,19 +10,16 @@ void FilterBlock::settings(const Setting& s)
   filters_.resize(filter_count);
 
   size_t i = 0;
-  for (auto ss : s.branches)
-  {
+  for (auto ss : s.branches) {
     if (ss.id() == "filter_count")
       continue;
     filters_[i++].settings(ss);
     if (i >= filter_count)
       break;
   }
-
 }
 
-Setting FilterBlock::settings() const
-{
+Setting FilterBlock::settings() const {
   auto ret = Setting::stem("filters");
 
   SettingMeta fc("filter_count", SettingType::integer, "Number of filters");
@@ -39,11 +35,9 @@ Setting FilterBlock::settings() const
   return ret;
 }
 
-void FilterBlock::configure(const Spill& spill)
-{
+void FilterBlock::configure(const Spill &spill) {
   valid = false;
-  for (auto& f : filters_)
-  {
+  for (auto &f : filters_) {
     if (f.enabled_)
       f.configure(spill);
     if (f.valid())
@@ -51,4 +45,4 @@ void FilterBlock::configure(const Spill& spill)
   }
 }
 
-}
+} // namespace DAQuiri

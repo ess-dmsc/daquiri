@@ -1,8 +1,8 @@
-#include <gui/Profiles.h>
-#include <core/engine.h>
-#include <QSettings>
 #include <QDir>
+#include <QSettings>
+#include <core/engine.h>
 #include <core/util/json_file.h>
+#include <gui/Profiles.h>
 
 #include <core/util/logger.h>
 
@@ -10,134 +10,108 @@
 #define PROFILES_SUBDIR "/profiles"
 #define PROFILE_FILE_NAME "profile.set"
 
-bool Profiles::has_settings_dir()
-{
+bool Profiles::has_settings_dir() {
   QSettings settings;
   settings.beginGroup("Program");
   return (settings.contains("settings_directory") &&
-      !settings.value("settings_directory", "").toString().isEmpty());
+          !settings.value("settings_directory", "").toString().isEmpty());
 }
 
-QString Profiles::default_settings_dir()
-{
+QString Profiles::default_settings_dir() {
   return QDir::homePath() + "/" + DEFAULT_SETTINGS_PATH;
 }
 
-QString Profiles::settings_dir()
-{
+QString Profiles::settings_dir() {
   QSettings settings;
   settings.beginGroup("Program");
-  return settings.value("settings_directory", default_settings_dir()).toString();
+  return settings.value("settings_directory", default_settings_dir())
+      .toString();
 }
 
-void Profiles::select_settings_dir(QString dir)
-{
+void Profiles::select_settings_dir(QString dir) {
   if (dir.isEmpty())
     return;
   QSettings settings;
   settings.beginGroup("Program");
-  settings.setValue("settings_directory",
-                    QDir(dir).absolutePath());
+  settings.setValue("settings_directory", QDir(dir).absolutePath());
 
   QDir profpath(profiles_dir());
   if (!profpath.exists())
     profpath.mkpath(".");
 }
 
-bool Profiles::is_valid_settings_dir(QString dir)
-{
+bool Profiles::is_valid_settings_dir(QString dir) {
   QDir profpath(dir + PROFILES_SUBDIR);
   if (!profpath.exists())
     return false;
-  profpath.setFilter(QDir::Dirs |
-      QDir::NoDot |
-      QDir::NoDotDot |
-      QDir::NoSymLinks);
+  profpath.setFilter(QDir::Dirs | QDir::NoDot | QDir::NoDotDot |
+                     QDir::NoSymLinks);
 
   QFileInfoList list = profpath.entryInfoList();
-  for (int i = 0; i < list.size(); ++i)
-  {
+  for (int i = 0; i < list.size(); ++i) {
     QFileInfo fileInfo = list.at(i);
-    try
-    {
-      if (!from_json_file(fileInfo.absoluteFilePath().toStdString()
-                              + "/" + PROFILE_FILE_NAME).empty())
+    try {
+      if (!from_json_file(fileInfo.absoluteFilePath().toStdString() + "/" +
+                          PROFILE_FILE_NAME)
+               .empty())
         return true;
+    } catch (...) {
     }
-    catch (...) {}
   }
   return false;
 }
 
-QString Profiles::profiles_dir()
-{
-  return settings_dir() + PROFILES_SUBDIR;
-}
+QString Profiles::profiles_dir() { return settings_dir() + PROFILES_SUBDIR; }
 
-QString Profiles::current_profile_name()
-{
-  return current_profile_name_;
-}
+QString Profiles::current_profile_name() { return current_profile_name_; }
 
-bool Profiles::is_valid_profile(QString name)
-{
+bool Profiles::is_valid_profile(QString name) {
   return !get_profile(name).empty();
 }
 
-QString Profiles::profile_dir(QString name)
-{
+QString Profiles::profile_dir(QString name) {
   if (name.isEmpty())
     return "";
   return profiles_dir() + "/" + name;
 }
 
-QString Profiles::current_profile_dir()
-{
+QString Profiles::current_profile_dir() {
   return profile_dir(current_profile_name());
 }
 
-nlohmann::json Profiles::get_profile(QString name)
-{
+nlohmann::json Profiles::get_profile(QString name) {
   nlohmann::json profile;
-  if (!name.isEmpty())
-  {
+  if (!name.isEmpty()) {
     auto dir = profiles_dir() + "/" + name;
-    try
-    {
-      profile = from_json_file(dir.toStdString()
-                                   + "/" + PROFILE_FILE_NAME);
+    try {
+      profile = from_json_file(dir.toStdString() + "/" + PROFILE_FILE_NAME);
+    } catch (...) {
     }
-    catch (...) {}
   }
   return profile;
 }
 
-nlohmann::json Profiles::get_current_profile()
-{
+nlohmann::json Profiles::get_current_profile() {
   return get_profile(current_profile_name());
 }
 
-void Profiles::save_profile(const nlohmann::json& data)
-{
+void Profiles::save_profile(const nlohmann::json &data) {
   auto name = current_profile_name();
   if (!name.isEmpty())
-    to_json_file(data, current_profile_dir().toStdString()
-        + "/" + PROFILE_FILE_NAME);
+    to_json_file(data,
+                 current_profile_dir().toStdString() + "/" + PROFILE_FILE_NAME);
 }
 
-void Profiles::select_profile(QString name, bool boot)
-{
+void Profiles::select_profile(QString name, bool boot) {
   current_profile_name_ = name;
   auto_boot_ = boot;
 }
 
-bool Profiles::profile_exists(QString name)
-{
+bool Profiles::profile_exists(QString name) {
   return QDir(profile_dir(name)).exists();
 }
 
-void Profiles::create_profile(QString name)
-{
+void Profiles::create_profile(QString name) {
   auto dir = profile_dir(name);
   if (!QDir(dir).exists())
     QDir().mkdir(dir);
@@ -148,20 +122,12 @@ void Profiles::create_profile(QString name)
   to_json_file(profile, dir.toStdString() + "/" + PROFILE_FILE_NAME);
 }
 
-void Profiles::remove_profile(QString name)
-{
+void Profiles::remove_profile(QString name) {
   QDir path(profile_dir(name));
   if (path.exists())
     path.removeRecursively();
 }
 
-bool Profiles::auto_boot() const
-{
-  return auto_boot_;
-}
+bool Profiles::auto_boot() const { return auto_boot_; }
 
-void Profiles::auto_boot(bool boot)
-{
-  auto_boot_ = boot;
-}
-
+void Profiles::auto_boot(bool boot) { auto_boot_ = boot; }

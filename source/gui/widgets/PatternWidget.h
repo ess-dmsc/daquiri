@@ -1,27 +1,27 @@
 #pragma once
 
-#include <QObject>
 #include <QMetaType>
-#include <QWidget>
+#include <QObject>
 #include <QPointF>
-#include <QVector>
 #include <QStyledItemDelegate>
-#include <vector>
+#include <QVector>
+#include <QWidget>
 #include <bitset>
 #include <core/plugin/pattern.h>
 #include <core/util/logger.h>
+#include <vector>
 
 Q_DECLARE_METATYPE(DAQuiri::Pattern)
 
-class PatternWidget : public QWidget
-{
+class PatternWidget : public QWidget {
   Q_OBJECT
 public:
   PatternWidget(QWidget *parent = 0);
 
-  PatternWidget(DAQuiri::Pattern pattern = DAQuiri::Pattern(),
-                double size = 25, size_t wrap = 0)
-  {set_pattern(pattern, size, wrap);}
+  PatternWidget(DAQuiri::Pattern pattern = DAQuiri::Pattern(), double size = 25,
+                size_t wrap = 0) {
+    set_pattern(pattern, size, wrap);
+  }
 
   void set_pattern(DAQuiri::Pattern pattern = DAQuiri::Pattern(),
                    double size = 25, size_t wrap = 0);
@@ -38,7 +38,6 @@ protected:
   void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
 
 private:
-
   int flagAtPosition(int x, int y);
   void setFlag(int count);
 

@@ -1,15 +1,13 @@
 #pragma once
 
-#include <string>
 #include <limits>
 #include <nlohmann/json.hpp>
+#include <string>
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
-class Parameter
-{
- public:
+class Parameter {
+public:
   Parameter() = default;
   Parameter(double v);
   Parameter(double v1, double v2, double v3);
@@ -25,22 +23,16 @@ class Parameter
   void set(double v1, double v2, double v3);
   void constrain(double v1, double v2);
 
-  bool equal_bounds(const Parameter& other) const;
+  bool equal_bounds(const Parameter &other) const;
 
-  bool operator==(const Parameter& other) const
-  {
-    return ((value_ == other.value_)
-        && (lower_ == other.lower_)
-        && (upper_ == other.upper_));
+  bool operator==(const Parameter &other) const {
+    return ((value_ == other.value_) && (lower_ == other.lower_) &&
+            (upper_ == other.upper_));
   }
 
-  bool operator!=(const Parameter& other) const
-  {
-    return !operator==(other);
-  }
+  bool operator!=(const Parameter &other) const { return !operator==(other); }
 
-  bool operator<(const Parameter& other) const
-  {
+  bool operator<(const Parameter &other) const {
     if (value_ < other.value_)
       return true;
     if (lower_ < other.lower_)
@@ -52,16 +44,16 @@ class Parameter
 
   std::string to_string() const;
 
-  friend void to_json(nlohmann::json& j, const Parameter& s);
-  friend void from_json(const nlohmann::json& j, Parameter& s);
+  friend void to_json(nlohmann::json &j, const Parameter &s);
+  friend void from_json(const nlohmann::json &j, Parameter &s);
 
   // \todo static is_finite()
 
- private:
+private:
   double value_{std::numeric_limits<double>::quiet_NaN()};
   double lower_{-1 * std::numeric_limits<double>::infinity()};
   double upper_{std::numeric_limits<double>::infinity()};
   bool fixed_{false};
 };
 
-}
+} // namespace DAQuiri

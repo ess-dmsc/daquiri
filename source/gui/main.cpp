@@ -1,36 +1,41 @@
-#include <gui/daquiri.h>
-#include <consumers/consumers_autoreg.h>
-#include <producers/producers_autoreg.h>
 #include <QApplication>
 #include <QCommandLineParser>
+#include <consumers/consumers_autoreg.h>
 #include <gui/Profiles.h>
+#include <gui/daquiri.h>
+#include <producers/producers_autoreg.h>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   CustomLogger::initLogger(spdlog::level::info, "daquiri.log");
 
   QApplication app(argc, argv);
   QApplication::setOrganizationName("ESS");
   QApplication::setApplicationName("daquiri");
-//  QApplication::setApplicationVersion("1.0");
+  //  QApplication::setApplicationVersion("1.0");
 
   QCommandLineParser parser;
-  parser.setApplicationDescription("daquiri: snapping at the heels of the martini");
+  parser.setApplicationDescription(
+      "daquiri: snapping at the heels of the martini");
   parser.addHelpOption();
-//  parser.addVersionOption();
+  //  parser.addVersionOption();
 
-  QCommandLineOption openOption(QStringList() << "o" << "open",
-          QApplication::translate("main", "Open project"));
+  QCommandLineOption openOption(
+      QStringList() << "o"
+                    << "open",
+      QApplication::translate("main", "Open project"));
   parser.addOption(openOption);
 
-  QCommandLineOption runOption(QStringList() << "r" << "run",
-          QApplication::translate("main", "Run acquisition"));
+  QCommandLineOption runOption(
+      QStringList() << "r"
+                    << "run",
+      QApplication::translate("main", "Run acquisition"));
   parser.addOption(runOption);
 
   QCommandLineOption profileOption(
-        QStringList() << "p" << "profile",
-        QApplication::translate("main", "Open <profile>."),
-        QApplication::translate("main", "profile"));
+      QStringList() << "p"
+                    << "profile",
+      QApplication::translate("main", "Open <profile>."),
+      QApplication::translate("main", "profile"));
   parser.addOption(profileOption);
 
   parser.process(app);
@@ -39,8 +44,7 @@ int main(int argc, char *argv[])
   bool opennew = parser.isSet(openOption) || startnew;
   QString profile = parser.value(profileOption);
 
-  if (!profile.isEmpty())
-  {
+  if (!profile.isEmpty()) {
     QSettings settings;
     settings.beginGroup("Program");
     settings.setValue("current_profile", profile);
@@ -48,8 +52,7 @@ int main(int argc, char *argv[])
     // \todo this might be overkill?
   }
 
-  if (!parser.isSet("h"))
-  {
+  if (!parser.isSet("h")) {
     hdf5::error::Singleton::instance().auto_print(false);
 
     producers_autoreg();

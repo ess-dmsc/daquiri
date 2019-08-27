@@ -1,16 +1,14 @@
 #include <QtWidgets>
 #include <math.h>
 
-#include <gui/widgets/SelectorWidget.h>
 #include <core/util/logger.h>
+#include <gui/widgets/SelectorWidget.h>
 #include <gui/widgets/qt_util.h>
 
-SelectorWidget::SelectorWidget(QWidget *parent)
-  : QWidget(parent)
-{
+SelectorWidget::SelectorWidget(QWidget *parent) : QWidget(parent) {
   setMouseTracking(true);
   setAutoFillBackground(true);
-  max_wide = 3; //make this a parameter
+  max_wide = 3; // make this a parameter
   rect_w_ = 140;
   rect_h_ = 25;
   border = 5;
@@ -19,22 +17,20 @@ SelectorWidget::SelectorWidget(QWidget *parent)
 
   only_one_ = false;
 
-  inner = QRectF(1, 1, rect_w_-1, rect_h_-1);
-  outer = QRectF(2, 2, rect_w_-2, rect_h_-2);
+  inner = QRectF(1, 1, rect_w_ - 1, rect_h_ - 1);
+  outer = QRectF(2, 2, rect_w_ - 2, rect_h_ - 2);
 
-  setToolTipDuration(10000); //hardcoded to 10 secs. Make this a parameter?
+  setToolTipDuration(10000); // hardcoded to 10 secs. Make this a parameter?
 }
 
-void SelectorWidget::set_only_one(bool o) {
-  only_one_ = o;
-}
+void SelectorWidget::set_only_one(bool o) { only_one_ = o; }
 
 void SelectorWidget::setItems(QVector<SelectorItem> items) {
   my_items_ = items;
 
   if (only_one_) {
     selected_ = -1;
-    for (int i=0; i < my_items_.size(); ++i) {
+    for (int i = 0; i < my_items_.size(); ++i) {
       if (my_items_[i].visible) {
         selected_ = i;
         break;
@@ -42,7 +38,7 @@ void SelectorWidget::setItems(QVector<SelectorItem> items) {
     }
     if ((selected_ == -1) && (!my_items_.empty()))
       selected_ = 0;
-    for (int i=0; i < my_items_.size(); ++i)
+    for (int i = 0; i < my_items_.size(); ++i)
       my_items_[i].visible = (i == selected_);
   } else
     selected_ = -1;
@@ -56,13 +52,9 @@ void SelectorWidget::setItems(QVector<SelectorItem> items) {
   update();
 }
 
-QVector<SelectorItem> SelectorWidget::items()
-{
-  return my_items_;
-}
+QVector<SelectorItem> SelectorWidget::items() { return my_items_; }
 
-void SelectorWidget::recalcDim(int w, int h)
-{
+void SelectorWidget::recalcDim(int w, int h) {
   Q_UNUSED(h)
   max_wide = w / rect_w_;
   height_total = my_items_.size() / max_wide;
@@ -72,32 +64,27 @@ void SelectorWidget::recalcDim(int w, int h)
   updateGeometry();
 }
 
-QSize SelectorWidget::sizeHint() const
-{
+QSize SelectorWidget::sizeHint() const {
   if (my_items_.empty())
-//    return minimumSize();
+    //    return minimumSize();
     return QSize(rect_w_, rect_h_);
   else
-    return QSize(max_wide*rect_w_, height_total*rect_h_);
+    return QSize(max_wide * rect_w_, height_total * rect_h_);
 }
 
-QSize SelectorWidget::minimumSizeHint() const
-{
+QSize SelectorWidget::minimumSizeHint() const {
   if (my_items_.empty()) {
     return QSize(rect_w_, rect_h_);
   } else {
-    return QSize(max_wide*rect_w_, height_total*rect_h_);
+    return QSize(max_wide * rect_w_, height_total * rect_h_);
   }
 }
 
-
-void SelectorWidget::resizeEvent(QResizeEvent * event) {
+void SelectorWidget::resizeEvent(QResizeEvent *event) {
   recalcDim(event->size().width(), event->size().height());
 }
 
-
-void SelectorWidget::paintEvent(QPaintEvent *evt)
-{
+void SelectorWidget::paintEvent(QPaintEvent *evt) {
   QWidget::paintEvent(evt);
 
   QPainter painter(this);
@@ -106,29 +93,24 @@ void SelectorWidget::paintEvent(QPaintEvent *evt)
   painter.setPen(QPen(Qt::white));
   painter.setFont(QFont("Helvetica", 11, QFont::Normal));
 
-  for (int i=0; i < my_items_.size(); i++)
-  {
+  for (int i = 0; i < my_items_.size(); i++) {
     int cur_high = i / max_wide;
     int cur_wide = i % max_wide;
     painter.resetTransform();
-    painter.translate(rect().x() + cur_wide*rect_w_,
-                      rect().y() + cur_high*rect_h_);
+    painter.translate(rect().x() + cur_wide * rect_w_,
+                      rect().y() + cur_high * rect_h_);
 
     QColor backg;
     QColor foreg;
-    if (my_items_[i].visible)
-    {
+    if (my_items_[i].visible) {
       backg = my_items_[i].color;
-      foreg = Qt::white; //inverseColor(backg);
-    }
-    else
-    {
-      backg.setRgb(0,0,0,0);
+      foreg = Qt::white; // inverseColor(backg);
+    } else {
+      backg.setRgb(0, 0, 0, 0);
       foreg = Qt::white;
     }
 
-    if (backg.alpha() < 255)
-    {
+    if (backg.alpha() < 255) {
       QBrush b;
       b.setTexture(QPixmap(QStringLiteral(":/color_widgets/alphaback.png")));
       painter.fillRect(inner, b);
@@ -142,23 +124,20 @@ void SelectorWidget::paintEvent(QPaintEvent *evt)
     painter.drawText(inner, Qt::AlignLeft | Qt::AlignVCenter,
                      QString("  ") + my_items_[i].text);
 
-    if (i == selected_)
-    {
+    if (i == selected_) {
       painter.setBrush(Qt::NoBrush);
       painter.setPen(QPen(Qt::white, border));
       painter.drawRect(outer);
-      painter.setPen(QPen(Qt::black, border/2));
+      painter.setPen(QPen(Qt::black, border / 2));
       painter.drawRect(outer);
     }
   }
 }
 
-
-void SelectorWidget::mouseReleaseEvent(QMouseEvent *event)
-{
+void SelectorWidget::mouseReleaseEvent(QMouseEvent *event) {
   int flag = flagAt(event->x(), event->y());
 
-  if (event->button()==Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton) {
     bool changed = (selected_ == flag);
     selected_ = flag;
     if (only_one_) {
@@ -174,19 +153,18 @@ void SelectorWidget::mouseReleaseEvent(QMouseEvent *event)
       emit itemSelected(SelectorItem());
   }
 
-  if ((!only_one_) && (event->button()==Qt::RightButton) && (flag > -1) && (flag < my_items_.size())) {
+  if ((!only_one_) && (event->button() == Qt::RightButton) && (flag > -1) &&
+      (flag < my_items_.size())) {
     my_items_[flag].visible = !my_items_[flag].visible;
     update();
     emit itemToggled(my_items_[flag]);
   }
 }
 
-
-void SelectorWidget::mouseDoubleClickEvent(QMouseEvent *event)
-{
+void SelectorWidget::mouseDoubleClickEvent(QMouseEvent *event) {
   int flag = flagAt(event->x(), event->y());
 
-  if (event->button()==Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton) {
     selected_ = flag;
     update();
     if ((flag > -1) && (flag < my_items_.size()))
@@ -195,11 +173,11 @@ void SelectorWidget::mouseDoubleClickEvent(QMouseEvent *event)
       emit itemDoubleclicked(SelectorItem());
   }
 
-//  if ((event->button()==Qt::RightButton) && (flag > -1) && (flag < my_items_.size())) {
-//    emit itemDoubleclicked(my_items_[flag]);
-//  }
+  //  if ((event->button()==Qt::RightButton) && (flag > -1) && (flag <
+  //  my_items_.size())) {
+  //    emit itemDoubleclicked(my_items_[flag]);
+  //  }
 }
-
 
 SelectorItem SelectorWidget::selected() {
   if ((selected_ > -1) && (selected_ < my_items_.size()))
@@ -215,7 +193,7 @@ void SelectorWidget::replaceSelected(SelectorItem item) {
 }
 
 void SelectorWidget::setSelected(QString name) {
-  for (int i=0; i < my_items_.size(); ++i)
+  for (int i = 0; i < my_items_.size(); ++i)
     if (my_items_[i].text == name) {
       selected_ = i;
     }

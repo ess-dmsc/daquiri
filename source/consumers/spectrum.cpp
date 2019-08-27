@@ -4,9 +4,7 @@
 
 namespace DAQuiri {
 
-Spectrum::Spectrum()
-    : Consumer()
-{
+Spectrum::Spectrum() : Consumer() {
   Setting base_options = metadata_.attributes();
 
   SettingMeta name("name", SettingType::text, "Name");
@@ -20,7 +18,8 @@ Spectrum::Spectrum()
   grp.set_val("max", 100);
   base_options.branches.add(grp);
 
-  SettingMeta sca("preferred_scale", SettingType::menu, "Plot scale for counts");
+  SettingMeta sca("preferred_scale", SettingType::menu,
+                  "Plot scale for counts");
   sca.set_enum(0, "Linear");
   sca.set_enum(1, "Logarithmic");
   base_options.branches.add(sca);
@@ -44,39 +43,37 @@ Spectrum::Spectrum()
 
   base_options.branches.add(recent_rate_.update(Status(), 0));
 
-  base_options.branches.add(periodic_trigger_.settings(-1, "Clear periodically"));
+  base_options.branches.add(
+      periodic_trigger_.settings(-1, "Clear periodically"));
 
   base_options.branches.add(filters_.settings());
 
   metadata_.overwrite_all_attributes(base_options);
 }
 
-void Spectrum::_apply_attributes()
-{
-  try
-  {
+void Spectrum::_apply_attributes() {
+  try {
     Consumer::_apply_attributes();
 
     filters_.settings(metadata_.get_attribute("filters"));
     metadata_.replace_attribute(filters_.settings());
 
-    periodic_trigger_.settings(metadata_.get_attribute(periodic_trigger_.settings()));
-    metadata_.replace_attribute(periodic_trigger_.settings(-1, "Clear periodically"));
-  }
-  catch (...)
-  {
-    std::throw_with_nested(std::runtime_error("<Spectrum> Failed _apply_attributes"));
+    periodic_trigger_.settings(
+        metadata_.get_attribute(periodic_trigger_.settings()));
+    metadata_.replace_attribute(
+        periodic_trigger_.settings(-1, "Clear periodically"));
+  } catch (...) {
+    std::throw_with_nested(
+        std::runtime_error("<Spectrum> Failed _apply_attributes"));
   }
 }
 
-bool Spectrum::_accept_spill(const Spill& spill)
-{
-  return (Consumer::_accept_spill(spill)
-      && (spill.type != Spill::Type::daq_status));
+bool Spectrum::_accept_spill(const Spill &spill) {
+  return (Consumer::_accept_spill(spill) &&
+          (spill.type != Spill::Type::daq_status));
 }
 
-void Spectrum::_push_stats_pre(const Spill& spill)
-{
+void Spectrum::_push_stats_pre(const Spill &spill) {
   if (!this->_accept_spill(spill))
     return;
 
@@ -85,10 +82,8 @@ void Spectrum::_push_stats_pre(const Spill& spill)
   if (metadata_.get_attribute("start_time").time() == hr_time_t())
     metadata_.set_attribute(Setting("start_time", spill.time));
 
-  if (periodic_trigger_.triggered)
-  {
-    if (data_)
-    {
+  if (periodic_trigger_.triggered) {
+    if (data_) {
       data_->clear();
       recent_rate_.update(recent_rate_.previous_status, data_->total_count());
     }
@@ -96,10 +91,8 @@ void Spectrum::_push_stats_pre(const Spill& spill)
   }
 }
 
-void Spectrum::update_cumulative(const Status& new_status)
-{
-  if (stats_.size() &&
-      (stats_.back().type == Spill::Type::running))
+void Spectrum::update_cumulative(const Status &new_status) {
+  if (stats_.size() && (stats_.back().type == Spill::Type::running))
     stats_.pop_back();
   stats_.push_back(new_status);
 
@@ -111,8 +104,7 @@ void Spectrum::update_cumulative(const Status& new_status)
   metadata_.set_attribute(Setting("real_time", real_time));
 }
 
-void Spectrum::_push_stats_post(const Spill& spill)
-{
+void Spectrum::_push_stats_post(const Spill &spill) {
   if (!this->_accept_spill(spill))
     return;
 
@@ -122,20 +114,21 @@ void Spectrum::_push_stats_post(const Spill& spill)
   periodic_trigger_.update(new_status);
   update_cumulative(new_status);
 
-  if (data_)
-  {
-    metadata_.set_attribute(Setting::precise("total_count", data_->total_count()));
-    metadata_.set_attribute(recent_rate_.update(new_status, data_->total_count()));
+  if (data_) {
+    metadata_.set_attribute(
+        Setting::precise("total_count", data_->total_count()));
+    metadata_.set_attribute(
+        recent_rate_.update(new_status, data_->total_count()));
   }
 }
 
-void Spectrum::_flush()
-{
+void Spectrum::_flush() {
   if (!data_)
     return;
-  metadata_.set_attribute(Setting::precise("total_count", data_->total_count()));
+  metadata_.set_attribute(
+      Setting::precise("total_count", data_->total_count()));
   metadata_.set_attribute(
       recent_rate_.update(recent_rate_.previous_status, data_->total_count()));
 }
 
-}
+} // namespace DAQuiri

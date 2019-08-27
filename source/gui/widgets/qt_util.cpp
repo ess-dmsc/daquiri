@@ -1,21 +1,17 @@
-#include <gui/widgets/qt_util.h>
-#include <stdlib.h>
-#include <QFile>
 #include <QDateTime>
-#include <QMessageBox>
+#include <QFile>
 #include <QLayout>
 #include <QLayoutItem>
+#include <QMessageBox>
 #include <core/util/logger.h>
+#include <gui/widgets/qt_util.h>
+#include <stdlib.h>
 
-QString QS(const std::string& s)
-{
-  return QString::fromStdString(s);
-}
+QString QS(const std::string &s) { return QString::fromStdString(s); }
 
-void add_to_table(QTableWidget *table, int row, int col,
-                  QString data, QVariant value, QBrush background)
-{
-  QTableWidgetItem * item = new QTableWidgetItem(data);
+void add_to_table(QTableWidget *table, int row, int col, QString data,
+                  QVariant value, QBrush background) {
+  QTableWidgetItem *item = new QTableWidgetItem(data);
   //  item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
   item->setFlags(item->flags() ^ Qt::ItemIsEditable);
   item->setData(Qt::UserRole, value);
@@ -24,7 +20,7 @@ void add_to_table(QTableWidget *table, int row, int col,
   //  DBG( "added " << data << " and " << value.toDouble();
 }
 
-//void add_to_table(QTableWidget *table,
+// void add_to_table(QTableWidget *table,
 //                  int row, int col, std::string data,
 //                  QVariant value, QBrush background)
 //{
@@ -32,18 +28,14 @@ void add_to_table(QTableWidget *table, int row, int col,
 //               value, background);
 //}
 
-void clearLayout(QLayout* layout, bool deleteWidgets)
-{
-  QLayoutItem* item;
-  while (layout->count() && (item = layout->takeAt(0)))
-  {
-    QWidget* widget;
-    if (deleteWidgets && (widget = item->widget()))
-    {
+void clearLayout(QLayout *layout, bool deleteWidgets) {
+  QLayoutItem *item;
+  while (layout->count() && (item = layout->takeAt(0))) {
+    QWidget *widget;
+    if (deleteWidgets && (widget = item->widget())) {
       delete widget;
     }
-    if (QLayout* childLayout = item->layout())
-    {
+    if (QLayout *childLayout = item->layout()) {
       clearLayout(childLayout, deleteWidgets);
     }
     delete item;

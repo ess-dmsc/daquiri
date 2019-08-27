@@ -1,52 +1,40 @@
-#include <gui/ThreadRunner.h>
 #include <gui/Profiles.h>
+#include <gui/ThreadRunner.h>
 
 #include <core/util/logger.h>
 
 ThreadRunner::ThreadRunner(QObject *parent)
-  : QThread(parent)
-  , engine_(Engine::singleton())
-  , running_(false)
-  , terminating_(false)
-{
+    : QThread(parent), engine_(Engine::singleton()), running_(false),
+      terminating_(false) {
   idle_refresh_.store(false);
   idle_refresh_frequency_.store(1);
   start(HighPriority);
 }
 
-ThreadRunner::~ThreadRunner()
-{}
+ThreadRunner::~ThreadRunner() {}
 
-void ThreadRunner::terminate()
-{
+void ThreadRunner::terminate() {
   if (interruptor_)
     interruptor_->store(true);
   terminating_.store(true);
   wait();
 }
 
-bool ThreadRunner::terminating()
-{
-  return terminating_.load();
-}
+bool ThreadRunner::terminating() { return terminating_.load(); }
 
-void ThreadRunner::set_idle_refresh(bool refresh)
-{
+void ThreadRunner::set_idle_refresh(bool refresh) {
   idle_refresh_.store(refresh);
 }
 
-void ThreadRunner::set_idle_refresh_frequency(int secs)
-{
+void ThreadRunner::set_idle_refresh_frequency(int secs) {
   if (secs < 1)
     secs = 1;
   idle_refresh_frequency_.store(secs);
 }
 
-
-void ThreadRunner::do_list(DAQuiri::Interruptor& interruptor, uint64_t timeout)
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_list(DAQuiri::Interruptor &interruptor,
+                           uint64_t timeout) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -59,11 +47,9 @@ void ThreadRunner::do_list(DAQuiri::Interruptor& interruptor, uint64_t timeout)
     start(HighPriority);
 }
 
-
-void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor, uint64_t timeout)
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor &interruptor,
+                          uint64_t timeout) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -77,11 +63,8 @@ void ThreadRunner::do_run(ProjectPtr spectra, DAQuiri::Interruptor& interruptor,
     start(HighPriority);
 }
 
-
-void ThreadRunner::remove_producer(const Setting& node)
-{
-  if (running_.load())
-  {
+void ThreadRunner::remove_producer(const Setting &node) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -93,10 +76,8 @@ void ThreadRunner::remove_producer(const Setting& node)
     start(HighPriority);
 }
 
-void ThreadRunner::add_producer(const Setting& node)
-{
-  if (running_.load())
-  {
+void ThreadRunner::add_producer(const Setting &node) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -108,11 +89,8 @@ void ThreadRunner::add_producer(const Setting& node)
     start(HighPriority);
 }
 
-void ThreadRunner::do_initialize(QString profile_name,
-                                 bool and_boot)
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_initialize(QString profile_name, bool and_boot) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -125,11 +103,8 @@ void ThreadRunner::do_initialize(QString profile_name,
     start(HighPriority);
 }
 
-
-void ThreadRunner::do_boot()
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_boot() {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -140,10 +115,8 @@ void ThreadRunner::do_boot()
     start(HighPriority);
 }
 
-void ThreadRunner::do_shutdown()
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_shutdown() {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -154,10 +127,8 @@ void ThreadRunner::do_shutdown()
     start(HighPriority);
 }
 
-void ThreadRunner::do_push_settings(const Setting &tree)
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_push_settings(const Setting &tree) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -169,10 +140,8 @@ void ThreadRunner::do_push_settings(const Setting &tree)
     start(HighPriority);
 }
 
-void ThreadRunner::do_set_setting(const Setting &item, Match match)
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_set_setting(const Setting &item, Match match) {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -185,10 +154,8 @@ void ThreadRunner::do_set_setting(const Setting &item, Match match)
     start(HighPriority);
 }
 
-void ThreadRunner::do_oscil()
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_oscil() {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -199,10 +166,8 @@ void ThreadRunner::do_oscil()
     start(HighPriority);
 }
 
-void ThreadRunner::do_refresh_settings()
-{
-  if (running_.load())
-  {
+void ThreadRunner::do_refresh_settings() {
+  if (running_.load()) {
     WARN("Runner busy");
     return;
   }
@@ -213,37 +178,27 @@ void ThreadRunner::do_refresh_settings()
     start(HighPriority);
 }
 
-void ThreadRunner::run()
-{
-  while (!terminating_.load())
-  {
+void ThreadRunner::run() {
+  while (!terminating_.load()) {
     if (action_ != kNone)
       running_.store(true);
 
-    if (action_ == kAcquire)
-    {
+    if (action_ == kAcquire) {
       engine_.get_all_settings();
-      emit settingsUpdated(engine_.settings(),
-                           status_before_run(),
+      emit settingsUpdated(engine_.settings(), status_before_run(),
                            engine_.stream_manifest());
       interruptor_->store(false);
       engine_.acquire(project_, *interruptor_, timeout_);
       action_ = kSettingsRefresh;
       emit runComplete();
-    }
-    else if (action_ == kList)
-    {
+    } else if (action_ == kList) {
       interruptor_->store(false);
-      emit settingsUpdated(engine_.settings(),
-                           status_before_run(),
+      emit settingsUpdated(engine_.settings(), status_before_run(),
                            engine_.stream_manifest());
-      ListData newListRun
-          = engine_.acquire_list(*interruptor_, timeout_);
+      ListData newListRun = engine_.acquire_list(*interruptor_, timeout_);
       action_ = kSettingsRefresh;
       emit listComplete(newListRun);
-    }
-    else if (action_ == kChooseProfile)
-    {
+    } else if (action_ == kChooseProfile) {
       save_profile();
       Profiles::singleton().select_profile(profile_name_, and_boot_);
       engine_.initialize(Profiles::singleton().get_profile(profile_name_));
@@ -251,68 +206,47 @@ void ThreadRunner::run()
         action_ = kBoot;
       else
         action_ = kSettingsRefresh;
-    }
-    else if (action_ == kAddProducer)
-    {
+    } else if (action_ == kAddProducer) {
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.branches.add_a(one_setting_);
       engine_.initialize(tree);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kRemoveProducer)
-    {
+    } else if (action_ == kRemoveProducer) {
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.erase(one_setting_, Match::id | Match::value);
       engine_.initialize(tree);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kBoot)
-    {
+    } else if (action_ == kBoot) {
       engine_.boot();
       emit bootComplete();
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kShutdown)
-    {
+    } else if (action_ == kShutdown) {
       engine_.die();
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kPushSettings)
-    {
+    } else if (action_ == kPushSettings) {
       engine_.settings(tree_);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kSetSetting)
-    {
+    } else if (action_ == kSetSetting) {
       engine_.set_setting(tree_, match_conditions_);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kOscil)
-    {
+    } else if (action_ == kOscil) {
       auto traces = engine_.oscilloscope();
       if (!traces.empty())
         emit oscilReadOut(traces);
       action_ = kSettingsRefresh;
-    }
-    else if (action_ == kSettingsRefresh)
-    {
+    } else if (action_ == kSettingsRefresh) {
       engine_.get_all_settings();
       action_ = kNone;
-      emit settingsUpdated(engine_.settings(),
-                           engine_.status(),
+      emit settingsUpdated(engine_.settings(), engine_.status(),
                            engine_.stream_manifest());
-    }
-    else
-    {
-      bool booted = ((engine_.status()
-                      & DAQuiri::ProducerStatus::booted) != 0);
-      if (booted && idle_refresh_.load())
-      {
+    } else {
+      bool booted = ((engine_.status() & DAQuiri::ProducerStatus::booted) != 0);
+      if (booted && idle_refresh_.load()) {
         action_ = kSettingsRefresh;
         QThread::sleep(idle_refresh_frequency_.load());
-        //DBG( "idle runner will refresh settings";
+        // DBG( "idle runner will refresh settings";
       }
     }
     running_.store(false);
@@ -321,14 +255,12 @@ void ThreadRunner::run()
   save_profile();
 }
 
-DAQuiri::ProducerStatus ThreadRunner::status_before_run()
-{
-  return (engine_.status() ^ DAQuiri::ProducerStatus::can_run)
-      | DAQuiri::ProducerStatus::running;
+DAQuiri::ProducerStatus ThreadRunner::status_before_run() {
+  return (engine_.status() ^ DAQuiri::ProducerStatus::can_run) |
+         DAQuiri::ProducerStatus::running;
 }
 
-void ThreadRunner::save_profile()
-{
+void ThreadRunner::save_profile() {
   engine_.die();
   engine_.get_all_settings();
   auto dev_settings = engine_.settings();

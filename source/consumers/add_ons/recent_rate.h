@@ -4,23 +4,22 @@
 
 namespace DAQuiri {
 
-struct RecentRate
-{
+struct RecentRate {
   RecentRate() = default;
-  RecentRate(const std::string& clock);
+  RecentRate(const std::string &clock);
 
-  void settings(const Setting& s);
+  void settings(const Setting &s);
   Setting settings(int32_t index) const;
 
-  Setting update(const Status& current, PreciseFloat new_count);
+  Setting update(const Status &current, PreciseFloat new_count);
 
   // Parameters
   std::string divisor_clock;
 
   // State
-  PreciseFloat previous_count {0};
+  PreciseFloat previous_count{0};
   Status previous_status;
-  PreciseFloat current_rate {0};
+  PreciseFloat current_rate{0};
 };
 
-}
+} // namespace DAQuiri

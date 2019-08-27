@@ -1,35 +1,34 @@
 #pragma once
 
-#include <consumers/spectrum.h>
 #include <consumers/add_ons/value_latch.h>
+#include <consumers/spectrum.h>
 
 namespace DAQuiri {
 
-class Image2D : public Spectrum
-{
-  public:
-    Image2D();
-    Image2D* clone() const override { return new Image2D(*this); }
+class Image2D : public Spectrum {
+public:
+  Image2D();
+  Image2D *clone() const override { return new Image2D(*this); }
 
-  protected:
-    std::string my_type() const override { return "Image 2D"; }
+protected:
+  std::string my_type() const override { return "Image 2D"; }
 
-    void _apply_attributes() override;
-    void _recalc_axes() override;
+  void _apply_attributes() override;
+  void _recalc_axes() override;
 
-    void _push_event(const Event&) override;
-    void _push_stats_pre(const Spill& spill) override;
+  void _push_event(const Event &) override;
+  void _push_stats_pre(const Spill &spill) override;
 
-    bool _accept_spill(const Spill& spill) override;
-    bool _accept_events(const Spill& spill) override;
+  bool _accept_spill(const Spill &spill) override;
+  bool _accept_events(const Spill &spill) override;
 
-    //cached parameters
-    ValueLatch value_latch_x_;
-    ValueLatch value_latch_y_;
-    ValueLatch value_latch_i_;
+  // cached parameters
+  ValueLatch value_latch_x_;
+  ValueLatch value_latch_y_;
+  ValueLatch value_latch_i_;
 
-    //reserve memory
-    Entry entry_{{0, 0}, 0};
+  // reserve memory
+  Entry entry_{{0, 0}, 0};
 };
 
-}
+} // namespace DAQuiri

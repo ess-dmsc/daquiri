@@ -1,14 +1,13 @@
 #include <producers/ESSStream/mo01_parser.h>
 
-#include <core/util/timer.h>
 #include <core/util/logger.h>
+#include <core/util/timer.h>
 
-mo01_nmx::mo01_nmx()
-  : fb_parser()
-{
+mo01_nmx::mo01_nmx() : fb_parser() {
   std::string r{plugin_name()};
 
-  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean,
+                     "Filter on source name");
   fsname.set_flag("preset");
   add_definition(fsname);
 
@@ -16,19 +15,23 @@ mo01_nmx::mo01_nmx()
   sname.set_flag("preset");
   add_definition(sname);
 
-  SettingMeta hstreamid(r + "/HistsStream", SettingType::text, "DAQuiri stream ID for prebinned histograms");
+  SettingMeta hstreamid(r + "/HistsStream", SettingType::text,
+                        "DAQuiri stream ID for prebinned histograms");
   hstreamid.set_flag("preset");
   add_definition(hstreamid);
 
-  SettingMeta xstreamid(r + "/XStream", SettingType::text, "DAQuiri stream ID for X track");
+  SettingMeta xstreamid(r + "/XStream", SettingType::text,
+                        "DAQuiri stream ID for X track");
   xstreamid.set_flag("preset");
   add_definition(xstreamid);
 
-  SettingMeta ystreamid(r + "/YStream", SettingType::text, "DAQuiri stream ID for Y track");
+  SettingMeta ystreamid(r + "/YStream", SettingType::text,
+                        "DAQuiri stream ID for Y track");
   ystreamid.set_flag("preset");
   add_definition(ystreamid);
 
-  SettingMeta hitstreamid(r + "/HitsStream", SettingType::text, "DAQuiri stream ID for hits");
+  SettingMeta hitstreamid(r + "/HitsStream", SettingType::text,
+                          "DAQuiri stream ID for hits");
   hitstreamid.set_flag("preset");
   add_definition(hitstreamid);
 
@@ -43,11 +46,11 @@ mo01_nmx::mo01_nmx()
   root.set_enum(i++, r + "/SourceName");
   add_definition(root);
 
-  hists_model_.add_trace("strips_x", {UINT16_MAX+1});
-  hists_model_.add_trace("strips_y", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_x", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_y", {UINT16_MAX+1});
-  hists_model_.add_trace("adc_cluster", {UINT16_MAX+1});
+  hists_model_.add_trace("strips_x", {UINT16_MAX + 1});
+  hists_model_.add_trace("strips_y", {UINT16_MAX + 1});
+  hists_model_.add_trace("adc_x", {UINT16_MAX + 1});
+  hists_model_.add_trace("adc_y", {UINT16_MAX + 1});
+  hists_model_.add_trace("adc_cluster", {UINT16_MAX + 1});
 
   track_model_.add_value("strip", 0);
   track_model_.add_value("time", 0);
@@ -60,8 +63,7 @@ mo01_nmx::mo01_nmx()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-Setting mo01_nmx::settings() const
-{
+Setting mo01_nmx::settings() const {
   std::string r{plugin_name()};
   auto set = get_rich_setting(r);
 
@@ -78,8 +80,7 @@ Setting mo01_nmx::settings() const
   return set;
 }
 
-void mo01_nmx::settings(const Setting& settings)
-{
+void mo01_nmx::settings(const Setting &settings) {
   std::string r{plugin_name()};
 
   auto set = enrich_and_toggle_presets(settings);
@@ -95,49 +96,58 @@ void mo01_nmx::settings(const Setting& settings)
   hists_model_.timebase = tbs.timebase();
 }
 
-StreamManifest mo01_nmx::stream_manifest() const
-{
+StreamManifest mo01_nmx::stream_manifest() const {
   StreamManifest ret;
   ret[hists_stream_id_].event_model = hists_model_;
-  ret[hists_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[hists_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[hists_stream_id_].stats.branches.add(
+      SettingMeta("native_time", SettingType::precise));
+  ret[hists_stream_id_].stats.branches.add(
+      SettingMeta("dropped_buffers", SettingType::precise));
 
   ret[x_stream_id_].event_model = track_model_;
-  ret[x_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[x_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[x_stream_id_].stats.branches.add(
+      SettingMeta("native_time", SettingType::precise));
+  ret[x_stream_id_].stats.branches.add(
+      SettingMeta("dropped_buffers", SettingType::precise));
 
   ret[y_stream_id_].event_model = track_model_;
-  ret[y_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[y_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[y_stream_id_].stats.branches.add(
+      SettingMeta("native_time", SettingType::precise));
+  ret[y_stream_id_].stats.branches.add(
+      SettingMeta("dropped_buffers", SettingType::precise));
 
   ret[hit_stream_id_].event_model = hits_model_;
-  ret[hit_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[hit_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[hit_stream_id_].stats.branches.add(
+      SettingMeta("native_time", SettingType::precise));
+  ret[hit_stream_id_].stats.branches.add(
+      SettingMeta("dropped_buffers", SettingType::precise));
   return ret;
 }
 
-uint64_t mo01_nmx::stop(SpillQueue spill_queue)
-{
-  if (started_)
-  {
+uint64_t mo01_nmx::stop(SpillQueue spill_queue) {
+  if (started_) {
     auto ret = std::make_shared<Spill>(hists_stream_id_, Spill::Type::stop);
     ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
 
     auto ret2 = std::make_shared<Spill>(x_stream_id_, Spill::Type::stop);
     ret2->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret2->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret2->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret2);
 
     auto ret3 = std::make_shared<Spill>(y_stream_id_, Spill::Type::stop);
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret3->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret3->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret3);
 
     auto ret4 = std::make_shared<Spill>(hit_stream_id_, Spill::Type::stop);
     ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret4->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret4->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret4);
 
     started_ = false;
@@ -147,59 +157,57 @@ uint64_t mo01_nmx::stop(SpillQueue spill_queue)
   return 0;
 }
 
-std::string mo01_nmx::schema_id() const
-{
+std::string mo01_nmx::schema_id() const {
   return std::string(MonitorMessageIdentifier());
 }
 
-std::string mo01_nmx::get_source_name(void* msg) const
-{
+std::string mo01_nmx::get_source_name(void *msg) const {
   auto em = GetMonitorMessage(msg);
   auto NamePtr = em->source_name();
-  if (NamePtr == nullptr)
-  {
+  if (NamePtr == nullptr) {
     ERR("<mo01_nmx> message has no source_name");
     return "";
   }
   return NamePtr->str();
 }
 
-uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
-{
+uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void *msg) {
   Timer timer(true);
   uint64_t pushed_spills = 0;
 
   auto em = GetMonitorMessage(msg);
 
   std::string source_name = em->source_name()->str();
-  if (filter_source_name_ && (source_name_ != source_name))
-  {
+  if (filter_source_name_ && (source_name_ != source_name)) {
     stats.time_spent += timer.s();
     return 0;
   }
 
   spoofed_time_++;
 
-  if (!started_)
-  {
+  if (!started_) {
     auto ret = std::make_shared<Spill>(hists_stream_id_, Spill::Type::start);
     ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret);
 
     auto ret2 = std::make_shared<Spill>(x_stream_id_, Spill::Type::start);
     ret2->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret2->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret2->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret2);
 
     auto ret3 = std::make_shared<Spill>(y_stream_id_, Spill::Type::start);
     ret3->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret3->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret3->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret3);
 
     auto ret4 = std::make_shared<Spill>(hit_stream_id_, Spill::Type::start);
     ret4->state.branches.add(Setting::precise("native_time", spoofed_time_));
-    ret4->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    ret4->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(ret4);
 
     started_ = true;
@@ -208,34 +216,35 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
 
   auto type = em->data_type();
   if (type == DataField::GEMHist)
-    pushed_spills += produce_hists(*reinterpret_cast<const GEMHist*>(em->data()), spill_queue);
+    pushed_spills += produce_hists(
+        *reinterpret_cast<const GEMHist *>(em->data()), spill_queue);
   else if (type == DataField::GEMTrack)
-    pushed_spills += produce_tracks(*reinterpret_cast<const GEMTrack*>(em->data()), spill_queue);
+    pushed_spills += produce_tracks(
+        *reinterpret_cast<const GEMTrack *>(em->data()), spill_queue);
   else if (type == DataField::MONHit)
-    pushed_spills += produce_hits(*reinterpret_cast<const MONHit*>(em->data()), spill_queue);
+    pushed_spills += produce_hits(*reinterpret_cast<const MONHit *>(em->data()),
+                                  spill_queue);
 
   stats.time_spent = timer.s();
   return pushed_spills;
 }
 
-uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
-{
-  if (!hist.xstrips()->Length() &&
-      !hist.xstrips()->Length() &&
-      !hist.xspectrum()->Length() &&
-      !hist.yspectrum()->Length() &&
+uint64_t mo01_nmx::produce_hists(const GEMHist &hist, SpillQueue queue) {
+  if (!hist.xstrips()->Length() && !hist.xstrips()->Length() &&
+      !hist.xspectrum()->Length() && !hist.yspectrum()->Length() &&
       !hist.cluster_spectrum()->Length())
     return 0;
 
   auto ret = std::make_shared<Spill>(hists_stream_id_, Spill::Type::running);
   ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
-  ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+  ret->state.branches.add(
+      Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = hists_model_;
   ret->events.reserve(1, hists_model_);
 
-//  DBG( "Received GEMHist\n" << debug(hist);
+  //  DBG( "Received GEMHist\n" << debug(hist);
 
-  auto& e = ret->events.last();
+  auto &e = ret->events.last();
   e.set_time(spoofed_time_);
 
   grab_hist(e, 0, hist.xstrips());
@@ -244,56 +253,51 @@ uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
   grab_hist(e, 3, hist.yspectrum());
   grab_hist(e, 4, hist.cluster_spectrum());
 
-  ++ ret->events;
+  ++ret->events;
   ret->events.finalize();
 
-//  DBG( "Will enqueue with model " << ret->event_model.debug();
+  //  DBG( "Will enqueue with model " << ret->event_model.debug();
 
   queue->enqueue(ret);
   return 1;
 }
 
-uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillQueue queue)
-{
-  uint64_t pushed_spills {0};
+uint64_t mo01_nmx::produce_tracks(const GEMTrack &track, SpillQueue queue) {
+  uint64_t pushed_spills{0};
 
-  if (track.xtrack()->Length())
-  {
+  if (track.xtrack()->Length()) {
     queue->enqueue(grab_track(track.xtrack(), x_stream_id_));
-    pushed_spills ++;
+    pushed_spills++;
   }
 
-  if (track.ytrack()->Length())
-  {
+  if (track.ytrack()->Length()) {
     queue->enqueue(grab_track(track.ytrack(), y_stream_id_));
-    pushed_spills ++;
+    pushed_spills++;
   }
 
   return pushed_spills;
 }
 
-uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillQueue queue)
-{
+uint64_t mo01_nmx::produce_hits(const MONHit &hits, SpillQueue queue) {
   auto spill = std::make_shared<Spill>(hit_stream_id_, Spill::Type::running);
   spill->state.branches.add(Setting::precise("native_time", spoofed_time_));
-  spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+  spill->state.branches.add(
+      Setting::precise("dropped_buffers", stats.dropped_buffers));
   spill->event_model = hits_model_;
   spill->events.reserve(hits.plane()->Length(), hits_model_);
 
-  for (size_t i=0; i < hits.plane()->Length(); ++i)
-  {
-    auto& e = spill->events.last();
+  for (size_t i = 0; i < hits.plane()->Length(); ++i) {
+    auto &e = spill->events.last();
     e.set_time(spoofed_time_ + hits.time()->Get(i));
     e.set_value(0, hits.plane()->Get(i));
     e.set_value(1, hits.channel()->Get(i));
     e.set_value(2, hits.adc()->Get(i));
-    ++ spill->events;
+    ++spill->events;
   }
 
   spill->events.finalize();
 
-  if (hits.plane()->Length())
-  {
+  if (hits.plane()->Length()) {
     queue->enqueue(spill);
     return 1;
   }
@@ -301,44 +305,43 @@ uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillQueue queue)
   return 0;
 }
 
-void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
-{
+void mo01_nmx::grab_hist(Event &e, size_t idx,
+                         const flatbuffers::Vector<uint32_t> *data) {
   if (!data->Length())
     return;
-//  std::vector<uint32_t> vals(data->Length(), 0);
-  auto& trace = e.trace(idx);
-  for (size_t i=0; i < data->Length(); ++i)
+  //  std::vector<uint32_t> vals(data->Length(), 0);
+  auto &trace = e.trace(idx);
+  for (size_t i = 0; i < data->Length(); ++i)
     trace[i] = data->Get(i);
-//  DBG( "Added hist " << idx << " length " << data->Length();
+  //  DBG( "Added hist " << idx << " length " << data->Length();
 }
 
-SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,
-                              std::string stream)
-{
+SpillPtr
+mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>> *data,
+                     std::string stream) {
   auto ret = std::make_shared<Spill>(stream, Spill::Type::running);
 
   ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
-  ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+  ret->state.branches.add(
+      Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = track_model_;
   ret->events.reserve(data->Length(), track_model_);
 
-  for (size_t i=0; i < data->Length(); ++i)
-  {
-    auto& e = ret->events.last();
+  for (size_t i = 0; i < data->Length(); ++i) {
+    auto &e = ret->events.last();
     e.set_time(spoofed_time_);
-    const auto& element = data->Get(i);
+    const auto &element = data->Get(i);
     e.set_value(0, element->strip());
     e.set_value(1, element->time());
     e.set_value(2, element->adc());
-    ++ ret->events;
+    ++ret->events;
   }
   ret->events.finalize();
 
   return ret;
 }
 
-std::string mo01_nmx::debug(const GEMHist& hist)
-{
+std::string mo01_nmx::debug(const GEMHist &hist) {
   std::stringstream ss;
   if (hist.xstrips()->Length())
     ss << "  strips_x: " << print_hist(hist.xstrips()) << "\n";
@@ -353,16 +356,14 @@ std::string mo01_nmx::debug(const GEMHist& hist)
   return ss.str();
 }
 
-std::string mo01_nmx::print_hist(const flatbuffers::Vector<uint32_t>* data)
-{
+std::string mo01_nmx::print_hist(const flatbuffers::Vector<uint32_t> *data) {
   std::stringstream ss;
-  for (size_t i=0; i < data->Length(); ++i)
+  for (size_t i = 0; i < data->Length(); ++i)
     ss << " " << data->Get(i);
   return ss.str();
 }
 
-std::string mo01_nmx::debug(const GEMTrack& track)
-{
+std::string mo01_nmx::debug(const GEMTrack &track) {
   std::stringstream ss;
   if (track.xtrack()->Length())
     ss << "  x: " << print_track(track.xtrack()) << "\n";
@@ -371,16 +372,13 @@ std::string mo01_nmx::debug(const GEMTrack& track)
   return ss.str();
 }
 
-std::string mo01_nmx::print_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data)
-{
+std::string mo01_nmx::print_track(
+    const flatbuffers::Vector<flatbuffers::Offset<pos>> *data) {
   std::stringstream ss;
-  for (size_t i=0; i < data->Length(); ++i)
-  {
+  for (size_t i = 0; i < data->Length(); ++i) {
     auto element = data->Get(i);
-    ss << "(" << element->strip()
-       << "," << element->time()
-       << ")=" << element->adc()
-       << " ";
+    ss << "(" << element->strip() << "," << element->time()
+       << ")=" << element->adc() << " ";
   }
   return ss.str();
 }

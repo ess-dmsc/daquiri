@@ -2,17 +2,15 @@
 
 #include <core/calibration/coef_function.h>
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
-class Polynomial : public CoefFunction
-{
- public:
+class Polynomial : public CoefFunction {
+public:
   using CoefFunction::CoefFunction;
 
   std::string type() const override { return "Polynomial"; }
-  Polynomial* clone() const override { return new Polynomial(*this); }
-  double operator() (double x) const override;
+  Polynomial *clone() const override { return new Polynomial(*this); }
+  double operator()(double x) const override;
   double derivative(double) const override;
 
   std::string debug() const override;
@@ -20,4 +18,4 @@ class Polynomial : public CoefFunction
   std::string to_markup(int precision, bool with_rsq) const override;
 };
 
-}
+} // namespace DAQuiri
