@@ -5,7 +5,7 @@
 
 using namespace DAQuiri;
 
-class EventMessage;
+struct EventMessage;
 
 class ev42_events : public fb_parser
 {

@@ -5,7 +5,7 @@
 
 using namespace DAQuiri;
 
-class SampleEnvironmentData;
+struct SampleEnvironmentData;
 
 class SenvParserWrong : public fb_parser
 {

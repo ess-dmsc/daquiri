@@ -132,7 +132,6 @@ uint64_t SenvParser::process_payload(SpillQueue spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 0;
-  hr_time_t start_time{std::chrono::system_clock::now()};
 
   auto Data = GetSampleEnvironmentData(msg);
 //  INFO("\n{}", debug(Data));

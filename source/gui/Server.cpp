@@ -117,7 +117,7 @@ bool CommandServer::start_listen(int port_no)
   return true;
 }
 
-void CommandServer::incomingConnection(int descriptor)
+void CommandServer::incomingConnection(qintptr descriptor)
 {
   if (!server_socket || !server_socket->setSocketDescriptor(descriptor))
   {

@@ -22,7 +22,7 @@ class CommandServer : public QTcpServer
   bool start_listen(int port_no);
   void acceptNew();
  protected:
-  void incomingConnection(int descriptor);
+  void incomingConnection(qintptr descriptor) override;
 
   QTcpSocket* server_socket {nullptr};
 

@@ -6,7 +6,7 @@ using namespace DAQuiri;
 class MockConsumer : public Consumer
 {
   public:
-    MockConsumer() {}
+    MockConsumer() = default;
     MockConsumer* clone() const override { return new MockConsumer(*this); }
 
     bool accept_events{false};

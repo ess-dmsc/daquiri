@@ -4,7 +4,7 @@
 class EventBuffer : public TestBase
 {
  protected:
-  virtual void SetUp()
+  void SetUp() override
   {
     DAQuiri::EventModel hm;
     hm.timebase = DAQuiri::TimeBase(14,10);
@@ -55,7 +55,7 @@ TEST_F(EventBuffer, iterate)
   DAQuiri::EventBuffer eb;
   eb.reserve(10, e);
 
-  for (size_t i=0; i <10; ++i)
+  for (uint32_t i=0; i <10; ++i)
   {
     eb.last().set_value(0,i);
     eb++;
@@ -74,7 +74,7 @@ TEST_F(EventBuffer, iterate)
 class Spill : public TestBase
 {
  protected:
-  virtual void SetUp()
+  void SetUp() override
   {
     model.timebase = DAQuiri::TimeBase(14,10);
     model.add_value("energy", 16);

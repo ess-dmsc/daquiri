@@ -5,8 +5,6 @@
 
 using namespace DAQuiri;
 
-class EventMessage;
-
 class fb_parser : public Producer
 {
  public:
