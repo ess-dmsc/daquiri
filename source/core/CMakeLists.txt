@@ -68,7 +68,7 @@ target_link_libraries(
 enable_coverage(${this_target})
 
 # this will affect what version metadata gets saved to file in project.cpp
-option(BI "Update build info at compile time" ON)
+option(BI "Update build info at compile time" OFF)
 if(${BI})
   add_dependencies(${this_target} build_time)
   add_definitions(-DBUILD_TIME="TRUE")
