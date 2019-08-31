@@ -220,17 +220,17 @@ void SettingsForm::toggle_push(bool enable, ProducerStatus status,
     ui->treeViewSettings->setEditTriggers(QAbstractItemView::NoEditTriggers);
   }
 
-  ui->bootButton->setEnabled(enable);
+  ui->connectButton->setEnabled(enable);
   //  ui->pushOptimizeAll->setEnabled(enable && (online || offline));
 
   if (online) {
-    ui->bootButton->setText("Reset");
-    ui->bootButton->setToolTip("Reset");
-    ui->bootButton->setIcon(QIcon(":/icons/oxy/16/start.png"));
+    ui->connectButton->setText("Disconnect");
+    ui->connectButton->setToolTip("Reset");
+    ui->connectButton->setIcon(QIcon(":/icons/oxy/16/start.png"));
   } else {
-    ui->bootButton->setText("Boot");
-    ui->bootButton->setToolTip("Reset");
-    ui->bootButton->setIcon(QIcon(":/icons/boot16.png"));
+    ui->connectButton->setText("Connect");
+    ui->connectButton->setToolTip("Reset");
+    ui->connectButton->setIcon(QIcon(":/icons/boot16.png"));
   }
 
   current_status_ = status;
@@ -273,7 +273,7 @@ void SettingsForm::on_checkShowRO_clicked() {
 }
 
 void SettingsForm::on_bootButton_clicked() {
-  if (ui->bootButton->text() == "Boot") {
+  if (ui->connectButton->text() == "Connect") {
     Profiles::singleton().auto_boot(true);
     emit toggleIO(false);
     runner_thread_.do_boot();

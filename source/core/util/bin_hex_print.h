@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 inline std::string itobin16(uint16_t bin) {
   std::stringstream ss;

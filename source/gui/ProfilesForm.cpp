@@ -15,7 +15,7 @@ ProfileDialog::ProfileDialog(QString description, QWidget *parent)
     : QDialog(parent) {
   setWindowTitle("Profile actions");
 
-  QPushButton *buttonBoot = new QPushButton("Boot", this);
+  QPushButton *buttonBoot = new QPushButton("Connect", this);
   buttonBoot->setIcon(QIcon(":/icons/boot16.png"));
   connect(buttonBoot, SIGNAL(clicked()), this, SLOT(clickedBoot()));
 
