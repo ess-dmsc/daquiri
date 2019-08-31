@@ -51,7 +51,7 @@ void Consumer::_set_detectors(const std::vector<Detector> &dets) {
 }
 
 void Consumer::from_prototype(const ConsumerMetadata &newtemplate) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (metadata_.type() != newtemplate.type())
     return;
@@ -67,7 +67,7 @@ void Consumer::from_prototype(const ConsumerMetadata &newtemplate) {
 }
 
 void Consumer::push_spill(const Spill &spill) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   this->_push_spill(spill);
 }
 
@@ -96,53 +96,53 @@ void Consumer::_push_spill(const Spill &spill) {
 }
 
 void Consumer::flush() {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   this->_flush();
 }
 
-bool Consumer::changed() const {
-  SHARED_LOCK_ST
+bool Consumer::changed() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return changed_;
 }
 
 void Consumer::set_detectors(const std::vector<Detector> &dets) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   this->_set_detectors(dets);
   changed_ = true;
 }
 
 void Consumer::reset_changed() {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   changed_ = false;
 }
 
 // accessors for various properties
-ConsumerMetadata Consumer::metadata() const {
-  SHARED_LOCK_ST
+ConsumerMetadata Consumer::metadata() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return metadata_;
 }
 
-DataspacePtr Consumer::data() const {
-  SHARED_LOCK_ST
+DataspacePtr Consumer::data() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   if (!data_)
     return nullptr;
   return DataspacePtr(data_->clone());
 }
 
-std::string Consumer::type() const {
-  SHARED_LOCK_ST
+std::string Consumer::type() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return my_type();
 }
 
-uint16_t Consumer::dimensions() const {
-  SHARED_LOCK_ST
+uint16_t Consumer::dimensions() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   if (data_)
     return data_->dimensions();
   return 0;
 }
 
-std::string Consumer::debug(std::string prepend, bool verbose) const {
-  SHARED_LOCK_ST
+std::string Consumer::debug(std::string prepend, bool verbose) {
+  std::lock_guard<std::mutex> Guard(mutex_);
   std::stringstream ss;
   ss << "COMSUMER";
   if (changed_)
@@ -160,14 +160,14 @@ std::string Consumer::debug(std::string prepend, bool verbose) const {
 // change stuff
 
 void Consumer::set_attribute(const Setting &setting, bool greedy) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   metadata_.set_attribute(setting, greedy);
   this->_apply_attributes();
   changed_ = true;
 }
 
 void Consumer::set_attributes(const Setting &settings) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   metadata_.set_attributes(settings.branches.data(), true);
   this->_apply_attributes();
   changed_ = true;
@@ -177,7 +177,7 @@ void Consumer::set_attributes(const Setting &settings) {
 /// Save and load ///
 /////////////////////
 void Consumer::load(hdf5::node::Group &g, bool withdata) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   if (!g.has_group("metadata"))
     return;
 
@@ -198,8 +198,8 @@ void Consumer::load(hdf5::node::Group &g, bool withdata) {
   }
 }
 
-void Consumer::save(hdf5::node::Group &g) const {
-  SHARED_LOCK_ST
+void Consumer::save(hdf5::node::Group &g) {
+  std::lock_guard<std::mutex> Guard(mutex_);
   try {
     hdf5::attribute::Attribute a = g.attributes.create<std::string>("type");
     a.write(this->my_type());

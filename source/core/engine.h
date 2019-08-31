@@ -23,20 +23,20 @@ public:
   void boot();
   void die();
 
-  ProducerStatus status() const;
+  ProducerStatus status();
   OscilData oscilloscope();
   ListData acquire_list(Interruptor &inturruptor, uint64_t timeout);
   void acquire(ProjectPtr project, Interruptor &interruptor, uint64_t timeout);
 
   /////SETTINGS/////
-  Setting settings() const;
+  Setting settings();
   void settings(const Setting &);
-  StreamManifest stream_manifest() const;
+  StreamManifest stream_manifest();
   void set_setting(Setting address, Match flags, bool greedy = false);
   void get_all_settings();
 
 private:
-  mutable mutex_st mutex_;
+  std::mutex mutex_;
 
   ProducerStatus aggregate_status_{ProducerStatus(0)};
 

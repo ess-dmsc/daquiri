@@ -35,7 +35,7 @@ Setting Engine::default_settings() {
 }
 
 void Engine::initialize(const json &profile) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   Setting tree = profile;
 
@@ -66,7 +66,7 @@ void Engine::initialize(const json &profile) {
 Engine::~Engine() { _die(); }
 
 void Engine::boot() {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   for (auto &q : producers_)
     if (q.second)
@@ -76,7 +76,7 @@ void Engine::boot() {
 }
 
 void Engine::die() {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   _die();
 }
 
@@ -88,18 +88,18 @@ void Engine::_die() {
   _get_all_settings();
 }
 
-ProducerStatus Engine::status() const {
-  SHARED_LOCK_ST
+ProducerStatus Engine::status() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return aggregate_status_;
 }
 
-Setting Engine::settings() const {
-  SHARED_LOCK_ST
+Setting Engine::settings() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return settings_;
 }
 
-StreamManifest Engine::stream_manifest() const {
-  UNIQUE_LOCK_EVENTUALLY_ST
+StreamManifest Engine::stream_manifest() {
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   StreamManifest ret;
   for (auto &q : producers_) {
@@ -118,7 +118,7 @@ StreamManifest Engine::stream_manifest() const {
 }
 
 void Engine::settings(const Setting &newsettings) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   _set_settings(newsettings);
 }
 
@@ -161,7 +161,7 @@ void Engine::_write_settings_bulk() {
 }
 
 OscilData Engine::oscilloscope() {
-  UNIQUE_LOCK_EVENTUALLY_ST;
+  std::lock_guard<std::mutex> Guard(mutex_);;
 
   OscilData traces;
   //  traces.resize(detectors_.size());
@@ -207,14 +207,14 @@ bool Engine::daq_running() const {
 }
 
 void Engine::set_setting(Setting address, Match flags, bool greedy) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   settings_.set(address, flags, greedy);
   _write_settings_bulk();
   _read_settings_bulk();
 }
 
 void Engine::get_all_settings() {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
   _get_all_settings();
 }
 
@@ -229,7 +229,7 @@ void Engine::_get_all_settings() {
 
 void Engine::acquire(ProjectPtr project, Interruptor &interruptor,
                      uint64_t timeout) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (!project) {
     WARN("<Engine> No reference to valid daq project");
@@ -305,7 +305,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor,
 }
 
 ListData Engine::acquire_list(Interruptor &interruptor, uint64_t timeout) {
-  UNIQUE_LOCK_EVENTUALLY_ST
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (!(aggregate_status_ & ProducerStatus::can_run)) {
     WARN("<Engine> No devices exist that can perform acquisition");

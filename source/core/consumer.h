@@ -12,7 +12,7 @@ using ConsumerPtr = std::shared_ptr<Consumer>;
 
 class Consumer {
 protected:
-  mutable mutex_st mutex_;
+  std::mutex mutex_;
   ConsumerMetadata metadata_;
   DataspacePtr data_;
   bool changed_{false};
@@ -32,22 +32,22 @@ public:
   void from_prototype(const ConsumerMetadata &);
 
   void load(hdf5::node::Group &, bool withdata);
-  void save(hdf5::node::Group &) const;
+  void save(hdf5::node::Group &);
 
   // data acquisition
   void push_spill(const Spill &);
   void flush();
 
-  ConsumerMetadata metadata() const;
-  DataspacePtr data() const;
+  ConsumerMetadata metadata();
+  DataspacePtr data();
 
   void reset_changed();
-  bool changed() const;
+  bool changed();
 
   // Convenience functions for most common metadata
-  std::string type() const;
-  uint16_t dimensions() const;
-  std::string debug(std::string prepend = "", bool verbose = true) const;
+  std::string type();
+  uint16_t dimensions();
+  std::string debug(std::string prepend = "", bool verbose = true);
 
   // Change metadata
   void set_attribute(const Setting &setting, bool greedy = false);

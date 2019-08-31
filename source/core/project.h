@@ -20,12 +20,12 @@ public:
   void activate();   // force release of cond var
 
   // general info
-  bool empty() const;
+  bool empty();
   bool has_data() const;
   void clear();
   void reset();
 
-  bool changed() const;
+  bool changed();
   void mark_changed();
 
   // to consume data
@@ -39,12 +39,12 @@ public:
   void up(size_t);
   void down(size_t);
   ConsumerPtr get_consumer(size_t idx);
-  Container<ConsumerPtr> get_consumers() const;
+  Container<ConsumerPtr> get_consumers();
 
   // spill access
   void save_spills(bool);
-  bool save_spills() const;
-  std::list<Spill> spills() const;
+  bool save_spills();
+  std::list<Spill> spills();
 
   // File ops
   void save(std::string file_name);
@@ -52,13 +52,13 @@ public:
   void open(std::string file_name, bool with_consumers = true,
             bool with_full_consumers = true);
 
-  friend std::ostream &operator<<(std::ostream &stream, const Project &project);
+  friend std::ostream &operator<<(std::ostream &stream, Project &project);
 
 protected:
   // control
-  mutable mutex mutex_;
-  condition_variable cond_;
-  mutable bool ready_{false};
+  std::mutex mutex_;
+  std::condition_variable cond_;
+  bool ready_{false};
 
   // data
   Container<ConsumerPtr> consumers_;

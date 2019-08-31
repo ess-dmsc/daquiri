@@ -20,22 +20,22 @@ Project::Project(const Project &other) {
 }
 
 void Project::save_spills(bool ss) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   save_spills_ = ss;
 }
 
-bool Project::save_spills() const {
-  UNIQUE_LOCK_EVENTUALLY
+bool Project::save_spills() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return save_spills_;
 }
 
-std::list<Spill> Project::spills() const {
-  UNIQUE_LOCK_EVENTUALLY
+std::list<Spill> Project::spills() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return spills_;
 }
 
 void Project::clear() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   _clear();
   cond_.notify_all();
 }
@@ -51,7 +51,7 @@ void Project::_clear() {
 }
 
 void Project::flush() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (!consumers_.empty())
     for (auto &q : consumers_)
@@ -59,21 +59,21 @@ void Project::flush() {
 }
 
 void Project::activate() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   ready_ = true;
   cond_.notify_all();
 }
 
 bool Project::wait_ready() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::unique_lock<std::mutex> Guard(mutex_);
   while (!ready_)
-    cond_.wait(ulock);
+    cond_.wait(Guard);
   ready_ = false;
   return true;
 }
 
-bool Project::changed() const {
-  UNIQUE_LOCK_EVENTUALLY
+bool Project::changed() {
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   auto ret = changed_;
 
@@ -85,19 +85,19 @@ bool Project::changed() const {
 }
 
 void Project::mark_changed() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   changed_ = true;
 }
 
-bool Project::empty() const {
-  UNIQUE_LOCK_EVENTUALLY
+bool Project::empty() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return consumers_.empty();
 }
 
 bool Project::has_data() const { return has_data_; }
 
 void Project::reset() {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (consumers_.empty() && spills_.empty())
     return;
@@ -115,7 +115,7 @@ void Project::reset() {
 }
 
 void Project::up(size_t i) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   consumers_.up(i);
   changed_ = true;
   ready_ = true;
@@ -123,7 +123,7 @@ void Project::up(size_t i) {
 }
 
 void Project::down(size_t i) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   consumers_.down(i);
   changed_ = true;
   ready_ = true;
@@ -131,20 +131,20 @@ void Project::down(size_t i) {
 }
 
 ConsumerPtr Project::get_consumer(size_t idx) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
   if (idx < consumers_.size())
     return consumers_.get(idx);
   else
     return nullptr;
 }
 
-Container<ConsumerPtr> Project::get_consumers() const {
-  UNIQUE_LOCK_EVENTUALLY
+Container<ConsumerPtr> Project::get_consumers() {
+  std::lock_guard<std::mutex> Guard(mutex_);
   return consumers_;
 }
 
 void Project::add_consumer(ConsumerPtr consumer) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   _add_consumer(consumer);
 
@@ -166,7 +166,7 @@ void Project::_add_consumer(ConsumerPtr consumer) {
 void Project::replace(size_t idx, ConsumerPtr consumer) {
   if (!consumer)
     return;
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   consumers_.replace(idx, consumer);
   if (!consumer->data()->empty())
@@ -179,7 +179,7 @@ void Project::replace(size_t idx, ConsumerPtr consumer) {
 }
 
 void Project::delete_consumer(size_t idx) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   if (idx >= consumers_.size())
     return;
@@ -191,7 +191,7 @@ void Project::delete_consumer(size_t idx) {
 }
 
 void Project::add_spill(SpillPtr one_spill) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   for (auto &q : consumers_)
     q->push_spill(*one_spill);
@@ -229,7 +229,7 @@ void Project::save(std::string file_name) {
     group.attributes.create<std::string>("git_version")
         .write(std::string(BI_GIT_HASH));
 
-    UNIQUE_LOCK_EVENTUALLY
+    std::lock_guard<std::mutex> Guard(mutex_);
 
     if (!spills_.empty()) {
       auto sg = group.create_group("spills");
@@ -274,7 +274,7 @@ void Project::open(std::string file_name, bool with_consumers,
     auto f = file.root();
     auto group = f.get_group("project");
 
-    UNIQUE_LOCK_EVENTUALLY
+    std::lock_guard<std::mutex> Guard(mutex_);
 
     _clear();
 
@@ -343,7 +343,7 @@ void Project::_save_metadata(std::string file_name) {
 }
 
 void Project::save_split(std::string base_name) {
-  UNIQUE_LOCK_EVENTUALLY
+  std::lock_guard<std::mutex> Guard(mutex_);
 
   _save_metadata(base_name + "_metadata.json");
   size_t i = 0;
@@ -357,7 +357,7 @@ void Project::save_split(std::string base_name) {
   }
 }
 
-std::ostream &operator<<(std::ostream &stream, const Project &project) {
+std::ostream &operator<<(std::ostream &stream, Project &project) {
   stream << "---------------------------\n";
   stream << "---=====================---\n";
   stream << "---===DAQuiri Project===---\n";
