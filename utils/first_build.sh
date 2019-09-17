@@ -20,6 +20,10 @@ if [[ $SYSTEM == "centos" ]]; then
           --options boost_system:shared=True boost_filesystem/1.69.0@bincrafters/stable || exit 1
     conan install --build=outdated .. || exit 1
     cmake -DCONAN=MANUAL ..
+elif [[ $SYSTEM == "macos" ]]; then
+    conan install --build=outdated .. || exit 1
+    source ./activate_run.sh
+    cmake -DCONAN=MANUAL ..
 else
     cmake ..
 fi
