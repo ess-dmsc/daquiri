@@ -1,5 +1,6 @@
 #include <producers/ESSStream/KafkaPlugin.h>
 #include <core/util/logger.h>
+#include <cstdlib>
 
 namespace Kafka {
 
@@ -91,7 +92,13 @@ Setting KafkaConfigPlugin::settings() const
 void KafkaConfigPlugin::settings(const Setting& set)
 {
   std::string r {plugin_name()};
-  kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();
+  // If environment specifies a broker, use it!
+  char * broker_from_environment = getenv("DAQUIRI_KAFKA_BROKER");
+  if (broker_from_environment != nullptr) {
+     kafka_broker_name_ = broker_from_environment;
+  } else {
+    kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();  
+  }
   kafka_timeout_ = set.find({r + "/KafkaTimeout"}).get_int();
   kafka_decomission_wait_ = set.find({r + "/KafkaDecomission"}).get_int();
 }
