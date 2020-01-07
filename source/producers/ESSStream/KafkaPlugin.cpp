@@ -55,9 +55,19 @@ using namespace DAQuiri;
 
 KafkaConfigPlugin::KafkaConfigPlugin()
 {
+  /// Load settings from environment variables
+  getEnvironmentSettings();
+
+  /// Add a notification if environment is used
+  std::string BrokerText;
+  if (EnvironmentSettings.KafkaBrokerName != "") {
+    BrokerText = " !! env override: " + EnvironmentSettings.KafkaBrokerName + "!!";
+  }
+
   std::string r {plugin_name()};
 
-  SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL");
+  /// Populate UI with text
+  SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL" + BrokerText);
   broker.set_flag("preset");
   add_definition(broker);
 
@@ -79,6 +89,13 @@ KafkaConfigPlugin::KafkaConfigPlugin()
   add_definition(root);
 }
 
+void KafkaConfigPlugin::getEnvironmentSettings() {
+  auto var = getenv("DAQUIRI_KAFKA_BROKER");
+  if (var != nullptr) {
+    EnvironmentSettings.KafkaBrokerName = var;
+  }
+}
+
 Setting KafkaConfigPlugin::settings() const
 {
   std::string r {plugin_name()};
@@ -92,13 +109,7 @@ Setting KafkaConfigPlugin::settings() const
 void KafkaConfigPlugin::settings(const Setting& set)
 {
   std::string r {plugin_name()};
-  // If environment specifies a broker, use it!
-  char * broker_from_environment = getenv("DAQUIRI_KAFKA_BROKER");
-  if (broker_from_environment != nullptr) {
-     kafka_broker_name_ = broker_from_environment;
-  } else {
-    kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();  
-  }
+  kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();
   kafka_timeout_ = set.find({r + "/KafkaTimeout"}).get_int();
   kafka_decomission_wait_ = set.find({r + "/KafkaDecomission"}).get_int();
 }
@@ -129,9 +140,13 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
     return nullptr;
   }
 
-  std::string error_str;
+  auto Broker = EnvironmentSettings.KafkaBrokerName == "" ?
+       kafka_broker_name_ : EnvironmentSettings.KafkaBrokerName;
 
-  conf->set("metadata.broker.list", kafka_broker_name_, error_str);
+  DBG("used broker name %s\n", Broker.c_str());
+
+  std::string error_str;
+  conf->set("metadata.broker.list", Broker, error_str);
   conf->set("message.max.bytes", "10000000", error_str);
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);
