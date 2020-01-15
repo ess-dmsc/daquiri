@@ -19,7 +19,7 @@ cmake
 virtualrunenv
 
 [options]
-gtest:shared=True
+gtest:shared=False
 librdkafka:shared=True
 
 [imports]
