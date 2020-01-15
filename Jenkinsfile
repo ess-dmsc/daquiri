@@ -61,8 +61,7 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "source ./activate_run.sh && \
-                            tests/unit_tests && \
+                        sh "tests/unit_tests && \
                             tests/system_test && \
                             bin/gui_tests"
                     } catch (e) {
@@ -172,7 +171,7 @@ node('docker') {
                 failure_function(e, 'Checkout failed')
             }
         }
-    
+
         stage("Static analysis") {
             try {
                 sh "cloc --by-file --xml --out=cloc.xml ."
