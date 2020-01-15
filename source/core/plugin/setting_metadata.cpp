@@ -4,8 +4,7 @@
 
 namespace DAQuiri {
 
-SettingType from_string(const std::string &type)
-{
+SettingType from_string(const std::string &type) {
   if (type == "boolean")
     return SettingType::boolean;
   else if (type == "integer")
@@ -36,8 +35,7 @@ SettingType from_string(const std::string &type)
     return SettingType::none;
 }
 
-std::string to_string(const SettingType &t)
-{
+std::string to_string(const SettingType &t) {
   if (t == SettingType::boolean)
     return "boolean";
   else if (t == SettingType::integer)
@@ -69,155 +67,111 @@ std::string to_string(const SettingType &t)
 }
 
 SettingMeta::SettingMeta(std::string id, SettingType type)
-  : SettingMeta(id, type, id)
-{}
+    : SettingMeta(id, type, id) {}
 
-SettingMeta::SettingMeta(std::string id, SettingType type,
-                         std::string name)
-  : id_(id)
-  , type_ (type)
-{
+SettingMeta::SettingMeta(std::string id, SettingType type, std::string name)
+    : id_(id), type_(type) {
   values_["name"] = name;
 }
 
-std::string SettingMeta::id() const
-{
-  return id_;
+std::string SettingMeta::id() const { return id_; }
+
+SettingType SettingMeta::type() const { return type_; }
+
+bool SettingMeta::is(SettingType type) const { return (type_ == type); }
+
+bool SettingMeta::is_numeric() const {
+  return (is(SettingType::integer) || is(SettingType::floating) ||
+          is(SettingType::precise));
 }
 
-SettingType SettingMeta::type() const
-{
-  return type_;
-}
-
-bool SettingMeta::is(SettingType type) const
-{
-  return (type_ == type);
-}
-
-bool SettingMeta::is_numeric() const
-{
-  return (is(SettingType::integer)
-      || is(SettingType::floating)
-      || is(SettingType::precise));
-}
-
-void SettingMeta::set_enum(int32_t idx, std::string val)
-{
+void SettingMeta::set_enum(int32_t idx, std::string val) {
   enum_map_[idx] = val;
 }
 
-void SettingMeta::set_enums(int32_t start_idx, std::list<std::string> vals)
-{
-  for (const auto& v : vals)
+void SettingMeta::set_enums(int32_t start_idx, std::list<std::string> vals) {
+  for (const auto &v : vals)
     set_enum(start_idx++, v);
 }
 
-bool SettingMeta::has_enum(int32_t idx) const
-{
+bool SettingMeta::has_enum(int32_t idx) const {
   return (enum_map_.count(idx) != 0);
 }
 
-std::string SettingMeta::enum_name(int32_t idx) const
-{
+std::string SettingMeta::enum_name(int32_t idx) const {
   if (has_enum(idx))
     return enum_map_.at(idx);
   return "";
 }
 
-std::list<std::string> SettingMeta::enum_names() const
-{
+std::list<std::string> SettingMeta::enum_names() const {
   std::list<std::string> ret;
   for (auto i : enum_map_)
     ret.push_back(i.second);
   return ret;
 }
 
-std::map<int32_t, std::string> SettingMeta::enum_map() const
-{
+std::map<int32_t, std::string> SettingMeta::enum_map() const {
   return enum_map_;
 }
 
-std::string SettingMeta::get_string(std::string name, std::string default_val) const
-{
+std::string SettingMeta::get_string(std::string name,
+                                    std::string default_val) const {
   if (values_.count(name) && values_.at(name).is_string())
     return values_[name];
   return default_val;
 }
 
-void SettingMeta::set_flag(std::string f)
-{
-  flags_.insert(f);
-}
+void SettingMeta::set_flag(std::string f) { flags_.insert(f); }
 
-void SettingMeta::remove_flag(std::string f)
-{
+void SettingMeta::remove_flag(std::string f) {
   if (flags_.count(f))
     flags_.erase(f);
 }
 
-void SettingMeta::set_flags(std::initializer_list<std::string> fs)
-{
+void SettingMeta::set_flags(std::initializer_list<std::string> fs) {
   for (auto f : fs)
     flags_.insert(f);
 }
 
-bool SettingMeta::has_flag(std::string f)
-{
-  return flags_.count(f);
-}
+bool SettingMeta::has_flag(std::string f) { return flags_.count(f); }
 
-SettingMeta SettingMeta::stripped() const
-{
+SettingMeta SettingMeta::stripped() const {
   SettingMeta s;
   s.id_ = id_;
   s.type_ = type_;
   return s;
 }
 
-bool SettingMeta::meaningful() const
-{
-  return (!flags_.empty() ||
-          !values_.empty() ||
-          !enum_map_.empty());
+bool SettingMeta::meaningful() const {
+  return (!flags_.empty() || !values_.empty() || !enum_map_.empty());
 }
 
-std::string SettingMeta::debug(std::string prepend, bool verbose) const
-{
+std::string SettingMeta::debug(std::string prepend, bool verbose) const {
   std::string ret = col(GREEN) + to_string(type_) + col();
 
   if (is_numeric())
     ret += " " + col(CYAN) + value_range() + col();
 
   if (!flags_.empty())
-    ret += " " + col(WHITE, NONE, DIM)
-        + join(flags_, " ")
-        + col();
+    ret += " " + col(WHITE, NONE, DIM) + join(flags_, " ") + col();
 
   json cont;
   if (verbose)
     cont = values_;
   else
-    for (auto it = values_.begin();
-         it != values_.end(); ++it)
-      if ((it.key() != "min") &&
-          (it.key() != "max") &&
-          (it.key() != "step") &&
-          (it.key() != "chans") &&
-          (it.key() != "address") &&
+    for (auto it = values_.begin(); it != values_.end(); ++it)
+      if ((it.key() != "min") && (it.key() != "max") && (it.key() != "step") &&
+          (it.key() != "chans") && (it.key() != "address") &&
           (it.key() != "bits"))
         cont[it.key()] = it.value();
 
-  if (!cont.empty())
-  {
-    for (auto it = cont.begin();
-         it != cont.end(); ++it)
-      ret += " " + it.key() + "="
-          + it.value().dump();
+  if (!cont.empty()) {
+    for (auto it = cont.begin(); it != cont.end(); ++it)
+      ret += " " + it.key() + "=" + it.value().dump();
   }
 
-  if (verbose && enum_map_.size())
-  {
+  if (verbose && enum_map_.size()) {
     ret += "\n" + prepend + " ";
     for (auto &i : enum_map_)
       ret += std::to_string(i.first) + "=\"" + i.second + "\"  ";
@@ -226,20 +180,16 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
   return ret;
 }
 
-
-std::string SettingMeta::value_range() const
-{
+std::string SettingMeta::value_range() const {
   if (!is_numeric())
     return "";
   std::stringstream ss;
-  ss << "[" << mins("m")
-     << "\uFF1A" << step<double>() << "\uFF1A"
-     << maxs("M") << "]";
+  ss << "[" << mins("m") << "\uFF1A" << step<double>() << "\uFF1A" << maxs("M")
+     << "]";
   return ss.str();
 }
 
-std::string SettingMeta::mins(std::string def) const
-{
+std::string SettingMeta::mins(std::string def) const {
   if (is(SettingType::integer))
     return min_str<integer_t>(def);
   else if (is(SettingType::floating))
@@ -249,8 +199,7 @@ std::string SettingMeta::mins(std::string def) const
   return "?";
 }
 
-std::string SettingMeta::maxs(std::string def) const
-{
+std::string SettingMeta::maxs(std::string def) const {
   if (is(SettingType::integer))
     return max_str<integer_t>(def);
   else if (is(SettingType::floating))
@@ -261,8 +210,7 @@ std::string SettingMeta::maxs(std::string def) const
 }
 
 // \todo change names and convert existing files
-void to_json(json& j, const SettingMeta &s)
-{
+void to_json(json &j, const SettingMeta &s) {
   j["id"] = s.id_;
   j["type"] = to_string(s.type_);
 
@@ -276,9 +224,8 @@ void to_json(json& j, const SettingMeta &s)
     j["flags"] = s.flags_;
 }
 
-void from_json(const json& j, SettingMeta &s)
-{
-  s.id_   = j["id"];
+void from_json(const json &j, SettingMeta &s) {
+  s.id_ = j["id"];
   s.type_ = from_string(j["type"]);
 
   if (j.count("items"))
@@ -293,6 +240,4 @@ void from_json(const json& j, SettingMeta &s)
     s.values_ = j["contents"];
 }
 
-}
-
-
+} // namespace DAQuiri

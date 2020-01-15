@@ -1,13 +1,12 @@
-#include <consumers/spectrum_time.h>
 #include <consumers/dataspaces/sparse_matrix2d.h>
+#include <consumers/spectrum_time.h>
 
 #include <core/util/logger.h>
 
 namespace DAQuiri {
 
-TimeSpectrum::TimeSpectrum()
-{
-  data_ = std::make_shared<SparseMatrix2D>(); //use dense 2d
+TimeSpectrum::TimeSpectrum() {
+  data_ = std::make_shared<SparseMatrix2D>(); // use dense 2d
 
   Setting base_options = metadata_.attributes();
   metadata_ = ConsumerMetadata(my_type(), "Spectra in time series");
@@ -38,15 +37,16 @@ TimeSpectrum::TimeSpectrum()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-void TimeSpectrum::_apply_attributes()
-{
+void TimeSpectrum::_apply_attributes() {
   Spectrum::_apply_attributes();
 
   time_resolution_ = 0;
   if (metadata_.get_attribute("time_resolution").get_number() > 0)
-    time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+    time_resolution_ =
+        1.0 / metadata_.get_attribute("time_resolution").get_number();
   auto unit = metadata_.get_attribute("time_units").selection();
-  units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
+  units_name_ =
+      metadata_.get_attribute("time_units").metadata().enum_name(unit);
   units_multiplier_ = std::pow(10, unit);
   time_resolution_ /= units_multiplier_;
 
@@ -56,19 +56,18 @@ void TimeSpectrum::_apply_attributes()
   this->_recalc_axes();
 }
 
-void TimeSpectrum::_init_from_file()
-{
+void TimeSpectrum::_init_from_file() {
   domain_ = data_->axis(0).domain;
   Spectrum::_init_from_file();
 }
 
-void TimeSpectrum::_recalc_axes()
-{
+void TimeSpectrum::_recalc_axes() {
   Detector det;
   if (metadata_.detectors.size() == 1)
     det = metadata_.detectors[0];
 
-  auto calib = det.get_calibration({value_latch_.value_id, det.id()}, {value_latch_.value_id});
+  auto calib = det.get_calibration({value_latch_.value_id, det.id()},
+                                   {value_latch_.value_id});
   data_->set_axis(1, DataAxis(calib, value_latch_.downsample));
 
   data_->recalc_axes();
@@ -77,14 +76,12 @@ void TimeSpectrum::_recalc_axes()
   data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
 }
 
-bool TimeSpectrum::_accept_spill(const Spill& spill)
-{
-  return (Spectrum::_accept_spill(spill)
-      && value_latch_.has_declared_value(spill));
+bool TimeSpectrum::_accept_spill(const Spill &spill) {
+  return (Spectrum::_accept_spill(spill) &&
+          value_latch_.has_declared_value(spill));
 }
 
-void TimeSpectrum::_push_stats_pre(const Spill& spill)
-{
+void TimeSpectrum::_push_stats_pre(const Spill &spill) {
   if (!this->_accept_spill(spill))
     return;
   timebase_ = spill.event_model.timebase;
@@ -92,13 +89,11 @@ void TimeSpectrum::_push_stats_pre(const Spill& spill)
   Spectrum::_push_stats_pre(spill);
 }
 
-bool TimeSpectrum::_accept_events(const Spill& /*spill*/)
-{
+bool TimeSpectrum::_accept_events(const Spill & /*spill*/) {
   return value_latch_.valid() && (0 != time_resolution_);
 }
 
-void TimeSpectrum::_push_event(const Event& event)
-{
+void TimeSpectrum::_push_event(const Event &event) {
   if (!filters_.accept(event))
     return;
 
@@ -108,8 +103,7 @@ void TimeSpectrum::_push_event(const Event& event)
 
   value_latch_.extract(coords_[1], event);
 
-  if (coords_[0] >= domain_.size())
-  {
+  if (coords_[0] >= domain_.size()) {
     size_t oldbound = domain_.size();
     domain_.resize(coords_[0] + 1);
 
@@ -120,4 +114,4 @@ void TimeSpectrum::_push_event(const Event& event)
   data_->add_one(coords_);
 }
 
-}
+} // namespace DAQuiri

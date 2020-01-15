@@ -4,13 +4,11 @@
 #include <core/util/time_extensions.h>
 #include <gui/widgets/qt_util.h>
 
-
 namespace Ui {
 class TimeDurationWidget;
 }
 
-class TimeDurationWidget : public QWidget
-{
+class TimeDurationWidget : public QWidget {
   Q_OBJECT
 
 public:
@@ -46,5 +44,4 @@ private slots:
 private:
   Ui::TimeDurationWidget *ui;
   bool us_enabled_;
-
 };

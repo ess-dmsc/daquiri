@@ -6,7 +6,7 @@ struct SomeType
   int a_ {0};
   int b_ {0};
 
-  SomeType() {}
+  SomeType() = default;
 
   SomeType(int a, int b)
   {

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <QWidget>
 #include <QFileDialog>
 #include <QTableWidget>
+#include <QWidget>
 
-QString QS(const std::string& s);
+QString QS(const std::string &s);
 
-void add_to_table(QTableWidget *table, int row, int col,
-                  QString data, QVariant value = QVariant(),
+void add_to_table(QTableWidget *table, int row, int col, QString data,
+                  QVariant value = QVariant(),
                   QBrush background = QBrush(Qt::white));
 
-void clearLayout(QLayout* layout, bool deleteWidgets = true);
+void clearLayout(QLayout *layout, bool deleteWidgets = true);

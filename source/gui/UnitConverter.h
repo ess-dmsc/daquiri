@@ -1,22 +1,25 @@
 #pragma once
 
-#include <vector>
+#include <core/plugin/precise_float.h>
 #include <map>
 #include <string>
-#include <core/plugin/precise_float.h>
+#include <vector>
 
-class UnitConverter
-{
+class UnitConverter {
 public:
   UnitConverter();
 
   std::string strip_unit(std::string full_unit) const;
   std::string get_prefix(std::string full_unit) const;
 
-  PreciseFloat convert_units(PreciseFloat value, std::string from, std::string to) const;
-  PreciseFloat convert_prefix(PreciseFloat value, std::string from, std::string to) const;
+  PreciseFloat convert_units(PreciseFloat value, std::string from,
+                             std::string to) const;
+  PreciseFloat convert_prefix(PreciseFloat value, std::string from,
+                              std::string to) const;
 
-  std::map<int32_t, std::string> make_ordered_map(std::string stripped_unit, PreciseFloat min_SI_value, PreciseFloat max_SI_value) const;
+  std::map<int32_t, std::string>
+  make_ordered_map(std::string stripped_unit, PreciseFloat min_SI_value,
+                   PreciseFloat max_SI_value) const;
 
   void add_prefix(std::string prefix, PreciseFloat factor);
 

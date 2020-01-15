@@ -1,20 +1,18 @@
-#include <gui/daq/ConsumerScalar.h>
 #include <QVBoxLayout>
+#include <gui/daq/ConsumerScalar.h>
 
 #include <gui/widgets/qt_util.h>
 
-#include <QPlot/KnightRiderWidget.h>
 #include <QPlot/GradientSelector.h>
+#include <QPlot/KnightRiderWidget.h>
 
 #include <core/util/logger.h>
 
 using namespace DAQuiri;
 
-ConsumerScalar::ConsumerScalar(QWidget* parent)
-    : AbstractConsumerWidget(parent)
-      , rider_(new QPlot::KnightRiderWidget())
-{
-  QVBoxLayout* fl = new QVBoxLayout();
+ConsumerScalar::ConsumerScalar(QWidget *parent)
+    : AbstractConsumerWidget(parent), rider_(new QPlot::KnightRiderWidget()) {
+  QVBoxLayout *fl = new QVBoxLayout();
   fl->addWidget(rider_);
 
   rider_->setMinimumWidth(40);
@@ -22,23 +20,21 @@ ConsumerScalar::ConsumerScalar(QWidget* parent)
   rider_->setSizePolicy(QSizePolicy::MinimumExpanding,
                         QSizePolicy::MinimumExpanding);
   rider_->setSuffix(QString());
-  //rider_->setPrefix(QString());
+  // rider_->setPrefix(QString());
 
   gradients_.addStandardGradients();
   gradients_.set("RedOnly", {"#ff0000", "#ff0000"});
   gradients_.set("GYR", {"#00ff00", "#ffff00", "#ff0000"});
 
   setLayout(fl);
-//  layout()->setContentsMargins(0, 0, 0, 0);
-//  layout()->setSpacing(0);
-//  layout()->setMargin(0);
-//  setContentsMargins(0, 0, 0, 0);
+  //  layout()->setContentsMargins(0, 0, 0, 0);
+  //  layout()->setSpacing(0);
+  //  layout()->setMargin(0);
+  //  setContentsMargins(0, 0, 0, 0);
 }
 
-void ConsumerScalar::update_data()
-{
-  if (!consumer_
-      || (consumer_->dimensions() != 0))
+void ConsumerScalar::update_data() {
+  if (!consumer_ || (consumer_->dimensions() != 0))
     return;
 
   ConsumerMetadata md = consumer_->metadata();
@@ -50,8 +46,8 @@ void ConsumerScalar::update_data()
   rider_->gradient_ = gradients_.get(QS(app));
 
   rider_->setVisible(true);
-//    if (md.get_attribute("enforce_upper_limit").get_bool())
-//      thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
+  //    if (md.get_attribute("enforce_upper_limit").get_bool())
+  //      thermometer_->setCritical(md.get_attribute("upper_limit").get_number());
 
   double rescale = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)
@@ -59,16 +55,14 @@ void ConsumerScalar::update_data()
 
   DataAxis axis;
 
-  if (data)
-  {
+  if (data) {
     axis = data->axis(0);
     rider_->setSuffix(QS(axis.label()));
 
     EntryList range = data->range({});
     auto current = data->get({});
 
-    if (!data->empty() && range && (range->size() == 2))
-    {
+    if (!data->empty() && range && (range->size() == 2)) {
       double min = range->begin()->second * rescale;
       double val = current * rescale;
       double max = range->rbegin()->second * rescale;
@@ -82,7 +76,4 @@ void ConsumerScalar::update_data()
   setWindowTitle(QS(new_label).trimmed());
 }
 
-void ConsumerScalar::refresh()
-{
-  rider_->repaint();
-}
+void ConsumerScalar::refresh() { rider_->repaint(); }

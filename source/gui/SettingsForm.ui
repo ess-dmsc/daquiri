@@ -38,7 +38,7 @@
       <number>3</number>
      </property>
      <item>
-      <widget class="QPushButton" name="bootButton">
+      <widget class="QPushButton" name="connectButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>

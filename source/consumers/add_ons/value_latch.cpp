@@ -2,19 +2,17 @@
 
 namespace DAQuiri {
 
-void ValueLatch::settings(const Setting& s)
-{
+void ValueLatch::settings(const Setting &s) {
   auto name = s.find(Setting("value_latch/value_id")).get_text();
-  if (name != value_id)
-  {
+  if (name != value_id) {
     idx = -1;
     value_id = name;
   }
-  downsample = static_cast<uint16_t>(s.find(Setting("value_latch/downsample")).get_int());
+  downsample = static_cast<uint16_t>(
+      s.find(Setting("value_latch/downsample")).get_int());
 }
 
-Setting ValueLatch::settings(int32_t index, std::string override_name) const
-{
+Setting ValueLatch::settings(int32_t index, std::string override_name) const {
   auto mret = SettingMeta("value_latch", SettingType::stem,
                           (override_name.empty() ? "Value" : override_name));
   auto ret = Setting(mret);
@@ -29,7 +27,8 @@ Setting ValueLatch::settings(int32_t index, std::string override_name) const
     name.set_indices({index});
   ret.branches.add(name);
 
-  SettingMeta mds("value_latch/downsample", SettingType::integer, "Downsample by");
+  SettingMeta mds("value_latch/downsample", SettingType::integer,
+                  "Downsample by");
   mds.set_val("units", "bits");
   mds.set_flag("preset");
   mds.set_val("min", 0);
@@ -43,12 +42,11 @@ Setting ValueLatch::settings(int32_t index, std::string override_name) const
   return ret;
 }
 
-void ValueLatch::configure(const Spill& spill)
-{
+void ValueLatch::configure(const Spill &spill) {
   if (has_declared_value(spill))
     idx = static_cast<int32_t>(spill.event_model.name_to_val.at(value_id));
   else
     idx = -1;
 }
 
-}
+} // namespace DAQuiri

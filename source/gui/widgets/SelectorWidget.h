@@ -1,12 +1,12 @@
 #pragma once
 
-#include <QObject>
 #include <QMetaType>
-#include <QWidget>
+#include <QObject>
 #include <QPointF>
-#include <QVector>
 #include <QStaticText>
 #include <QVariant>
+#include <QVector>
+#include <QWidget>
 
 struct SelectorItem {
   QString text;
@@ -17,8 +17,7 @@ struct SelectorItem {
   SelectorItem() : visible(false) {}
 };
 
-class SelectorWidget : public QWidget
-{
+class SelectorWidget : public QWidget {
   Q_OBJECT
 
 public:
@@ -44,7 +43,7 @@ protected:
   void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
   void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
   void mouseDoubleClickEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-  void resizeEvent(QResizeEvent * event) Q_DECL_OVERRIDE;
+  void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
   QVector<SelectorItem> my_items_;
   int selected_;
@@ -56,7 +55,7 @@ private:
   int width_last, height_total, max_wide;
 
   QRectF inner, outer, text;
-  bool   only_one_;
+  bool only_one_;
 
   void recalcDim(int, int);
 };

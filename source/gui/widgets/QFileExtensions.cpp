@@ -1,22 +1,16 @@
-#include <gui/widgets/QFileExtensions.h>
-#include <stdlib.h>
-#include <QFile>
 #include <QDateTime>
-#include <QMessageBox>
+#include <QFile>
 #include <QLayout>
 #include <QLayoutItem>
+#include <QMessageBox>
 #include <core/util/logger.h>
+#include <gui/widgets/QFileExtensions.h>
+#include <stdlib.h>
 
-QString CustomSaveFileDialog(QWidget *parent,
-                             const QString &title,
-                             const QString &directory,
-                             const QString &filter)
-{
+QString CustomSaveFileDialog(QWidget *parent, const QString &title,
+                             const QString &directory, const QString &filter) {
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-  return QFileDialog::getSaveFileName(parent,
-                                      title,
-                                      directory,
-                                      filter);
+  return QFileDialog::getSaveFileName(parent, title, directory, filter);
 #else
   QFileDialog dialog(parent, title, directory, filter);
   if (parent)
@@ -24,20 +18,17 @@ QString CustomSaveFileDialog(QWidget *parent,
 
   QRegExp filter_regex(QLatin1String("(?:^\\*\\.(?!.*\\()|\\(\\*\\.)(\\w+)"));
   QStringList filters = filter.split(QLatin1String(";;"));
-  if (!filters.isEmpty())
-  {
+  if (!filters.isEmpty()) {
     dialog.setNameFilter(filters.first());
     if (filter_regex.indexIn(filters.first()) != -1)
       dialog.setDefaultSuffix(filter_regex.cap(1));
   }
   dialog.setAcceptMode(QFileDialog::AcceptSave);
-  if (dialog.exec() == QDialog::Accepted)
-  {
+  if (dialog.exec() == QDialog::Accepted) {
     QString file_name = dialog.selectedFiles().first();
     QFileInfo info(file_name);
     if (info.suffix().isEmpty() && !dialog.selectedNameFilter().isEmpty())
-      if (filter_regex.indexIn(dialog.selectedNameFilter()) != -1)
-      {
+      if (filter_regex.indexIn(dialog.selectedNameFilter()) != -1) {
         QString extension = filter_regex.cap(1);
         file_name += QLatin1String(".") + extension;
       }
@@ -46,50 +37,44 @@ QString CustomSaveFileDialog(QWidget *parent,
     //    if (file.exists()) {
     //        QMessageBox msgBox;
     //        msgBox.setText("Replace?");
-    //        msgBox.setInformativeText("File \'" + file_name + "\' already exists. Replace?");
-    //        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+    //        msgBox.setInformativeText("File \'" + file_name + "\' already
+    //        exists. Replace?"); msgBox.setStandardButtons(QMessageBox::Yes |
+    //        QMessageBox::Cancel);
     //        msgBox.setDefaultButton(QMessageBox::Cancel);
     //        if (msgBox.exec() != QMessageBox::Yes)
     //          return QString();
     //    }
 
     return file_name;
-  }
-  else
+  } else
     return QString();
 
-#endif  // Q_WS_MAC || Q_WS_WIN
+#endif // Q_WS_MAC || Q_WS_WIN
 }
 
-bool validateFile(QWidget* parent, QString name, bool write)
-{
+bool validateFile(QWidget *parent, QString name, bool write) {
   QFile file(name);
   if (name.isEmpty())
     return false;
 
-  if (!write)
-  {
-    if (!file.exists())
-    {
+  if (!write) {
+    if (!file.exists()) {
       QMessageBox::warning(parent, "Failed", "File does not exist.");
       return false;
     }
-    if (!file.open(QIODevice::ReadOnly))
-    {
-      QMessageBox::warning(parent, "Failed", "Could not open file for reading.");
+    if (!file.open(QIODevice::ReadOnly)) {
+      QMessageBox::warning(parent, "Failed",
+                           "Could not open file for reading.");
       return false;
     }
-  }
-  else
-  {
-    if (file.exists() && !file.remove())
-    {
+  } else {
+    if (file.exists() && !file.remove()) {
       QMessageBox::warning(parent, "Failed", "Could not delete file.");
       return false;
     }
-    if (!file.open(QIODevice::WriteOnly))
-    {
-      QMessageBox::warning(parent, "Failed", "Could not open file for writing.");
+    if (!file.open(QIODevice::WriteOnly)) {
+      QMessageBox::warning(parent, "Failed",
+                           "Could not open file for writing.");
       return false;
     }
   }
@@ -97,11 +82,9 @@ bool validateFile(QWidget* parent, QString name, bool write)
   return true;
 }
 
-QString catExtensions(std::list<std::string> exts)
-{
+QString catExtensions(std::list<std::string> exts) {
   QString ret;
-  for (auto &p : exts)
-  {
+  for (auto &p : exts) {
     ret += "*." + QString::fromStdString(p);
     if (p != exts.back())
       ret += " ";
@@ -109,11 +92,9 @@ QString catExtensions(std::list<std::string> exts)
   return ret;
 }
 
-QString catFileTypes(QStringList types)
-{
+QString catFileTypes(QStringList types) {
   QString ret;
-  for (auto &q : types)
-  {
+  for (auto &q : types) {
     if (q != types.front())
       ret += ";;";
     ret += q;
@@ -121,8 +102,7 @@ QString catFileTypes(QStringList types)
   return ret;
 }
 
-QString path_of_file(QString filename)
-{
+QString path_of_file(QString filename) {
   QString ret;
   QFileInfo file(filename);
   if (file.absoluteDir().isReadable())
@@ -130,52 +110,42 @@ QString path_of_file(QString filename)
   return ret;
 }
 
-bool copy_dir_recursive(QString from_dir, QString to_dir, bool replace_on_conflit)
-{
+bool copy_dir_recursive(QString from_dir, QString to_dir,
+                        bool replace_on_conflit) {
   QDir dir;
   dir.setPath(from_dir);
 
   from_dir += QDir::separator();
   to_dir += QDir::separator();
 
-  foreach (QString copy_file, dir.entryList(QDir::Files))
-  {
+  foreach (QString copy_file, dir.entryList(QDir::Files)) {
     QString from = from_dir + copy_file;
     QString to = to_dir + copy_file;
 
-    if (QFile::exists(to))
-    {
-      if (replace_on_conflit)
-      {
-        if (QFile::remove(to) == false)
-        {
+    if (QFile::exists(to)) {
+      if (replace_on_conflit) {
+        if (QFile::remove(to) == false) {
           return false;
         }
-      }
-      else
-      {
+      } else {
         continue;
       }
     }
 
-    if (QFile::copy(from, to) == false)
-    {
+    if (QFile::copy(from, to) == false) {
       return false;
     }
   }
 
-  foreach (QString copy_dir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
-  {
+  foreach (QString copy_dir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
     QString from = from_dir + copy_dir;
     QString to = to_dir + copy_dir;
 
-    if (dir.mkpath(to) == false)
-    {
+    if (dir.mkpath(to) == false) {
       return false;
     }
 
-    if (copy_dir_recursive(from, to, replace_on_conflit) == false)
-    {
+    if (copy_dir_recursive(from, to, replace_on_conflit) == false) {
       return false;
     }
   }

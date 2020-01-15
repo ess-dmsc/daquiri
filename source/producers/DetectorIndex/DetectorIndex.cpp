@@ -2,23 +2,21 @@
 
 #include <core/util/logger.h>
 
-DetectorIndex::DetectorIndex()
-{
+DetectorIndex::DetectorIndex() {
   define_settings();
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-DetectorIndex::~DetectorIndex()
-{
+DetectorIndex::~DetectorIndex() {
   daq_stop();
   die();
 }
 
-void DetectorIndex::define_settings()
-{
+void DetectorIndex::define_settings() {
   std::string r{plugin_name()};
 
-  SettingMeta det_count(r + "/DetectorCount", SettingType::integer, "Detector count");
+  SettingMeta det_count(r + "/DetectorCount", SettingType::integer,
+                        "Detector count");
   det_count.set_val("min", 1);
   add_definition(det_count);
 
@@ -31,8 +29,7 @@ void DetectorIndex::define_settings()
   add_definition(root);
 }
 
-Setting DetectorIndex::settings() const
-{
+Setting DetectorIndex::settings() const {
   std::string r{plugin_name()};
 
   auto set = get_rich_setting(r);
@@ -42,8 +39,7 @@ Setting DetectorIndex::settings() const
   set.branches.add_a(total_det_num);
 
   SettingMeta m = setting_definitions_.at(r + "/Detector");
-  for (size_t i = 0; i < detectors_.size(); ++i)
-  {
+  for (size_t i = 0; i < detectors_.size(); ++i) {
     m.set_val("name", "Detector " + std::to_string(i));
     Setting det(m);
     det.set_text(detectors_[i].id());
@@ -56,8 +52,7 @@ Setting DetectorIndex::settings() const
   return set;
 }
 
-void DetectorIndex::settings(const Setting& settings)
-{
+void DetectorIndex::settings(const Setting &settings) {
   auto set = enrich_and_toggle_presets(settings);
 
   std::string r{plugin_name()};
@@ -71,8 +66,7 @@ void DetectorIndex::settings(const Setting& settings)
   if (oldtotal != newtotal)
     detectors_.resize(newtotal);
 
-  for (auto b : set.branches)
-  {
+  for (auto b : set.branches) {
     if (b.id() != (r + "/Detector"))
       continue;
 
@@ -83,23 +77,20 @@ void DetectorIndex::settings(const Setting& settings)
     if (idx < 0 || idx >= static_cast<int>(detectors_.size()))
       continue;
 
-    //hackity hack
+    // hackity hack
     detectors_[idx].set_id(b.get_text());
   }
 }
 
-void DetectorIndex::boot()
-{
-  if (!(status_ & ProducerStatus::can_boot))
-  {
-    WARN("<DetectorIndex> Cannot boot DetectorIndex. Failed flag check (!can_boot)");
+void DetectorIndex::boot() {
+  if (!(status_ & ProducerStatus::can_boot)) {
+    WARN("<DetectorIndex> Cannot boot DetectorIndex. Failed flag check "
+         "(!can_boot)");
     return;
   }
   status_ = ProducerStatus::loaded | ProducerStatus::booted;
 }
 
-void DetectorIndex::die()
-{
+void DetectorIndex::die() {
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
-

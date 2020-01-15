@@ -8,8 +8,5 @@ QColor generateColor();
 
 QColor inverseColor(QColor);
 
-void paintColor(QPainter* painter,
-                const QRect& rect,
-                const QColor& color,
+void paintColor(QPainter *painter, const QRect &rect, const QColor &color,
                 QString text = "");
-

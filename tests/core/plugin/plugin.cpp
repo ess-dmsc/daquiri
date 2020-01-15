@@ -6,8 +6,8 @@ using namespace DAQuiri;
 class Mock : public Plugin
 {
   public:
-    Mock() {}
-    ~Mock() {}
+    Mock() = default;
+    ~Mock() = default;
 
     std::string plugin_name() const override { return "Mock"; }
 

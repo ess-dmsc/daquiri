@@ -4,6 +4,7 @@ import ecdcpipeline.PipelineBuilder
 
 project = "daquiri"
 coverage_on = "centos"
+archive_version = "centos"
 
 // Set number of old builds to keep.
 properties([[
@@ -18,8 +19,8 @@ properties([[
 ]]);
 
 container_build_nodes = [
-  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7'),
-  'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804')
+  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7')//,
+  //'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804')
 ]
 
 pipeline_builder = new PipelineBuilder(this, container_build_nodes)
@@ -157,6 +158,29 @@ builders = pipeline_builder.createBuilders { container ->
             """
         }  // if/else
     }  // stage
+    
+    if (container.key == archive_version) {
+        pipeline_builder.stage("${container.key}: archive") {
+            container.sh """
+                                mkdir -p archive/${project}
+                                cp -r ${project}/build/bin archive/${project}
+                                cp -r ${project}/build/lib archive/${project}
+                                cp -r ${project}/build/licenses archive/${project}
+                                cd archive
+                                tar czvf ${project}-${container.key}.tar.gz ${project}
+
+                                # Create file with build information
+                                touch BUILD_INFO
+                                echo 'Repository: ${project}/${env.BRANCH_NAME}' >> BUILD_INFO
+                                echo 'Commit: ${scm_vars.GIT_COMMIT}' >> BUILD_INFO
+                                echo 'Jenkins build: ${BUILD_NUMBER}' >> BUILD_INFO
+                            """
+            container.copyFrom("/home/jenkins/archive/${project}-${container.key}.tar.gz", '.')
+            container.copyFrom("/home/jenkins/archive/BUILD_INFO", '.')
+            
+            archiveArtifacts "${project}-${container.key}.tar.gz,BUILD_INFO"
+        }
+    }
 }  // createBuilders
 
 node('docker') {

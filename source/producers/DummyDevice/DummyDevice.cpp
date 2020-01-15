@@ -4,8 +4,7 @@
 
 namespace DAQuiri {
 
-DummyDevice::DummyDevice()
-{
+DummyDevice::DummyDevice() {
   std::string r{plugin_name()};
 
   add_dummy_settings();
@@ -18,9 +17,12 @@ DummyDevice::DummyDevice()
 
   manifest_["Stream1"].event_model.add_value("val1", 1000);
   manifest_["Stream1"].event_model.add_value("val2", 2000);
-  manifest_["Stream1"].stats.branches.add(SettingMeta("float_val", SettingType::floating));
-  manifest_["Stream1"].stats.branches.add(SettingMeta("int_val", SettingType::integer));
-  manifest_["Stream1"].stats.branches.add(SettingMeta("precise_val", SettingType::precise));
+  manifest_["Stream1"].stats.branches.add(
+      SettingMeta("float_val", SettingType::floating));
+  manifest_["Stream1"].stats.branches.add(
+      SettingMeta("int_val", SettingType::integer));
+  manifest_["Stream1"].stats.branches.add(
+      SettingMeta("precise_val", SettingType::precise));
 
   manifest_["Stream2"].event_model.add_value("val_a", 500);
   manifest_["Stream2"].event_model.add_trace("trc_a", {2, 3, 4});
@@ -31,14 +33,12 @@ DummyDevice::DummyDevice()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-DummyDevice::~DummyDevice()
-{
+DummyDevice::~DummyDevice() {
   daq_stop();
   die();
 }
 
-Setting DummyDevice::settings() const
-{
+Setting DummyDevice::settings() const {
   auto set = get_rich_setting(plugin_name());
 
   std::string r{plugin_name() + "/DummySettings/"};
@@ -83,8 +83,7 @@ Setting DummyDevice::settings() const
   return set;
 }
 
-void DummyDevice::settings(const Setting& settings)
-{
+void DummyDevice::settings(const Setting &settings) {
   std::string r{plugin_name() + "/DummySettings/"};
 
   auto set = enrich_and_toggle_presets(settings);
@@ -122,16 +121,12 @@ void DummyDevice::settings(const Setting& settings)
   binary_ = set.find({r + "Binary"}).get_int();
 }
 
-StreamManifest DummyDevice::stream_manifest() const
-{
-  return manifest_;
-}
+StreamManifest DummyDevice::stream_manifest() const { return manifest_; }
 
-void DummyDevice::boot()
-{
-  if (!(status_ & ProducerStatus::can_boot))
-  {
-    WARN("<DummyDevice> Cannot boot DummyDevice. Failed flag check (can_boot == 0)");
+void DummyDevice::boot() {
+  if (!(status_ & ProducerStatus::can_boot)) {
+    WARN("<DummyDevice> Cannot boot DummyDevice. Failed flag check (can_boot "
+         "== 0)");
     return;
   }
 
@@ -139,13 +134,11 @@ void DummyDevice::boot()
   status_ = ProducerStatus::loaded | ProducerStatus::booted;
 }
 
-void DummyDevice::die()
-{
+void DummyDevice::die() {
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void DummyDevice::add_dummy_settings()
-{
+void DummyDevice::add_dummy_settings() {
   std::string r{plugin_name() + "/DummySettings"};
 
   SettingMeta a0(r + "/Enabled", SettingType::boolean);
@@ -325,4 +318,4 @@ void DummyDevice::add_dummy_settings()
   add_definition(root);
 }
 
-}
+} // namespace DAQuiri

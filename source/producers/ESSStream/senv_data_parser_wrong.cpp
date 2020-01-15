@@ -1,12 +1,10 @@
-#include <producers/ESSStream/senv_data_wrong.h>
 #include "senv_data_generated.h"
+#include <producers/ESSStream/senv_data_wrong.h>
 
-#include <core/util/timer.h>
 #include <core/util/logger.h>
+#include <core/util/timer.h>
 
-SenvParserWrong::SenvParserWrong()
-    : fb_parser()
-{
+SenvParserWrong::SenvParserWrong() : fb_parser() {
   std::string r{plugin_name()};
 
   SettingMeta sid0(r + "/StreamBase", SettingType::text,
@@ -14,7 +12,8 @@ SenvParserWrong::SenvParserWrong()
   sid0.set_flag("preset");
   add_definition(sid0);
 
-  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean, "Filter on source name");
+  SettingMeta fsname(r + "/FilterSourceName", SettingType::boolean,
+                     "Filter on source name");
   fsname.set_flag("preset");
   add_definition(fsname);
 
@@ -35,24 +34,26 @@ SenvParserWrong::SenvParserWrong()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-StreamManifest SenvParserWrong::stream_manifest() const
-{
+StreamManifest SenvParserWrong::stream_manifest() const {
   StreamManifest ret;
-  for (size_t i=0; i < 4; ++i) {
+  for (size_t i = 0; i < 4; ++i) {
     auto sid = stream_id_base_ + std::to_string(i);
     ret[sid].event_model = event_model_;
-    ret[sid].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-    ret[sid].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+    ret[sid].stats.branches.add(
+        SettingMeta("native_time", SettingType::precise));
+    ret[sid].stats.branches.add(
+        SettingMeta("dropped_buffers", SettingType::precise));
     ret[sid].stats.branches.add(SettingMeta("senv_name", SettingType::text));
     ret[sid].stats.branches.add(SettingMeta("senv_chan", SettingType::integer));
-    ret[sid].stats.branches.add(SettingMeta("senv_delta", SettingType::floating));
-    ret[sid].stats.branches.add(SettingMeta("senv_counter", SettingType::integer));
+    ret[sid].stats.branches.add(
+        SettingMeta("senv_delta", SettingType::floating));
+    ret[sid].stats.branches.add(
+        SettingMeta("senv_counter", SettingType::integer));
   }
   return ret;
 }
 
-Setting SenvParserWrong::settings() const
-{
+Setting SenvParserWrong::settings() const {
   std::string r{plugin_name()};
   auto set = get_rich_setting(r);
 
@@ -66,8 +67,7 @@ Setting SenvParserWrong::settings() const
   return set;
 }
 
-void SenvParserWrong::settings(const Setting& settings)
-{
+void SenvParserWrong::settings(const Setting &settings) {
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
   stream_id_base_ = set.find({r + "/StreamBase"}).get_text();
@@ -79,15 +79,14 @@ void SenvParserWrong::settings(const Setting& settings)
   event_model_.timebase = tbs.timebase();
 }
 
-uint64_t SenvParserWrong::stop(SpillQueue spill_queue)
-{
-  if (started_)
-  {
-    for (size_t i=0; i <4; ++i) {
+uint64_t SenvParserWrong::stop(SpillQueue spill_queue) {
+  if (started_) {
+    for (size_t i = 0; i < 4; ++i) {
       auto sid = stream_id_base_ + std::to_string(i);
       auto ret = std::make_shared<Spill>(sid, Spill::Type::stop);
       ret->state.branches.add(Setting::precise("native_time", stats.time_end));
-      ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+      ret->state.branches.add(
+          Setting::precise("dropped_buffers", stats.dropped_buffers));
       spill_queue->enqueue(ret);
     }
     started_ = false;
@@ -96,48 +95,42 @@ uint64_t SenvParserWrong::stop(SpillQueue spill_queue)
   return 0;
 }
 
-uint64_t SenvParserWrong::start(SpillQueue spill_queue)
-{
-  for (size_t i=0; i <4; ++i)
-  {
+uint64_t SenvParserWrong::start(SpillQueue spill_queue) {
+  for (size_t i = 0; i < 4; ++i) {
     auto sid = stream_id_base_ + std::to_string(i);
     auto run_spill = std::make_shared<Spill>(sid, Spill::Type::start);
-    run_spill->state.branches.add(Setting::precise("native_time", stats.time_start));
-    run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+    run_spill->state.branches.add(
+        Setting::precise("native_time", stats.time_start));
+    run_spill->state.branches.add(
+        Setting::precise("dropped_buffers", stats.dropped_buffers));
     spill_queue->enqueue(run_spill);
   }
   return 4;
 }
 
-std::string SenvParserWrong::schema_id() const
-{
+std::string SenvParserWrong::schema_id() const {
   return std::string(SampleEnvironmentDataIdentifier());
 }
 
-std::string SenvParserWrong::get_source_name(void* msg) const
-{
+std::string SenvParserWrong::get_source_name(void *msg) const {
   auto em = GetSampleEnvironmentData(msg);
   auto NamePtr = em->Name();
-  if (NamePtr == nullptr)
-  {
+  if (NamePtr == nullptr) {
     ERR("<mo01_nmx> message has no source_name");
     return "";
   }
   return NamePtr->str();
 }
 
-uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
-{
+uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void *msg) {
   Timer timer(true);
   uint64_t pushed_spills = 0;
-  hr_time_t start_time{std::chrono::system_clock::now()};
 
   auto Data = GetSampleEnvironmentData(msg);
-//  INFO("\n{}", debug(Data));
+  //  INFO("\n{}", debug(Data));
 
   auto name = Data->Name()->str();
-  if (filter_source_name_ && (source_name_ != name))
-  {
+  if (filter_source_name_ && (source_name_ != name)) {
     stats.time_spent += timer.s();
     return 0;
   }
@@ -148,16 +141,17 @@ uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
   auto messagectr = Data->MessageCounter();
   // \todo delta
 
-  if (!started_)
-  {
+  if (!started_) {
     pushed_spills += start(spill_queue);
     started_ = true;
   }
 
   auto sid = stream_id_base_ + std::to_string(channel);
   auto run_spill = std::make_shared<Spill>(sid, Spill::Type::running);
-  run_spill->state.branches.add(Setting::precise("native_time", Data->PacketTimestamp()));
-  run_spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
+  run_spill->state.branches.add(
+      Setting::precise("native_time", Data->PacketTimestamp()));
+  run_spill->state.branches.add(
+      Setting::precise("dropped_buffers", stats.dropped_buffers));
   run_spill->state.branches.add(Setting::text("senv_name", name));
   run_spill->state.branches.add(Setting::integer("senv_chan", channel));
   run_spill->state.branches.add(Setting::floating("senv_delta", delta));
@@ -167,13 +161,12 @@ uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
   run_spill->event_model = event_model_;
   run_spill->events.reserve(event_count, event_model_);
 
-  for (size_t i=0; i < event_count; ++i)
-  {
+  for (size_t i = 0; i < event_count; ++i) {
     uint64_t time = Data->Timestamps()->Get(i);
-    auto& evt = run_spill->events.last();
+    auto &evt = run_spill->events.last();
     evt.set_value(0, channel);
     evt.set_time(time);
-    ++ run_spill->events;
+    ++run_spill->events;
   }
   run_spill->events.finalize();
 
@@ -184,8 +177,7 @@ uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
   return pushed_spills;
 }
 
-std::string SenvParserWrong::debug(const SampleEnvironmentData* Data)
-{
+std::string SenvParserWrong::debug(const SampleEnvironmentData *Data) {
   std::stringstream ss;
 
   ss << "  Name      : " << Data->Name()->str() << "\n";
@@ -199,4 +191,3 @@ std::string SenvParserWrong::debug(const SampleEnvironmentData* Data)
 
   return ss.str();
 }
-

@@ -3,12 +3,9 @@
 #include <QString>
 #include <nlohmann/json.hpp>
 
-class Profiles
-{
- public:
-
-  static Profiles& singleton()
-  {
+class Profiles {
+public:
+  static Profiles &singleton() {
     static Profiles singleton_instance;
     return singleton_instance;
   }
@@ -27,7 +24,7 @@ class Profiles
   QString current_profile_name();
   QString current_profile_dir();
   nlohmann::json get_current_profile();
-  void save_profile(const nlohmann::json&);
+  void save_profile(const nlohmann::json &);
 
   static QString profile_dir(QString name);
   static nlohmann::json get_profile(QString name);
@@ -37,12 +34,12 @@ class Profiles
   static bool profile_exists(QString name);
   static bool is_valid_profile(QString name);
 
- private:
+private:
   QString current_profile_name_;
   bool auto_boot_{false};
 
-  //singleton assurance
+  // singleton assurance
   Profiles() = default;
-  Profiles(Profiles const&);
-  void operator=(Profiles const&);
+  Profiles(Profiles const &);
+  void operator=(Profiles const &);
 };

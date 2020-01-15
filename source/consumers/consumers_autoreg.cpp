@@ -6,23 +6,22 @@
 
 #include <consumers/histogram_1d.h>
 #include <consumers/prebinned_1d.h>
+#include <consumers/time_delta_1d.h>
+#include <consumers/time_domain.h>
 #include <consumers/tof_1d.h>
 #include <consumers/tof_1d_correlate.h>
-#include <consumers/time_domain.h>
-#include <consumers/time_delta_1d.h>
 
-#include <consumers/tof_val_2d.h>
-#include <consumers/tof_val_2d_correlate.h>
 #include <consumers/histogram_2d.h>
 #include <consumers/image_2d.h>
 #include <consumers/spectrum_time.h>
+#include <consumers/tof_val_2d.h>
+#include <consumers/tof_val_2d_correlate.h>
 
 #include <consumers/histogram_3d.h>
 
 using namespace DAQuiri;
 
-void consumers_autoreg()
-{
+void consumers_autoreg() {
   DAQUIRI_REGISTER_CONSUMER(StatsScalar)
 
   DAQUIRI_REGISTER_CONSUMER(Histogram1D)

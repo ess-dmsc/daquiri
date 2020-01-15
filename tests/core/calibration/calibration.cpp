@@ -97,7 +97,7 @@ class FakeFunction : public DAQuiri::CoefFunction
 
 class Calibration : public TestBase
 {
-  virtual void TearDown() {
+  void TearDown() override {
     DAQuiri::CoefFunctionFactory::singleton().clear();
   }
 };

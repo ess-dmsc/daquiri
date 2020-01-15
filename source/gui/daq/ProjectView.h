@@ -2,26 +2,24 @@
 
 #include <core/project.h>
 
-#include <gui/widgets/SelectorWidget.h>
 #include <gui/daq/AbstractConsumerWidget.h>
+#include <gui/widgets/SelectorWidget.h>
 
-#include <QWidget>
-#include <QMenu>
 #include <QMdiArea>
+#include <QMenu>
+#include <QWidget>
 
-namespace Ui
-{
+namespace Ui {
 class ProjectView;
 }
 
 class ConsumerMulti1D;
 
-class ProjectView : public QWidget
-{
- Q_OBJECT
+class ProjectView : public QWidget {
+  Q_OBJECT
 
- public:
-  explicit ProjectView(QWidget* parent = 0);
+public:
+  explicit ProjectView(QWidget *parent = 0);
   ~ProjectView();
 
   void set_project(DAQuiri::ProjectPtr project);
@@ -32,10 +30,10 @@ class ProjectView : public QWidget
 
   void update_plots();
 
-//  protected:
-//    void closeEvent(QCloseEvent*);
+  //  protected:
+  //    void closeEvent(QCloseEvent*);
 
- private slots:
+private slots:
   void selectorItemToggled(SelectorItem);
   void selectorItemSelected(SelectorItem);
   void selectorItemDoubleclicked(SelectorItem);
@@ -55,15 +53,15 @@ class ProjectView : public QWidget
   void tile_horizontal();
   void tile_vertical();
 
-  void consumerWidgetDestroyed(QObject*);
-  void groupWidgetDestroyed(QObject*);
+  void consumerWidgetDestroyed(QObject *);
+  void groupWidgetDestroyed(QObject *);
 
   void on_pushHideControls_clicked();
 
   void enforce_tile_policy();
 
- private:
-  Ui::ProjectView* ui;
+private:
+  Ui::ProjectView *ui;
 
   Container<DAQuiri::Detector> detectors_;
   DAQuiri::StreamManifest stream_manifest_;
@@ -71,12 +69,12 @@ class ProjectView : public QWidget
   DAQuiri::ProjectPtr project_;
 
   // consumer_id->widget
-  QMap<int64_t, AbstractConsumerWidget*> consumers_;
+  QMap<int64_t, AbstractConsumerWidget *> consumers_;
 
   // window_group->widget
-  QMap<size_t, ConsumerMulti1D*> groups_;
+  QMap<size_t, ConsumerMulti1D *> groups_;
 
-  SelectorWidget* selector_;
+  SelectorWidget *selector_;
 
   QString tile_policy_{"grid"};
 
@@ -86,9 +84,9 @@ class ProjectView : public QWidget
 
   void enforce_all();
 
-  static void tile_grid(QMdiArea*);
-  static void tile_horizontal(QMdiArea*);
-  static void tile_vertical(QMdiArea*);
+  static void tile_grid(QMdiArea *);
+  static void tile_horizontal(QMdiArea *);
+  static void tile_vertical(QMdiArea *);
 
   void loadSettings();
   void saveSettings();

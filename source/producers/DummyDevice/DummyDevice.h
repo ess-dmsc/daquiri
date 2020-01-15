@@ -2,18 +2,16 @@
 
 #include <core/producer.h>
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
-class DummyDevice : public Producer
-{
- public:
+class DummyDevice : public Producer {
+public:
   DummyDevice();
   ~DummyDevice();
 
   std::string plugin_name() const override { return "DummyDevice"; }
 
-  void settings(const Setting&) override;
+  void settings(const Setting &) override;
   Setting settings() const override;
 
   void boot() override;
@@ -21,7 +19,7 @@ class DummyDevice : public Producer
 
   StreamManifest stream_manifest() const override;
 
- protected:
+protected:
   StreamManifest manifest_;
 
   int dummy_selection_{0};
@@ -49,8 +47,8 @@ class DummyDevice : public Producer
   hr_duration_t duration_{};
 
   Pattern pattern_;
-  bool bool_ {false};
-  integer_t binary_ {7};
+  bool bool_{false};
+  integer_t binary_{7};
 
   std::string text_;
   std::string color_;
@@ -60,4 +58,4 @@ class DummyDevice : public Producer
   std::string gradient_;
 };
 
-}
+} // namespace DAQuiri

@@ -2,11 +2,9 @@
 
 namespace DAQuiri {
 
-void ValueFilter::settings(const Setting& s)
-{
+void ValueFilter::settings(const Setting &s) {
   auto name = s.find(Setting("filter/value_id")).get_text();
-  if (name != name_)
-  {
+  if (name != name_) {
     idx_ = -1;
     name_ = name;
   }
@@ -16,8 +14,7 @@ void ValueFilter::settings(const Setting& s)
   max_ = static_cast<uint32_t>(s.find(Setting("filter/max")).get_int());
 }
 
-Setting ValueFilter::settings(int32_t index) const
-{
+Setting ValueFilter::settings(int32_t index) const {
   auto ret = Setting::stem("filter");
   ret.set_indices({index});
 
@@ -53,12 +50,11 @@ Setting ValueFilter::settings(int32_t index) const
   return ret;
 }
 
-void ValueFilter::configure(const Spill& spill)
-{
+void ValueFilter::configure(const Spill &spill) {
   if (spill.event_model.name_to_val.count(name_))
     idx_ = spill.event_model.name_to_val.at(name_);
   else
     idx_ = -1;
 }
 
-}
+} // namespace DAQuiri

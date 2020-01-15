@@ -1,22 +1,19 @@
-#include <gui/daq/Consumer1D.h>
-#include <QVBoxLayout>
 #include <QPlot/QHist.h>
+#include <QVBoxLayout>
+#include <gui/daq/Consumer1D.h>
 
 #include <gui/widgets/qt_util.h>
 
 #include <core/util/logger.h>
 
-
 using namespace DAQuiri;
 
 Consumer1D::Consumer1D(QWidget *parent)
-  : AbstractConsumerWidget(parent)
-  , plot_ (new QPlot::Multi1D())
-{
-  QVBoxLayout* fl = new QVBoxLayout();
+    : AbstractConsumerWidget(parent), plot_(new QPlot::Multi1D()) {
+  QVBoxLayout *fl = new QVBoxLayout();
   fl->addWidget(plot_);
 
-//  plot_->setOpenGl(true);
+  //  plot_->setOpenGl(true);
 
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
@@ -25,10 +22,12 @@ Consumer1D::Consumer1D(QWidget *parent)
   settings.beginGroup("DAQ_behavior");
   plot_->setLineThickness(settings.value("default_1d_thickness", 1).toInt());
 
-  connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
+  connect(plot_, SIGNAL(mouseWheel(QWheelEvent *)), this,
+          SLOT(mouseWheel(QWheelEvent *)));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
-  connect(plot_, SIGNAL(scaleChanged(QString)), this, SLOT(scaleChanged(QString)));
+  connect(plot_, SIGNAL(scaleChanged(QString)), this,
+          SLOT(scaleChanged(QString)));
 
   connect(plot_, SIGNAL(clickedPlot(double, double, Qt::MouseButton)), this,
           SLOT(clickedPlot(double, double, Qt::MouseButton)));
@@ -36,11 +35,8 @@ Consumer1D::Consumer1D(QWidget *parent)
   setLayout(fl);
 }
 
-void Consumer1D::update_data()
-{
-  if (!plot_
-      || !consumer_
-      || (consumer_->dimensions() != 1))
+void Consumer1D::update_data() {
+  if (!plot_ || !consumer_ || (consumer_->dimensions() != 1))
     return;
 
   plot_->clearPrimary();
@@ -48,12 +44,11 @@ void Consumer1D::update_data()
   ConsumerMetadata md = consumer_->metadata();
   DataspacePtr data = consumer_->data();
 
-  double rescale  = md.get_attribute("rescale").get_number();
+  double rescale = md.get_attribute("rescale").get_number();
   if (!std::isfinite(rescale) || !rescale)
     rescale = 1;
 
-  if (!initial_scale_)
-  {
+  if (!initial_scale_) {
     auto st = md.get_attribute("preferred_scale");
     auto scale = st.metadata().enum_name(st.selection());
     plot_->setScaleType(QS(scale));
@@ -65,13 +60,11 @@ void Consumer1D::update_data()
   DataAxis axis;
   EntryList spectrum_data;
 
-  if (data)
-  {
+  if (data) {
     axis = data->axis(0);
     auto bounds = axis.bounds();
     if (md.get_attribute("trim").get_bool() &&
-        ((bounds.second - bounds.first) > 1))
-    {
+        ((bounds.second - bounds.first) > 1)) {
       bounds.second--;
     }
 
@@ -79,18 +72,15 @@ void Consumer1D::update_data()
   }
 
   QPlot::HistMap1D hist;
-  if (spectrum_data)
-  {
-    for (auto it : *spectrum_data)
-    {
+  if (spectrum_data) {
+    for (auto it : *spectrum_data) {
       double xx = axis.domain[it.first[0]];
-      double yy = to_double( it.second ) * rescale;
+      double yy = to_double(it.second) * rescale;
       hist[xx] = yy;
     }
   }
 
-  if (!hist.empty())
-  {
+  if (!hist.empty()) {
     plot_->setMarkers({marker});
     plot_->addGraph(hist, pen);
     plot_->replotExtras();
@@ -105,19 +95,14 @@ void Consumer1D::update_data()
     plot_->zoomOut();
 }
 
-void Consumer1D::scaleChanged(QString sn)
-{
-  if (!plot_
-      || !consumer_
-      || (consumer_->dimensions() != 1))
+void Consumer1D::scaleChanged(QString sn) {
+  if (!plot_ || !consumer_ || (consumer_->dimensions() != 1))
     return;
 
   ConsumerMetadata md = consumer_->metadata();
   auto st = md.get_attribute("preferred_scale");
-  for (auto e : st.metadata().enum_map())
-  {
-    if (e.second == sn.toStdString())
-    {
+  for (auto e : st.metadata().enum_map()) {
+    if (e.second == sn.toStdString()) {
       st.select(e.first);
       break;
     }
@@ -125,24 +110,16 @@ void Consumer1D::scaleChanged(QString sn)
   consumer_->set_attribute(st);
 }
 
-void Consumer1D::refresh()
-{
-  plot_->replot(QCustomPlot::rpQueuedRefresh);
-}
+void Consumer1D::refresh() { plot_->replot(QCustomPlot::rpQueuedRefresh); }
 
-void Consumer1D::mouseWheel (QWheelEvent *event)
-{
+void Consumer1D::mouseWheel(QWheelEvent *event) {
   Q_UNUSED(event)
   user_zoomed_ = true;
 }
 
-void Consumer1D::zoomedOut()
-{
-  user_zoomed_ = false;
-}
+void Consumer1D::zoomedOut() { user_zoomed_ = false; }
 
-void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
-{
+void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button) {
   marker.appearance.default_pen = QPen(Qt::black, 2);
   marker.pos = x;
   marker.closest_val = y;

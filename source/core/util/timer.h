@@ -1,11 +1,10 @@
 #pragma once
 
-#include <string>
 #include <chrono>
+#include <string>
 
-class Timer
-{
- private:
+class Timer {
+private:
   typedef std::chrono::system_clock HRClock;
   typedef std::chrono::time_point<HRClock> TP;
 
@@ -13,8 +12,7 @@ class Timer
 
   TP t1;
 
- public:
-
+public:
   Timer(bool start = false);
   Timer(double timeout, bool start = false);
 

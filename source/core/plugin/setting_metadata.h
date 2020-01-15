@@ -1,15 +1,15 @@
 #pragma once
 
 #include <core/plugin/precise_float.h>
-#include <string>
+#include <list>
 #include <map>
 #include <set>
-#include <list>
+#include <string>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#define TT template<typename T>
+#define TT template <typename T>
 
 namespace DAQuiri {
 
@@ -17,33 +17,32 @@ using integer_t = int64_t;
 using floating_t = double;
 using precise_t = PreciseFloat;
 
-enum class SettingType {none,
+enum class SettingType {
+  none,
 
-                        stem,       // as branches
-                        menu,       // as int + enum_map
-                        binary,     // as int + enum_map (+ branches)
-                        indicator,  // as int + branches
+  stem,      // as branches
+  menu,      // as int + enum_map
+  binary,    // as int + enum_map (+ branches)
+  indicator, // as int + branches
 
-                        time,       // as ptime
-                        duration,   // as time_duration
-                        pattern,    // as Pattern
+  time,     // as ptime
+  duration, // as time_duration
+  pattern,  // as Pattern
 
-                        floating,   // as double
-                        precise,    // as PreciseFloat
+  floating, // as double
+  precise,  // as PreciseFloat
 
-                        boolean,    // as int
-                        integer,    // as int
-                        command,    // as int
+  boolean, // as int
+  integer, // as int
+  command, // as int
 
-                        text        // as text
-                       };
+  text // as text
+};
 
 SettingType from_string(const std::string &type);
-std::string to_string(const SettingType& t);
+std::string to_string(const SettingType &t);
 
-
-class SettingMeta
-{
+class SettingMeta {
 public:
   SettingMeta() {}
   SettingMeta(std::string id, SettingType type);
@@ -83,14 +82,14 @@ public:
   std::string value_range() const;
   std::string debug(std::string prepend = "", bool verbose = true) const;
 
-  friend void to_json(json& j, const SettingMeta &s);
-  friend void from_json(const json& j, SettingMeta &s);
+  friend void to_json(json &j, const SettingMeta &s);
+  friend void from_json(const json &j, SettingMeta &s);
 
 private:
-  std::string                    id_;
-  SettingType                    type_ {SettingType::none};
-  std::set<std::string>          flags_;
-  json                           values_;
+  std::string id_;
+  SettingType type_{SettingType::none};
+  std::set<std::string> flags_;
+  json values_;
   std::map<int32_t, std::string> enum_map_;
 
   std::string mins(std::string def) const;
@@ -100,9 +99,7 @@ private:
   TT std::string max_str(std::string def) const;
 };
 
-
-TT std::string SettingMeta::min_str(std::string def) const
-{
+TT std::string SettingMeta::min_str(std::string def) const {
   auto m = min<T>();
   if (m == -std::numeric_limits<T>::max())
     return def;
@@ -111,8 +108,7 @@ TT std::string SettingMeta::min_str(std::string def) const
   return ss.str();
 }
 
-TT std::string SettingMeta::max_str(std::string def) const
-{
+TT std::string SettingMeta::max_str(std::string def) const {
   auto m = max<T>();
   if (m == std::numeric_limits<T>::max())
     return def;
@@ -121,47 +117,34 @@ TT std::string SettingMeta::max_str(std::string def) const
   return ss.str();
 }
 
-
-TT T SettingMeta::get_num(std::string name, T default_val) const
-{
+TT T SettingMeta::get_num(std::string name, T default_val) const {
   if (values_.count(name) && values_.at(name).is_number())
     return values_.at(name).get<T>();
   return default_val;
 }
 
-TT void SettingMeta::set_val(std::string name, T val)
-{
-  values_[name] = val;
-}
+TT void SettingMeta::set_val(std::string name, T val) { values_[name] = val; }
 
-TT T SettingMeta::min() const
-{
+TT T SettingMeta::min() const {
   return get_num("min", -std::numeric_limits<T>::max());
 }
 
-TT T SettingMeta::max() const
-{
+TT T SettingMeta::max() const {
   return get_num("max", std::numeric_limits<T>::max());
 }
 
-TT T SettingMeta::step() const
-{
-  return get_num("step", T(1));
-}
+TT T SettingMeta::step() const { return get_num("step", T(1)); }
 
-TT void SettingMeta::set_bounds(T minimum, T maximum)
-{
+TT void SettingMeta::set_bounds(T minimum, T maximum) {
   set_val("min", minimum);
   set_val("max", maximum);
 }
 
-TT void SettingMeta::set_bounds(T minimum, T stepval, T maximum)
-{
+TT void SettingMeta::set_bounds(T minimum, T stepval, T maximum) {
   set_val("step", stepval);
   set_bounds(minimum, maximum);
 }
 
-
-}
+} // namespace DAQuiri
 
 #undef TT

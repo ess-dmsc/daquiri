@@ -1,34 +1,34 @@
 #pragma once
 
-#include <consumers/spectrum.h>
 #include <consumers/add_ons/value_latch.h>
+#include <consumers/spectrum.h>
 
-namespace DAQuiri
-{
+namespace DAQuiri {
 
-class TOFVal2DCorrelate : public Spectrum
-{
- public:
+class TOFVal2DCorrelate : public Spectrum {
+public:
   TOFVal2DCorrelate();
 
-  TOFVal2DCorrelate* clone() const override
-  { return new TOFVal2DCorrelate(*this); }
+  TOFVal2DCorrelate *clone() const override {
+    return new TOFVal2DCorrelate(*this);
+  }
 
- protected:
-  std::string my_type() const override
-  { return "Time of Flight 2D (w/ stream correlation)"; }
+protected:
+  std::string my_type() const override {
+    return "Time of Flight 2D (w/ stream correlation)";
+  }
 
   void _apply_attributes() override;
   void _init_from_file() override;
   void _recalc_axes() override;
 
-  //event processing
-  void _push_stats_pre(const Spill& spill) override;
-  void _push_event(const Event& event) override;
-  void _push_stats_post(const Spill& spill) override;
+  // event processing
+  void _push_stats_pre(const Spill &spill) override;
+  void _push_event(const Event &event) override;
+  void _push_stats_post(const Spill &spill) override;
 
-  bool _accept_spill(const Spill& spill) override;
-  bool _accept_events(const Spill& spill) override;
+  bool _accept_spill(const Spill &spill) override;
+  bool _accept_events(const Spill &spill) override;
 
   // cached parameters:
   double time_resolution_{1};
@@ -47,11 +47,11 @@ class TOFVal2DCorrelate : public Spectrum
 
   std::vector<double> domain_;
 
-  //reserve memory
+  // reserve memory
   Coords coords_{0, 0};
 
   bool bin_events();
   bool can_bin() const;
 };
 
-}
+} // namespace DAQuiri

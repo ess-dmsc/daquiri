@@ -1,13 +1,11 @@
-#include <consumers/tof_1d.h>
 #include <consumers/dataspaces/dense1d.h>
+#include <consumers/tof_1d.h>
 
 #include <core/util/logger.h>
 
 namespace DAQuiri {
 
-TOF1D::TOF1D()
-    : Spectrum()
-{
+TOF1D::TOF1D() : Spectrum() {
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();
@@ -34,61 +32,51 @@ TOF1D::TOF1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-void TOF1D::_apply_attributes()
-{
-  try
-  {
+void TOF1D::_apply_attributes() {
+  try {
     Spectrum::_apply_attributes();
 
     time_resolution_ = 0;
     if (metadata_.get_attribute("time_resolution").get_number() > 0)
-      time_resolution_ = 1.0 / metadata_.get_attribute("time_resolution").get_number();
+      time_resolution_ =
+          1.0 / metadata_.get_attribute("time_resolution").get_number();
     auto unit = metadata_.get_attribute("time_units").selection();
-    units_name_ = metadata_.get_attribute("time_units").metadata().enum_name(unit);
+    units_name_ =
+        metadata_.get_attribute("time_units").metadata().enum_name(unit);
     units_multiplier_ = std::pow(10, unit);
     time_resolution_ /= units_multiplier_;
 
     this->_recalc_axes();
-  }
-  catch (...)
-  {
-    std::throw_with_nested(std::runtime_error("<TOF1D> Failed _apply_attributes"));
+  } catch (...) {
+    std::throw_with_nested(
+        std::runtime_error("<TOF1D> Failed _apply_attributes"));
   }
 }
 
-void TOF1D::_init_from_file()
-{
-  try
-  {
+void TOF1D::_init_from_file() {
+  try {
     domain_ = data_->axis(0).domain;
     Spectrum::_init_from_file();
-  }
-  catch (...)
-  {
-    std::throw_with_nested(std::runtime_error("<TOF1D> Failed _init_from_file"));
+  } catch (...) {
+    std::throw_with_nested(
+        std::runtime_error("<TOF1D> Failed _init_from_file"));
   }
 }
 
-void TOF1D::_recalc_axes()
-{
-  try
-  {
+void TOF1D::_recalc_axes() {
+  try {
     CalibID id("time", "", units_name_);
     data_->set_axis(0, DataAxis(Calibration(id, id), domain_));
-  }
-  catch (...)
-  {
+  } catch (...) {
     std::throw_with_nested(std::runtime_error("<TOF1D> Failed _recalc_axes"));
   }
 }
 
-bool TOF1D::_accept_spill(const Spill& spill)
-{
+bool TOF1D::_accept_spill(const Spill &spill) {
   return (Spectrum::_accept_spill(spill));
 }
 
-void TOF1D::_push_stats_pre(const Spill& spill)
-{
+void TOF1D::_push_stats_pre(const Spill &spill) {
   if (!this->_accept_spill(spill))
     return;
   timebase_ = spill.event_model.timebase;
@@ -97,13 +85,11 @@ void TOF1D::_push_stats_pre(const Spill& spill)
   Spectrum::_push_stats_pre(spill);
 }
 
-bool TOF1D::_accept_events(const Spill& /*spill*/)
-{
+bool TOF1D::_accept_events(const Spill & /*spill*/) {
   return ((pulse_time_ >= 0) && (0 != time_resolution_));
 }
 
-void TOF1D::_push_event(const Event& event)
-{
+void TOF1D::_push_event(const Event &event) {
   if (!filters_.accept(event))
     return;
 
@@ -114,8 +100,7 @@ void TOF1D::_push_event(const Event& event)
 
   coords_[0] = static_cast<size_t>(nsecs * time_resolution_);
 
-  if (coords_[0] >= domain_.size())
-  {
+  if (coords_[0] >= domain_.size()) {
     size_t oldbound = domain_.size();
     domain_.resize(coords_[0] + 1);
 
@@ -126,4 +111,4 @@ void TOF1D::_push_event(const Event& event)
   data_->add_one(coords_);
 }
 
-}
+} // namespace DAQuiri

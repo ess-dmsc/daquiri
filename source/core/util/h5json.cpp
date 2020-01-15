@@ -1,7 +1,6 @@
 #include <core/util/h5json.h>
 
-std::string vector_idx_minlen(size_t idx, size_t max)
-{
+std::string vector_idx_minlen(size_t idx, size_t max) {
   size_t minlen = std::to_string(max).size();
 
   std::string name = std::to_string(idx);
@@ -12,14 +11,13 @@ std::string vector_idx_minlen(size_t idx, size_t max)
 
 namespace hdf5 {
 
-node::Group require_group(node::Group& g, std::string name)
-{
+node::Group require_group(node::Group &g, std::string name) {
   if (g.exists(name))
     node::remove(g[name]);
   return g.create_group(name);
 }
 
-//void to_json(json& j, const Enum<int16_t>& e)
+// void to_json(json& j, const Enum<int16_t>& e)
 //{
 //  j["___choice"] = e.val();
 //  std::multimap<std::string, int16_t> map;
@@ -28,7 +26,7 @@ node::Group require_group(node::Group& g, std::string name)
 //  j["___options"] = json(map);
 //}
 //
-//void from_json(const json& j, Enum<int16_t>& e)
+// void from_json(const json& j, Enum<int16_t>& e)
 //{
 //  auto o = j["___options"];
 //  for (json::iterator it = o.begin(); it != o.end(); ++it)
@@ -36,18 +34,14 @@ node::Group require_group(node::Group& g, std::string name)
 //  e.set(j["___choice"]);
 //}
 
-void to_json(json &j, const node::Group &g)
-{
+void to_json(json &j, const node::Group &g) {
   for (auto n : g.nodes) {
-    if (n.type() == node::Type::DATASET)
-    {
+    if (n.type() == node::Type::DATASET) {
       auto d = node::Dataset(n);
       json jj;
       to_json(jj, d);
       j[n.link().path().name()] = jj;
-    }
-    else if (n.type() == node::Type::GROUP)
-    {
+    } else if (n.type() == node::Type::GROUP) {
       auto gg = node::Group(n);
       json jj;
       to_json(jj, gg);
@@ -58,16 +52,15 @@ void to_json(json &j, const node::Group &g)
   for (auto a : g.attributes)
     attr_to_json(j, a);
 
-//  for (auto gg : g.groups())
-//    to_json(j[gg], g.open_group(gg));
-//  for (auto aa : g.attributes())
-//    j[aa] = attribute_to_json(g, aa);
-//  for (auto dd : g.datasets())
-//    j[dd] = g.open_dataset(dd);
+  //  for (auto gg : g.groups())
+  //    to_json(j[gg], g.open_group(gg));
+  //  for (auto aa : g.attributes())
+  //    j[aa] = attribute_to_json(g, aa);
+  //  for (auto dd : g.datasets())
+  //    j[dd] = g.open_dataset(dd);
 }
 
-void attr_to_json(json &j, const attribute::Attribute &a)
-{
+void attr_to_json(json &j, const attribute::Attribute &a) {
   if (a.datatype() == datatype::create<float>()) {
     float val;
     a.read(val);
@@ -121,21 +114,20 @@ void attr_to_json(json &j, const attribute::Attribute &a)
     a.read(val);
     j[a.name()] = val;
   }
-//  else if (g.template attr_is_enum<int16_t>())
-//    return json(g.template read_enum<int16_t>());
-//  else
-//    return "ERROR: to_json unimplemented attribute type";
+  //  else if (g.template attr_is_enum<int16_t>())
+  //    return json(g.template read_enum<int16_t>());
+  //  else
+  //    return "ERROR: to_json unimplemented attribute type";
 }
 
 void attribute_from_json(const json &j, const std::string &name,
-                         node::Group &g)
-{
-//  if (j.count("___options") && j.count("___choice"))
-//  {
-//    Enum<int16_t> e = j;
-//    g.write_enum(name, e);
-//  }
-//  else
+                         node::Group &g) {
+  //  if (j.count("___options") && j.count("___choice"))
+  //  {
+  //    Enum<int16_t> e = j;
+  //    g.write_enum(name, e);
+  //  }
+  //  else
   if (j.is_number_float()) {
     attribute::Attribute a = g.attributes.create<double>(name);
     a.write(j.get<double>());
@@ -154,8 +146,7 @@ void attribute_from_json(const json &j, const std::string &name,
   }
 }
 
-void from_json(const json &j, node::Group &g)
-{
+void from_json(const json &j, node::Group &g) {
   bool is_array = j.is_array();
   uint32_t i = 0;
   size_t len = 0;
@@ -174,11 +165,9 @@ void from_json(const json &j, node::Group &g)
     if (it.value().count("___shape") && it.value()["___shape"].is_array()) {
       dataset_from_json(it.value(), name, g);
     } else if (!it.value().is_array() &&
-        (it.value().is_number() ||
-            it.value().is_boolean() ||
-            it.value().is_string() ||
-            it.value().count("___options") ||
-            it.value().count("___choice"))) {
+               (it.value().is_number() || it.value().is_boolean() ||
+                it.value().is_string() || it.value().count("___options") ||
+                it.value().count("___choice"))) {
       attribute_from_json(it.value(), name, g);
     } else {
       auto gg = g.create_group(name);
@@ -187,8 +176,7 @@ void from_json(const json &j, node::Group &g)
   }
 }
 
-void to_json(json &j, const node::Dataset &d)
-{
+void to_json(json &j, const node::Dataset &d) {
   auto dsp = dataspace::Simple(d.dataspace());
   auto dims = dsp.current_dimensions();
   auto maxdims = dsp.maximum_dimensions();
@@ -205,8 +193,7 @@ void to_json(json &j, const node::Dataset &d)
 
 void dataset_from_json(const json &j,
                        __attribute__((unused)) const std::string &name,
-                       __attribute__((unused)) node::Group &g)
-{
+                       __attribute__((unused)) node::Group &g) {
   std::vector<hsize_t> shape = j["___shape"];
 
   std::vector<hsize_t> extends;
@@ -216,11 +203,11 @@ void dataset_from_json(const json &j,
   std::vector<hsize_t> chunk;
   if (j.count("___chunk") && j["___chunk"].is_array())
     chunk = j["___chunk"].get<std::vector<hsize_t>>();
-//  auto dset = g.create_dataset<int>(name, shape, chunk);
-//  for (json::const_iterator it = j.begin(); it != j.end(); ++it)
-//  {
-//    attribute_from_json(json(it.value()), std::string(it.key()), dset);
-//  }
+  //  auto dset = g.create_dataset<int>(name, shape, chunk);
+  //  for (json::const_iterator it = j.begin(); it != j.end(); ++it)
+  //  {
+  //    attribute_from_json(json(it.value()), std::string(it.key()), dset);
+  //  }
 }
 
-}
+} // namespace hdf5

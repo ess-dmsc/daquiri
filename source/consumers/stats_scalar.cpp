@@ -1,13 +1,11 @@
-#include <consumers/stats_scalar.h>
 #include <consumers/dataspaces/scalar.h>
+#include <consumers/stats_scalar.h>
 
 #include <core/util/logger.h>
 
 namespace DAQuiri {
 
-StatsScalar::StatsScalar()
-    : Spectrum()
-{
+StatsScalar::StatsScalar() : Spectrum() {
   data_ = std::make_shared<Scalar>();
 
   Setting base_options = metadata_.attributes();
@@ -25,7 +23,8 @@ StatsScalar::StatsScalar()
   base_options.branches.add(Setting(diff));
 
   // TODO: Unused
-  SettingMeta eul("enforce_upper_limit", SettingType::boolean, "Enforce upper limit");
+  SettingMeta eul("enforce_upper_limit", SettingType::boolean,
+                  "Enforce upper limit");
   base_options.branches.add(Setting(eul));
 
   // TODO: Unused
@@ -35,30 +34,23 @@ StatsScalar::StatsScalar()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-void StatsScalar::_apply_attributes()
-{
+void StatsScalar::_apply_attributes() {
   Spectrum::_apply_attributes();
   what_ = metadata_.get_attribute("what_stats").get_text();
   diff_ = metadata_.get_attribute("diff").get_bool();
   this->_recalc_axes();
 }
 
-void StatsScalar::_recalc_axes()
-{
-  data_->recalc_axes();
-}
+void StatsScalar::_recalc_axes() { data_->recalc_axes(); }
 
-void StatsScalar::_push_stats_pre(const Spill& spill)
-{
+void StatsScalar::_push_stats_pre(const Spill &spill) {
   if (!this->_accept_spill(spill))
     return;
 
   auto set = spill.state.find(Setting(what_));
-  if (set)
-  {
+  if (set) {
     entry_.second = set.get_number();
-    if (diff_)
-    {
+    if (diff_) {
       entry_.second -= previous_;
       previous_ = set.get_number();
     }
@@ -68,7 +60,7 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
   Spectrum::_push_stats_pre(spill);
 }
 
-//void StatsScalar::_push_stats_post(const Spill& spill)
+// void StatsScalar::_push_stats_post(const Spill& spill)
 //{
 //  if (!this->_accept_spill(spill))
 //    return;
@@ -77,31 +69,23 @@ void StatsScalar::_push_stats_pre(const Spill& spill)
 //
 ////  if (what_ == 1)
 ////  {
-////    double real = metadata_.get_attribute("real_time").duration().total_milliseconds();
-////    if (real > 0)
-////    {
-////      double live = metadata_.get_attribute("live_time").duration().total_milliseconds();
-////      entry_.second = (real - live) / real * 100.0;
-////      data_->add(entry_);
-////    }
-////  }
+////    double real =
+///metadata_.get_attribute("real_time").duration().total_milliseconds(); /    if
+///(real > 0) /    { /      double live =
+///metadata_.get_attribute("live_time").duration().total_milliseconds(); /
+///entry_.second = (real - live) / real * 100.0; /      data_->add(entry_); /
+///} /  }
 //}
 
-bool StatsScalar::_accept_events(const Spill& /*spill*/)
-{
-  return false;
-}
+bool StatsScalar::_accept_events(const Spill & /*spill*/) { return false; }
 
-void StatsScalar::_push_event(const Event& /*event*/)
-{
+void StatsScalar::_push_event(const Event & /*event*/) {
   // do nothing here
   // this should never be called anyhow because of above
 }
 
-void StatsScalar::_flush()
-{
-  if (diff_)
-  {
+void StatsScalar::_flush() {
+  if (diff_) {
     entry_.second = 0;
     data_->add(entry_);
   }
@@ -109,5 +93,4 @@ void StatsScalar::_flush()
   Spectrum::_flush();
 }
 
-
-}
+} // namespace DAQuiri

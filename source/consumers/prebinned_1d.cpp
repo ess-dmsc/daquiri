@@ -1,13 +1,11 @@
-#include <consumers/prebinned_1d.h>
 #include <consumers/dataspaces/dense1d.h>
+#include <consumers/prebinned_1d.h>
 
 #include <core/util/logger.h>
 
 namespace DAQuiri {
 
-Prebinned1D::Prebinned1D()
-    : Spectrum()
-{
+Prebinned1D::Prebinned1D() : Spectrum() {
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();
@@ -33,16 +31,15 @@ Prebinned1D::Prebinned1D()
   metadata_.overwrite_all_attributes(base_options);
 }
 
-void Prebinned1D::_apply_attributes()
-{
+void Prebinned1D::_apply_attributes() {
   Spectrum::_apply_attributes();
   trace_name_ = metadata_.get_attribute("trace_id").get_text();
-  downsample_ = static_cast<uint16_t>(metadata_.get_attribute("downsample").get_int());
+  downsample_ =
+      static_cast<uint16_t>(metadata_.get_attribute("downsample").get_int());
   this->_recalc_axes();
 }
 
-void Prebinned1D::_recalc_axes()
-{
+void Prebinned1D::_recalc_axes() {
   Detector det;
   if (data_->dimensions() == metadata_.detectors.size())
     det = metadata_.detectors[0];
@@ -55,40 +52,33 @@ void Prebinned1D::_recalc_axes()
 
 // TODO: check trace dimensions
 
-bool Prebinned1D::_accept_spill(const Spill& spill)
-{
-  return (Spectrum::_accept_spill(spill)
-      &&
+bool Prebinned1D::_accept_spill(const Spill &spill) {
+  return (Spectrum::_accept_spill(spill) &&
           spill.event_model.name_to_trace.count(trace_name_));
 }
 
-bool Prebinned1D::_accept_events(const Spill& /*spill*/)
-{
+bool Prebinned1D::_accept_events(const Spill & /*spill*/) {
   return (trace_idx_ >= 0);
 }
 
-void Prebinned1D::_push_stats_pre(const Spill& spill)
-{
-  if (this->_accept_spill(spill))
-  {
+void Prebinned1D::_push_stats_pre(const Spill &spill) {
+  if (this->_accept_spill(spill)) {
     trace_idx_ = spill.event_model.name_to_trace.at(trace_name_);
     Spectrum::_push_stats_pre(spill);
   }
 }
 
-void Prebinned1D::_push_event(const Event& event)
-{
+void Prebinned1D::_push_event(const Event &event) {
   if (!filters_.accept(event))
     return;
 
-  const auto& trace = event.trace(trace_idx_);
+  const auto &trace = event.trace(trace_idx_);
 
-  for (size_t i = 0; i < trace.size(); ++i)
-  {
+  for (size_t i = 0; i < trace.size(); ++i) {
     entry_.first[0] = (i >> downsample_);
     entry_.second = trace[i];
     data_->add(entry_);
   }
 }
 
-}
+} // namespace DAQuiri
