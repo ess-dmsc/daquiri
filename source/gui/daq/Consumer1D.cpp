@@ -96,7 +96,14 @@ void Consumer1D::update_data()
     plot_->replotExtras();
   }
 
-  plot_->setAxisLabels(QS(axis.label()), "count");
+  // Get axis name alias (defined in spectrum.cpp) and us that as axis
+  // label if it has been configured
+  std::string customAxisLabel =  md.get_attribute("alt_axis_name").get_text();
+  if (customAxisLabel.size() != 0) {
+    plot_->setAxisLabels(QS(customAxisLabel), "count");
+  } else {
+    plot_->setAxisLabels(QS(axis.label()), "count");
+  }
 
   std::string new_label = md.get_attribute("name").get_text();
   setWindowTitle(QS(new_label).trimmed());
