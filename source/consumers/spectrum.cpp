@@ -12,6 +12,9 @@ Spectrum::Spectrum()
   SettingMeta name("name", SettingType::text, "Name");
   base_options.branches.add(name);
 
+  SettingMeta altaxisname("alt_axis_name", SettingType::text, "Axis alias");
+  base_options.branches.add(altaxisname);
+
   SettingMeta vis("visible", SettingType::boolean, "Visible");
   base_options.branches.add(vis);
 
