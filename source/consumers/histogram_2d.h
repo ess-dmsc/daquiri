@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file histogram_2d.h
+///
+/// \brief key primitive for showing detector images
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <consumers/spectrum.h>

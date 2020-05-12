@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file event.h
+///
+/// \brief key primitive for storing event data
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/event_model.h>

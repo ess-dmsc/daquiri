@@ -52,6 +52,8 @@ class EventBuffer
   size_t idx_{0};
 };
 
+/// \brief contains EventBuffer
+/// \todo it is unclear what Spill signifies
 class Spill
 {
  public:

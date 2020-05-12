@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file spectrum.h
+///
+/// \brief key primitive - not description
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/consumer.h>

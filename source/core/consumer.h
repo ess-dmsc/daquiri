@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file consumer.h
+///
+/// \brief Base class holding metadata and data
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/consumer_metadata.h>
@@ -69,6 +77,8 @@ class Consumer
 
     virtual void _set_detectors(const std::vector<Detector>& dets);
 
+    /// \todo this is actually implemented in the corresponding
+    /// source file and not anywhere else. Get rid of virtual?
     virtual void _push_spill(const Spill&);
 
     virtual bool _accept_spill(const Spill& spill) = 0;

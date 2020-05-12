@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file prebinned_1d.h
+///
+/// \brief Key class for handling pre binned histograms (adc values, strips, grids, wires)
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <consumers/spectrum.h>
