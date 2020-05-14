@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file ev42_parser.h
+///
+/// \brief Key primitive - parsing event data
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <producers/ESSStream/fb_parser.h>

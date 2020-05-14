@@ -105,10 +105,10 @@ std::list<Setting> ConsumerMetadata::attributes_flat() const
   return ret;
 }
 
-void ConsumerMetadata::set_attributes(const std::list<Setting>& s, bool greedy)
+void ConsumerMetadata::set_attributes(const std::list<Setting>& settings, bool greedy)
 {
-  for (auto& ss : s)
-    set_attribute(ss, greedy);
+  for (auto& setting : settings)
+    set_attribute(setting, greedy);
 }
 
 void ConsumerMetadata::overwrite_all_attributes(Setting settings)

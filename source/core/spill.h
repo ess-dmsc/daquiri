@@ -1,3 +1,13 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file spill.h
+///
+/// \brief key primitive (name?) - defines classes: Spill, EventBuffer
+///
+/// \todo split in multiple files?
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/plugin/setting.h>

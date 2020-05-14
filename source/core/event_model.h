@@ -4,7 +4,7 @@
 #include <map>
 #include <core/time_stamp.h>
 
-//might want to encapsulate member vars?
+/// \todo MGS: might want to encapsulate member vars?
 
 namespace DAQuiri {
 

@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file logger.h
+///
+/// \brief logging macros - uses spdlog
+/// despite
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <iostream>
@@ -21,19 +29,15 @@ void closeLogger();
 
 }
 
+// Do not use directly use the defines below instead
+// global loglevel is set in main.cpp, daquiri.cpp, ...
 #define LOG(Severity, Format, ...) spdlog::log(Severity, Format, ##__VA_ARGS__)
 
+/// \brief macros to be used in your code
+/// \todo align with efu nomenclature INFO -> INF, WARN->WAR, etc.
 #define CRIT(Format, ...) LOG(spdlog::level::critical, Format, ##__VA_ARGS__)
 #define ERR(Format, ...) LOG(spdlog::level::err, Format, ##__VA_ARGS__)
 #define WARN(Format, ...) LOG(spdlog::level::warn, Format, ##__VA_ARGS__)
 #define INFO(Format, ...) LOG(spdlog::level::info, Format, ##__VA_ARGS__)
 #define DBG(Format, ...) LOG(spdlog::level::debug, Format, ##__VA_ARGS__)
 #define TRC(Format, ...) LOG(spdlog::level::trace, Format, ##__VA_ARGS__)
-
-//#define LOGL(Severity, Format, ...) Log::Msg(Severity, fmt::format(Format, ##__VA_ARGS__), {{"file", std::string(__FILE__)}, {"line", std::int64_t(__LINE__)}})
-//
-//#define CRITL(Format, ...) LOGL(Log::Severity::Critical, Format, ##__VA_ARGS__)
-//#define ERRL(Format, ...) LOGL(Log::Severity::Error, Format, ##__VA_ARGS__)
-//#define WARNL(Format, ...) LOGL(Log::Severity::Warning, Format, ##__VA_ARGS__)
-//#define INFOL(Format, ...) LOGL(Log::Severity::Info, Format, ##__VA_ARGS__)
-//#define DBGL(Format, ...) LOGL(Log::Severity::Debug, Format, ##__VA_ARGS__)

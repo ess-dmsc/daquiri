@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file fb_parser.h
+///
+/// \brief Abstract class for parsing flatbuffer messages
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/producer.h>

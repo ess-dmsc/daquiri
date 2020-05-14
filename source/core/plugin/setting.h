@@ -1,3 +1,14 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file setting.h
+///
+/// \brief key primitive - holds strings, ints , floats, ...
+///
+/// \todo seems like it is intended to hold only a single type at a time. Perhaps
+/// the use of union type {} could clarify this?
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/plugin/setting_metadata.h>

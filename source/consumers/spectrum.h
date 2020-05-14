@@ -3,7 +3,7 @@
 ///
 /// \file spectrum.h
 ///
-/// \brief key primitive - not description
+/// \brief key primitive - no description
 ///
 //===----------------------------------------------------------------------===//
 #pragma once

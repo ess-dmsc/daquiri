@@ -1,3 +1,12 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file ESSStream.h
+///
+/// \brief key primitive - Kafka consume happens here
+///
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/producer.h>
@@ -52,6 +61,9 @@ class ESSStream : public Producer
                       std::atomic<bool>* terminate);
 
       uint64_t ff_stream(Kafka::MessagePtr message, int64_t kafka_max_backlog);
+
+      std::uint64_t MessagesGood{0};
+      std::uint64_t MessagesBad{0};
     };
 
     std::vector<Stream> streams_;

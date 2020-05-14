@@ -199,6 +199,7 @@ void ESSStream::select_parser(size_t i, std::string t)
     streams_[i].parser = std::make_shared<SenvParserWrong>();
 }
 
+
 void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
@@ -262,7 +263,7 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
                                    uint16_t consume_timeout,
                                    std::atomic<bool>* terminate)
 {
-  DBG("<ESSStream:{}> Starting run", config.kafka_topic_name_); //more info!!!
+  INFO("<ESSStream:{}> Starting run, timeout: {}", config.kafka_topic_name_, consume_timeout); //more info!!!
 
   uint64_t spills {0};
 
@@ -270,8 +271,11 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
   {
     auto message = consumer->consume(consume_timeout);
 
-    if (!good(message))
+    if (!good(message)) {
+      MessagesBad++;
       continue;
+    }
+    MessagesGood++;
 
     if (get_fb_id(message) != parser->schema_id())
     {
@@ -291,10 +295,11 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
 
   spills += parser->stop(spill_queue);
 
-  DBG("<ESSStream:{}> Finished run, spills={}", config.kafka_topic_name_, spills);
+  INFO("<ESSStream:{}> Finished run, spills={}", config.kafka_topic_name_, spills);
 
-  DBG("<ESSStream:{}>   time={}  secs/spill={}  skipped buffers={}",
+  INFO("<ESSStream:{}>   time={}  messages good: {}, bad: {}, secs/spill={}  skipped buffers={}",
       config.kafka_topic_name_, parser->stats.time_spent,
+      MessagesGood, MessagesBad,
       parser->stats.time_spent / double(spills),
       parser->stats.dropped_buffers);
 }
@@ -317,7 +322,7 @@ bool ESSStream::good(Kafka::MessagePtr message)
       return false;
 
     case RdKafka::ERR__PARTITION_EOF:
-      //WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
+      WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
       return false;
 
           /* Last message */

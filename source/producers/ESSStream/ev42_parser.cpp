@@ -130,6 +130,7 @@ std::string ev42_events::get_source_name(void* msg) const
   return NamePtr->str();
 }
 
+/// \brief key function - processing message payload
 uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
 {
   Timer timer(true);
@@ -171,20 +172,20 @@ uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
   for (size_t i=0; i < event_count; ++i)
   {
     uint64_t time = em->time_of_flight()->Get(i);
+    /// \todo we don't have TOF in any data currently, so this may (will?) fail
+    /// maybe add a flag to just use time_high?
     time += time_high;
-    if (i==0)
+    if (i==0) {
       stats.time_start = time;
+    }
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
 
     auto& evt = run_spill->events.last();
-    if (geometry_.fill(evt, em->detector_id()->Get(i)))
-    {
+    if (geometry_.fill(evt, em->detector_id()->Get(i))) {
       evt.set_time(time);
       ++ run_spill->events;
-    }
-    else
-    {
+    } else {
       WARN("Out of range Pixid={}", em->detector_id()->Get(i));
     }
 //    DBG( "Time " << stats.time_start << " - " << stats.time_end;

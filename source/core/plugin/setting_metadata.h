@@ -1,3 +1,12 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file setting_metadata.h
+///
+/// \brief key primitive - defines valid setting types, bounds
+///
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/plugin/precise_float.h>

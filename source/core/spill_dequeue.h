@@ -1,3 +1,12 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file spill_dequeue.h
+///
+/// \brief key primitives transferring data from consumers to gui (I think), SpillDequeue, SmartSpillDequeue, SpillMultiQueue
+/// \todo split up into separate files?
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/spill.h>
