@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/spill.h>
+#include <core/Spill.h>
 
 class EventBuffer : public TestBase
 {

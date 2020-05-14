@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/plugin/plugin.h>
-#include <core/event.h>
+#include <core/Event.h>
 #include <logical_geometry/ESSGeometry.h>
 
 using namespace DAQuiri;

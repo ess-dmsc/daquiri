@@ -1,14 +1,14 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file event.h
+/// \file Event.h
 ///
 /// \brief key primitive for storing event data
 ///
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/event_model.h>
+#include <core/EventModel.h>
 #include <vector>
 
 namespace DAQuiri {

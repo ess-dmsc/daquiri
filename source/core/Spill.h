@@ -1,7 +1,7 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file spill.h
+/// \file Spill.h
 ///
 /// \brief key primitive (name?) - defines classes: Spill, EventBuffer
 ///
@@ -12,7 +12,7 @@
 
 #include <core/plugin/setting.h>
 #include <core/detector.h>
-#include <core/event.h>
+#include <core/Event.h>
 
 namespace DAQuiri
 {

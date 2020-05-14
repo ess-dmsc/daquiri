@@ -12,7 +12,7 @@ set(SOURCES
   ${dir}/producer.cpp
   ${dir}/producer_factory.cpp
   ${dir}/project.cpp
-  ${dir}/spill.cpp
+  ${dir}/Spill.cpp
   )
 
 set(HEADERS
@@ -25,10 +25,10 @@ set(HEADERS
   ${dir}/producer.h
   ${dir}/producer_factory.h
   ${dir}/project.h
-  ${dir}/spill.h
+  ${dir}/Spill.h
 
-  ${dir}/event.h
-  ${dir}/event_model.h
+  ${dir}/Event.h
+  ${dir}/EventModel.h
   ${dir}/spill_dequeue.h
   ${dir}/thread_wrappers.h
   ${dir}/time_base.h

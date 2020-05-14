@@ -7,7 +7,7 @@
 #include <QComboBox>
 #include <gui/widgets/PatternWidget.h>
 #include <core/detector.h>
-#include <core/spill.h>
+#include <core/Spill.h>
 
 Q_DECLARE_METATYPE(DAQuiri::Detector)
 Q_DECLARE_METATYPE(DAQuiri::Setting)

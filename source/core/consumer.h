@@ -9,7 +9,7 @@
 #pragma once
 
 #include <core/consumer_metadata.h>
-#include <core/spill.h>
+#include <core/Spill.h>
 #include <core/dataspace.h>
 
 namespace DAQuiri {

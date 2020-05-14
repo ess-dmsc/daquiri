@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/spill.h>
+#include <core/Spill.h>
 
 namespace DAQuiri {
 

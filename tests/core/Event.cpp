@@ -1,4 +1,4 @@
-#include <core/event.h>
+#include <core/Event.h>
 #include <gtest/gtest.h>
 
 TEST(Event, Init)
@@ -63,5 +63,3 @@ TEST(Event, Comparators)
   ASSERT_FALSE(h1 == h2);
   ASSERT_TRUE(h1 != h2);
 }
-
-

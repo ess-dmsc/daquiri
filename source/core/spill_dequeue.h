@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/spill.h>
+#include <core/Spill.h>
 #include <deque>
 #include <condition_variable>
 #include <map>

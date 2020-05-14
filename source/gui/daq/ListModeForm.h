@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include <core/spill.h>
+#include <core/Spill.h>
 #include <gui/ThreadRunner.h>
 #include <gui/widgets/SettingDelegate.h>
 //#include "widget_detectors.h"

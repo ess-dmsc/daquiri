@@ -1,4 +1,4 @@
-#include <core/spill.h>
+#include <core/Spill.h>
 #include <core/util/time_extensions.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/logger.h>
