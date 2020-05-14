@@ -11,7 +11,7 @@ set(SOURCES
   ${dir}/Engine.cpp
   ${dir}/Producer.cpp
   ${dir}/ProducerFactory.cpp
-  ${dir}/project.cpp
+  ${dir}/Project.cpp
   ${dir}/Spill.cpp
   )
 
@@ -67,7 +67,7 @@ target_link_libraries(
 
 enable_coverage(${this_target})
 
-# this will affect what version metadata gets saved to file in project.cpp
+# this will affect what version metadata gets saved to file in Project.cpp
 option(BI "Update build info at compile time" OFF)
 if(${BI})
   add_dependencies(${this_target} build_time)
