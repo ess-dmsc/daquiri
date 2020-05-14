@@ -63,4 +63,3 @@ target_link_libraries(
 )
 
 enable_coverage(${this_target})
-

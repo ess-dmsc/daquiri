@@ -3,7 +3,7 @@
 ///
 /// \file Consumer.h
 ///
-/// \brief Base class holding metadata and data
+/// \brief Base class for Daquiri (GUI) consumer (has nothing to do with Kafka)
 ///
 //===----------------------------------------------------------------------===//
 #pragma once

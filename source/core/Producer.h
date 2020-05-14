@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file Producer.h
+///
+/// \brief Base class for Daquiri producers (which are Kafka consumers)
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/plugin/plugin.h>
