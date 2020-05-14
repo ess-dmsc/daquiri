@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QPlot/QPlot1D.h>
-#include <core/project.h>
+#include <core/Project.h>
 #include <QWidget>
 
 class ConsumerMulti1D : public QWidget

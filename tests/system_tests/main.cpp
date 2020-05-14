@@ -1,4 +1,4 @@
-#include <core/engine.h>
+#include <core/Engine.h>
 
 #include <core/util/logger.h>
 #include <core/util/lexical_extensions.h>
@@ -6,8 +6,8 @@
 #include <consumers/consumers_autoreg.h>
 #include <producers/producers_autoreg.h>
 
-#include <core/producer_factory.h>
-#include <core/consumer_factory.h>
+#include <core/ProducerFactory.h>
+#include <core/ConsumerFactory.h>
 
 #include <core/util/timer.h>
 

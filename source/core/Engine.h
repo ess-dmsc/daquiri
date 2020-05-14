@@ -3,7 +3,7 @@
 #include <core/thread_wrappers.h>
 #include <atomic>
 
-#include <core/project.h>
+#include <core/Project.h>
 #include <core/Producer.h>
 
 namespace DAQuiri {

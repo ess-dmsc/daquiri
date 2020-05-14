@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <core/producer.h>
+#include <core/Producer.h>
 
 using namespace DAQuiri;
 

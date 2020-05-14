@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <core/engine.h>
+#include <core/Engine.h>
 
 using namespace DAQuiri;
 
@@ -9,4 +9,3 @@ TEST(Engine, Singleton)
   auto& b = Engine::singleton();
   EXPECT_EQ(&a, &b);
 }
-

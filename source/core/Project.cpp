@@ -1,4 +1,4 @@
-#include <core/project.h>
+#include <core/Project.h>
 #include <core/ConsumerFactory.h>
 #include <core/util/logger.h>
 #include <core/util/h5json.h>

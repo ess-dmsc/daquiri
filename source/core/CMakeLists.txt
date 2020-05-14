@@ -24,7 +24,7 @@ set(HEADERS
   ${dir}/Engine.h
   ${dir}/Producer.h
   ${dir}/ProducerFactory.h
-  ${dir}/project.h
+  ${dir}/Project.h
   ${dir}/Spill.h
 
   ${dir}/Event.h

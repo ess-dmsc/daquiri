@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <core/detector.h>
+#include <core/Detector.h>
 
 using namespace DAQuiri;
 

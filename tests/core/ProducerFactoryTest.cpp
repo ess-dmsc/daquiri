@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/producer_factory.h>
+#include <core/ProducerFactory.h>
 
 class ProducerFactory : public TestBase
 {
@@ -113,5 +113,3 @@ TEST_F(ProducerFactory, default_settings)
   EXPECT_TRUE(cf.default_settings("Producer1").has(DAQuiri::Setting("a1")));
   EXPECT_TRUE(cf.default_settings("Producer2").has(DAQuiri::Setting("a2")));
 }
-
-

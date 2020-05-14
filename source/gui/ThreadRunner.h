@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/Engine.h>
-#include <core/project.h>
+#include <core/Project.h>
 
 #include <QThread>
 #include <QMutex>

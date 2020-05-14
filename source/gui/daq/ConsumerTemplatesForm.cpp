@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QCloseEvent>
-#include <core/project.h>
+#include <core/Project.h>
 #include <core/ConsumerFactory.h>
 #include <gui/widgets/QFileExtensions.h>
 

@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 
 class ConsumerFactory : public TestBase
 {
@@ -112,4 +112,3 @@ TEST_F(ConsumerFactory, create_copy)
 
   EXPECT_FALSE(cf.create_copy(nullptr));
 }
-
