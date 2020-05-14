@@ -7,7 +7,7 @@
 #include <gui/widgets/qt_util.h>
 
 #include <core/util/json_file.h>
-#include <core/producer_factory.h>
+#include <core/ProducerFactory.h>
 
 #include <QPlot/GradientSelector.h>
 #include <QMessageBox>

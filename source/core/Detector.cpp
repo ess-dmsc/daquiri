@@ -1,4 +1,4 @@
-#include <core/detector.h>
+#include <core/Detector.h>
 #include <core/util/ascii_tree.h>
 
 namespace DAQuiri {

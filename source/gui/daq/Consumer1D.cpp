@@ -96,7 +96,7 @@ void Consumer1D::update_data()
     plot_->replotExtras();
   }
 
-  // Get axis name alias (defined in spectrum.cpp) and us that as axis
+  // Get axis name alias (defined in Spectrum.cpp) and us that as axis
   // label if it has been configured
   std::string customAxisLabel =  md.get_attribute("alt_axis_name").get_text();
   if (customAxisLabel.size() != 0) {

@@ -1,16 +1,16 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file consumer.h
+/// \file Consumer.h
 ///
 /// \brief Base class holding metadata and data
 ///
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/consumer_metadata.h>
+#include <core/ConsumerMetadata.h>
 #include <core/Spill.h>
-#include <core/dataspace.h>
+#include <core/Dataspace.h>
 
 namespace DAQuiri {
 

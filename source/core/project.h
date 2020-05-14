@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/consumer.h>
+#include <core/Consumer.h>
 #include <condition_variable>
 
 namespace DAQuiri {

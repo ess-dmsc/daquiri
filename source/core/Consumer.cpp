@@ -1,4 +1,4 @@
-#include <core/consumer.h>
+#include <core/Consumer.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/logger.h>
 #include <core/util/timer.h>

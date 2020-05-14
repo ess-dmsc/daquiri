@@ -1,4 +1,4 @@
-#include <core/producer_factory.h>
+#include <core/ProducerFactory.h>
 
 namespace DAQuiri {
 
@@ -48,4 +48,3 @@ void ProducerFactory::clear()
 
 
 }
-

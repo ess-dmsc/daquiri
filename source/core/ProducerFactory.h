@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <core/producer.h>
+#include <core/Producer.h>
 #include <core/util/unique_mangle.h>
 
 namespace DAQuiri

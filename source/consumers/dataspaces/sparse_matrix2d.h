@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/dataspace.h>
+#include <core/Dataspace.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-in-bool-context"

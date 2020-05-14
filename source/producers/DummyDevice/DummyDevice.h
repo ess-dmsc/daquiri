@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/producer.h>
+#include <core/Producer.h>
 
 namespace DAQuiri
 {

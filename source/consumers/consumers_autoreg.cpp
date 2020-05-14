@@ -1,4 +1,4 @@
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 
 #include <consumers/consumers_autoreg.h>
 

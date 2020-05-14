@@ -1,6 +1,6 @@
 #pragma once
 
-#include <consumers/spectrum.h>
+#include <consumers/Spectrum.h>
 
 namespace DAQuiri {
 

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <consumers/spectrum.h>
+#include <consumers/Spectrum.h>
 #include <consumers/add_ons/value_latch.h>
 
 namespace DAQuiri {

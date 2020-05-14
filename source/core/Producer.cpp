@@ -1,4 +1,4 @@
-#include <core/producer.h>
+#include <core/Producer.h>
 
 namespace DAQuiri {
 
@@ -28,4 +28,3 @@ Setting Producer::enrich_and_toggle_presets(Setting set) const
 }
 
 }
-

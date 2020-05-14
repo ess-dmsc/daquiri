@@ -11,7 +11,7 @@
 #pragma once
 
 #include <core/plugin/setting.h>
-#include <core/detector.h>
+#include <core/Detector.h>
 #include <core/Event.h>
 
 namespace DAQuiri

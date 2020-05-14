@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/producer.h>
+#include <core/Producer.h>
 #include <core/util/timer.h>
 
 using namespace DAQuiri;

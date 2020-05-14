@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/engine.h>
+#include <core/Engine.h>
 #include <core/project.h>
 
 #include <QThread>

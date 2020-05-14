@@ -1,4 +1,4 @@
-#include <consumers/spectrum.h>
+#include <consumers/Spectrum.h>
 
 #include <core/util/logger.h>
 

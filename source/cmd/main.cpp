@@ -1,6 +1,13 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file main.cpp - will become 'acquire' as executable
+///
+///
+//===----------------------------------------------------------------------===//
 #include <CLI/CLI.hpp>
 
-#include <core/engine.h>
+#include <core/Engine.h>
 
 #include <core/util/logger.h>
 

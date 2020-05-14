@@ -3,10 +3,10 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/time_base.cpp
   ${dir}/time_stamp.cpp
-  ${dir}/EventModel.cpp
-  ${dir}/Event.cpp
+  ${dir}/EventModelTest.cpp
+  ${dir}/EventTest.cpp
   ${dir}/detector.cpp
-  ${dir}/Spill.cpp
+  ${dir}/SpillTest.cpp
   ${dir}/spill_deque.cpp
   ${dir}/dataspace.cpp
   ${dir}/consumer_metadata.cpp

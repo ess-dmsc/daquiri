@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/producer.h>
+#include <core/Producer.h>
 #include <atomic>
 #include <thread>
 #include <producers/ESSStream/fb_parser.h>

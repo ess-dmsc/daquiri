@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include <core/project.h>
-#include <core/producer.h>
+#include <core/Producer.h>
 
 namespace DAQuiri {
 

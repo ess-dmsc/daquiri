@@ -1,5 +1,5 @@
 #include <core/project.h>
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 #include <core/util/logger.h>
 #include <core/util/h5json.h>
 #include <core/util/ascii_tree.h>

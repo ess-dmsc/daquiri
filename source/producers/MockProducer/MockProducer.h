@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/producer.h>
+#include <core/Producer.h>
 #include <producers/MockProducer/ValueDefinition.h>
 
 #include <atomic>

@@ -1,14 +1,14 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file spectrum.h
+/// \file Spectrum.h
 ///
 /// \brief key primitive - no description
 ///
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/consumer.h>
+#include <core/Consumer.h>
 #include <consumers/add_ons/periodic_trigger.h>
 #include <consumers/add_ons/recent_rate.h>
 #include <consumers/add_ons/filter_block.h>

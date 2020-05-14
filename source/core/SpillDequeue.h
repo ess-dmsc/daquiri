@@ -1,7 +1,7 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file spill_dequeue.h
+/// \file SpillDequeue.h
 ///
 /// \brief key primitives transferring data from consumers to gui (I think), SpillDequeue, SmartSpillDequeue, SpillMultiQueue
 /// \todo split up into separate files?
@@ -24,34 +24,34 @@ class SpillDeque
 {
 public:
   inline SpillDeque() : end_queue_(false) {}
-  
+
   inline void enqueue(const SpillPtr& data)
   {
     std::unique_lock<std::mutex> lock(mutex_);
     queue_.push_back(data);
     cond_.notify_one();
   }
-  
+
   inline SpillPtr dequeue()
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    
+
     while (queue_.empty() && !end_queue_)
       cond_.wait(lock);
-    
+
     if (end_queue_)
       return nullptr;
-    
+
     SpillPtr result = queue_.front();
     queue_.pop_front();
-    
+
     return result;
   }
-  
+
   inline void stop()
   {
     end_queue_ = true;
-    cond_.notify_all();        
+    cond_.notify_all();
   }
 
   inline uint32_t size()
@@ -59,7 +59,7 @@ public:
     std::unique_lock<std::mutex> lock(mutex_);
     return queue_.size();
   }
-  
+
 private:
   bool end_queue_;
   std::deque<SpillPtr> queue_;

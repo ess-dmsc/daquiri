@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <map>
-#include <core/time_stamp.h>
+#include <core/TimeStamp.h>
 
 /// \todo MGS: might want to encapsulate member vars?
 
