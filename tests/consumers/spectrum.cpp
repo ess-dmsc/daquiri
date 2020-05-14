@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/spectrum.h>
+#include <consumers/Spectrum.h>
 
 class MockSpectrumDataspace : public DAQuiri::Dataspace
 {
