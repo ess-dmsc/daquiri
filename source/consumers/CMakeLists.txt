@@ -6,7 +6,7 @@ find_package(Eigen3 REQUIRED)
 
 set(SOURCES
   ${dir}/consumers_autoreg.cpp
-  ${dir}/histogram_1d.cpp
+  ${dir}/Histogram1D.cpp
   ${dir}/Histogram2D.cpp
   ${dir}/Histogram3D.cpp
   ${dir}/Image2D.cpp
@@ -24,7 +24,7 @@ set(SOURCES
 
 set(HEADERS
   ${dir}/consumers_autoreg.h
-  ${dir}/histogram_1d.h
+  ${dir}/Histogram1D.cpp
   ${dir}/Histogram2D.h
   ${dir}/Histogram3D.h
   ${dir}/Image2D.h

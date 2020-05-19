@@ -4,7 +4,7 @@
 
 #include <consumers/StatsScalar.h>
 
-#include <consumers/histogram_1d.h>
+#include <consumers/Histogram1D.cpp>
 #include <consumers/Prebinned1D.h>
 #include <consumers/TOF1D.h>
 #include <consumers/TOF1DCorrelate.h>

@@ -1,7 +1,7 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/histogram_1d.cpp
+  ${dir}/Histogram1DTest.cpp
   ${dir}/Histogram2DTest.cpp
   ${dir}/Histogram3DTest.cpp
   ${dir}/Image2DTest.cpp
