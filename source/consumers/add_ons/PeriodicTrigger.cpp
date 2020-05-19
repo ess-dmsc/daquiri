@@ -1,4 +1,4 @@
-#include <consumers/add_ons/periodic_trigger.h>
+#include <consumers/add_ons/PeriodicTrigger.h>
 
 #include <core/util/logger.h>
 

@@ -9,7 +9,7 @@
 #pragma once
 
 #include <core/Consumer.h>
-#include <consumers/add_ons/periodic_trigger.h>
+#include <consumers/add_ons/PeriodicTrigger.cpp>
 #include <consumers/add_ons/RecentRate.h>
 #include <consumers/add_ons/FilterBlock.h>
 
