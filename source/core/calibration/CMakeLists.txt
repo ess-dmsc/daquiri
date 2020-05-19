@@ -3,7 +3,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/parameter.cpp
   ${dir}/coef_function.cpp
-  ${dir}/coef_function_factory.cpp
+  ${dir}/CoefFunctionFactory.cpp
   ${dir}/Polynomial.cpp
   ${dir}/Calibration.cpp
   )
@@ -11,7 +11,7 @@ set(SOURCES
 set(HEADERS
   ${dir}/parameter.h
   ${dir}/coef_function.h
-  ${dir}/coef_function_factory.h
+  ${dir}/CoefFunctionFactory.h
   ${dir}/Polynomial.h
   ${dir}/Calibration.h
   )

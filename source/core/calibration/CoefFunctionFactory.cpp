@@ -1,4 +1,4 @@
-#include <core/calibration/coef_function_factory.h>
+#include <core/calibration/CoefFunctionFactory.h>
 
 #include <core/util/logger.h>
 

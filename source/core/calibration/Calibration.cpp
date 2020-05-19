@@ -1,5 +1,5 @@
 #include <core/calibration/Calibration.h>
-#include <core/calibration/coef_function_factory.h>
+#include <core/calibration/CoefFunctionFactory.h>
 #include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>
 #include <fmt/format.h>
