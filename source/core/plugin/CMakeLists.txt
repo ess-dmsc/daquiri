@@ -7,7 +7,7 @@ set(SOURCES
   )
 
 set(HEADERS
-  ${dir}/container.h
+  ${dir}/Container.h
   ${dir}/Pattern.h
   ${dir}/Plugin.h
   ${dir}/precise_float.h
