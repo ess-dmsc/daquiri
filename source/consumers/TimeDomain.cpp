@@ -1,4 +1,4 @@
-#include <consumers/time_domain.h>
+#include <consumers/TimeDomain.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>

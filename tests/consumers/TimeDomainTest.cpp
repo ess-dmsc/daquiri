@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/time_domain.h>
+#include <consumers/TimeDomain.h>
 
 class TimeDomain : public TestBase
 {

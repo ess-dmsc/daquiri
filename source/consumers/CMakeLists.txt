@@ -15,7 +15,7 @@ set(SOURCES
   ${dir}/spectrum_time.cpp
   ${dir}/stats_scalar.cpp
   ${dir}/time_delta_1d.cpp
-  ${dir}/time_domain.cpp
+  ${dir}/TimeDomain.cpp
   ${dir}/TOF1D.cpp
   ${dir}/TOF1DCorrelate.cpp
   ${dir}/TOFVal2D.cpp
@@ -33,7 +33,7 @@ set(HEADERS
   ${dir}/spectrum_time.h
   ${dir}/stats_scalar.h
   ${dir}/time_delta_1d.h
-  ${dir}/time_domain.h
+  ${dir}/TimeDomain.h
   ${dir}/TOF1D.h
   ${dir}/TOF1DCorrelate.h
   ${dir}/TOFVal2D.h

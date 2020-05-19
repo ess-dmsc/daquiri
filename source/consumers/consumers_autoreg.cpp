@@ -8,7 +8,7 @@
 #include <consumers/prebinned_1d.h>
 #include <consumers/TOF1D.h>
 #include <consumers/TOF1DCorrelate.h>
-#include <consumers/time_domain.h>
+#include <consumers/TimeDomain.h>
 #include <consumers/time_delta_1d.h>
 
 #include <consumers/TOFVal2D.h>
