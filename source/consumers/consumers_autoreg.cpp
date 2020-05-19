@@ -17,7 +17,7 @@
 #include <consumers/Image2D.h>
 #include <consumers/TimeSpectrum.h>
 
-#include <consumers/histogram_3d.h>
+#include <consumers/Histogram3D.h>
 
 using namespace DAQuiri;
 

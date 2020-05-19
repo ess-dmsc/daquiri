@@ -8,7 +8,7 @@ set(SOURCES
   ${dir}/consumers_autoreg.cpp
   ${dir}/histogram_1d.cpp
   ${dir}/histogram_2d.cpp
-  ${dir}/histogram_3d.cpp
+  ${dir}/Histogram3D.cpp
   ${dir}/Image2D.cpp
   ${dir}/Prebinned1D.cpp
   ${dir}/Spectrum.cpp
@@ -26,7 +26,7 @@ set(HEADERS
   ${dir}/consumers_autoreg.h
   ${dir}/histogram_1d.h
   ${dir}/histogram_2d.h
-  ${dir}/histogram_3d.h
+  ${dir}/Histogram3D.h
   ${dir}/Image2D.h
   ${dir}/Prebinned1D.h
   ${dir}/Spectrum.h

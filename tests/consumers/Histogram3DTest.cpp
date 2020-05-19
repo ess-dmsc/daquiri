@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/histogram_3d.h>
+#include <consumers/Histogram3D.h>
 
 class Histogram3D : public TestBase
 {

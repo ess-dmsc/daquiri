@@ -1,4 +1,4 @@
-#include <consumers/histogram_3d.h>
+#include <consumers/Histogram3D.h>
 
 #include <consumers/dataspaces/sparse_map3d.h>
 //#include <consumers/dataspaces/sparse_matrix3d.h>

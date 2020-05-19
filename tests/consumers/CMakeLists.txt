@@ -3,7 +3,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/histogram_1d.cpp
   ${dir}/histogram_2d.cpp
-  ${dir}/histogram_3d.cpp
+  ${dir}/Histogram3DTest.cpp
   ${dir}/Image2DTest.cpp
   ${dir}/Prebinned1DTest.cpp
   ${dir}/spectrum.cpp
