@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/image_2d.h>
+#include <consumers/Image2D.h>
 
 class Image2D : public TestBase
 {

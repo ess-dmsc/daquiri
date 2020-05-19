@@ -14,7 +14,7 @@
 #include <consumers/TOFVal2D.h>
 #include <consumers/TOFVal2DCorrelate.h>
 #include <consumers/histogram_2d.h>
-#include <consumers/image_2d.h>
+#include <consumers/Image2D.h>
 #include <consumers/TimeSpectrum.h>
 
 #include <consumers/histogram_3d.h>
