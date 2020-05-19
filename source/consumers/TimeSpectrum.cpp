@@ -1,5 +1,5 @@
 #include <consumers/TimeSpectrum.h>
-#include <consumers/dataspaces/sparse_matrix2d.h>
+#include <consumers/dataspaces/SparseMatrix2D.h>
 
 #include <core/util/logger.h>
 

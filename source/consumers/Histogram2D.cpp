@@ -1,7 +1,7 @@
 #include <consumers/Histogram2D.h>
 
 #include <consumers/dataspaces/sparse_map2d.h>
-#include <consumers/dataspaces/sparse_matrix2d.h>
+#include <consumers/dataspaces/SparseMatrix2D.h>
 #include <consumers/dataspaces/dense_matrix2d.h>
 
 #include <core/util/logger.h>

@@ -6,7 +6,7 @@ set(SOURCES
   ${dir}/scalar.cpp
   ${dir}/sparse_map2d.cpp
   ${dir}/sparse_map3d.cpp
-  ${dir}/sparse_matrix2d.cpp
+  ${dir}/SparseMatrix2D.cpp
   )
 
 set(HEADERS
@@ -15,7 +15,7 @@ set(HEADERS
   ${dir}/scalar.h
   ${dir}/sparse_map2d.h
   ${dir}/sparse_map3d.h
-  ${dir}/sparse_matrix2d.h
+  ${dir}/SparseMatrix2D.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
