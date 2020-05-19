@@ -1,4 +1,4 @@
-#include <consumers/tof_1d_correlate.h>
+#include <consumers/TOF1DCorrelate.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>

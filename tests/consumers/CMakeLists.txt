@@ -12,7 +12,7 @@ set(SOURCES
   ${dir}/time_delta_1d.cpp
   ${dir}/time_domain.cpp
   ${dir}/TOF1DTest.cpp
-  ${dir}/tof_1d_correlate.cpp
+  ${dir}/TOF1DCorrelateTest.cpp
   ${dir}/TOFVal2DTest.cpp
   ${dir}/TOFVal2DCorrelateTest.cpp
   )

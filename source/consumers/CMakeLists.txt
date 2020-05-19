@@ -17,7 +17,7 @@ set(SOURCES
   ${dir}/time_delta_1d.cpp
   ${dir}/time_domain.cpp
   ${dir}/TOF1D.cpp
-  ${dir}/tof_1d_correlate.cpp
+  ${dir}/TOF1DCorrelate.cpp
   ${dir}/TOFVal2D.cpp
   ${dir}/TOFVal2DCorrelate.cpp
   )
@@ -35,7 +35,7 @@ set(HEADERS
   ${dir}/time_delta_1d.h
   ${dir}/time_domain.h
   ${dir}/TOF1D.h
-  ${dir}/tof_1d_correlate.h
+  ${dir}/TOF1DCorrelate.h
   ${dir}/TOFVal2D.h
   ${dir}/TOFVal2DCorrelate.h
   )

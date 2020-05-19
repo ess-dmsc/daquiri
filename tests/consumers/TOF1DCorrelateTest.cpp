@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/tof_1d_correlate.h>
+#include <consumers/TOF1DCorrelate.h>
 
 class TOF1DCorrelate : public TestBase
 {
