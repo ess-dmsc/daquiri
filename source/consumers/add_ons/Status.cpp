@@ -1,4 +1,4 @@
-#include <consumers/add_ons/status.h>
+#include <consumers/add_ons/Status.h>
 #include <core/util/logger.h>
 
 namespace DAQuiri {

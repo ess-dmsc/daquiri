@@ -4,7 +4,7 @@ set(SOURCES
   ${dir}/FilterBlock.cpp
   ${dir}/periodic_trigger.cpp
   ${dir}/recent_rate.cpp
-  ${dir}/status.cpp
+  ${dir}/Status.cpp
   ${dir}/ValueFilter.cpp
   ${dir}/ValueLatch.cpp
   )
@@ -13,7 +13,7 @@ set(HEADERS
   ${dir}/FilterBlock.h
   ${dir}/periodic_trigger.h
   ${dir}/recent_rate.h
-  ${dir}/status.h
+  ${dir}/Status.h
   ${dir}/ValueFilter.h
   ${dir}/ValueLatch.h
   )
