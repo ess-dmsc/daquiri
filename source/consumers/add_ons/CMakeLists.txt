@@ -1,7 +1,7 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/filter_block.cpp
+  ${dir}/FilterBlock.cpp
   ${dir}/periodic_trigger.cpp
   ${dir}/recent_rate.cpp
   ${dir}/status.cpp
@@ -10,7 +10,7 @@ set(SOURCES
   )
 
 set(HEADERS
-  ${dir}/filter_block.h
+  ${dir}/FilterBlock.h
   ${dir}/periodic_trigger.h
   ${dir}/recent_rate.h
   ${dir}/status.h
