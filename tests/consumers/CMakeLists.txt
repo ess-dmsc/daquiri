@@ -6,7 +6,7 @@ set(SOURCES
   ${dir}/Histogram3DTest.cpp
   ${dir}/Image2DTest.cpp
   ${dir}/Prebinned1DTest.cpp
-  ${dir}/spectrum.cpp
+  ${dir}/SpectrumTest.cpp
   ${dir}/TimeSpectrumTest.cpp
   ${dir}/StatsScalarTest.cpp
   ${dir}/TimeDelta1DTest.cpp
