@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/plugin/setting_metadata.h>
-#include <core/plugin/pattern.h>
+#include <core/plugin/Pattern.h>
 #include <core/plugin/container.h>
 #include <core/util/time_extensions.h>
 

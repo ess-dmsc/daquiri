@@ -8,7 +8,7 @@
 #include <QStyledItemDelegate>
 #include <vector>
 #include <bitset>
-#include <core/plugin/pattern.h>
+#include <core/plugin/Pattern.h>
 #include <core/util/logger.h>
 
 Q_DECLARE_METATYPE(DAQuiri::Pattern)

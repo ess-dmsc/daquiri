@@ -1,4 +1,4 @@
-#include <core/plugin/pattern.h>
+#include <core/plugin/Pattern.h>
 #include <gtest/gtest.h>
 
 TEST(Pattern, Init)
