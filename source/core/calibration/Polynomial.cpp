@@ -1,4 +1,4 @@
-#include <core/calibration/polynomial.h>
+#include <core/calibration/Polynomial.h>
 
 #include <core/util/UTF_extensions.h>
 #include <core/util/lexical_extensions.h>

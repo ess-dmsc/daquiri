@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/calibration/polynomial.h>
+#include <core/calibration/Polynomial.h>
 
 class Polynomial : public TestBase
 {
