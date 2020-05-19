@@ -18,7 +18,6 @@ set(HEADERS
   ${dir}/lexical_extensions.h
   ${dir}/print_exception.h
   ${dir}/string_extensions.h
-  ${dir}/sync_queue.h
   ${dir}/Timer.h
   ${dir}/time_extensions.h
   ${dir}/unique_mangle.h
