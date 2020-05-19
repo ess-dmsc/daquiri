@@ -1,6 +1,6 @@
 #include <consumers/Histogram3D.h>
 
-#include <consumers/dataspaces/sparse_map3d.h>
+#include <consumers/dataspaces/SparseMap3D.h>
 //#include <consumers/dataspaces/sparse_matrix3d.h>
 //#include <consumers/dataspaces/dense_matrix3d.h>
 

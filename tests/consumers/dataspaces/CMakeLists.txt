@@ -4,7 +4,7 @@ set(SOURCES
   ${dir}/dense1d.cpp
   ${dir}/scalar.cpp
   ${dir}/sparse_map2d.cpp
-  ${dir}/sparse_map3d.cpp
+  ${dir}/SparseMap3DTest.cpp
   ${dir}/SparseMatrix2DTest.cpp
   )
 

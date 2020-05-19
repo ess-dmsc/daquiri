@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/dataspaces/sparse_map3d.h>
+#include <consumers/dataspaces/SparseMap3D.h>
 
 class SparseMap3D : public TestBase
 {
