@@ -1,4 +1,4 @@
-#include <consumers/tof_val_2d.h>
+#include <consumers/TOFVal2D.h>
 #include <consumers/dataspaces/sparse_map2d.h>
 
 #include <core/util/logger.h>
