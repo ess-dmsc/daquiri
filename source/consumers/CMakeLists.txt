@@ -19,7 +19,7 @@ set(SOURCES
   ${dir}/TOF1D.cpp
   ${dir}/tof_1d_correlate.cpp
   ${dir}/TOFVal2D.cpp
-  ${dir}/tof_val_2d_correlate.cpp
+  ${dir}/TOFVal2DCorrelate.cpp
   )
 
 set(HEADERS
@@ -37,7 +37,7 @@ set(HEADERS
   ${dir}/TOF1D.h
   ${dir}/tof_1d_correlate.h
   ${dir}/TOFVal2D.h
-  ${dir}/tof_val_2d_correlate.h
+  ${dir}/TOFVal2DCorrelate.h
   )
 
 set(${this_target}_headers ${HEADERS})

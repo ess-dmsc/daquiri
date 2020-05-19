@@ -12,7 +12,7 @@
 #include <consumers/time_delta_1d.h>
 
 #include <consumers/TOFVal2D.h>
-#include <consumers/tof_val_2d_correlate.h>
+#include <consumers/TOFVal2DCorrelate.h>
 #include <consumers/histogram_2d.h>
 #include <consumers/image_2d.h>
 #include <consumers/spectrum_time.h>

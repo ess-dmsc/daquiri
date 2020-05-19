@@ -14,7 +14,7 @@ set(SOURCES
   ${dir}/TOF1DTest.cpp
   ${dir}/tof_1d_correlate.cpp
   ${dir}/TOFVal2DTest.cpp
-  ${dir}/tof_val_2d_correlate.cpp
+  ${dir}/TOFVal2DCorrelateTest.cpp
   )
 
 add_subdirectory(dataspaces)
