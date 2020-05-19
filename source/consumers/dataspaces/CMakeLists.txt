@@ -2,7 +2,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
   ${dir}/Dense1D.cpp
-  ${dir}/dense_matrix2d.cpp
+  ${dir}/DenseMatrix2D.cpp
   ${dir}/Scalar.cpp
   ${dir}/SparseMap2D.cpp
   ${dir}/SparseMap3D.cpp
@@ -11,7 +11,7 @@ set(SOURCES
 
 set(HEADERS
   ${dir}/Dense1D.h
-  ${dir}/dense_matrix2d.h
+  ${dir}/DenseMatrix2D.h
   ${dir}/Scalar.h
   ${dir}/SparseMap2D.h
   ${dir}/SparseMap3D.h

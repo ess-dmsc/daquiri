@@ -2,7 +2,7 @@
 
 #include <consumers/dataspaces/SparseMap2D.h>
 #include <consumers/dataspaces/SparseMatrix2D.h>
-#include <consumers/dataspaces/dense_matrix2d.h>
+#include <consumers/dataspaces/DenseMatrix2D.h>
 
 #include <core/util/logger.h>
 
