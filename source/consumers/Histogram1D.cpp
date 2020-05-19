@@ -1,4 +1,4 @@
-#include <consumers/Histogram1D.cpp>
+#include <consumers/Histogram1D.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>
