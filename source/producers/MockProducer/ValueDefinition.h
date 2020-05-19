@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 #include <core/Event.h>
 #include <random>
 

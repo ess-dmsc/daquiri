@@ -3,7 +3,7 @@
 #include <string>
 #include <cmath>
 #include <core/plugin/precise_float.h>
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;

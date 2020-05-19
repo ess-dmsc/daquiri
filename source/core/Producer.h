@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 #include <core/SpillDequeue.h>
 
 namespace DAQuiri {

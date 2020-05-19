@@ -1,4 +1,4 @@
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 
 namespace DAQuiri {
 

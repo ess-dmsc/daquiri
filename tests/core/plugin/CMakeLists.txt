@@ -5,7 +5,7 @@ set(SOURCES
   ${dir}/pattern.cpp
   ${dir}/setting_metadata.cpp
   ${dir}/Setting.cpp
-  ${dir}/plugin.cpp
+  ${dir}/Plugin.cpp
   )
 
 set(${this_target}_sources ${${this_target}_sources} ${SOURCES} PARENT_SCOPE)

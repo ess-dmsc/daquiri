@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 
 using namespace DAQuiri;
 
