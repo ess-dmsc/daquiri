@@ -1,7 +1,7 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/parameter.cpp
+  ${dir}/Parameter.cpp
   ${dir}/CoefFunction.cpp
   ${dir}/CoefFunctionFactory.cpp
   ${dir}/Polynomial.cpp
@@ -9,7 +9,7 @@ set(SOURCES
   )
 
 set(HEADERS
-  ${dir}/parameter.h
+  ${dir}/Parameter.h
   ${dir}/CoefFunction.h
   ${dir}/CoefFunctionFactory.h
   ${dir}/Polynomial.h

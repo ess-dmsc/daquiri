@@ -1,6 +1,6 @@
 #include "gtest_color_print.h"
 
-#include <core/calibration/parameter.h>
+#include <core/calibration/Parameter.h>
 
 class Parameter : public TestBase
 {

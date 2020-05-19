@@ -1,7 +1,7 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/parameter.cpp
+  ${dir}/ParameterTest.cpp
   ${dir}/CoefFunctionTest.cpp
   ${dir}/CoefFunctionFactoryTest.cpp
   ${dir}/PolynomialTest.cpp
