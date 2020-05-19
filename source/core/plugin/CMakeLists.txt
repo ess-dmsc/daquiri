@@ -3,7 +3,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/Plugin.cpp
   ${dir}/Setting.cpp
-  ${dir}/setting_metadata.cpp
+  ${dir}/SettingMeta.cpp
   )
 
 set(HEADERS
