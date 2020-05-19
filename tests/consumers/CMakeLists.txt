@@ -11,7 +11,7 @@ set(SOURCES
   ${dir}/stats_scalar.cpp
   ${dir}/time_delta_1d.cpp
   ${dir}/time_domain.cpp
-  ${dir}/tof_1d.cpp
+  ${dir}/TOF1DTest.cpp
   ${dir}/tof_1d_correlate.cpp
   ${dir}/TOFVal2DTest.cpp
   ${dir}/tof_val_2d_correlate.cpp

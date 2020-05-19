@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/tof_1d.h>
+#include <consumers/TOF1D.h>
 
 class TOF1D : public TestBase
 {

@@ -1,4 +1,4 @@
-#include <consumers/tof_1d.h>
+#include <consumers/TOF1D.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>

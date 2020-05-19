@@ -16,7 +16,7 @@ set(SOURCES
   ${dir}/stats_scalar.cpp
   ${dir}/time_delta_1d.cpp
   ${dir}/time_domain.cpp
-  ${dir}/tof_1d.cpp
+  ${dir}/TOF1D.cpp
   ${dir}/tof_1d_correlate.cpp
   ${dir}/TOFVal2D.cpp
   ${dir}/tof_val_2d_correlate.cpp
@@ -34,7 +34,7 @@ set(HEADERS
   ${dir}/stats_scalar.h
   ${dir}/time_delta_1d.h
   ${dir}/time_domain.h
-  ${dir}/tof_1d.h
+  ${dir}/TOF1D.h
   ${dir}/tof_1d_correlate.h
   ${dir}/TOFVal2D.h
   ${dir}/tof_val_2d_correlate.h

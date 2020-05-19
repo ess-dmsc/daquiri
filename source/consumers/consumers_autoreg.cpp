@@ -6,7 +6,7 @@
 
 #include <consumers/histogram_1d.h>
 #include <consumers/prebinned_1d.h>
-#include <consumers/tof_1d.h>
+#include <consumers/TOF1D.h>
 #include <consumers/tof_1d_correlate.h>
 #include <consumers/time_domain.h>
 #include <consumers/time_delta_1d.h>
