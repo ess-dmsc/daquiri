@@ -1,4 +1,4 @@
-#include <consumers/add_ons/value_filter.h>
+#include <consumers/add_ons/ValueFilter.h>
 
 namespace DAQuiri {
 

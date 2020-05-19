@@ -5,7 +5,7 @@ set(SOURCES
   ${dir}/periodic_trigger.cpp
   ${dir}/recent_rate.cpp
   ${dir}/status.cpp
-  ${dir}/value_filter.cpp
+  ${dir}/ValueFilterTest.cpp
   ${dir}/ValueLatchTest.cpp
   )
 
