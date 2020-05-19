@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/histogram_2d.h>
+#include <consumers/Histogram2D.h>
 
 class Histogram2D : public TestBase
 {
