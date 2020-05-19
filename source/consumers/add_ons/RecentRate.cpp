@@ -1,4 +1,4 @@
-#include <consumers/add_ons/recent_rate.h>
+#include <consumers/add_ons/RecentRate.h>
 
 #include <core/util/logger.h>
 

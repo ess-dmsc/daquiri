@@ -10,7 +10,7 @@
 
 #include <core/Consumer.h>
 #include <consumers/add_ons/periodic_trigger.h>
-#include <consumers/add_ons/recent_rate.h>
+#include <consumers/add_ons/RecentRate.h>
 #include <consumers/add_ons/FilterBlock.h>
 
 namespace DAQuiri {
