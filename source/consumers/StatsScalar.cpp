@@ -1,4 +1,4 @@
-#include <consumers/stats_scalar.h>
+#include <consumers/StatsScalar.h>
 #include <consumers/dataspaces/scalar.h>
 
 #include <core/util/logger.h>

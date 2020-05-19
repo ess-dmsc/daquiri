@@ -8,7 +8,7 @@ set(SOURCES
   ${dir}/prebinned_1d.cpp
   ${dir}/spectrum.cpp
   ${dir}/spectrum_time.cpp
-  ${dir}/stats_scalar.cpp
+  ${dir}/StatsScalarTest.cpp
   ${dir}/TimeDelta1DTest.cpp
   ${dir}/TimeDomainTest.cpp
   ${dir}/TOF1DTest.cpp

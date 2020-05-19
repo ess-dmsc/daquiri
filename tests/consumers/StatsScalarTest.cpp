@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/stats_scalar.h>
+#include <consumers/StatsScalar.h>
 
 class StatsScalar : public TestBase
 {

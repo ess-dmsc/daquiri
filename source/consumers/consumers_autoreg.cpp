@@ -2,7 +2,7 @@
 
 #include <consumers/consumers_autoreg.h>
 
-#include <consumers/stats_scalar.h>
+#include <consumers/StatsScalar.h>
 
 #include <consumers/histogram_1d.h>
 #include <consumers/prebinned_1d.h>
