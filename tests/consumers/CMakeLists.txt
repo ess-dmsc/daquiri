@@ -7,7 +7,7 @@ set(SOURCES
   ${dir}/image_2d.cpp
   ${dir}/prebinned_1d.cpp
   ${dir}/spectrum.cpp
-  ${dir}/spectrum_time.cpp
+  ${dir}/TimeSpectrumTest.cpp
   ${dir}/StatsScalarTest.cpp
   ${dir}/TimeDelta1DTest.cpp
   ${dir}/TimeDomainTest.cpp

@@ -15,7 +15,7 @@
 #include <consumers/TOFVal2DCorrelate.h>
 #include <consumers/histogram_2d.h>
 #include <consumers/image_2d.h>
-#include <consumers/spectrum_time.h>
+#include <consumers/TimeSpectrum.h>
 
 #include <consumers/histogram_3d.h>
 

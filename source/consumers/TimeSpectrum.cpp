@@ -1,4 +1,4 @@
-#include <consumers/spectrum_time.h>
+#include <consumers/TimeSpectrum.h>
 #include <consumers/dataspaces/sparse_matrix2d.h>
 
 #include <core/util/logger.h>

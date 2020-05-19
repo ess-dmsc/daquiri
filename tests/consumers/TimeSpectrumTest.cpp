@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/spectrum_time.h>
+#include <consumers/TimeSpectrum.h>
 
 class TimeSpectrum : public TestBase
 {

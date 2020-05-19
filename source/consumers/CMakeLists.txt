@@ -12,7 +12,7 @@ set(SOURCES
   ${dir}/image_2d.cpp
   ${dir}/prebinned_1d.cpp
   ${dir}/Spectrum.cpp
-  ${dir}/spectrum_time.cpp
+  ${dir}/TimeSpectrum.cpp
   ${dir}/StatsScalar.cpp
   ${dir}/TimeDelta1D.cpp
   ${dir}/TimeDomain.cpp
@@ -30,7 +30,7 @@ set(HEADERS
   ${dir}/image_2d.h
   ${dir}/prebinned_1d.h
   ${dir}/Spectrum.h
-  ${dir}/spectrum_time.h
+  ${dir}/TimeSpectrum.h
   ${dir}/StatsScalar.h
   ${dir}/TimeDelta1D.h
   ${dir}/TimeDomain.h
