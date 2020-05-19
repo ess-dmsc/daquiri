@@ -6,7 +6,7 @@ set(SOURCES
   ${dir}/recent_rate.cpp
   ${dir}/status.cpp
   ${dir}/value_filter.cpp
-  ${dir}/value_latch.cpp
+  ${dir}/ValueLatch.cpp
   )
 
 set(HEADERS
@@ -15,7 +15,7 @@ set(HEADERS
   ${dir}/recent_rate.h
   ${dir}/status.h
   ${dir}/value_filter.h
-  ${dir}/value_latch.h
+  ${dir}/ValueLatch.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

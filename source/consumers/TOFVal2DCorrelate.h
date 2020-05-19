@@ -1,7 +1,7 @@
 #pragma once
 
 #include <consumers/Spectrum.h>
-#include <consumers/add_ons/value_latch.h>
+#include <consumers/add_ons/ValueLatch.h>
 
 namespace DAQuiri
 {
