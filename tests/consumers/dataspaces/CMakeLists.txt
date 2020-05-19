@@ -1,7 +1,7 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/dense1d.cpp
+  ${dir}/Dense1DTest.cpp
   ${dir}/ScalarTest.cpp
   ${dir}/SparseMap2DTest.cpp
   ${dir}/SparseMap3DTest.cpp

@@ -1,5 +1,5 @@
 #include <consumers/Histogram1D.h>
-#include <consumers/dataspaces/dense1d.h>
+#include <consumers/dataspaces/Dense1D.h>
 
 #include <core/util/logger.h>
 
