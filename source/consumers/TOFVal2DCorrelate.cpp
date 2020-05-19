@@ -1,5 +1,5 @@
 #include <consumers/TOFVal2DCorrelate.h>
-#include <consumers/dataspaces/sparse_map2d.h>
+#include <consumers/dataspaces/SparseMap2D.h>
 
 #include <core/util/logger.h>
 

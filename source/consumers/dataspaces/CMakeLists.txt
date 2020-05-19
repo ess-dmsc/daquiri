@@ -4,7 +4,7 @@ set(SOURCES
   ${dir}/dense1d.cpp
   ${dir}/dense_matrix2d.cpp
   ${dir}/scalar.cpp
-  ${dir}/sparse_map2d.cpp
+  ${dir}/SparseMap2D.cpp
   ${dir}/SparseMap3D.cpp
   ${dir}/SparseMatrix2D.cpp
   )
@@ -13,7 +13,7 @@ set(HEADERS
   ${dir}/dense1d.h
   ${dir}/dense_matrix2d.h
   ${dir}/scalar.h
-  ${dir}/sparse_map2d.h
+  ${dir}/SparseMap2D.h
   ${dir}/SparseMap3D.h
   ${dir}/SparseMatrix2D.h
   )

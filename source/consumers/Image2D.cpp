@@ -1,6 +1,6 @@
 #include <consumers/Image2D.h>
 
-#include <consumers/dataspaces/sparse_map2d.h>
+#include <consumers/dataspaces/SparseMap2D.h>
 #include <consumers/dataspaces/SparseMatrix2D.h>
 
 #include <core/util/logger.h>
