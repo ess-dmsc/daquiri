@@ -5,7 +5,7 @@ set(SOURCES
   ${dir}/coef_function.cpp
   ${dir}/coef_function_factory.cpp
   ${dir}/Polynomial.cpp
-  ${dir}/calibration.cpp
+  ${dir}/Calibration.cpp
   )
 
 set(HEADERS
@@ -13,7 +13,7 @@ set(HEADERS
   ${dir}/coef_function.h
   ${dir}/coef_function_factory.h
   ${dir}/Polynomial.h
-  ${dir}/calibration.h
+  ${dir}/Calibration.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

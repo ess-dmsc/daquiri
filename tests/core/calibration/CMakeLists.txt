@@ -5,7 +5,7 @@ set(SOURCES
   ${dir}/coef_function.cpp
   ${dir}/coef_function_factory.cpp
   ${dir}/PolynomialTest.cpp
-  ${dir}/calibration.cpp
+  ${dir}/CalibrationTest.cpp
   )
 
 set(${this_target}_sources ${${this_target}_sources} ${SOURCES} PARENT_SCOPE)

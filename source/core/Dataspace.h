@@ -2,7 +2,7 @@
 
 #include <initializer_list>
 #include <core/plugin/PreciseFloat.h>
-#include <core/calibration/calibration.h>
+#include <core/calibration/Calibration.h>
 #include <core/thread_wrappers.h>
 
 #include <h5cpp/hdf5.hpp>
