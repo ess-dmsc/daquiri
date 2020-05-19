@@ -3,7 +3,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCES
   ${dir}/logger.cpp
   ${dir}/h5json.cpp
-  ${dir}/timer.cpp
+  ${dir}/Timer.cpp
   ${dir}/time_extensions.cpp
   )
 
@@ -19,7 +19,7 @@ set(HEADERS
   ${dir}/print_exception.h
   ${dir}/string_extensions.h
   ${dir}/sync_queue.h
-  ${dir}/timer.h
+  ${dir}/Timer.h
   ${dir}/time_extensions.h
   ${dir}/unique_mangle.h
   ${dir}/UTF_extensions.h

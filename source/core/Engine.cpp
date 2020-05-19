@@ -1,6 +1,6 @@
 #include <core/Engine.h>
 #include <core/util/logger.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <core/ProducerFactory.h>
 
 #include <functional>

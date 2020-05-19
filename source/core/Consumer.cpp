@@ -1,7 +1,7 @@
 #include <core/Consumer.h>
 #include <core/util/ascii_tree.h>
 #include <core/util/logger.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <core/util/h5json.h>
 
 namespace DAQuiri {

@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <date/date.h>
 
 class TimerTest : public TestBase

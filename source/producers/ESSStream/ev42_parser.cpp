@@ -1,7 +1,7 @@
 #include <producers/ESSStream/ev42_parser.h>
 #include "ev42_events_generated.h"
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <core/util/logger.h>
 
 ev42_events::ev42_events()

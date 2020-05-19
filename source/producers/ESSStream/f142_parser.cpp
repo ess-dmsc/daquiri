@@ -1,6 +1,6 @@
 #include <producers/ESSStream/f142_parser.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <core/util/logger.h>
 
 ChopperTDC::ChopperTDC()

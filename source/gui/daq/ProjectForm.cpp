@@ -6,7 +6,7 @@
 #include <gui/daq/ConsumerTemplatesForm.h>
 
 #include <core/ConsumerFactory.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <QSettings>
 #include <QMessageBox>

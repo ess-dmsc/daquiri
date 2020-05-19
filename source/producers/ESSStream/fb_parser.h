@@ -9,7 +9,7 @@
 #pragma once
 
 #include <core/Producer.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 using namespace DAQuiri;
 

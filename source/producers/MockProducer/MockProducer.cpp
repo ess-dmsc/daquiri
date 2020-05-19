@@ -1,5 +1,5 @@
 #include <producers/MockProducer/MockProducer.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <core/util/logger.h>
 

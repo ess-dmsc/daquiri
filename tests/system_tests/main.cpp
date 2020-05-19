@@ -9,7 +9,7 @@
 #include <core/ProducerFactory.h>
 #include <core/ConsumerFactory.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <core/util/h5json.h>
 
