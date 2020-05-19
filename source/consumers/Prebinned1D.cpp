@@ -1,4 +1,4 @@
-#include <consumers/prebinned_1d.h>
+#include <consumers/Prebinned1D.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>

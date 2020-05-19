@@ -10,7 +10,7 @@ set(SOURCES
   ${dir}/histogram_2d.cpp
   ${dir}/histogram_3d.cpp
   ${dir}/image_2d.cpp
-  ${dir}/prebinned_1d.cpp
+  ${dir}/Prebinned1D.cpp
   ${dir}/Spectrum.cpp
   ${dir}/TimeSpectrum.cpp
   ${dir}/StatsScalar.cpp
@@ -28,7 +28,7 @@ set(HEADERS
   ${dir}/histogram_2d.h
   ${dir}/histogram_3d.h
   ${dir}/image_2d.h
-  ${dir}/prebinned_1d.h
+  ${dir}/Prebinned1D.h
   ${dir}/Spectrum.h
   ${dir}/TimeSpectrum.h
   ${dir}/StatsScalar.h

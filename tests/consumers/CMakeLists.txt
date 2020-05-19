@@ -5,7 +5,7 @@ set(SOURCES
   ${dir}/histogram_2d.cpp
   ${dir}/histogram_3d.cpp
   ${dir}/image_2d.cpp
-  ${dir}/prebinned_1d.cpp
+  ${dir}/Prebinned1DTest.cpp
   ${dir}/spectrum.cpp
   ${dir}/TimeSpectrumTest.cpp
   ${dir}/StatsScalarTest.cpp

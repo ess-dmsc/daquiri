@@ -1,7 +1,7 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file prebinned_1d.h
+/// \file Prebinned1D.h
 ///
 /// \brief Key class for handling pre binned histograms (adc values, strips, grids, wires)
 ///

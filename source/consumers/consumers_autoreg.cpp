@@ -5,7 +5,7 @@
 #include <consumers/StatsScalar.h>
 
 #include <consumers/histogram_1d.h>
-#include <consumers/prebinned_1d.h>
+#include <consumers/Prebinned1D.h>
 #include <consumers/TOF1D.h>
 #include <consumers/TOF1DCorrelate.h>
 #include <consumers/TimeDomain.h>
