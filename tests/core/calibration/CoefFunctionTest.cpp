@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <core/calibration/coef_function.h>
+#include <core/calibration/CoefFunction.h>
 
 class CoefFunction : public TestBase
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/calibration/coef_function.h>
+#include <core/calibration/CoefFunction.h>
 
 namespace DAQuiri
 {
