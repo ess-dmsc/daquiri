@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/plugin/setting.h>
+#include <core/plugin/Setting.h>
 #include <core/Detector.h>
 #include <core/Event.h>
 

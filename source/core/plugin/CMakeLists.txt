@@ -2,7 +2,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
   ${dir}/plugin.cpp
-  ${dir}/setting.cpp
+  ${dir}/Setting.cpp
   ${dir}/setting_metadata.cpp
   )
 
@@ -11,7 +11,7 @@ set(HEADERS
   ${dir}/pattern.h
   ${dir}/plugin.h
   ${dir}/precise_float.h
-  ${dir}/setting.h
+  ${dir}/Setting.h
   ${dir}/setting_metadata.h
   )
 

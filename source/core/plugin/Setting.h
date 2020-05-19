@@ -1,7 +1,7 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file setting.h
+/// \file Setting.h
 ///
 /// \brief key primitive - holds strings, ints , floats, ...
 ///

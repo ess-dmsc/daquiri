@@ -4,7 +4,7 @@ set(SOURCES
   ${dir}/container.cpp
   ${dir}/pattern.cpp
   ${dir}/setting_metadata.cpp
-  ${dir}/setting.cpp
+  ${dir}/Setting.cpp
   ${dir}/plugin.cpp
   )
 

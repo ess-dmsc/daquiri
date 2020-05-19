@@ -1,4 +1,4 @@
-#include <core/plugin/setting.h>
+#include <core/plugin/Setting.h>
 #include <gtest/gtest.h>
 #include <thread>
 

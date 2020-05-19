@@ -1,4 +1,4 @@
-#include <core/plugin/setting.h>
+#include <core/plugin/Setting.h>
 #include <core/util/bin_hex_print.h>
 #include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>

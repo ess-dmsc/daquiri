@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/plugin/setting.h>
+#include <core/plugin/Setting.h>
 #include <core/calibration/calibration.h>
 
 namespace DAQuiri {
