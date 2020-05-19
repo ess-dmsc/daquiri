@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/plugin/setting_metadata.h>
+#include <core/plugin/SettingMeta.h>
 #include <core/plugin/Pattern.h>
 #include <core/plugin/Container.h>
 #include <core/util/time_extensions.h>

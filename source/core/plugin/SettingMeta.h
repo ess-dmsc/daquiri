@@ -1,7 +1,7 @@
 /* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
 //===----------------------------------------------------------------------===//
 ///
-/// \file setting_metadata.h
+/// \file SettingMeta.h
 ///
 /// \brief key primitive - defines valid setting types, bounds
 ///

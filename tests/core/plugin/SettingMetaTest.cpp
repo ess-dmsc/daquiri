@@ -1,4 +1,4 @@
-#include <core/plugin/setting_metadata.h>
+#include <core/plugin/SettingMeta.h>
 #include "gtest_color_print.h"
 
 class SettingMeta : public TestBase

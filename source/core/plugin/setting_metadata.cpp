@@ -1,4 +1,4 @@
-#include <core/plugin/setting_metadata.h>
+#include <core/plugin/SettingMeta.h>
 #include <core/util/color_bash.h>
 #include <core/util/string_extensions.h>
 

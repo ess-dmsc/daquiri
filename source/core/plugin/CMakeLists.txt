@@ -12,7 +12,7 @@ set(HEADERS
   ${dir}/Plugin.h
   ${dir}/precise_float.h
   ${dir}/Setting.h
-  ${dir}/setting_metadata.h
+  ${dir}/SettingMeta.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
