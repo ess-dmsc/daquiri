@@ -11,7 +11,7 @@ set(SOURCES
 
 set(HEADERS
   ${dir}/FilterBlock.h
-  ${dir}/PeriodicTrigger.cpp
+  ${dir}/PeriodicTrigger.h
   ${dir}/RecentRate.h
   ${dir}/Status.h
   ${dir}/ValueFilter.h

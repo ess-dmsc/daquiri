@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/add_ons/PeriodicTrigger.cpp>
+#include <consumers/add_ons/PeriodicTrigger.h>
 
 class PeriodicTrigger : public TestBase
 {
