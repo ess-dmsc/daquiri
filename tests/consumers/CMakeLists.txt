@@ -9,7 +9,7 @@ set(SOURCES
   ${dir}/spectrum.cpp
   ${dir}/spectrum_time.cpp
   ${dir}/stats_scalar.cpp
-  ${dir}/time_delta_1d.cpp
+  ${dir}/TimeDelta1DTest.cpp
   ${dir}/TimeDomainTest.cpp
   ${dir}/TOF1DTest.cpp
   ${dir}/TOF1DCorrelateTest.cpp

@@ -1,5 +1,5 @@
 #include "gtest_color_print.h"
-#include <consumers/time_delta_1d.h>
+#include <consumers/TimeDelta1D.h>
 
 class TimeDelta1D : public TestBase
 {

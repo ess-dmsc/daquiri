@@ -1,4 +1,4 @@
-#include <consumers/time_delta_1d.h>
+#include <consumers/TimeDelta1D.h>
 #include <consumers/dataspaces/dense1d.h>
 
 #include <core/util/logger.h>

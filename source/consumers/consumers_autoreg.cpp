@@ -9,7 +9,7 @@
 #include <consumers/TOF1D.h>
 #include <consumers/TOF1DCorrelate.h>
 #include <consumers/TimeDomain.h>
-#include <consumers/time_delta_1d.h>
+#include <consumers/TimeDelta1D.h>
 
 #include <consumers/TOFVal2D.h>
 #include <consumers/TOFVal2DCorrelate.h>
