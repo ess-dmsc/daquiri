@@ -10,7 +10,7 @@ set(HEADERS
   ${dir}/Container.h
   ${dir}/Pattern.h
   ${dir}/Plugin.h
-  ${dir}/precise_float.h
+  ${dir}/PreciseFloat.h
   ${dir}/Setting.h
   ${dir}/SettingMeta.h
   )

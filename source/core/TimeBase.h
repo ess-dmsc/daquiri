@@ -2,7 +2,7 @@
 
 #include <string>
 #include <cmath>
-#include <core/plugin/precise_float.h>
+#include <core/plugin/PreciseFloat.h>
 #include <core/plugin/Plugin.h>
 
 #include <nlohmann/json.hpp>

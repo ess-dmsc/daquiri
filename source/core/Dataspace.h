@@ -1,7 +1,7 @@
 #pragma once
 
 #include <initializer_list>
-#include <core/plugin/precise_float.h>
+#include <core/plugin/PreciseFloat.h>
 #include <core/calibration/calibration.h>
 #include <core/thread_wrappers.h>
 

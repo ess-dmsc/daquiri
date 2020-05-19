@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/plugin/precise_float.h>
+#include <core/plugin/PreciseFloat.h>
 #include <string>
 #include <map>
 #include <set>
