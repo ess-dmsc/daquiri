@@ -9,7 +9,7 @@ set(SOURCES
   ${dir}/KafkaPlugin.cpp
   ${dir}/mo01_parser.cpp
   ${dir}/SenvParser.cpp
-  ${dir}/senv_data_parser_wrong.cpp
+  ${dir}/SenvParserWrong.cpp
   )
 
 set(HEADERS
