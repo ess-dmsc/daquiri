@@ -21,7 +21,7 @@ set(HEADERS
   ${dir}/KafkaPlugin.h
   ${dir}/mo01_parser.h
   ${dir}/SenvParser.h
-  ${dir}/senv_data_wrong.h
+  ${dir}/SenvParserWrong.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
