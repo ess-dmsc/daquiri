@@ -16,7 +16,6 @@ namespace DAQuiri {
 class Producer;
 
 using ProducerPtr = std::shared_ptr<Producer>;
-using SpillQueue = SpillMultiqueue*;
 using OscilData = std::map<std::string, Event>;
 
 enum ProducerStatus
@@ -54,7 +53,7 @@ class Producer : public Plugin
 
     virtual bool daq_init() { return true; }
 
-    virtual bool daq_start(SpillQueue) { return false; }
+    virtual bool daq_start(SpillMultiqueue *) { return false; }
 
     virtual bool daq_stop() { return true; }
 

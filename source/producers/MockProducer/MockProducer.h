@@ -24,7 +24,7 @@ class MockProducer : public Producer
 
     StreamManifest stream_manifest() const override;
 
-    bool daq_start(SpillQueue out_queue) override;
+    bool daq_start(SpillMultiqueue * out_queue) override;
     bool daq_stop() override;
     bool daq_running() override;
 
@@ -34,7 +34,7 @@ class MockProducer : public Producer
     MockProducer(const MockProducer&);
 
     //Acquisition threads, use as static functors
-    void worker_run(SpillQueue spill_queue);
+    void worker_run(SpillMultiqueue * spill_queue);
 
   protected:
     std::atomic<bool> terminate_{false};

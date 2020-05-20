@@ -24,8 +24,8 @@ class SenvParserWrong : public fb_parser
   void settings(const Setting&) override;
   Setting settings() const override;
 
-  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
-  uint64_t stop(SpillQueue spill_queue) override;
+  uint64_t process_payload(SpillMultiqueue * spill_queue, void* msg) override;
+  uint64_t stop(SpillMultiqueue * spill_queue) override;
 
   StreamManifest stream_manifest() const override;
 
@@ -43,7 +43,6 @@ class SenvParserWrong : public fb_parser
 
   static std::string debug(const SampleEnvironmentData* TDCTimeStamp);
 
-  uint64_t start(SpillQueue spill_queue);
+  uint64_t start(SpillMultiqueue * spill_queue);
 
 };
-

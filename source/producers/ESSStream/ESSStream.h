@@ -33,7 +33,7 @@ class ESSStream : public Producer
 
     StreamManifest stream_manifest() const override;
 
-    bool daq_start(SpillQueue out_queue) override;
+    bool daq_start(SpillMultiqueue * out_queue) override;
     bool daq_stop() override;
     bool daq_running() override;
 
@@ -57,7 +57,7 @@ class ESSStream : public Producer
       FBParserPtr parser;
       std::thread runner;
 
-      void worker_run(SpillQueue spill_queue, uint16_t consume_timeout,
+      void worker_run(SpillMultiqueue * spill_queue, uint16_t consume_timeout,
                       std::atomic<bool>* terminate);
 
       uint64_t ff_stream(Kafka::MessagePtr message, int64_t kafka_max_backlog);

@@ -79,7 +79,7 @@ void SenvParserWrong::settings(const Setting& settings)
   event_model_.timebase = tbs.timebase();
 }
 
-uint64_t SenvParserWrong::stop(SpillQueue spill_queue)
+uint64_t SenvParserWrong::stop(SpillMultiqueue * spill_queue)
 {
   if (started_)
   {
@@ -96,7 +96,7 @@ uint64_t SenvParserWrong::stop(SpillQueue spill_queue)
   return 0;
 }
 
-uint64_t SenvParserWrong::start(SpillQueue spill_queue)
+uint64_t SenvParserWrong::start(SpillMultiqueue * spill_queue)
 {
   for (size_t i=0; i <4; ++i)
   {
@@ -126,7 +126,7 @@ std::string SenvParserWrong::get_source_name(void* msg) const
   return NamePtr->str();
 }
 
-uint64_t SenvParserWrong::process_payload(SpillQueue spill_queue, void* msg)
+uint64_t SenvParserWrong::process_payload(SpillMultiqueue * spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 0;
@@ -199,4 +199,3 @@ std::string SenvParserWrong::debug(const SampleEnvironmentData* Data)
 
   return ss.str();
 }
-

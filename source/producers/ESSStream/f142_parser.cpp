@@ -69,7 +69,7 @@ void ChopperTDC::settings(const Setting& settings)
   event_model_.timebase = tbs.timebase();
 }
 
-uint64_t ChopperTDC::stop(SpillQueue spill_queue)
+uint64_t ChopperTDC::stop(SpillMultiqueue * spill_queue)
 {
   if (started_)
   {
@@ -103,7 +103,7 @@ std::string ChopperTDC::get_source_name(void* msg) const
   return NamePtr->str();
 }
 
-uint64_t ChopperTDC::process_payload(SpillQueue spill_queue, void* msg)
+uint64_t ChopperTDC::process_payload(SpillMultiqueue * spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 1;
@@ -155,4 +155,3 @@ std::string ChopperTDC::debug(const LogData& TDCTimeStamp)
   ss << "  Timestamp : " << TDCTimeStamp.timestamp() << "\n";
   return ss.str();
 }
-

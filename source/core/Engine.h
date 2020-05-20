@@ -61,12 +61,12 @@ class Engine
     void save_det_settings(Setting&, const Setting&, Match flags) const;
     void load_det_settings(Setting, Setting&, Match flags);
 
-    bool daq_start(SpillQueue out_queue);
+    bool daq_start(SpillMultiqueue * out_queue);
     bool daq_stop();
     bool daq_running() const;
 
     //threads
-    void builder_naive(SpillQueue data_queue,
+    void builder_naive(SpillMultiqueue * data_queue,
                        ProjectPtr project);
 
     //singleton assurance

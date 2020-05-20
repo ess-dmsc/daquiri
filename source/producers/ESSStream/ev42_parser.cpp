@@ -99,7 +99,7 @@ StreamManifest ev42_events::stream_manifest() const
   return ret;
 }
 
-uint64_t ev42_events::stop(SpillQueue spill_queue)
+uint64_t ev42_events::stop(SpillMultiqueue * spill_queue)
 {
   if (started_)
   {
@@ -131,7 +131,7 @@ std::string ev42_events::get_source_name(void* msg) const
 }
 
 /// \brief key function - processing message payload
-uint64_t ev42_events::process_payload(SpillQueue spill_queue, void* msg)
+uint64_t ev42_events::process_payload(SpillMultiqueue * spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 0;

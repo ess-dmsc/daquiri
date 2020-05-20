@@ -81,7 +81,7 @@ StreamManifest MockProducer::stream_manifest() const
   return ret;
 }
 
-bool MockProducer::daq_start(SpillQueue out_queue)
+bool MockProducer::daq_start(SpillMultiqueue * out_queue)
 {
   if (running_.load())
     daq_stop();
@@ -203,7 +203,7 @@ void MockProducer::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void MockProducer::worker_run(SpillQueue spill_queue)
+void MockProducer::worker_run(SpillMultiqueue * spill_queue)
 {
   DBG("<MockProducer> Starting run   "
       "  timebase {} ns   init_rate = {} cps   lambda = {}",

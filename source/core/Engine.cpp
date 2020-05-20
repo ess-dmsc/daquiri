@@ -205,7 +205,7 @@ OscilData Engine::oscilloscope()
   return traces;
 }
 
-bool Engine::daq_start(SpillQueue out_queue)
+bool Engine::daq_start(SpillMultiqueue * out_queue)
 {
   bool success = false;
   for (auto &q : producers_)
@@ -415,7 +415,7 @@ ListData Engine::acquire_list(Interruptor& interruptor, uint64_t timeout)
 //////STUFF BELOW SHOULD NOT BE USED DIRECTLY////////////
 //////ASSUME YOU KNOW WHAT YOU'RE DOING WITH THREADS/////
 
-void Engine::builder_naive(SpillQueue data_queue,
+void Engine::builder_naive(SpillMultiqueue * data_queue,
                            ProjectPtr project)
 {
   double time {0};

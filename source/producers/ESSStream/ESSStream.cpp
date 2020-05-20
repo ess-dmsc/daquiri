@@ -48,7 +48,7 @@ ESSStream::~ESSStream()
   die();
 }
 
-bool ESSStream::daq_start(SpillQueue out_queue)
+bool ESSStream::daq_start(SpillMultiqueue * out_queue)
 {
   if (running_.load())
     daq_stop();
@@ -259,7 +259,7 @@ void ESSStream::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::Stream::worker_run(SpillQueue spill_queue,
+void ESSStream::Stream::worker_run(SpillMultiqueue * spill_queue,
                                    uint16_t consume_timeout,
                                    std::atomic<bool>* terminate)
 {
