@@ -1,3 +1,12 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file Engine.h
+///
+/// \brief Class responsible for starting and stopping all producers as well
+/// as starting the builder (consumer?)
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <core/thread_wrappers.h>

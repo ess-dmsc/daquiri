@@ -86,7 +86,8 @@ bool Consumer::_accept_spill(const Spill& spill)
   return (spill.stream_id == stream_id_);
 }
 
-/// \todo this is where
+/// \brief this is where spills for specific consumers are either accepted or
+/// denied
 void Consumer::_push_spill(const Spill& spill)
 {
 //  Timer addspill_timer(true);

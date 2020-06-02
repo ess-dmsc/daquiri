@@ -181,10 +181,10 @@ uint64_t ev42_events::process_payload(SpillMultiqueue * spill_queue, void* msg)
     stats.time_start = std::min(stats.time_start, time);
     stats.time_end = std::max(stats.time_end, time);
 
-    auto& evt = run_spill->events.last();
+    auto& evt = run_spill->events.last(); ///< get ptr to free event entry
     if (geometry_.fill(evt, em->detector_id()->Get(i))) {
       evt.set_time(time);
-      ++ run_spill->events;
+      ++ run_spill->events; ///< advance idx in event buffer
     } else {
       WARN("Out of range Pixid={}", em->detector_id()->Get(i));
     }
@@ -210,14 +210,14 @@ uint64_t ev42_events::process_payload(SpillMultiqueue * spill_queue, void* msg)
     start_spill->time = start_time;
     start_spill->state.branches.add(Setting::precise("native_time", time_high));
 //    start_spill->state.branches.add(Setting::text("source_name", source_name));
-    spill_queue->enqueue(start_spill);
+    spill_queue->enqueue(start_spill); /// \brief enqueue 'start' for consumer
     started_ = true;
     pushed_spills++;
   }
 
   if (event_count || heartbeat_)
   {
-    spill_queue->enqueue(run_spill);
+    spill_queue->enqueue(run_spill); /// \brief enqueue events for consumer
     pushed_spills++;
   }
 

@@ -169,6 +169,7 @@ void Project::add_consumer(ConsumerPtr consumer)
 {
   UNIQUE_LOCK_EVENTUALLY
 
+  INFO("Add consumer");
   _add_consumer(consumer);
 
   ready_ = true;
@@ -220,8 +221,10 @@ void Project::add_spill(SpillPtr one_spill)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  for (auto& q: consumers_)
+  INFO("<Project> add_spill()");
+  for (auto& q: consumers_) {
     q->push_spill(*one_spill);
+  }
 
   if (save_spills_)
   {

@@ -38,6 +38,7 @@ Setting Engine::default_settings()
 
 void Engine::initialize(const json &profile)
 {
+  printf("initialize engine\n");
   UNIQUE_LOCK_EVENTUALLY_ST
 
   Setting tree = profile;
@@ -208,11 +209,13 @@ OscilData Engine::oscilloscope()
 bool Engine::daq_start(SpillMultiqueue * out_queue)
 {
   bool success = false;
-  for (auto &q : producers_)
+  for (auto &q : producers_) {
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
+      INFO("calling daq_start()");
       success |= q.second->daq_start(out_queue);
     }
+  }
   return success;
 }
 
@@ -286,14 +289,16 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
 
   double secs_between_announcements = 5;
 
+  /// \brief central shared queue for Spills
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
+  INFO("Launching thread Engine::builder_naive");
   auto builder = std::thread(&Engine::builder_naive, this, &parsed_queue, project);
 
   SpillPtr spill;
   spill = std::make_shared<Spill>();
   _get_all_settings();
-  spill->state = settings_;
+  spill->state = settings_; /// \todo confusing naming (see Spill.h>
 //  spill->detectors = detectors_;
   parsed_queue.enqueue(spill);
 
@@ -433,10 +438,11 @@ void Engine::builder_naive(SpillMultiqueue * data_queue,
     spill = data_queue->dequeue();
     if (spill == nullptr)
       break;
+    INFO("Got a spill with {} events", spill->events.size());
     Timer presort_timer(true);
-    presort_cycles++;
+    presort_cycles++; /// \todo unused currently
     presort_events += spill->events.size();
-    project->add_spill(spill);
+    project->add_spill(spill); /// \todo why add another thread for this?
 
     spill = std::make_shared<Spill>("engine", Spill::Type::running);
     spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
@@ -447,6 +453,8 @@ void Engine::builder_naive(SpillMultiqueue * data_queue,
     time += presort_timer.s();
   }
 
+  /// \todo remove unreachable code or change 'while(true)' above
+#if 0
   spill = std::make_shared<Spill>("engine", Spill::Type::stop);
   spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
   spill->state.branches.add_a(Setting::integer("dropped_spills", data_queue->dropped_spills()));
@@ -465,6 +473,7 @@ void Engine::builder_naive(SpillMultiqueue * data_queue,
       "\n   events/sec={}",
       presort_cycles, presort_events, time,
       (time / double(presort_cycles)), (double(presort_events) / time));
+#endif
 }
 
 }

@@ -78,7 +78,7 @@ class Spill
   std::string stream_id;
   Type type{Type::daq_status};
   hr_time_t time{std::chrono::system_clock::now()};
-  Setting state;
+  Setting state; /// \todo confusing naming (see Engine.cpp)
 
   std::vector<char> raw; // raw from device
   EventModel event_model;

@@ -11,8 +11,8 @@
 ESSStream::ESSStream()
 {
   parser_names_["none"] = 0;
-  parser_names_["ev42_events"] = 1;
-  parser_names_["mo01_nmx"] = 2;
+  parser_names_["ev42_events"] = 1; ///< efu event stream
+  parser_names_["mo01_nmx"] = 2; ///< efu monitor stream
   parser_names_["ChopperTDC"] = 3;
   parser_names_["SenvParser"] = 4;
   parser_names_["SenvParserWrong"] = 5;
@@ -48,8 +48,10 @@ ESSStream::~ESSStream()
   die();
 }
 
+/// \brief called by Engine in acquire()
 bool ESSStream::daq_start(SpillMultiqueue * out_queue)
 {
+  INFO("<ESSStream::daq_start()>");
   if (running_.load())
     daq_stop();
 
@@ -57,20 +59,18 @@ bool ESSStream::daq_start(SpillMultiqueue * out_queue)
   terminate_.store(false);
 
   size_t total = 0;
-  for (auto& s : streams_)
-  {
-    if (!s.parser)
-    {
-      WARN("<ESSStream> Could not start worker cuz bad parser");
+  for (auto& s : streams_) {
+    if (!s.parser) {
+      WARN("<ESSStream> Could not start worker: bad parser");
       continue;
     }
 
-    if (!s.consumer)
-    {
-      WARN("<ESSStream> Could not start worker cuz bad kafka stream");
+    if (!s.consumer) {
+      WARN("<ESSStream> Could not start worker: bad kafka stream");
       continue;
     }
 
+    INFO("<ESSStream::daq_start> Starting stream thread for {}", s.config.kafka_topic_name_);
     s.runner = std::thread(&ESSStream::Stream::worker_run, &s, out_queue,
                            kafka_config_.kafka_timeout_,
                            &terminate_);

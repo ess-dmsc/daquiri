@@ -11,6 +11,7 @@ namespace DAQuiri {
 Histogram2D::Histogram2D()
     : Spectrum()
 {
+    INFO("Histogram2D ctor\n");
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
 //  data_ = std::make_shared<DenseMatrix2D>();
@@ -83,10 +84,12 @@ bool Histogram2D::_accept_events(const Spill& /*spill*/)
 
 void Histogram2D::_push_event(const Event& event)
 {
+  INFO("<Histogram2D> _push_event()");
   if (!filters_.accept(event))
     return;
   value_latch_x_.extract(coords_[0], event);
   value_latch_y_.extract(coords_[1], event);
+  INFO("add_one event at ({},{})", coords_[0], coords_[1]);
   data_->add_one(coords_);
 }
 
