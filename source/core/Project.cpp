@@ -223,6 +223,7 @@ void Project::add_spill(SpillPtr one_spill)
 
   INFO("<Project> add_spill()");
   for (auto& q: consumers_) {
+    INFO("consumer {} push_spill()", q->type());
     q->push_spill(*one_spill);
   }
 
