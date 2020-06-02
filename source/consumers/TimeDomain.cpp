@@ -8,6 +8,7 @@ namespace DAQuiri {
 TimeDomain::TimeDomain()
     : Spectrum()
 {
+  INFO("TimeDomain ctor\n");
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();

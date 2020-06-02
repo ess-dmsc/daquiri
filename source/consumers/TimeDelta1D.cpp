@@ -8,6 +8,7 @@ namespace DAQuiri {
 TimeDelta1D::TimeDelta1D()
     : Spectrum()
 {
+  INFO("TimeDelta1D ctor\n");
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();

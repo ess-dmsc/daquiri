@@ -169,7 +169,7 @@ void Project::add_consumer(ConsumerPtr consumer)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  INFO("Add consumer");
+  INFO("Add consumer - stream_id {}", consumer->type());
   _add_consumer(consumer);
 
   ready_ = true;

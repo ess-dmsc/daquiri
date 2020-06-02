@@ -8,6 +8,7 @@ namespace DAQuiri {
 StatsScalar::StatsScalar()
     : Spectrum()
 {
+  INFO("StatsScalar ctor\n");
   data_ = std::make_shared<Scalar>();
 
   Setting base_options = metadata_.attributes();
