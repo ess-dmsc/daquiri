@@ -8,7 +8,7 @@ namespace DAQuiri {
 Prebinned1D::Prebinned1D()
     : Spectrum()
 {
-  INFO("Prebinned1D ctor\n");
+  INFO("Prebinned1D ctor");
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();

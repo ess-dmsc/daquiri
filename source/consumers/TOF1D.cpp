@@ -8,7 +8,7 @@ namespace DAQuiri {
 TOF1D::TOF1D()
     : Spectrum()
 {
-  INFO("TOF1D ctor\n");
+  INFO("TOF1D ctor");
   data_ = std::make_shared<Dense1D>();
 
   Setting base_options = metadata_.attributes();

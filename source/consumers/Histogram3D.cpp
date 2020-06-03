@@ -11,7 +11,7 @@ namespace DAQuiri {
 Histogram3D::Histogram3D()
     : Spectrum()
 {
-  INFO("Histogram3D ctor\n");
+  INFO("Histogram3D ctor");
   data_ = std::make_shared<SparseMap3D>();
 //  data_ = std::make_shared<SparseMatrix3D>();
 //  data_ = std::make_shared<DenseMatrix3D>();

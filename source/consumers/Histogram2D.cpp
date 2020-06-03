@@ -11,7 +11,7 @@ namespace DAQuiri {
 Histogram2D::Histogram2D()
     : Spectrum()
 {
-    INFO("Histogram2D ctor\n");
+    INFO("Histogram2D ctor");
 //  data_ = std::make_shared<SparseMap2D>();
   data_ = std::make_shared<SparseMatrix2D>();
 //  data_ = std::make_shared<DenseMatrix2D>();
