@@ -278,10 +278,10 @@ void Project::save(std::string file_name)
     {
       auto sg = group.create_group("consumers");
       int i = 0;
-      for (auto& q : consumers_)
+      for (auto& consumer : consumers_)
       {
         auto ssg = sg.create_group(vector_idx_minlen(i++, consumers_.size() - 1));
-        q->save(ssg);
+        consumer->save(ssg);
       }
     }
 
