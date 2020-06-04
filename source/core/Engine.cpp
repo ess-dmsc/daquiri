@@ -453,7 +453,6 @@ void Engine::builder_naive(SpillMultiqueue * data_queue,
     time += presort_timer.s();
   }
 
-  /// \todo don't remove unreachable code below as it breaks the system test!! 
   spill = std::make_shared<Spill>("engine", Spill::Type::stop);
   spill->state.branches.add_a(Setting::integer("queue_size", data_queue->size()));
   spill->state.branches.add_a(Setting::integer("dropped_spills", data_queue->dropped_spills()));
