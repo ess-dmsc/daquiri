@@ -38,7 +38,7 @@ Setting Engine::default_settings()
 
 void Engine::initialize(const json &profile)
 {
-  printf("initialize engine\n");
+  //printf("initialize engine\n");
   UNIQUE_LOCK_EVENTUALLY_ST
 
   Setting tree = profile;
@@ -212,7 +212,7 @@ bool Engine::daq_start(SpillMultiqueue * out_queue)
   for (auto &q : producers_) {
     if ((q.second != nullptr) && (q.second->status() & ProducerStatus::can_run))
     {
-      INFO("calling daq_start()");
+      //INFO("calling daq_start()");
       success |= q.second->daq_start(out_queue);
     }
   }
@@ -292,7 +292,7 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
   /// \brief central shared queue for Spills
   SpillMultiqueue parsed_queue(drop_packets_, max_packets_);
 
-  INFO("Launching thread Engine::builder_naive");
+  //INFO("Launching thread Engine::builder_naive");
   auto builder = std::thread(&Engine::builder_naive, this, &parsed_queue, project);
 
   SpillPtr spill;
@@ -438,7 +438,7 @@ void Engine::builder_naive(SpillMultiqueue * data_queue,
     spill = data_queue->dequeue();
     if (spill == nullptr)
       break;
-    INFO("Got a spill with {} events", spill->events.size());
+    //INFO("Got a spill with {} events", spill->events.size());
     Timer presort_timer(true);
     presort_cycles++; /// \todo unused currently
     presort_events += spill->events.size();

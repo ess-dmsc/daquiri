@@ -11,7 +11,7 @@ Image2D::Image2D()
     : Spectrum()
 {
 //  data_ = std::make_shared<SparseMap2D>();
-  INFO("Image2D ctor");
+  //INFO("Image2D ctor");
   data_ = std::make_shared<SparseMatrix2D>();
 
   Setting base_options = metadata_.attributes();

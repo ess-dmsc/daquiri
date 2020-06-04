@@ -169,7 +169,7 @@ void Project::add_consumer(ConsumerPtr consumer)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  INFO("Add consumer - stream_id {}", consumer->type());
+  //INFO("Add consumer - stream_id {}", consumer->type());
   _add_consumer(consumer);
 
   ready_ = true;
@@ -221,9 +221,9 @@ void Project::add_spill(SpillPtr one_spill)
 {
   UNIQUE_LOCK_EVENTUALLY
 
-  INFO("<Project> add_spill()");
+  //INFO("<Project> add_spill()");
   for (auto& q: consumers_) {
-    INFO("consumer {} push_spill()", q->type());
+    //INFO("consumer {} push_spill()", q->type());
     q->push_spill(*one_spill);
   }
 
@@ -278,10 +278,10 @@ void Project::save(std::string file_name)
     {
       auto sg = group.create_group("consumers");
       int i = 0;
-      for (auto& consumer : consumers_)
+      for (auto& q : consumers_)
       {
         auto ssg = sg.create_group(vector_idx_minlen(i++, consumers_.size() - 1));
-        consumer->save(ssg);
+        q->save(ssg);
       }
     }
 

@@ -51,7 +51,7 @@ ESSStream::~ESSStream()
 /// \brief called by Engine in acquire()
 bool ESSStream::daq_start(SpillMultiqueue * out_queue)
 {
-  INFO("<ESSStream::daq_start()>");
+  //INFO("<ESSStream::daq_start()>");
   if (running_.load())
     daq_stop();
 
@@ -70,7 +70,7 @@ bool ESSStream::daq_start(SpillMultiqueue * out_queue)
       continue;
     }
 
-    INFO("<ESSStream::daq_start> Starting stream thread for {}", s.config.kafka_topic_name_);
+    //INFO("<ESSStream::daq_start> Starting stream thread for {}", s.config.kafka_topic_name_);
     s.runner = std::thread(&ESSStream::Stream::worker_run, &s, out_queue,
                            kafka_config_.kafka_timeout_,
                            &terminate_);

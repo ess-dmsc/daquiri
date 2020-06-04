@@ -119,13 +119,13 @@ int main(int argc, char** argv)
 
   INFO("Acquired:\n{}", ss1.str());
 
-  INFO("Loaded:\n{}", ss2.str());
+  //INFO("Loaded:\n{}", ss2.str());
 
-  // std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
-  // ofs1 << ss1.str();
-
-  // std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
-  // ofs2 << ss2.str();
+//  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs1 << ss1.str();
+//
+//  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
+//  ofs2 << ss2.str();
 
   if (ss1.str() != ss2.str()) {
     INFO("Saved project not identical to original!");
