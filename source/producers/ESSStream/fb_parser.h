@@ -1,7 +1,15 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file fb_parser.h
+///
+/// \brief Abstract class for parsing flatbuffer messages
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
-#include <core/producer.h>
-#include <core/util/timer.h>
+#include <core/Producer.h>
+#include <core/util/Timer.h>
 
 using namespace DAQuiri;
 
@@ -32,8 +40,8 @@ class fb_parser : public Producer
   void boot() override;
   void die() override;
 
-  virtual uint64_t process_payload(SpillQueue spill_queue, void* msg) = 0;
-  virtual uint64_t stop(SpillQueue spill_queue) = 0;
+  virtual uint64_t process_payload(SpillMultiqueue * spill_queue, void* msg) = 0;
+  virtual uint64_t stop(SpillMultiqueue * spill_queue) = 0;
 };
 
 using FBParserPtr = std::shared_ptr<fb_parser>;

@@ -1,21 +1,21 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/dense1d.cpp
-  ${dir}/dense_matrix2d.cpp
-  ${dir}/scalar.cpp
-  ${dir}/sparse_map2d.cpp
-  ${dir}/sparse_map3d.cpp
-  ${dir}/sparse_matrix2d.cpp
+  ${dir}/Dense1D.cpp
+  ${dir}/DenseMatrix2D.cpp
+  ${dir}/Scalar.cpp
+  ${dir}/SparseMap2D.cpp
+  ${dir}/SparseMap3D.cpp
+  ${dir}/SparseMatrix2D.cpp
   )
 
 set(HEADERS
-  ${dir}/dense1d.h
-  ${dir}/dense_matrix2d.h
-  ${dir}/scalar.h
-  ${dir}/sparse_map2d.h
-  ${dir}/sparse_map3d.h
-  ${dir}/sparse_matrix2d.h
+  ${dir}/Dense1D.h
+  ${dir}/DenseMatrix2D.h
+  ${dir}/Scalar.h
+  ${dir}/SparseMap2D.h
+  ${dir}/SparseMap3D.h
+  ${dir}/SparseMatrix2D.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

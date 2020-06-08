@@ -1,6 +1,6 @@
 #include <producers/ESSStream/mo01_parser.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <core/util/logger.h>
 
 mo01_nmx::mo01_nmx()
@@ -116,7 +116,7 @@ StreamManifest mo01_nmx::stream_manifest() const
   return ret;
 }
 
-uint64_t mo01_nmx::stop(SpillQueue spill_queue)
+uint64_t mo01_nmx::stop(SpillMultiqueue * spill_queue)
 {
   if (started_)
   {
@@ -164,7 +164,7 @@ std::string mo01_nmx::get_source_name(void* msg) const
   return NamePtr->str();
 }
 
-uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
+uint64_t mo01_nmx::process_payload(SpillMultiqueue * spill_queue, void* msg)
 {
   Timer timer(true);
   uint64_t pushed_spills = 0;
@@ -218,7 +218,7 @@ uint64_t mo01_nmx::process_payload(SpillQueue spill_queue, void* msg)
   return pushed_spills;
 }
 
-uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
+uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillMultiqueue * queue)
 {
   if (!hist.xstrips()->Length() &&
       !hist.xstrips()->Length() &&
@@ -253,7 +253,7 @@ uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillQueue queue)
   return 1;
 }
 
-uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillQueue queue)
+uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillMultiqueue * queue)
 {
   uint64_t pushed_spills {0};
 
@@ -272,7 +272,7 @@ uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillQueue queue)
   return pushed_spills;
 }
 
-uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillQueue queue)
+uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillMultiqueue * queue)
 {
   auto spill = std::make_shared<Spill>(hit_stream_id_, Spill::Type::running);
   spill->state.branches.add(Setting::precise("native_time", spoofed_time_));

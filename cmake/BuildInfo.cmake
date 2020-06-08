@@ -1,4 +1,3 @@
-
 # git info
 execute_process(COMMAND "git" "symbolic-ref" "--short" "HEAD"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"

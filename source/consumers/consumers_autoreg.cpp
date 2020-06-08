@@ -1,23 +1,23 @@
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 
 #include <consumers/consumers_autoreg.h>
 
-#include <consumers/stats_scalar.h>
+#include <consumers/StatsScalar.h>
 
-#include <consumers/histogram_1d.h>
-#include <consumers/prebinned_1d.h>
-#include <consumers/tof_1d.h>
-#include <consumers/tof_1d_correlate.h>
-#include <consumers/time_domain.h>
-#include <consumers/time_delta_1d.h>
+#include <consumers/Histogram1D.cpp>
+#include <consumers/Prebinned1D.h>
+#include <consumers/TOF1D.h>
+#include <consumers/TOF1DCorrelate.h>
+#include <consumers/TimeDomain.h>
+#include <consumers/TimeDelta1D.h>
 
-#include <consumers/tof_val_2d.h>
-#include <consumers/tof_val_2d_correlate.h>
-#include <consumers/histogram_2d.h>
-#include <consumers/image_2d.h>
-#include <consumers/spectrum_time.h>
+#include <consumers/TOFVal2D.h>
+#include <consumers/TOFVal2DCorrelate.h>
+#include <consumers/Histogram2D.h>
+#include <consumers/Image2D.h>
+#include <consumers/TimeSpectrum.h>
 
-#include <consumers/histogram_3d.h>
+#include <consumers/Histogram3D.h>
 
 using namespace DAQuiri;
 

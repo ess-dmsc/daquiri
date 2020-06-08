@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/project.h>
+#include <core/Project.h>
 
 #include <gui/widgets/SelectorWidget.h>
 #include <gui/daq/AbstractConsumerWidget.h>

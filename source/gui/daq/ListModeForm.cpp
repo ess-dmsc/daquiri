@@ -3,7 +3,7 @@
 
 #include <gui/widgets/qt_util.h>
 #include <core/util/lexical_extensions.h>
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 
 #include <QSettings>
 #include <QMessageBox>

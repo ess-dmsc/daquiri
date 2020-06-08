@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 
 #pragma GCC diagnostic push
 #if defined(__GNUC__) && (__GNUC__ >= 7)

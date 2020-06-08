@@ -3,16 +3,16 @@
 #include <producers/ESSStream/ev42_parser.h>
 #include <producers/ESSStream/mo01_parser.h>
 #include <producers/ESSStream/f142_parser.h>
-#include <producers/ESSStream/senv_data_parser.h>
-#include <producers/ESSStream/senv_data_wrong.h>
+#include <producers/ESSStream/SenvParser.h>
+#include <producers/ESSStream/SenvParserWrong.h>
 
 #include <core/util/logger.h>
 
 ESSStream::ESSStream()
 {
   parser_names_["none"] = 0;
-  parser_names_["ev42_events"] = 1;
-  parser_names_["mo01_nmx"] = 2;
+  parser_names_["ev42_events"] = 1; ///< efu event stream
+  parser_names_["mo01_nmx"] = 2; ///< efu monitor stream
   parser_names_["ChopperTDC"] = 3;
   parser_names_["SenvParser"] = 4;
   parser_names_["SenvParserWrong"] = 5;
@@ -48,8 +48,10 @@ ESSStream::~ESSStream()
   die();
 }
 
-bool ESSStream::daq_start(SpillQueue out_queue)
+/// \brief called by Engine in acquire()
+bool ESSStream::daq_start(SpillMultiqueue * out_queue)
 {
+  //INFO("<ESSStream::daq_start()>");
   if (running_.load())
     daq_stop();
 
@@ -57,20 +59,18 @@ bool ESSStream::daq_start(SpillQueue out_queue)
   terminate_.store(false);
 
   size_t total = 0;
-  for (auto& s : streams_)
-  {
-    if (!s.parser)
-    {
-      WARN("<ESSStream> Could not start worker cuz bad parser");
+  for (auto& s : streams_) {
+    if (!s.parser) {
+      WARN("<ESSStream> Could not start worker: bad parser");
       continue;
     }
 
-    if (!s.consumer)
-    {
-      WARN("<ESSStream> Could not start worker cuz bad kafka stream");
+    if (!s.consumer) {
+      WARN("<ESSStream> Could not start worker: bad kafka stream");
       continue;
     }
 
+    //INFO("<ESSStream::daq_start> Starting stream thread for {}", s.config.kafka_topic_name_);
     s.runner = std::thread(&ESSStream::Stream::worker_run, &s, out_queue,
                            kafka_config_.kafka_timeout_,
                            &terminate_);
@@ -199,6 +199,7 @@ void ESSStream::select_parser(size_t i, std::string t)
     streams_[i].parser = std::make_shared<SenvParserWrong>();
 }
 
+
 void ESSStream::boot()
 {
   if (!(status_ & ProducerStatus::can_boot))
@@ -258,11 +259,11 @@ void ESSStream::die()
   status_ = ProducerStatus::loaded | ProducerStatus::can_boot;
 }
 
-void ESSStream::Stream::worker_run(SpillQueue spill_queue,
+void ESSStream::Stream::worker_run(SpillMultiqueue * spill_queue,
                                    uint16_t consume_timeout,
                                    std::atomic<bool>* terminate)
 {
-  DBG("<ESSStream:{}> Starting run", config.kafka_topic_name_); //more info!!!
+  INFO("<ESSStream:{}> Starting run, timeout: {}", config.kafka_topic_name_, consume_timeout); //more info!!!
 
   uint64_t spills {0};
 
@@ -270,8 +271,11 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
   {
     auto message = consumer->consume(consume_timeout);
 
-    if (!good(message))
+    if (!good(message)) {
+      MessagesBad++;
       continue;
+    }
+    MessagesGood++;
 
     if (get_fb_id(message) != parser->schema_id())
     {
@@ -291,10 +295,11 @@ void ESSStream::Stream::worker_run(SpillQueue spill_queue,
 
   spills += parser->stop(spill_queue);
 
-  DBG("<ESSStream:{}> Finished run, spills={}", config.kafka_topic_name_, spills);
+  INFO("<ESSStream:{}> Finished run, spills={}", config.kafka_topic_name_, spills);
 
-  DBG("<ESSStream:{}>   time={}  secs/spill={}  skipped buffers={}",
+  INFO("<ESSStream:{}>   time={}  messages good: {}, bad: {}, secs/spill={}  skipped buffers={}",
       config.kafka_topic_name_, parser->stats.time_spent,
+      MessagesGood, MessagesBad,
       parser->stats.time_spent / double(spills),
       parser->stats.dropped_buffers);
 }
@@ -317,7 +322,7 @@ bool ESSStream::good(Kafka::MessagePtr message)
       return false;
 
     case RdKafka::ERR__PARTITION_EOF:
-      //WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
+      WARN( "Kafka partition EOF error: {}", message->low_level->errstr());
       return false;
 
           /* Last message */

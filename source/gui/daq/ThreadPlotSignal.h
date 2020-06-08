@@ -2,7 +2,7 @@
 
 #include <QThread>
 #include <QMutex>
-#include <core/project.h>
+#include <core/Project.h>
 #include <core/util/logger.h>
 
 class ThreadPlotSignal : public QThread

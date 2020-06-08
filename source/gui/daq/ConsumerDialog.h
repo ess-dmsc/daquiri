@@ -6,8 +6,8 @@
 #include <gui/SettingsTreeModel.h>
 
 //#include "widget_detectors.h"
-#include <core/consumer.h>
-#include <core/spill.h>
+#include <core/Consumer.h>
+#include <core/Spill.h>
 
 namespace Ui
 {

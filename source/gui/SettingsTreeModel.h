@@ -4,7 +4,7 @@
 #include <QAbstractItemModel>
 #include <QFont>
 #include <QBrush>
-#include <core/plugin/setting.h>
+#include <core/plugin/Setting.h>
 
 using namespace DAQuiri;
 

@@ -1,7 +1,7 @@
 #include <gui/daq/Consumer2D.h>
 #include <gui/widgets/qt_util.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <core/util/logger.h>
 

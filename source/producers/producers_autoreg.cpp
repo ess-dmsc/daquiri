@@ -1,5 +1,5 @@
 #include <producers/producers_autoreg.h>
-#include <core/producer_factory.h>
+#include <core/ProducerFactory.h>
 
 #include <producers/DetectorIndex/DetectorIndex.h>
 #include <producers/DummyDevice/DummyDevice.h>

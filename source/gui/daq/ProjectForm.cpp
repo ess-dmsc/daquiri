@@ -5,8 +5,8 @@
 #include <gui/widgets/QFileExtensions.h>
 #include <gui/daq/ConsumerTemplatesForm.h>
 
-#include <core/consumer_factory.h>
-#include <core/util/timer.h>
+#include <core/ConsumerFactory.h>
+#include <core/util/Timer.h>
 
 #include <QSettings>
 #include <QMessageBox>

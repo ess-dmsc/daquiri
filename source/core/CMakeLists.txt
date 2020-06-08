@@ -3,36 +3,36 @@ set(this_target ${PROJECT_NAME}_core)
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/consumer.cpp
-  ${dir}/consumer_factory.cpp
-  ${dir}/consumer_metadata.cpp
-  ${dir}/dataspace.cpp
-  ${dir}/detector.cpp
-  ${dir}/engine.cpp
-  ${dir}/producer.cpp
-  ${dir}/producer_factory.cpp
-  ${dir}/project.cpp
-  ${dir}/spill.cpp
+  ${dir}/Consumer.cpp
+  ${dir}/ConsumerFactory.cpp
+  ${dir}/ConsumerMetadata.cpp
+  ${dir}/Dataspace.cpp
+  ${dir}/Detector.cpp
+  ${dir}/Engine.cpp
+  ${dir}/Producer.cpp
+  ${dir}/ProducerFactory.cpp
+  ${dir}/Project.cpp
+  ${dir}/Spill.cpp
   )
 
 set(HEADERS
-  ${dir}/consumer.h
-  ${dir}/consumer_factory.h
-  ${dir}/consumer_metadata.h
-  ${dir}/dataspace.h
-  ${dir}/detector.h
-  ${dir}/engine.h
-  ${dir}/producer.h
-  ${dir}/producer_factory.h
-  ${dir}/project.h
-  ${dir}/spill.h
+  ${dir}/Consumer.h
+  ${dir}/ConsumerFactory.h
+  ${dir}/ConsumerMetadata.h
+  ${dir}/Dataspace.h
+  ${dir}/Detector.h
+  ${dir}/Engine.h
+  ${dir}/Producer.h
+  ${dir}/ProducerFactory.h
+  ${dir}/Project.h
+  ${dir}/Spill.h
 
-  ${dir}/event.h
-  ${dir}/event_model.h
-  ${dir}/spill_dequeue.h
+  ${dir}/Event.h
+  ${dir}/EventModel.h
+  ${dir}/SpillDequeue.h
   ${dir}/thread_wrappers.h
-  ${dir}/time_base.h
-  ${dir}/time_stamp.h
+  ${dir}/TimeBase.h
+  ${dir}/TimeStamp.h
   )
 
 set(${this_target}_headers ${HEADERS})
@@ -67,8 +67,8 @@ target_link_libraries(
 
 enable_coverage(${this_target})
 
-# this will affect what version metadata gets saved to file in project.cpp
-option(BI "Update build info at compile time" ON)
+# this will affect what version metadata gets saved to file in Project.cpp
+option(BI "Update build info at compile time" OFF)
 if(${BI})
   add_dependencies(${this_target} build_time)
   add_definitions(-DBUILD_TIME="TRUE")

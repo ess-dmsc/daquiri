@@ -10,7 +10,7 @@
 #include <gui/daq/ConsumerDialog.h>
 #include <gui/widgets/QColorExtensions.h>
 #include <gui/widgets/qt_util.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <QPlot/QHist.h>
 
 using namespace DAQuiri;

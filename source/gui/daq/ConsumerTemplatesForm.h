@@ -6,7 +6,7 @@
 #include <gui/widgets/SettingDelegate.h>
 #include <gui/widgets/qt_util.h>
 #include <gui/SettingsTreeModel.h>
-#include <core/project.h>
+#include <core/Project.h>
 
 namespace Ui {
 class ConsumerTemplatesForm;
