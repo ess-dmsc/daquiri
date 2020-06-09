@@ -213,6 +213,7 @@ void ThreadRunner::do_refresh_settings()
     start(HighPriority);
 }
 
+/// \brief DAQ thread, started by QThread start() method
 void ThreadRunner::run()
 {
   while (!terminating_.load())
