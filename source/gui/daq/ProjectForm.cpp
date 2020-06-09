@@ -419,6 +419,7 @@ void ProjectForm::on_pushEditSpectra_clicked()
 
 void ProjectForm::on_pushStop_clicked()
 {
+  INFO("<GUI> pushStop button clicked ");
   ui->pushStop->setEnabled(false);
   interruptor_.store(true);
 }
@@ -445,6 +446,8 @@ void ProjectForm::run_completed()
 
 void ProjectForm::on_pushStart_clicked()
 {
+  INFO("<GUI> pushStart button clicked ");
+  /// If already running, restart
   if (my_run_)
   {
     restarting_ = true;
