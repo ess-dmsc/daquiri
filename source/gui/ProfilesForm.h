@@ -1,3 +1,13 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file ProfilesForm.h
+///
+/// \brief Create UI components: ProfileDialog and ProfilesForm
+/// \todo Split into one file per class
+///
+//===----------------------------------------------------------------------===//
+
 #pragma once
 
 #include <QDialog>

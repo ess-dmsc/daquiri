@@ -48,8 +48,13 @@ relevant topics such as creating and editing profiles and plots are currently om
 This workflow assumed that Daquiri starts from a state where a profile is loaded but has not
 been started (i.e. the Boot button is shown/active).
 
-#### Booting daq profile
-![screenshot](images/gui_boot.png)
+#### Boot from current settings
+This is the boot sequence when a (detector) profile has already been loaded.
+![screenshot](images/gui_boot_from_settings.png)
+
+#### Boot from settings dialog
+This is the boot sequence when a new (detector) profile has been chosen from the Dialog.
+![screenshot](images/gui_boot_from_profiles.png)
 
 #### Starting daq
 ![screenshot](images/gui_start.png)

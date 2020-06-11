@@ -223,6 +223,7 @@ void ThreadRunner::run()
 
     if (action_ == kAcquire)
     {
+      printf("<ThreadRunner::run()> - action: Acquire\n");
       engine_.get_all_settings();
       emit settingsUpdated(engine_.settings(),
                            status_before_run(),
@@ -255,6 +256,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kAddProducer)
     {
+      printf("<ThreadRunner::run()> - action: AddProducer\n");
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.branches.add_a(one_setting_);
@@ -263,6 +265,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kRemoveProducer)
     {
+      printf("<ThreadRunner::run()> - action: RemoveProducer\n");
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.erase(one_setting_, Match::id | Match::value);
@@ -271,6 +274,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kBoot)
     {
+      printf("<ThreadRunner::run()> - action: Boot\n");
       engine_.boot();
       emit bootComplete();
       action_ = kSettingsRefresh;
@@ -282,6 +286,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kPushSettings)
     {
+      printf("<ThreadRunner::run()> - action: PushSettings\n");
       engine_.settings(tree_);
       action_ = kSettingsRefresh;
     }
@@ -299,6 +304,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kSettingsRefresh)
     {
+      printf("<ThreadRunner::run()> - action: SettingsRefresh\n");
       engine_.get_all_settings();
       action_ = kNone;
       emit settingsUpdated(engine_.settings(),

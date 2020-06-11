@@ -11,11 +11,13 @@
 
 using namespace DAQuiri;
 
+/// \brief used when selecting a new profile
 ProfileDialog::ProfileDialog(QString description, QWidget *parent)
   : QDialog(parent)
 {
   setWindowTitle("Profile actions");
 
+  /// \todo confusing: we have both bootButton and buttonBoot in this project
   QPushButton *buttonBoot = new QPushButton("Boot", this);
   buttonBoot->setIcon(QIcon(":/icons/boot16.png"));
   connect(buttonBoot, SIGNAL(clicked()), this, SLOT(clickedBoot()));
