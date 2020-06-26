@@ -61,6 +61,8 @@ class Project
 
   protected:
     // control
+    /// \todo cdescribe these synchronisation primitives:
+    /// Who controls them, what is their purpose
     mutable mutex mutex_;
     condition_variable cond_;
     mutable bool ready_ {false};
