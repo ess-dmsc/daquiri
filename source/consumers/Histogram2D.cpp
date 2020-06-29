@@ -70,8 +70,9 @@ bool Histogram2D::_accept_spill(const Spill& spill)
 
 void Histogram2D::_push_stats_pre(const Spill& spill)
 {
-  if (!this->_accept_spill(spill))
+  if (!this->_accept_spill(spill)) {
     return;
+  }
   value_latch_x_.configure(spill);
   value_latch_y_.configure(spill);
   Spectrum::_push_stats_pre(spill);

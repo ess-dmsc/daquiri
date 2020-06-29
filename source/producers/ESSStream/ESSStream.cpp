@@ -318,7 +318,8 @@ bool ESSStream::good(Kafka::MessagePtr message)
       return false;
 
     case RdKafka::ERR__TIMED_OUT:
-      //WARN( "Kafka time out error: {}", message->low_level->errstr());
+      // WARN( "Kafka time out error: {}", message->low_level->errstr());
+      /// \todo increment a counter?
       return false;
 
     case RdKafka::ERR__PARTITION_EOF:

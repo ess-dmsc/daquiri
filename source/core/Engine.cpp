@@ -313,12 +313,16 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     if (announcement_timer.timeout())
     {
       if (timeout > 0)
-        INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
+        INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Accepted events: {}  Dropped events: {}",
              total_timer.elapsed_str(), total_timer.ETA_str(),
-             parsed_queue.dropped_spills(), parsed_queue.dropped_events());
+             parsed_queue.dropped_spills(),
+             parsed_queue.accepted_events(),
+             parsed_queue.dropped_events());
       else
-        INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Dropped events: {}",
-            total_timer.elapsed_str(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
+        INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Accepted events: {}  Dropped events: {}",
+            total_timer.elapsed_str(), parsed_queue.dropped_spills(),
+             parsed_queue.accepted_events(),
+             parsed_queue.dropped_events());
 
       announcement_timer.restart();
     }

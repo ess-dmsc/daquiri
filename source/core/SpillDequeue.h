@@ -140,6 +140,7 @@ public:
       dropped_events_ += data->events.size();
       return;
     }
+    accepted_events_ += data->events.size();
 
     // only do this if enqeued properly
     size_++;
@@ -152,8 +153,9 @@ public:
     std::unique_lock<std::mutex> lock(mutex_);
 
     // will not release if empty
-    while (!size_ && !stop_)
+    while (!size_ && !stop_) {
       cond_.wait(lock);
+    }
 
     // this is the end...
     if (stop_)
@@ -194,6 +196,11 @@ public:
     return dropped_events_.load();
   }
 
+  inline size_t accepted_events()
+  {
+    return accepted_events_.load();
+  }
+
 private:
   std::mutex mutex_;
   std::condition_variable cond_;
@@ -204,6 +211,7 @@ private:
   std::atomic<size_t> size_ {0};
   std::atomic<size_t> dropped_spills_ {0};
   std::atomic<size_t> dropped_events_ {0};
+  std::atomic<size_t> accepted_events_ {0};
 
   bool drop_ {false};
   size_t max_buffers_ {10};

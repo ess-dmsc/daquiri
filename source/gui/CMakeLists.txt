@@ -1,6 +1,7 @@
 set(this_target ${PROJECT_NAME})
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
+include(CMakelists2.txt)
 include(QtLibraryConfig)
 
 find_package(qplot REQUIRED)
