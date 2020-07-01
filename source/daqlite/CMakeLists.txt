@@ -1,0 +1,51 @@
+set(this_target daqlite)
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
+
+include(QtLibraryConfig)
+find_package(LibRDKafka REQUIRED)
+
+find_package(qplot REQUIRED)
+#OpenGL for plots
+#add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
+
+set(${this_target}_sources
+  ${dir}/main.cpp
+  MainWindow.cpp
+  ESSConsumer.cpp
+  WorkerThread.cpp
+  Custom2DPlot.cpp
+  )
+
+set(${this_target}_headers
+  MainWindow.h
+  WorkerThread.h
+  Custom2DPlot.h
+  ESSConsumer.h
+  Custom2DPlot.h
+  Configuration.h
+  )
+
+set(CMAKE_AUTOUIC ON)
+
+add_executable(
+  ${this_target}
+  ${${this_target}_sources}
+  ${${this_target}_headers}
+)
+
+target_include_directories(
+  ${this_target}
+  PRIVATE ${PROJECT_SOURCE_DIR}/source
+)
+
+target_link_libraries(
+  ${this_target}
+  PRIVATE ${LibRDKafka_LIBRARIES}
+  PRIVATE ${LibRDKafka_C_LIBRARIES}
+  QPlot
+  #QtColorWidgets-Qt52
+  #Qt5::Widgets
+  #Qt5::PrintSupport
+  #Qt5::Network
+
+)
