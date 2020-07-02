@@ -1,17 +1,6 @@
 
 #include <MainWindow.h>
-
 #include <QWidget>
-#include <QGroupBox>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QSlider>
-#include <QSpinBox>
-#include <QSpacerItem>
-#include <QPushButton>
 
 MainWindow::MainWindow(Configuration & Config) : mConfig(Config) {
   Plot2D = new Custom2DPlot(mConfig);
@@ -61,7 +50,7 @@ void MainWindow::setupLayout() {
 }
 
 void MainWindow::startKafkaConsumer() {
-    KafkaConsumer = new WorkerThread(this);
+    KafkaConsumer = new WorkerThread(this, mConfig);
     qRegisterMetaType<int>("int&");
     connect(KafkaConsumer, &WorkerThread::resultReady, this, &MainWindow::handleKafkaData);
     KafkaConsumer->start();

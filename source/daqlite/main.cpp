@@ -10,11 +10,8 @@
 int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
+  Configuration Config(25, 25, "NMX_detector", "172.17.5.38:9092");
+  MainWindow DaquiriLite(Config);
 
-  Configuration Config(25, 25, "NMX_detector");
-
-  MainWindow GUI(Config);
-
-  app.exec();
-  printf("app exited\n");
+  return app.exec();
 }

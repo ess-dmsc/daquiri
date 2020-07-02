@@ -9,7 +9,10 @@ class WorkerThread : public QThread
   Q_OBJECT
 
   public:
-    WorkerThread(QObject *parent = nullptr) {};
+    WorkerThread(QObject *parent, Configuration & Config)
+       : mConfig(Config) {
+         Consumer = new ESSConsumer(Config);
+       };
     ~WorkerThread() {};
 
     void run() override;
@@ -18,5 +21,6 @@ class WorkerThread : public QThread
     void resultReady(int & val);
 
   private:
-    ESSConsumer Consumer;
+    Configuration & mConfig;
+    ESSConsumer * Consumer;
 };

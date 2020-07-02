@@ -4,9 +4,11 @@
 void WorkerThread::run() {
   int i = 0;
   while (1) {
-    Consumer.consume();
+    auto Msg = Consumer->consume();
+    Consumer->handleMessage(Msg, nullptr);
+    delete Msg;
     emit resultReady(i);
     i += 1;
-    QThread::msleep(200);
+    //QThread::msleep(1000);
   }
 }

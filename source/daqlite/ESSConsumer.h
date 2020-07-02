@@ -2,22 +2,28 @@
 
 #pragma once
 
+#include <Configuration.h>
 #include <librdkafka/rdkafkacpp.h>
 
 
 class ESSConsumer {
 public:
-  ESSConsumer();
+  ESSConsumer(Configuration & Config);
 
-  void consume();
+  RdKafka::Message * consume();
+
+  RdKafka::KafkaConsumer * subscribeTopic() const;
+
+  void handleMessage(RdKafka::Message* message, void* opaque);
+
+  static std::string randomGroupString( size_t length );
 
 private:
-  std::string ErrStr;
-  RdKafka::Conf *Conf;
-  RdKafka::Conf *TConf;
+  RdKafka::Conf *mConf;
+  RdKafka::Conf *mTConf;
+  int32_t mPartition0 {0};
+  RdKafka::KafkaConsumer *mConsumer;
+  RdKafka::Topic *mTopic;
 
-  // std::string Topic;
-  // std::string Broker;
-    // Queue * Qp;
-  // int Timeout{1000}; // ms
+  Configuration & mConfig;
 };

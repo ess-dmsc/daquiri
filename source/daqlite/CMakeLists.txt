@@ -10,19 +10,18 @@ find_package(qplot REQUIRED)
 
 set(${this_target}_sources
   ${dir}/main.cpp
-  MainWindow.cpp
-  ESSConsumer.cpp
-  WorkerThread.cpp
   Custom2DPlot.cpp
+  ESSConsumer.cpp
+  MainWindow.cpp
+  WorkerThread.cpp
   )
 
 set(${this_target}_headers
-  MainWindow.h
-  WorkerThread.h
+  Configuration.h
   Custom2DPlot.h
   ESSConsumer.h
-  Custom2DPlot.h
-  Configuration.h
+  MainWindow.h
+  WorkerThread.h
   )
 
 set(CMAKE_AUTOUIC ON)
@@ -43,9 +42,4 @@ target_link_libraries(
   PRIVATE ${LibRDKafka_LIBRARIES}
   PRIVATE ${LibRDKafka_C_LIBRARIES}
   QPlot
-  #QtColorWidgets-Qt52
-  #Qt5::Widgets
-  #Qt5::PrintSupport
-  #Qt5::Network
-
 )
