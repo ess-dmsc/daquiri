@@ -5,10 +5,12 @@ void WorkerThread::run() {
   int i = 0;
   while (1) {
     auto Msg = Consumer->consume();
-    Consumer->handleMessage(Msg, nullptr);
+    bool HasData = Consumer->handleMessage(Msg, nullptr);
     delete Msg;
-    emit resultReady(i);
-    i += 1;
-    //QThread::msleep(1000);
+    if (HasData) {
+      emit resultReady(i);
+      i += 1;
+    }
+    // QThread::msleep(1000);
   }
 }

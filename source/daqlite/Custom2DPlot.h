@@ -6,7 +6,7 @@
 
 class Custom2DPlot : public QCustomPlot {
 public:
-  Custom2DPlot(Configuration & Config);
+  Custom2DPlot(Configuration &Config);
 
   void colorMap(int phase);
 
@@ -16,5 +16,5 @@ private:
   // configure axis rect:
   QCPColorScale *mColorScale{nullptr};
   QCPColorMap *mColorMap{nullptr};
-  Configuration & mConfig;
+  Configuration &mConfig;
 };

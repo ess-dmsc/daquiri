@@ -2,28 +2,27 @@
 #include <MainWindow.h>
 #include <QWidget>
 
-MainWindow::MainWindow(Configuration & Config) : mConfig(Config) {
+MainWindow::MainWindow(Configuration &Config) : mConfig(Config) {
   Plot2D = new Custom2DPlot(mConfig);
   setupLayout();
   show();
   startKafkaConsumer();
 }
 
-
 void MainWindow::setupLayout() {
   setWindowTitle("Daquiri lite - test");
   resize(600, 500);
 
   // main vertical layout
-  QVBoxLayout* pMainLayout = new QVBoxLayout(this);
+  QVBoxLayout *pMainLayout = new QVBoxLayout(this);
   setLayout(pMainLayout);
 
   // ------------------------------------------------------
   // first sub layouts
-  QHBoxLayout* pTopHBox  = new QHBoxLayout;
+  QHBoxLayout *pTopHBox = new QHBoxLayout;
   pMainLayout->addLayout(pTopHBox);
 
-  QHBoxLayout* pBtnHBox  = new QHBoxLayout;
+  QHBoxLayout *pBtnHBox = new QHBoxLayout;
   pMainLayout->addLayout(pBtnHBox);
 
   // ------------------------------------------------------
@@ -42,26 +41,24 @@ void MainWindow::setupLayout() {
 
   // ------------------------------------------------------
   // create the button area
-  QPushButton* pBtn = new QPushButton(QObject::tr("Quit"), this);
+  QPushButton *pBtn = new QPushButton(QObject::tr("Quit"), this);
   pBtnHBox->addWidget(pBtn);
-  pBtnHBox->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding,QSizePolicy::Minimum));
+  pBtnHBox->addItem(
+      new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
   connect(pBtn, SIGNAL(clicked()), this, SLOT(handleExitButton()));
 }
 
 void MainWindow::startKafkaConsumer() {
-    KafkaConsumer = new WorkerThread(this, mConfig);
-    qRegisterMetaType<int>("int&");
-    connect(KafkaConsumer, &WorkerThread::resultReady, this, &MainWindow::handleKafkaData);
-    KafkaConsumer->start();
+  KafkaConsumer = new WorkerThread(this, mConfig);
+  qRegisterMetaType<int>("int&");
+  connect(KafkaConsumer, &WorkerThread::resultReady, this,
+          &MainWindow::handleKafkaData);
+  KafkaConsumer->start();
 }
 
 // SLOT
-void MainWindow::handleKafkaData(int i) {
-  Plot2D->addData(i);
-}
+void MainWindow::handleKafkaData(int i) { Plot2D->addData(i); }
 
 // SLOT
-void MainWindow::handleExitButton() {
-  QApplication::quit();
-}
+void MainWindow::handleExitButton() { QApplication::quit(); }

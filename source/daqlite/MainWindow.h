@@ -1,29 +1,28 @@
 
 #pragma once
 
-#include <Custom2DPlot.h>
-#include <WorkerThread.h>
 #include <Configuration.h>
+#include <Custom2DPlot.h>
 #include <QMainWindow>
+#include <WorkerThread.h>
 
-class MainWindow : public QWidget
-{
+class MainWindow : public QWidget {
   Q_OBJECT
 
 public:
-   MainWindow(Configuration & Config);
+  MainWindow(Configuration &Config);
 
-   // Add widgets
-   void setupLayout();
+  // Add widgets
+  void setupLayout();
 
-   void startKafkaConsumer();
+  void startKafkaConsumer();
 
 public slots:
-    void handleExitButton();
-    void handleKafkaData(int i);
+  void handleExitButton();
+  void handleKafkaData(int i);
 
 public:
   Configuration mConfig;
-  Custom2DPlot * Plot2D; // Detector image - eventually
-  WorkerThread * KafkaConsumer;
+  Custom2DPlot *Plot2D; // Detector image - eventually
+  WorkerThread *KafkaConsumer;
 };
