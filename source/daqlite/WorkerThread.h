@@ -15,10 +15,12 @@ public:
 
   void run() override;
 
+  ESSConsumer *Consumer;
+
 signals:
   void resultReady(int &val);
 
 private:
   Configuration &mConfig;
-  ESSConsumer *Consumer;
+
 };

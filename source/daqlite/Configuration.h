@@ -9,10 +9,21 @@ public:
   Configuration(){};
 
   Configuration(int XDim, int YDim, std::string Topic, std::string Broker)
-      : mXDim(XDim), mYDim(YDim), mTopic(Topic), mBroker(Broker){};
+      : Geometry({XDim, YDim}), Kafka({Topic, Broker}){};
 
-  int mXDim{256};
-  int mYDim{256};
-  std::string mTopic{"NMX_detector"};
-  std::string mBroker{"172.17.5.38:9092"};
+  // Configurable options
+  struct {
+    int XDim{256};
+    int YDim{256};
+  } Geometry;
+
+  struct {
+    std::string Topic{"NMX_detector"};
+    std::string Broker{"172.17.5.38:9092"};
+  } Kafka;
+
+  struct {
+    bool Interpolate{false};
+    std::string Title;
+  } Plot;
 };

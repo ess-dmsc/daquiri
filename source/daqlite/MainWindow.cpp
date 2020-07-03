@@ -28,7 +28,7 @@ void MainWindow::setupLayout() {
   // ------------------------------------------------------
   // create the group box
   QGroupBox *plotBox = new QGroupBox(this);
-  plotBox->setTitle(mConfig.mTopic.c_str());
+  plotBox->setTitle(mConfig.Plot.Title.c_str());
 
   // create the layout for the plotBox
   QGridLayout *plotLayout = new QGridLayout;
@@ -58,7 +58,9 @@ void MainWindow::startKafkaConsumer() {
 }
 
 // SLOT
-void MainWindow::handleKafkaData(int i) { Plot2D->addData(i); }
+void MainWindow::handleKafkaData(int i) {
+  Plot2D->addData(i, KafkaConsumer->Consumer->mHistogramPlot);
+}
 
 // SLOT
 void MainWindow::handleExitButton() { QApplication::quit(); }

@@ -9,7 +9,7 @@ find_package(qplot REQUIRED)
 #add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
 
 set(${this_target}_sources
-  ${dir}/main.cpp
+  ${dir}/daqlite.cpp
   Custom2DPlot.cpp
   ESSConsumer.cpp
   MainWindow.cpp
@@ -39,6 +39,7 @@ target_include_directories(
 
 target_link_libraries(
   ${this_target}
+  PUBLIC fmt::fmt
   PRIVATE ${LibRDKafka_LIBRARIES}
   PRIVATE ${LibRDKafka_C_LIBRARIES}
   QPlot

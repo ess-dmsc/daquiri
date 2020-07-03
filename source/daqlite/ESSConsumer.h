@@ -14,10 +14,11 @@ public:
   RdKafka::KafkaConsumer *subscribeTopic() const;
 
   bool handleMessage(RdKafka::Message *message, void *opaque);
+  uint32_t processEV42Data(RdKafka::Message *Msg);
 
   static std::string randomGroupString(size_t length);
 
-private:
+//private:
   RdKafka::Conf *mConf;
   RdKafka::Conf *mTConf;
   int32_t mPartition0{0};
@@ -34,4 +35,10 @@ private:
     uint64_t MessagesUnknown{0};
     uint64_t MessagesOther{0};
   } mKafkaStats;
+
+  // Histogram(s)
+  uint32_t mMaxPixel{0};
+  std::vector<uint32_t> mHistogramPlot;
+  std::vector<uint32_t> mHistogram;
+  uint64_t mCounts{0};
 };
