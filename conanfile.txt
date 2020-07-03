@@ -4,7 +4,7 @@ date/4b46deb@ess-dmsc/stable
 Eigen3/3.2.9@bilke/stable
 fmt/5.2.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
-h5cpp/0.1.3@ess-dmsc/stable
+h5cpp/0.3.3@ess-dmsc/stable
 jsonformoderncpp/3.6.1@vthiery/stable
 librdkafka/0.11.5@ess-dmsc/stable
 logical-geometry/09097f2@ess-dmsc/stable
