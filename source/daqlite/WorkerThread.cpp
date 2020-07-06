@@ -1,3 +1,9 @@
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file WorkerThread.cpp
+///
+//===----------------------------------------------------------------------===//
 
 #include <WorkerThread.h>
 #include <chrono>
@@ -9,6 +15,8 @@ void WorkerThread::run() {
   auto t1 = std::chrono::high_resolution_clock::now();
   while (1) {
     auto Msg = Consumer->consume();
+
+    /// \todo return counts so we can calculate count rates
     bool HasData = Consumer->handleMessage(Msg, nullptr);
 
     t2 = std::chrono::high_resolution_clock::now();

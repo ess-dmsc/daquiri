@@ -14,6 +14,7 @@
     "title" : "Daquiri Light - config.json",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
-    "interpolate_pixels" : false
+    "interpolate_pixels" : false,
+    "invert_gradient" : false
   }
 }

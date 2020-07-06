@@ -1,3 +1,12 @@
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file MainWindow.h
+///
+/// \brief Defines the Qt GUI
+///
+/// Also links together plotting, consumer thread and config data
+//===----------------------------------------------------------------------===//
 
 #pragma once
 
@@ -12,17 +21,23 @@ class MainWindow : public QWidget {
 public:
   MainWindow(Configuration &Config);
 
-  // Add widgets
+  // Create GUI layout
   void setupLayout();
 
-  void startKafkaConsumer();
+  /// \brief spin up a thread for consuming topic
+  void startKafkaConsumerThread();
 
 public slots:
   void handleExitButton();
   void handleKafkaData(int i);
 
-public:
+private:
+  /// \brief
+  Custom2DPlot *Plot2D;
+
+  /// \brief configuration obtained from main()
   Configuration mConfig;
-  Custom2DPlot *Plot2D; // Detector image - eventually
-  WorkerThread *KafkaConsumer;
+
+  /// \brief
+  WorkerThread *KafkaConsumerThread;
 };

@@ -3,9 +3,9 @@
 ///
 /// \file daqlite.cpp
 ///
-/// \brief key primitive - Kafka consume happens here
+/// \brief Daquiri Light main application
 ///
-///
+/// Handles command line option(s), instantiates GUI
 //===----------------------------------------------------------------------===//
 
 #include <Configuration.h>

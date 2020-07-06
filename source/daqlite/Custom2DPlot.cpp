@@ -1,4 +1,9 @@
-
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file Custom2DPlot.cpp
+///
+//===----------------------------------------------------------------------===//
 
 #include <Custom2DPlot.h>
 #include <WorkerThread.h>
@@ -25,6 +30,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
   // add a color scale:
   mColorScale = new QCPColorScale(this);
 
+
   // add it to the right of the main axis rect
   plotLayout()->addElement(0, 1, mColorScale);
 
@@ -39,10 +45,14 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
   mColorScale->axis()->setLabel("Runtime"); // not change in colorMap too
 
   // set the color gradient of the color map to one of the presets:
-  mColorMap->setGradient(QCPColorGradient::gpPolar);
-  // we could have also created a QCPColorGradient instance and added own colors
-  // to the gradient, see the documentation of QCPColorGradient for what's
-  // possible.
+  QCPColorGradient Gradient(QCPColorGradient::gpPolar);
+  //mColorMap->setGradient(QCPColorGradient::gpHot);
+  //mColorMap->setGradient(QCPColorGradient::gpThermal);
+
+  if (mConfig.Plot.InvertGradient) {
+     Gradient = Gradient.inverted();
+  }
+  mColorMap->setGradient(Gradient);
 
   // make sure the axis rect and color scale synchronize their bottom and top
   // margins (so they line up):
@@ -56,7 +66,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
   t1 = std::chrono::high_resolution_clock::now();
 }
 
-void Custom2DPlot::colorMap(int count) {
+void Custom2DPlot::plotDetectorImage(int count) {
 
   std::string LabelRuntime = "Runtime " + std::to_string(count);
   mColorScale->axis()->setLabel(LabelRuntime.c_str());
@@ -77,12 +87,13 @@ void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
   auto t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
 
+  // Periodically clear the histogram
   if ( mConfig.Plot.ClearPeriodic and (elapsed.count() >= 1000000000ULL * mConfig.Plot.ClearEverySeconds)) {
-    printf("Clear histogram! %llu / %llu\n", elapsed.count(), 1000000000ULL * mConfig.Plot.ClearEverySeconds);
     std::fill(HistogramData.begin(), HistogramData.end(), 0);
     t1 = std::chrono::high_resolution_clock::now();
   }
 
+  // Accumulate counts
   for (int i = 1; i < Histogram.size(); i++) {
     HistogramData[i] += Histogram[i];
   }

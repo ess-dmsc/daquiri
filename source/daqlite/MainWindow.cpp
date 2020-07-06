@@ -1,3 +1,9 @@
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file MainWindow.cpp
+///
+//===----------------------------------------------------------------------===//
 
 #include <MainWindow.h>
 #include <QWidget>
@@ -6,18 +12,17 @@ MainWindow::MainWindow(Configuration &Config) : mConfig(Config) {
   Plot2D = new Custom2DPlot(mConfig);
   setupLayout();
   show();
-  startKafkaConsumer();
+  startKafkaConsumerThread();
 }
 
 void MainWindow::setupLayout() {
-  setWindowTitle("Daquiri lite - test");
+  setWindowTitle("Daquiri lite");
   resize(600, 500);
 
   // main vertical layout
   QVBoxLayout *pMainLayout = new QVBoxLayout(this);
   setLayout(pMainLayout);
 
-  // ------------------------------------------------------
   // first sub layouts
   QHBoxLayout *pTopHBox = new QHBoxLayout;
   pMainLayout->addLayout(pTopHBox);
@@ -25,7 +30,6 @@ void MainWindow::setupLayout() {
   QHBoxLayout *pBtnHBox = new QHBoxLayout;
   pMainLayout->addLayout(pBtnHBox);
 
-  // ------------------------------------------------------
   // create the group box
   QGroupBox *plotBox = new QGroupBox(this);
   plotBox->setTitle(mConfig.Plot.Title.c_str());
@@ -34,12 +38,13 @@ void MainWindow::setupLayout() {
   QGridLayout *plotLayout = new QGridLayout;
 
   plotLayout->addWidget(Plot2D, 0, 0);
-  // auto plot2 = new Custom2DPlot;
-  // plotLayout->addWidget(plot2, 0, 1);
+  if (mConfig.Geometry.ZDim > 1) {
+    auto plot2 = new Custom2DPlot(mConfig);
+    plotLayout->addWidget(plot2, 0, 1);
+  }
   plotBox->setLayout(plotLayout);
   pTopHBox->addWidget(plotBox);
 
-  // ------------------------------------------------------
   // create the button area
   QPushButton *pBtn = new QPushButton(QObject::tr("Quit"), this);
   pBtnHBox->addWidget(pBtn);
@@ -49,17 +54,17 @@ void MainWindow::setupLayout() {
   connect(pBtn, SIGNAL(clicked()), this, SLOT(handleExitButton()));
 }
 
-void MainWindow::startKafkaConsumer() {
-  KafkaConsumer = new WorkerThread(this, mConfig);
+void MainWindow::startKafkaConsumerThread() {
+  KafkaConsumerThread = new WorkerThread(this, mConfig);
   qRegisterMetaType<int>("int&");
-  connect(KafkaConsumer, &WorkerThread::resultReady, this,
+  connect(KafkaConsumerThread, &WorkerThread::resultReady, this,
           &MainWindow::handleKafkaData);
-  KafkaConsumer->start();
+  KafkaConsumerThread->start();
 }
 
 // SLOT
 void MainWindow::handleKafkaData(int i) {
-  Plot2D->addData(i, KafkaConsumer->Consumer->mHistogramPlot);
+  Plot2D->addData(i, KafkaConsumerThread->consumer()->mHistogramPlot);
 }
 
 // SLOT

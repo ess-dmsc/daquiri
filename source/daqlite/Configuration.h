@@ -1,4 +1,12 @@
-
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file Configuration.h
+///
+/// \brief Daquiri light configuration parameters
+///
+/// Provides some defauls values and allow loading from json file
+//===----------------------------------------------------------------------===//
 
 #pragma once
 
@@ -8,15 +16,16 @@
 
 class Configuration {
 public:
+  /// \brief constructor using default values
+  /// Default are likely to be unsuitable and this should probably
+  /// always bre followed by a call to fromJsonFile()
   Configuration(){};
 
-  Configuration(int XDim, int YDim, std::string Topic, std::string Broker)
-      : Geometry({XDim, YDim}), Kafka({Topic, Broker}){};
-
-
-  void print();
-
+  /// \brief loads configuration from json file
   void fromJsonFile(std::string fname);
+
+  /// \brief prints the settings
+  void print();
 
   // Configurable options
   struct {
@@ -34,6 +43,7 @@ public:
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
     bool Interpolate{false};
+    bool InvertGradient{false};
     std::string Title;
   } Plot;
 };

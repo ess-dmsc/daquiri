@@ -1,5 +1,17 @@
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file WorkerThread.h
+///
+/// \brief main consumer loop for Daquiri Light (daqlite)
+/// The worker thread continuously calls ESSConsumer::consume() and
+/// ESSConsumer::handleMessage() to histogram the pixelids. Once every second
+/// the histogram is copied and the plotting thread (qt main thread?) is
+/// notified.
+//===----------------------------------------------------------------------===//
 
 #pragma once
+
 #include <ESSConsumer.h>
 #include <QThread>
 #include <iostream>
@@ -11,15 +23,22 @@ public:
   WorkerThread(QObject *parent, Configuration &Config) : mConfig(Config) {
     Consumer = new ESSConsumer(Config);
   };
+
   ~WorkerThread(){};
 
+  /// \brief thread main loop
   void run() override;
 
-  ESSConsumer *Consumer;
+  /// \brief Getter for the consumer
+  ESSConsumer * consumer() { return Consumer; }
 
 signals:
   void resultReady(int &val);
 
 private:
+  /// \brief configuration obtained from main()
   Configuration &mConfig;
+
+  /// \brief Kafka consumer
+  ESSConsumer *Consumer;
 };

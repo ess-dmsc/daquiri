@@ -1,8 +1,16 @@
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file ESSConsumer.cpp
+///
+//===----------------------------------------------------------------------===//
 
 #include <ESSConsumer.h>
+#include <fmt/format.h>
 #include "ev42_events_generated.h"
 #include <iostream>
 #include <unistd.h>
+
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   mMaxPixel = mConfig.Geometry.XDim * mConfig.Geometry.YDim;
@@ -13,48 +21,49 @@ ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   assert(mConsumer != nullptr);
 }
 
+
 RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   auto mConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
 
   if (!mConf) {
-    printf("Unable to create global Conf object\n");
+    fmt::print("Unable to create global Conf object\n");
     return nullptr;
   }
 
-  printf("used broker name %s\n", mConfig.Kafka.Broker.c_str());
-
   std::string ErrStr;
-  std::string GroupId = randomGroupString(16);
+  /// \todo figure out good values for these
+  /// \todo some may be obsolete
   mConf->set("metadata.broker.list", mConfig.Kafka.Broker, ErrStr);
   mConf->set("message.max.bytes", "10000000", ErrStr);
   mConf->set("fetch.message.max.bytes", "10000000", ErrStr);
   mConf->set("replica.fetch.max.bytes", "10000000", ErrStr);
+  std::string GroupId = randomGroupString(16);
   mConf->set("group.id", GroupId, ErrStr);
   mConf->set("enable.auto.commit", "false", ErrStr);
   mConf->set("enable.auto.offset.store", "false", ErrStr);
   mConf->set("offset.store.method", "none", ErrStr);
 
-  printf("group.id %s\n", GroupId.c_str());
+  /// \todo why are the configs below commented out?
+  //  mConf->set("auto.offset.reset", "largest", ErrStr);
+  //  mConf->set("session.timeout.ms", "10000", ErrStr);
+  //  mConf->set("api.version.request", "true", ErrStr);
 
-  // //  mConf->set("auto.offset.reset", "largest", ErrStr);
-  // //  mConf->set("session.timeout.ms", "10000", ErrStr);
-  // //  mConf->set("api.version.request", "true", ErrStr);
-  //
   auto ret = RdKafka::KafkaConsumer::create(mConf, ErrStr);
   if (!ret) {
-    printf("Failed to create consumer: %s\n", ErrStr.c_str());
+    fmt::print("Failed to create consumer: {}\n", ErrStr);
     return nullptr;
   }
   //
   // // Start consumer for topic+partition at start offset
   RdKafka::ErrorCode resp = ret->subscribe({mConfig.Kafka.Topic});
   if (resp != RdKafka::ERR_NO_ERROR) {
-    printf("Failed to subscribe consumer to '%s': %s", mConfig.Kafka.Topic.c_str(),
-           err2str(resp).c_str());
+    fmt::print("Failed to subscribe consumer to '{}': {}\n", mConfig.Kafka.Topic,
+           err2str(resp));
   }
 
   return ret;
 }
+
 
 uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     auto EvMsg = GetEventMessage(Msg->payload());
@@ -82,40 +91,33 @@ bool ESSConsumer::handleMessage(RdKafka::Message *Message, void *Opaque) {
   mKafkaStats.MessagesRx++;
 
   switch (Message->err()) {
-  case RdKafka::ERR__TIMED_OUT:
-    mKafkaStats.MessagesTMO++;
-    // printf("ERR__TIMED_OUT\n");
-    return false;
-    break;
+    case RdKafka::ERR__TIMED_OUT:
+      mKafkaStats.MessagesTMO++;
+      return false;
+      break;
 
-  case RdKafka::ERR_NO_ERROR:
-    mKafkaStats.MessagesData++;
-    //MessageOffset = Message->offset();
-    //MessageLength = Message->len();
-    // printf("Message offset: %zu - length %zu\n", MessageOffset,
-    // MessageLength);
-    processEV42Data(Message);
-    return true;
-    break;
+    case RdKafka::ERR_NO_ERROR:
+      mKafkaStats.MessagesData++;
+      processEV42Data(Message);
+      return true;
+      break;
 
-  case RdKafka::ERR__PARTITION_EOF:
-    mKafkaStats.MessagesEOF++;
-    // printf("ERR__PARTITION_EOF\n");
-    return false;
-    break;
+    case RdKafka::ERR__PARTITION_EOF:
+      mKafkaStats.MessagesEOF++;
+      return false;
+      break;
 
-  case RdKafka::ERR__UNKNOWN_TOPIC:
-  case RdKafka::ERR__UNKNOWN_PARTITION:
-    mKafkaStats.MessagesUnknown++;
-    std::cerr << "Consume failed: " << Message->errstr() << std::endl;
-    return false;
-    break;
+    case RdKafka::ERR__UNKNOWN_TOPIC:
+    case RdKafka::ERR__UNKNOWN_PARTITION:
+      mKafkaStats.MessagesUnknown++;
+      fmt::print("Consume failed: {}\n", Message->errstr());
+      return false;
+      break;
 
-  default:
-    /* Errors */
-    mKafkaStats.MessagesOther++;
-    std::cerr << "Consume failed: " << Message->errstr() << std::endl;
-    return false;
+    default: // Other errors
+      mKafkaStats.MessagesOther++;
+      fmt::print("Consume failed: {}", Message->errstr());
+      return false;
   }
 }
 
@@ -134,7 +136,8 @@ std::string ESSConsumer::randomGroupString(size_t length) {
   return str;
 }
 
+
+/// \todo is timeout reasonable?
 RdKafka::Message *ESSConsumer::consume() {
-  RdKafka::Message *Msg = mConsumer->consume(1000);
-  return Msg;
+  return mConsumer->consume(1000);
 }
