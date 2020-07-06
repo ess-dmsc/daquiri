@@ -4,6 +4,7 @@
 #include <Configuration.h>
 #include <QPlot/QPlot.h>
 #include <logical_geometry/ESSGeometry.h>
+#include <chrono>
 
 class Custom2DPlot : public QCustomPlot {
 public:
@@ -21,4 +22,5 @@ private:
 
   std::vector<uint32_t> HistogramData;
   ESSGeometry * LogicalGeometry;
+  std::chrono::time_point<std::chrono::high_resolution_clock> t1;
 };

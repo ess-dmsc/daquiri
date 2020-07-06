@@ -1,0 +1,19 @@
+{
+  "kafka" : {
+    "broker" : "172.17.5.38:9092",
+    "topic" : "NMX_detector"
+  },
+
+  "geometry" : {
+    "xdim" : 256,
+    "ydim" : 256,
+    "zdim" : 1
+  },
+
+  "plot": {
+    "title" : "Daquiri Light - config.json",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 5,
+    "interpolate_pixels" : false
+  }
+}

@@ -22,5 +22,4 @@ signals:
 
 private:
   Configuration &mConfig;
-
 };

@@ -2,6 +2,7 @@
 #include <ESSConsumer.h>
 #include "ev42_events_generated.h"
 #include <iostream>
+#include <unistd.h>
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   mMaxPixel = mConfig.Geometry.XDim * mConfig.Geometry.YDim;
@@ -23,14 +24,17 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   printf("used broker name %s\n", mConfig.Kafka.Broker.c_str());
 
   std::string ErrStr;
+  std::string GroupId = randomGroupString(16);
   mConf->set("metadata.broker.list", mConfig.Kafka.Broker, ErrStr);
   mConf->set("message.max.bytes", "10000000", ErrStr);
   mConf->set("fetch.message.max.bytes", "10000000", ErrStr);
   mConf->set("replica.fetch.max.bytes", "10000000", ErrStr);
-  mConf->set("group.id", randomGroupString(16), ErrStr);
+  mConf->set("group.id", GroupId, ErrStr);
   mConf->set("enable.auto.commit", "false", ErrStr);
   mConf->set("enable.auto.offset.store", "false", ErrStr);
   mConf->set("offset.store.method", "none", ErrStr);
+
+  printf("group.id %s\n", GroupId.c_str());
 
   // //  mConf->set("auto.offset.reset", "largest", ErrStr);
   // //  mConf->set("session.timeout.ms", "10000", ErrStr);
@@ -86,7 +90,6 @@ bool ESSConsumer::handleMessage(RdKafka::Message *Message, void *Opaque) {
 
   case RdKafka::ERR_NO_ERROR:
     mKafkaStats.MessagesData++;
-    /* Real message */
     //MessageOffset = Message->offset();
     //MessageLength = Message->len();
     // printf("Message offset: %zu - length %zu\n", MessageOffset,
@@ -116,8 +119,9 @@ bool ESSConsumer::handleMessage(RdKafka::Message *Message, void *Opaque) {
   }
 }
 
-// Copied from daquiri
+// Copied from daquiri - added seed based on pid
 std::string ESSConsumer::randomGroupString(size_t length) {
+  srand(getpid());
   auto randchar = []() -> char {
     const char charset[] = "0123456789"
                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

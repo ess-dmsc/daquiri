@@ -52,6 +52,8 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
 
   // rescale the key (x) and value (y) axes so the whole color map is visible:
   rescaleAxes();
+
+  t1 = std::chrono::high_resolution_clock::now();
 }
 
 void Custom2DPlot::colorMap(int count) {
@@ -72,6 +74,15 @@ void Custom2DPlot::colorMap(int count) {
 }
 
 void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
+  auto t2 = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
+
+  if ( mConfig.Plot.ClearPeriodic and (elapsed.count() >= 1000000000ULL * mConfig.Plot.ClearEverySeconds)) {
+    printf("Clear histogram! %llu / %llu\n", elapsed.count(), 1000000000ULL * mConfig.Plot.ClearEverySeconds);
+    std::fill(HistogramData.begin(), HistogramData.end(), 0);
+    t1 = std::chrono::high_resolution_clock::now();
+  }
+
   for (int i = 1; i < Histogram.size(); i++) {
     HistogramData[i] += Histogram[i];
   }

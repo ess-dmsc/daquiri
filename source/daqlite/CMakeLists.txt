@@ -10,6 +10,7 @@ find_package(qplot REQUIRED)
 
 set(${this_target}_sources
   ${dir}/daqlite.cpp
+  Configuration.cpp
   Custom2DPlot.cpp
   ESSConsumer.cpp
   MainWindow.cpp

@@ -16,16 +16,26 @@
 #include <QApplication>
 #include <QPlot/QPlot.h>
 #include <fmt/format.h>
+#include <QCommandLineParser>
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
-  /// \todo make configs configurable ;-)
-  Configuration Config(256, 256, "NMX_detector", "172.17.5.38:9092");
-  //Config.Plot.Interpolate = false;
-  Config.Plot.Title = fmt::format("{} @ {}  ({} x {})",
-         Config.Kafka.Topic, Config.Kafka.Broker,
-         Config.Geometry.XDim, Config.Geometry.YDim);
+  QCommandLineParser CLI;
+  CLI.setApplicationDescription("daqlite: when you're' driving home");
+  CLI.addHelpOption();
+
+  QCommandLineOption fileOption("f", "Configuration file", "file");
+  CLI.addOption(fileOption);
+  CLI.process(app);
+
+  Configuration Config;
+  if (CLI.isSet(fileOption)) {
+    std::string FileName = CLI.value(fileOption).toStdString();
+    fmt::print("Getting config from file {}\n", FileName);
+    Config.fromJsonFile(FileName);
+    Config.print();
+  }
 
   MainWindow DaquiriLite(Config);
 
