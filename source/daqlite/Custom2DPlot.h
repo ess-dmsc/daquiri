@@ -24,7 +24,7 @@ public:
 
 private:
   /// \brief updates the image
-  void plotDetectorImage(int count)
+  void plotDetectorImage(int count);
 
   // QCustomPlot variables
   QCPColorScale *mColorScale{nullptr};

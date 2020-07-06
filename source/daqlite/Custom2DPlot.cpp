@@ -81,6 +81,8 @@ void Custom2DPlot::plotDetectorImage(int count) {
   // rescale the data dimension (color) such that all data points lie in the
   // span visualized by the color gradient:
   mColorMap->rescaleDataRange();
+
+  replot();
 }
 
 void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
@@ -97,7 +99,6 @@ void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
   for (int i = 1; i < Histogram.size(); i++) {
     HistogramData[i] += Histogram[i];
   }
-  colorMap(count);
-  replot();
+  plotDetectorImage(count);
   return;
 }
