@@ -41,7 +41,6 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   mConf->set("group.id", GroupId, ErrStr);
   mConf->set("enable.auto.commit", mConfig.Kafka.EnableAutoCommit, ErrStr);
   mConf->set("enable.auto.offset.store", mConfig.Kafka.EnableAutoOffsetStore, ErrStr);
-  mConf->set("offset.store.method", mConfig.Kafka.OffsetStoreMethod, ErrStr);
 
   /// \todo why are the configs below commented out?
   /// If these are enabled REMEMBER to make them configurable

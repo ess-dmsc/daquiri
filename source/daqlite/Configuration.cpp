@@ -43,7 +43,6 @@ void Configuration::fromJsonFile(std::string fname)
   Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
   Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
   Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
-  Kafka.OffsetStoreMethod= j["kafka"]["offset.store.method"];
 
   Plot.ClearPeriodic = j["plot"]["clear_periodic"];
   Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];

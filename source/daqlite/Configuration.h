@@ -42,7 +42,6 @@ public:
     std::string ReplicaFetchMaxBytes{"10000000"};
     std::string EnableAutoCommit{"false"};
     std::string EnableAutoOffsetStore{"false"};
-    std::string OffsetStoreMethod{"none"};
   } Kafka;
 
   struct {

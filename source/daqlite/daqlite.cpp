@@ -32,9 +32,7 @@ int main(int argc, char *argv[]) {
   Configuration Config;
   if (CLI.isSet(fileOption)) {
     std::string FileName = CLI.value(fileOption).toStdString();
-    fmt::print("Getting config from file {}\n", FileName);
     Config.fromJsonFile(FileName);
-    Config.print();
   }
 
   MainWindow DaquiriLite(Config);
