@@ -34,16 +34,17 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   /// \todo figure out good values for these
   /// \todo some may be obsolete
   mConf->set("metadata.broker.list", mConfig.Kafka.Broker, ErrStr);
-  mConf->set("message.max.bytes", "10000000", ErrStr);
-  mConf->set("fetch.message.max.bytes", "10000000", ErrStr);
-  mConf->set("replica.fetch.max.bytes", "10000000", ErrStr);
+  mConf->set("message.max.bytes", mConfig.Kafka.MessageMaxBytes, ErrStr);
+  mConf->set("fetch.message.max.bytes", mConfig.Kafka.FetchMessagMaxBytes, ErrStr);
+  mConf->set("replica.fetch.max.bytes", mConfig.Kafka.ReplicaFetchMaxBytes, ErrStr);
   std::string GroupId = randomGroupString(16);
   mConf->set("group.id", GroupId, ErrStr);
-  mConf->set("enable.auto.commit", "false", ErrStr);
-  mConf->set("enable.auto.offset.store", "false", ErrStr);
-  mConf->set("offset.store.method", "none", ErrStr);
+  mConf->set("enable.auto.commit", mConfig.Kafka.EnableAutoCommit, ErrStr);
+  mConf->set("enable.auto.offset.store", mConfig.Kafka.EnableAutoOffsetStore, ErrStr);
+  mConf->set("offset.store.method", mConfig.Kafka.OffsetStoreMethod, ErrStr);
 
   /// \todo why are the configs below commented out?
+  /// If these are enabled REMEMBER to make them configurable
   //  mConf->set("auto.offset.reset", "largest", ErrStr);
   //  mConf->set("session.timeout.ms", "10000", ErrStr);
   //  mConf->set("api.version.request", "true", ErrStr);

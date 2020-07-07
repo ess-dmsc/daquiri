@@ -12,7 +12,7 @@
 Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
 
   LogicalGeometry = new ESSGeometry(mConfig.Geometry.XDim, mConfig.Geometry.YDim, 1, 1);
-  HistogramData.resize(LogicalGeometry->nx() * LogicalGeometry->ny());
+  HistogramData.resize(LogicalGeometry->nx() * LogicalGeometry->ny() + 1);
 
   setInteractions(QCP::iRangeDrag |
                   QCP::iRangeZoom); // this will also allow rescaling the color
@@ -71,8 +71,8 @@ void Custom2DPlot::plotDetectorImage(int count) {
   std::string LabelRuntime = "Runtime " + std::to_string(count);
   mColorScale->axis()->setLabel(LabelRuntime.c_str());
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
-  // and coordinates match.
-  for (int i = 0; i < HistogramData.size(); i++) {
+  // and coordinates match. PixelId 0 does not exist.
+  for (int i = 1; i < HistogramData.size(); i++) {
       auto xIndex = LogicalGeometry->x(i);
       auto yIndex = LogicalGeometry->y(i);
       mColorMap->data()->setCell(xIndex, yIndex, HistogramData[i]);
@@ -90,12 +90,12 @@ void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
   std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
-  if ( mConfig.Plot.ClearPeriodic and (elapsed.count() >= 1000000000ULL * mConfig.Plot.ClearEverySeconds)) {
+  if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= 1000000000ULL * mConfig.Plot.ClearEverySeconds)) {
     std::fill(HistogramData.begin(), HistogramData.end(), 0);
     t1 = std::chrono::high_resolution_clock::now();
   }
 
-  // Accumulate counts
+  // Accumulate counts, PixelId 0 does not exist
   for (int i = 1; i < Histogram.size(); i++) {
     HistogramData[i] += Histogram[i];
   }

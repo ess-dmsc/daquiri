@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
   QCommandLineParser CLI;
-  CLI.setApplicationDescription("daqlite: when you're' driving home");
+  CLI.setApplicationDescription("Daquiri light - when you're driving home");
   CLI.addHelpOption();
 
   QCommandLineOption fileOption("f", "Configuration file", "file");

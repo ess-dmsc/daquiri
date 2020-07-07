@@ -18,7 +18,7 @@ class Configuration {
 public:
   /// \brief constructor using default values
   /// Default are likely to be unsuitable and this should probably
-  /// always bre followed by a call to fromJsonFile()
+  /// always be followed by a call to fromJsonFile()
   Configuration(){};
 
   /// \brief loads configuration from json file
@@ -37,6 +37,12 @@ public:
   struct {
     std::string Topic{"NMX_detector"};
     std::string Broker{"172.17.5.38:9092"};
+    std::string MessageMaxBytes{"10000000"};
+    std::string FetchMessagMaxBytes{"10000000"};
+    std::string ReplicaFetchMaxBytes{"10000000"};
+    std::string EnableAutoCommit{"false"};
+    std::string EnableAutoOffsetStore{"false"};
+    std::string OffsetStoreMethod{"none"};
   } Kafka;
 
   struct {

@@ -31,12 +31,19 @@ void Configuration::fromJsonFile(std::string fname)
   }
   ifs >> j;
 
+  /// \todo is there a smarter way?
   Geometry.XDim = j["geometry"]["xdim"];
   Geometry.YDim = j["geometry"]["ydim"];
   Geometry.ZDim = j["geometry"]["zdim"];
 
   Kafka.Broker = j["kafka"]["broker"];
   Kafka.Topic = j["kafka"]["topic"];
+  Kafka.MessageMaxBytes = j["kafka"]["message.max.bytes"];
+  Kafka.FetchMessagMaxBytes = j["kafka"]["fetch.message.max.bytes"];
+  Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
+  Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
+  Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
+  Kafka.OffsetStoreMethod= j["kafka"]["offset.store.method"];
 
   Plot.ClearPeriodic = j["plot"]["clear_periodic"];
   Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
