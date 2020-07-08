@@ -50,7 +50,7 @@ def get_macos_pipeline() {
                 dir("${project}/build") {
                     try {
                         // Remove "OpenSSL" package which clashes with "openssl" package that we want to use
-                        sh "conan remove OpenSSL/* --packages"
+                        sh "conan remove OpenSSL/* --force"
                         sh "cmake ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
@@ -72,7 +72,7 @@ def get_macos_pipeline() {
                   
                     try {
                         // Remove "openssl" package so that it doesn't cause problems with other projects using "OpenSSL"
-                        sh "conan remove openssl/* --packages"
+                        sh "conan remove openssl/* --force"
                     } catch (e) {
                         failure_function(e, 'MacOSX / failed to remove openssl package')
                     }
