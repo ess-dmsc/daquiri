@@ -74,12 +74,8 @@ void Spectrum::_apply_attributes()
 
 bool Spectrum::_accept_spill(const Spill& spill)
 {
-  // There are no data in daq_status Spills
-  if (spill.type == Spill::Type::daq_status) {
-    return false;
-  }
-
-  return (Consumer::_accept_spill(spill));
+  return (Consumer::_accept_spill(spill)
+        && (spill.type != Spill::Type::daq_status));
 }
 
 void Spectrum::_push_stats_pre(const Spill& spill)

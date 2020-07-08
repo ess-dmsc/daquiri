@@ -2,7 +2,7 @@
 
 Supported (continuously tested) platforms:
 - Ubuntu 18.04
-- macOS High Sierra
+- macOS Catalina
 - Centos 7
 
 ## Installing
@@ -33,6 +33,4 @@ To use Instrument for time profiling Daquiri
 > open daquiri.xcodeproj
 ```
 
-In the xcode app use &#8984;-I to build and chose Time Profiler.
-
- 
+In the xcode app use &#8984;-I to build and choose Time Profiler.
