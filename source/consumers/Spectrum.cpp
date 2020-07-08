@@ -75,7 +75,7 @@ void Spectrum::_apply_attributes()
 bool Spectrum::_accept_spill(const Spill& spill)
 {
   return (Consumer::_accept_spill(spill)
-      && (spill.type != Spill::Type::daq_status));
+        && (spill.type != Spill::Type::daq_status));
 }
 
 void Spectrum::_push_stats_pre(const Spill& spill)

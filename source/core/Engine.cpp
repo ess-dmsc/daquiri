@@ -75,6 +75,7 @@ Engine::~Engine()
 
 void Engine::boot()
 {
+  printf("<Engine::boot>\n");
   UNIQUE_LOCK_EVENTUALLY_ST
 
   for (auto &q : producers_)
@@ -141,6 +142,7 @@ void Engine::_set_settings(const Setting& newsettings)
   _write_settings_bulk();
 }
 
+
 void Engine::_read_settings_bulk()
 {
   for (auto &set : settings_.branches)
@@ -154,7 +156,6 @@ void Engine::_read_settings_bulk()
     {
       set.enrich(setting_definitions_);
       set.set_number(max_packets_);
-      //set.enable_if_flag(drop_packets_, "");
     }
     else if (!setting_definitions_.count(set.id()))
     {
@@ -258,9 +259,7 @@ void Engine::get_all_settings()
 void Engine::_get_all_settings()
 {
   aggregate_status_ = ProducerStatus(0);
-  for (auto &q : producers_)
-  {
-    q.second->get_all_settings();
+  for (auto &q : producers_) {
     aggregate_status_ = aggregate_status_ | q.second->status();
   }
   _read_settings_bulk();
@@ -314,12 +313,16 @@ void Engine::acquire(ProjectPtr project, Interruptor &interruptor, uint64_t time
     if (announcement_timer.timeout())
     {
       if (timeout > 0)
-        INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Dropped events: {}",
+        INFO("  RUNNING Elapsed: {}  ETA: {}  Dropped spills: {}  Accepted events: {}  Dropped events: {}",
              total_timer.elapsed_str(), total_timer.ETA_str(),
-             parsed_queue.dropped_spills(), parsed_queue.dropped_events());
+             parsed_queue.dropped_spills(),
+             parsed_queue.accepted_events(),
+             parsed_queue.dropped_events());
       else
-        INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Dropped events: {}",
-            total_timer.elapsed_str(), parsed_queue.dropped_spills(), parsed_queue.dropped_events());
+        INFO("  RUNNING Elapsed: {}  Dropped spills: {}  Accepted events: {}  Dropped events: {}",
+            total_timer.elapsed_str(), parsed_queue.dropped_spills(),
+             parsed_queue.accepted_events(),
+             parsed_queue.dropped_events());
 
       announcement_timer.restart();
     }

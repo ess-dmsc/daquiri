@@ -159,6 +159,7 @@ builders = pipeline_builder.createBuilders { container ->
     }  // stage
 }  // createBuilders
 
+// Script actions start here
 node('docker') {
     // Delete workspace when build is done.
     cleanWs()
@@ -172,6 +173,9 @@ node('docker') {
             }
         }
 
+        // skip build process if message contains '[ci skip]'
+        pipeline_builder.abortBuildOnMagicCommitMessage()
+
         stage("Static analysis") {
             try {
                 sh "cloc --by-file --xml --out=cloc.xml ."
@@ -183,10 +187,12 @@ node('docker') {
         }
     }
 
+    // Add macOS pipeline to builders
     builders['macOS'] = get_macos_pipeline()
 
     try {
         timeout(time: 2, unit: 'HOURS') {
+            // run all builders in parallel
             parallel builders
         }
     } catch (e) {

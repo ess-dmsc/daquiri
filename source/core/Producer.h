@@ -45,8 +45,6 @@ class Producer : public Plugin
     virtual void boot() = 0;
     virtual void die() = 0;
 
-    virtual void get_all_settings() {}
-
     virtual StreamManifest stream_manifest() const { return StreamManifest(); }
 
     virtual OscilData oscilloscope() { return OscilData(); }

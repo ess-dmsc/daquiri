@@ -62,9 +62,11 @@ class ESSStream : public Producer
 
       uint64_t ff_stream(Kafka::MessagePtr message, int64_t kafka_max_backlog);
 
+      ///\brief Kafka stats
       std::uint64_t MessagesGood{0};
       std::uint64_t MessagesBad{0};
     };
+
 
     std::vector<Stream> streams_;
 

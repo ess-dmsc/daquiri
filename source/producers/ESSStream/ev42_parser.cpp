@@ -183,6 +183,7 @@ uint64_t ev42_events::process_payload(SpillMultiqueue * spill_queue, void* msg)
 
     auto& evt = run_spill->events.last(); ///< get ptr to free event entry
     if (geometry_.fill(evt, em->detector_id()->Get(i))) {
+      //INFO("time {}, time_start {}, time_end {}", time, stats.time_start, stats.time_end);
       evt.set_time(time);
       ++ run_spill->events; ///< advance idx in event buffer
     } else {

@@ -291,8 +291,12 @@ void SettingsForm::on_checkShowRO_clicked()
   tree_settings_model_.update(settings_tree_);
 }
 
+/// \brief Key event in main window
+/// Toggles the Boot/Reset button text when pushed, then either
+/// boots or shuts down (if already running)
 void SettingsForm::on_bootButton_clicked()
 {
+  INFO("Boot/Reset button clicked");
   if (ui->bootButton->text() == "Boot")
   {
     Profiles::singleton().auto_boot(true);
