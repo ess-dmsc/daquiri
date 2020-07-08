@@ -1,7 +1,7 @@
-#include "Consumer2D.h"
-#include <widgets/qt_util.h>
+#include <gui/daq/Consumer2D.h>
+#include <gui/widgets/qt_util.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <core/util/logger.h>
 
@@ -35,7 +35,7 @@ Consumer2D::Consumer2D(QWidget* parent)
   setLayout(fl);
 }
 
-void Consumer2D::update()
+void Consumer2D::update_data()
 {
   if (!this->isVisible()
       || !plot_
@@ -74,10 +74,12 @@ void Consumer2D::update()
   {
     auto spectrum_data = data->all_data();
     if (spectrum_data)
-      for (const auto& p : *spectrum_data)
+      for (const auto& p : *spectrum_data) {
+        // p2d point2D ?  - push_back (x,y, value)
         hist.push_back(QPlot::p2d(p.first[0],
                                   p.first[1],
                                   rescale * to_double(p.second)));
+      }
   }
 
   if (!hist.empty())
@@ -219,7 +221,7 @@ void Consumer2D::clickedPlot(double x, double y, Qt::MouseButton button)
   box_x = static_cast<uint16_t>(x);
   box_y = static_cast<uint16_t>(y);
 
-  update();
+  update_data();
 }
 
 

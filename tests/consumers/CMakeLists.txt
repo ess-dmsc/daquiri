@@ -1,20 +1,20 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/histogram_1d.cpp
-  ${dir}/histogram_2d.cpp
-  ${dir}/histogram_3d.cpp
-  ${dir}/image_2d.cpp
-  ${dir}/prebinned_1d.cpp
-  ${dir}/spectrum.cpp
-  ${dir}/spectrum_time.cpp
-  ${dir}/stats_scalar.cpp
-  ${dir}/time_delta_1d.cpp
-  ${dir}/time_domain.cpp
-  ${dir}/tof_1d.cpp
-  ${dir}/tof_1d_correlate.cpp
-  ${dir}/tof_val_2d.cpp
-  ${dir}/tof_val_2d_correlate.cpp
+  ${dir}/Histogram1DTest.cpp
+  ${dir}/Histogram2DTest.cpp
+  ${dir}/Histogram3DTest.cpp
+  ${dir}/Image2DTest.cpp
+  ${dir}/Prebinned1DTest.cpp
+  ${dir}/SpectrumTest.cpp
+  ${dir}/TimeSpectrumTest.cpp
+  ${dir}/StatsScalarTest.cpp
+  ${dir}/TimeDelta1DTest.cpp
+  ${dir}/TimeDomainTest.cpp
+  ${dir}/TOF1DTest.cpp
+  ${dir}/TOF1DCorrelateTest.cpp
+  ${dir}/TOFVal2DTest.cpp
+  ${dir}/TOFVal2DCorrelateTest.cpp
   )
 
 add_subdirectory(dataspaces)

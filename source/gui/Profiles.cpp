@@ -1,5 +1,5 @@
 #include <gui/Profiles.h>
-#include <core/engine.h>
+#include <core/Engine.h>
 #include <QSettings>
 #include <QDir>
 #include <core/util/json_file.h>

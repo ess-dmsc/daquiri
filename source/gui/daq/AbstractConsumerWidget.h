@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include <core/consumer.h>
+#include <core/Consumer.h>
 #include <QIcon>
 
 class AbstractConsumerWidget : public QWidget
@@ -26,7 +26,7 @@ public:
     return consumer_;
   }
 
-  virtual void update() = 0;
+  virtual void update_data() = 0;
   virtual void refresh() = 0;
 
 protected:

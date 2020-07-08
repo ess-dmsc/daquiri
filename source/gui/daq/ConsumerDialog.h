@@ -2,11 +2,12 @@
 
 #include <QItemSelection>
 #include <QDialog>
-#include <widgets/SettingDelegate.h>
-#include "SettingsTreeModel.h"
+#include <gui/widgets/SettingDelegate.h>
+#include <gui/SettingsTreeModel.h>
+
 //#include "widget_detectors.h"
-#include <core/consumer.h>
-#include <core/spill.h>
+#include <core/Consumer.h>
+#include <core/Spill.h>
 
 namespace Ui
 {

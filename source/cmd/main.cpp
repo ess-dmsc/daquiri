@@ -1,6 +1,13 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file main.cpp - will become 'acquire' as executable
+///
+///
+//===----------------------------------------------------------------------===//
 #include <CLI/CLI.hpp>
 
-#include <core/engine.h>
+#include <core/Engine.h>
 
 #include <core/util/logger.h>
 
@@ -10,7 +17,10 @@
 #include <core/util/json_file.h>
 
 #include <signal.h>
-#include <build_time.h>
+
+#ifdef BUILD_TIME
+#include "build_time.h"
+#endif
 
 using namespace DAQuiri;
 
@@ -62,7 +72,10 @@ int main(int argc, char** argv)
   INFO("BuildInfo.git_hash: {}", BI_GIT_HASH);
   INFO("BuildInfo.user@host: {}@{}", BI_USERNAME, BI_HOSTNAME);
   INFO("BuildInfo.system: {} {}", BI_SYSTEM, BI_PROCESSOR);
-  INFO("BuildInfo.build_time: {}", BUILD_TIME);
+  INFO("BuildInfo.cmake_time: {}", BI_CMAKE_TIME);
+#ifdef BUILD_TIME
+  INFO("BuildInfo.build_time: {}", BI_BUILD_TIME);
+#endif
 
   auto& engine = Engine::singleton();
 

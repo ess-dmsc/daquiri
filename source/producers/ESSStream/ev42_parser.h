@@ -1,3 +1,11 @@
+/* Copyright (C) 2016-2020 European Spallation Source, ERIC. See LICENSE file */
+//===----------------------------------------------------------------------===//
+///
+/// \file ev42_parser.h
+///
+/// \brief Key primitive - parsing event data
+///
+//===----------------------------------------------------------------------===//
 #pragma once
 
 #include <producers/ESSStream/fb_parser.h>
@@ -23,8 +31,8 @@ class ev42_events : public fb_parser
   void settings(const Setting&) override;
   Setting settings() const override;
 
-  uint64_t process_payload(SpillQueue spill_queue, void* msg) override;
-  uint64_t stop(SpillQueue spill_queue) override;
+  uint64_t process_payload(SpillMultiqueue * spill_queue, void* msg) override;
+  uint64_t stop(SpillMultiqueue * spill_queue) override;
 
   StreamManifest stream_manifest() const override;
 

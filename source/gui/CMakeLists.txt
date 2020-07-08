@@ -1,50 +1,45 @@
 set(this_target ${PROJECT_NAME})
-set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(QtLibraryConfig)
 
 find_package(qplot REQUIRED)
-#OpenGL for plots
-#add_definitions(-DQCUSTOMPLOT_USE_OPENGL=1)
-
-
-#find package for QtColorWidgets
 
 set(${this_target}_sources
-  ${dir}/daquiri.cpp
-  ${dir}/main.cpp
-  ${dir}/Profiles.cpp
-  ${dir}/ProfilesForm.cpp
-  ${dir}/Server.cpp
-  ${dir}/SettingsForm.cpp
-  ${dir}/SettingsTreeModel.cpp
-  ${dir}/ThreadRunner.cpp
-  ${dir}/UnitConverter.cpp
+  daquiri.cpp
+  main.cpp
+  Profiles.cpp
+  ProfilesForm.cpp
+  Server.cpp
+  SettingsForm.cpp
+  SettingsTreeModel.cpp
+  ThreadRunner.cpp
+  UnitConverter.cpp
   )
 
 set(${this_target}_headers
-  ${dir}/daquiri.h
-  ${dir}/Profiles.h
-  ${dir}/ProfilesForm.h
-  ${dir}/QStreamBuffer.h
-  ${dir}/Server.h
-  ${dir}/SettingsForm.h
-  ${dir}/SettingsTreeModel.h
-  ${dir}/ThreadRunner.h
-  ${dir}/UnitConverter.h
+  daquiri.h
+  Profiles.h
+  ProfilesForm.h
+  QStreamBuffer.h
+  Server.h
+  SettingsForm.h
+  SettingsTreeModel.h
+  ThreadRunner.h
+  UnitConverter.h
   )
 
-set(CMAKE_AUTOUIC ON)
 set(${this_target}_ui
-  ${dir}/ProfilesForm.ui
-  ${dir}/SettingsForm.ui
+  ProfilesForm.ui
+  SettingsForm.ui
   )
-
-qt5_add_resources(${this_target}_resources
-  ${dir}/resources/daquiri.qrc)
 
 add_subdirectory(widgets)
 add_subdirectory(daq)
+
+qt5_add_resources(${this_target}_resources
+  resources/daquiri.qrc)
+
+set(CMAKE_AUTOUIC ON)
 
 add_executable(
   ${this_target}
@@ -57,7 +52,6 @@ add_executable(
 target_include_directories(
   ${this_target}
   PRIVATE ${PROJECT_SOURCE_DIR}/source
-  PRIVATE ${${this_target}_include_dirs}
 )
 
 target_link_libraries(

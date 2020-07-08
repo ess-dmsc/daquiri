@@ -1,13 +1,16 @@
 #include <gui/daq/ProjectView.h>
-#include "ui_ProjectView.h"
+#include <daquiri_autogen/include/ui_ProjectView.h>
 
-#include <gui/daq/ConsumerDialog.h>
 #include <gui/daq/ConsumerScalar.h>
 #include <gui/daq/Consumer1D.h>
 #include <gui/daq/Consumer2D.h>
+
+#include <gui/daq/ConsumerMulti1D.h>
+
+#include <gui/daq/ConsumerDialog.h>
 #include <gui/widgets/QColorExtensions.h>
 #include <gui/widgets/qt_util.h>
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 #include <QPlot/QHist.h>
 
 using namespace DAQuiri;
@@ -75,11 +78,12 @@ void ProjectView::set_manifest(DAQuiri::StreamManifest m)
 //  event->accept();
 //}
 
-void ProjectView::setSpectra(ProjectPtr new_set)
+void ProjectView::set_project(ProjectPtr project)
 {
   consumers_.clear();
+  groups_.clear();
   ui->area->closeAllSubWindows();
-  project_ = new_set;
+  project_ = project;
   updateUI();
   enforce_all();
   update();
@@ -92,40 +96,89 @@ void ProjectView::selectorItemToggled(SelectorItem item)
   update_plots();
 }
 
-void ProjectView::enforce_item(SelectorItem item)
+void ProjectView::enforce_all()
 {
-  int64_t id = item.data.toLongLong();
-  ConsumerPtr consumer = project_->get_consumer(id);
-  if (!consumer)
-    return;
-  if (consumer->metadata().get_attribute("visible").get_bool() != item.visible)
-    consumer->set_attribute(Setting::boolean("visible", item.visible));
-  if (consumers_.count(id) && !item.visible)
+  auto initial_consumers = consumers_.size();
+  auto items = selector_->items();
+  std::set<size_t> visible_groups;
+  for (auto it = items.rbegin(); it != items.rend(); it++)
   {
-    consumers_[id]->parentWidget()->close();
-    consumers_.remove(id);
-  }
-  else if (!consumers_.count(id) && item.visible)
-  {
-    AbstractConsumerWidget* widget;
-    if (consumer->dimensions() == 0)
-      widget = new ConsumerScalar();
-    else if (consumer->dimensions() == 1)
-      widget = new Consumer1D();
-    else if (consumer->dimensions() == 2)
-      widget = new Consumer2D();
-    else
+    auto item = *it;
+
+    int64_t id = item.data.toLongLong();
+    ConsumerPtr consumer = project_->get_consumer(id);
+    if (!consumer)
       return;
 
-    widget->setAttribute(Qt::WA_DeleteOnClose);
-    connect(widget, SIGNAL(destroyed(QObject * )),
-            this, SLOT(consumerWidgetDestroyed(QObject * )));
-    auto w = ui->area->addSubWindow(widget);
-    w->setContentsMargins(0, 0, 0, 0);
-    consumers_[id] = widget;
-    widget->show();
-    widget->setConsumer(consumer);
+    if (consumer->metadata().get_attribute("visible").get_bool() != item.visible)
+      consumer->set_attribute(Setting::boolean("visible", item.visible));
+
+    size_t group = consumer->metadata().get_attribute("window_group").get_int();
+    if (item.visible && (group != 0u))
+    {
+      visible_groups.insert(group);
+      continue;
+    }
+
+    if (consumers_.count(id) && !item.visible)
+    {
+      consumers_[id]->parentWidget()->close();
+      consumers_.remove(id);
+    }
+    else if (!consumers_.count(id) && item.visible)
+    {
+      AbstractConsumerWidget* consumer_widget;
+      if (consumer->dimensions() == 0)
+        consumer_widget = new ConsumerScalar();
+      else if (consumer->dimensions() == 1)
+        consumer_widget = new Consumer1D();
+      else if (consumer->dimensions() == 2)
+        consumer_widget = new Consumer2D();
+      else
+        return;
+
+      consumer_widget->setAttribute(Qt::WA_DeleteOnClose);
+      connect(consumer_widget, SIGNAL(destroyed(QObject * )),
+              this, SLOT(consumerWidgetDestroyed(QObject * )));
+      auto w = ui->area->addSubWindow(consumer_widget);
+      w->setContentsMargins(0, 0, 0, 0);
+      consumers_[id] = consumer_widget;
+      consumer_widget->show();
+      consumer_widget->setConsumer(consumer);
+    }
   }
+
+  bool groups_changed = false;
+  for (const auto& g : groups_)
+  {
+    auto id = g->group();
+    if (!visible_groups.count(id))
+    {
+      groups_[id]->parentWidget()->close();
+      groups_.remove(id);
+      groups_changed = true;
+    }
+  }
+
+  for (auto g : visible_groups)
+  {
+    if (!groups_.contains(g))
+    {
+      auto* consumer_widget = new ConsumerMulti1D();
+      consumer_widget->setAttribute(Qt::WA_DeleteOnClose);
+      connect(consumer_widget, SIGNAL(destroyed(QObject * )),
+              this, SLOT(groupWidgetDestroyed(QObject * )));
+      auto w = ui->area->addSubWindow(consumer_widget);
+      w->setContentsMargins(0, 0, 0, 0);
+      groups_[g] = consumer_widget;
+      consumer_widget->show();
+      consumer_widget->set_project(project_, g);
+      groups_changed = true;
+    }
+  }
+
+  if ((consumers_.size() != initial_consumers) || groups_changed)
+    enforce_tile_policy();
 }
 
 void ProjectView::selectorItemDoubleclicked(SelectorItem /*item*/)
@@ -207,8 +260,14 @@ void ProjectView::updateUI()
     else
       color = Qt::black;
 
+    size_t group = md.get_attribute("window_group").get_int();
+
     SelectorItem consumer_item;
-    consumer_item.text = QS(md.get_attribute("name").get_text());
+    if (group != 0u)
+      consumer_item.text = "[" + QString::number(group) + "] ";
+    else
+      consumer_item.text = "";
+    consumer_item.text += QS(md.get_attribute("name").get_text());
     consumer_item.data = QVariant::fromValue(i++);
     consumer_item.color = color;
     consumer_item.visible = md.get_attribute("visible").triggered();
@@ -225,23 +284,19 @@ void ProjectView::updateUI()
   ui->toolDelete->setEnabled(selector_->items().size());
 }
 
-void ProjectView::enforce_all()
-{
-  auto initial = consumers_.size();
-  auto items = selector_->items();
-  for (auto it = items.rbegin(); it != items.rend(); it++)
-    enforce_item(*it);
-  if (consumers_.size() != initial)
-    enforce_tile_policy();
-}
-
 void ProjectView::update_plots()
 {
 //  Timer t(true);
   for (auto& consumer_widget : consumers_)
-    consumer_widget->update();
+    consumer_widget->update_data();
+
+  for (auto& consumer_widget : groups_)
+    consumer_widget->update_data();
 
   for (auto& consumer_widget : consumers_)
+    consumer_widget->refresh();
+
+  for (auto& consumer_widget : groups_)
     consumer_widget->refresh();
 
   selectorItemSelected(SelectorItem());
@@ -435,6 +490,26 @@ void ProjectView::consumerWidgetDestroyed(QObject* o)
     }
     else
       ++it;
+  updateUI();
+}
+
+void ProjectView::groupWidgetDestroyed(QObject* o)
+{
+
+  for (auto it = groups_.begin(); it != groups_.end();)
+    if (it.value() == o)
+    {
+      auto id = it.key();
+      for (auto& c : project_->get_consumers())
+      {
+        if (static_cast<size_t>(c->metadata().get_attribute("window_group").get_int()) == id)
+          c->set_attribute(Setting::boolean("visible", false));
+      }
+      groups_.erase(it++);
+    }
+    else
+      ++it;
+
   updateUI();
 }
 

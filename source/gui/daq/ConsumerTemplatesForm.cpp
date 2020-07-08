@@ -1,13 +1,13 @@
 #include <gui/daq/ConsumerTemplatesForm.h>
-#include "ui_ConsumerTemplatesForm.h"
+#include <daquiri_autogen/include/ui_ConsumerTemplatesForm.h>
 
 #include <gui/daq/ConsumerDialog.h>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
 #include <QCloseEvent>
-#include <core/project.h>
-#include <core/consumer_factory.h>
+#include <core/Project.h>
+#include <core/ConsumerFactory.h>
 #include <gui/widgets/QFileExtensions.h>
 
 using namespace DAQuiri;
@@ -164,6 +164,7 @@ void ConsumerTemplatesForm::loadSettings()
   ui->checkAskSaveProject->setChecked(settings.value("ask_save_project", true).toBool());
   auto idx = ui->comboRestart->findData(settings.value("on_restart", "ask"));
   ui->comboRestart->setCurrentIndex(idx);
+  ui->spinDefaultLineThickness->setValue(settings.value("default_1d_thickness", 1).toInt());
   settings.endGroup();
 }
 
@@ -174,6 +175,7 @@ void ConsumerTemplatesForm::saveSettings()
   settings.setValue("autosave_daq", ui->checkAutosaveDAQ->isChecked());
   settings.setValue("ask_save_project", ui->checkAskSaveProject->isChecked());
   settings.setValue("on_restart", ui->comboRestart->currentData());
+  settings.setValue("default_1d_thickness", ui->spinDefaultLineThickness->value());
   settings.endGroup();
 }
 

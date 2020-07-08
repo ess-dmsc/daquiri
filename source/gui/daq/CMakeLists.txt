@@ -2,6 +2,7 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
   ${dir}/Consumer1D.cpp
+  ${dir}/ConsumerMulti1D.cpp
   ${dir}/Consumer2D.cpp
   ${dir}/ConsumerDialog.cpp
   ${dir}/ConsumerScalar.cpp
@@ -22,6 +23,7 @@ set(UI
 set(HEADERS
   ${dir}/AbstractConsumerWidget.h
   ${dir}/Consumer1D.h
+  ${dir}/ConsumerMulti1D.h
   ${dir}/Consumer2D.h
   ${dir}/ConsumerDialog.h
   ${dir}/ConsumerScalar.h

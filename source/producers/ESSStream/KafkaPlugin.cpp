@@ -1,5 +1,6 @@
 #include <producers/ESSStream/KafkaPlugin.h>
 #include <core/util/logger.h>
+#include <cstdlib>
 
 namespace Kafka {
 
@@ -54,9 +55,19 @@ using namespace DAQuiri;
 
 KafkaConfigPlugin::KafkaConfigPlugin()
 {
+  /// Load settings from environment variables
+  getEnvironmentSettings();
+
+  /// Add a notification if environment is used
+  std::string BrokerText;
+  if (EnvironmentSettings.KafkaBrokerName != "") {
+    BrokerText = " !! env override: " + EnvironmentSettings.KafkaBrokerName + "!!";
+  }
+
   std::string r {plugin_name()};
 
-  SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL");
+  /// Populate UI with text
+  SettingMeta broker(r + "/KafkaBroker", SettingType::text, "Kafka broker URL" + BrokerText);
   broker.set_flag("preset");
   add_definition(broker);
 
@@ -76,6 +87,13 @@ KafkaConfigPlugin::KafkaConfigPlugin()
   root.set_enum(i++, r + "/KafkaTimeout");
   root.set_enum(i++, r + "/KafkaDecomission");
   add_definition(root);
+}
+
+void KafkaConfigPlugin::getEnvironmentSettings() {
+  auto var = getenv("DAQUIRI_KAFKA_BROKER");
+  if (var != nullptr) {
+    EnvironmentSettings.KafkaBrokerName = var;
+  }
 }
 
 Setting KafkaConfigPlugin::settings() const
@@ -122,9 +140,13 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
     return nullptr;
   }
 
-  std::string error_str;
+  auto Broker = EnvironmentSettings.KafkaBrokerName == "" ?
+       kafka_broker_name_ : EnvironmentSettings.KafkaBrokerName;
 
-  conf->set("metadata.broker.list", kafka_broker_name_, error_str);
+  DBG("used broker name %s\n", Broker.c_str());
+
+  std::string error_str;
+  conf->set("metadata.broker.list", Broker, error_str);
   conf->set("message.max.bytes", "10000000", error_str);
   conf->set("fetch.message.max.bytes", "10000000", error_str);
   conf->set("replica.fetch.max.bytes", "10000000", error_str);

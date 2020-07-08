@@ -1,5 +1,5 @@
 #include <gui/SettingsForm.h>
-#include "ui_SettingsForm.h"
+#include <daquiri_autogen/include/ui_SettingsForm.h>
 
 #include <gui/ProfilesForm.h>
 #include <gui/Profiles.h>
@@ -7,7 +7,7 @@
 #include <gui/widgets/qt_util.h>
 
 #include <core/util/json_file.h>
-#include <core/producer_factory.h>
+#include <core/ProducerFactory.h>
 
 #include <QPlot/GradientSelector.h>
 #include <QMessageBox>
@@ -291,8 +291,12 @@ void SettingsForm::on_checkShowRO_clicked()
   tree_settings_model_.update(settings_tree_);
 }
 
+/// \brief Key event in main window
+/// Toggles the Boot/Reset button text when pushed, then either
+/// boots or shuts down (if already running)
 void SettingsForm::on_bootButton_clicked()
 {
+  INFO("Boot/Reset button clicked");
   if (ui->bootButton->text() == "Boot")
   {
     Profiles::singleton().auto_boot(true);

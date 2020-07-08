@@ -3,7 +3,7 @@
 #include <gui/widgets/SettingDelegate.h>
 #include <gui/SettingsTreeModel.h>
 #include <gui/ThreadRunner.h>
-#include <core/detector.h>
+#include <core/Detector.h>
 
 #include <QWidget>
 #include <QCloseEvent>

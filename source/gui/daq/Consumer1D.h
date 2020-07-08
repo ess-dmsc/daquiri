@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractConsumerWidget.h"
+#include <gui/daq/AbstractConsumerWidget.h>
 #include <QPlot/QPlot1D.h>
 
 class Consumer1D : public AbstractConsumerWidget
@@ -10,7 +10,7 @@ class Consumer1D : public AbstractConsumerWidget
  public:
   Consumer1D(QWidget* parent = 0);
 
-  void update() override;
+  void update_data() override;
   void refresh() override;
 
  private slots:

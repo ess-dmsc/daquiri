@@ -1,21 +1,21 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/time_base.cpp
-  ${dir}/time_stamp.cpp
-  ${dir}/event_model.cpp
-  ${dir}/event.cpp
-  ${dir}/detector.cpp
-  ${dir}/spill.cpp
-  ${dir}/spill_deque.cpp
-  ${dir}/dataspace.cpp
-  ${dir}/consumer_metadata.cpp
-  ${dir}/consumer.cpp
-  ${dir}/consumer_factory.cpp
-  ${dir}/producer.cpp
-  ${dir}/producer_factory.cpp
-  ${dir}/project.cpp
-  ${dir}/engine.cpp
+  ${dir}/TimeBaseTest.cpp
+  ${dir}/TimeStampTest.cpp
+  ${dir}/EventModelTest.cpp
+  ${dir}/EventTest.cpp
+  ${dir}/DetectorTest.cpp
+  ${dir}/SpillTest.cpp
+  ${dir}/SpillDequeTest.cpp
+  ${dir}/DataspaceTest.cpp
+  ${dir}/ConsumerMetadataTest.cpp
+  ${dir}/ConsumerTest.cpp
+  ${dir}/ConsumerFactoryTest.cpp
+  ${dir}/ProducerTest.cpp
+  ${dir}/ProducerFactoryTest.cpp
+  ${dir}/ProjectTest.cpp
+  ${dir}/EngineTest.cpp
   )
 
 add_subdirectory(util)

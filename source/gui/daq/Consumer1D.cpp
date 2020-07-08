@@ -1,8 +1,8 @@
-#include "Consumer1D.h"
+#include <gui/daq/Consumer1D.h>
 #include <QVBoxLayout>
 #include <QPlot/QHist.h>
 
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 #include <core/util/logger.h>
 
@@ -20,7 +20,11 @@ Consumer1D::Consumer1D(QWidget *parent)
 
   plot_->setSizePolicy(QSizePolicy::MinimumExpanding,
                        QSizePolicy::MinimumExpanding);
-  plot_->setLineThickness(2);
+
+  QSettings settings;
+  settings.beginGroup("DAQ_behavior");
+  plot_->setLineThickness(settings.value("default_1d_thickness", 1).toInt());
+
   connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel(QWheelEvent*)));
   connect(plot_, SIGNAL(zoomedOut()), this, SLOT(zoomedOut()));
 
@@ -32,7 +36,7 @@ Consumer1D::Consumer1D(QWidget *parent)
   setLayout(fl);
 }
 
-void Consumer1D::update()
+void Consumer1D::update_data()
 {
   if (!plot_
       || !consumer_
@@ -92,7 +96,14 @@ void Consumer1D::update()
     plot_->replotExtras();
   }
 
-  plot_->setAxisLabels(QS(axis.label()), "count");
+  // Get axis name alias (defined in Spectrum.cpp) and us that as axis
+  // label if it has been configured
+  std::string customAxisLabel =  md.get_attribute("alt_axis_name").get_text();
+  if (customAxisLabel.size() != 0) {
+    plot_->setAxisLabels(QS(customAxisLabel), "count");
+  } else {
+    plot_->setAxisLabels(QS(axis.label()), "count");
+  }
 
   std::string new_label = md.get_attribute("name").get_text();
   setWindowTitle(QS(new_label).trimmed());
@@ -146,5 +157,5 @@ void Consumer1D::clickedPlot(double x, double y, Qt::MouseButton button)
   marker.visible = (button == Qt::MouseButton::LeftButton);
   //&& (x >= 0) && (x < x_domain.size());
 
-  update();
+  update_data();
 }

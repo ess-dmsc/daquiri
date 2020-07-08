@@ -213,6 +213,7 @@ void ThreadRunner::do_refresh_settings()
     start(HighPriority);
 }
 
+/// \brief DAQ thread, started by QThread start() method
 void ThreadRunner::run()
 {
   while (!terminating_.load())
@@ -222,6 +223,7 @@ void ThreadRunner::run()
 
     if (action_ == kAcquire)
     {
+      INFO("<ThreadRunner::run()> - action: Acquire");
       engine_.get_all_settings();
       emit settingsUpdated(engine_.settings(),
                            status_before_run(),
@@ -254,6 +256,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kAddProducer)
     {
+      INFO("<ThreadRunner::run()> - action: AddProducer");
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.branches.add_a(one_setting_);
@@ -262,6 +265,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kRemoveProducer)
     {
+      INFO("<ThreadRunner::run()> - action: RemoveProducer");
       engine_.get_all_settings();
       auto tree = engine_.settings();
       tree.erase(one_setting_, Match::id | Match::value);
@@ -270,6 +274,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kBoot)
     {
+      INFO("<ThreadRunner::run()> - action: Boot");
       engine_.boot();
       emit bootComplete();
       action_ = kSettingsRefresh;
@@ -281,6 +286,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kPushSettings)
     {
+      INFO("<ThreadRunner::run()> - action: PushSettings");
       engine_.settings(tree_);
       action_ = kSettingsRefresh;
     }
@@ -298,6 +304,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kSettingsRefresh)
     {
+      INFO("<ThreadRunner::run()> - action: SettingsRefresh");
       engine_.get_all_settings();
       action_ = kNone;
       emit settingsUpdated(engine_.settings(),

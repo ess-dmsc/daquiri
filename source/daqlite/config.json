@@ -1,0 +1,26 @@
+{
+  "kafka" : {
+    "broker" : "172.17.5.38:9092",
+    "topic" : "NMX_detector",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 256,
+    "ydim" : 256,
+    "zdim" : 1
+  },
+
+  "plot": {
+    "title" : "Daquiri Light - NMX - 172.17.5.38 (256 x 256)",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 5,
+    "interpolate_pixels" : false,
+    "invert_gradient" : false
+  }
+}

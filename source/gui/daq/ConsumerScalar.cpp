@@ -1,7 +1,7 @@
-#include "ConsumerScalar.h"
+#include <gui/daq/ConsumerScalar.h>
 #include <QVBoxLayout>
 
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 #include <QPlot/KnightRiderWidget.h>
 #include <QPlot/GradientSelector.h>
@@ -35,7 +35,7 @@ ConsumerScalar::ConsumerScalar(QWidget* parent)
 //  setContentsMargins(0, 0, 0, 0);
 }
 
-void ConsumerScalar::update()
+void ConsumerScalar::update_data()
 {
   if (!consumer_
       || (consumer_->dimensions() != 0))

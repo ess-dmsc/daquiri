@@ -2,7 +2,7 @@
 #include <math.h>
 #include <limits>
 
-#include <widgets/PatternWidget.h>
+#include <gui/widgets/PatternWidget.h>
 #include <core/util/logger.h>
 
 
@@ -118,7 +118,7 @@ void PatternWidget::paint(QPainter *painter, const QRect &rect,
         if (pattern_[flag])
           painter->setBrush(on_color);
         else
-          painter->setBrush(palette.background());
+          painter->setBrush(palette.window());
 
         painter->drawEllipse(inner);
 
@@ -182,5 +182,3 @@ void PatternWidget::wheelEvent(QWheelEvent *event)
   }
   event->accept();
 }
-
-

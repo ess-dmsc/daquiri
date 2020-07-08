@@ -1,9 +1,9 @@
-#include "daquiri.h"
+#include <gui/daquiri.h>
 #include <consumers/consumers_autoreg.h>
 #include <producers/producers_autoreg.h>
 #include <QApplication>
 #include <QCommandLineParser>
-#include "Profiles.h"
+#include <gui/Profiles.h>
 
 int main(int argc, char *argv[])
 {

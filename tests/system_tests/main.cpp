@@ -1,4 +1,4 @@
-#include <core/engine.h>
+#include <core/Engine.h>
 
 #include <core/util/logger.h>
 #include <core/util/lexical_extensions.h>
@@ -6,10 +6,10 @@
 #include <consumers/consumers_autoreg.h>
 #include <producers/producers_autoreg.h>
 
-#include <core/producer_factory.h>
-#include <core/consumer_factory.h>
+#include <core/ProducerFactory.h>
+#include <core/ConsumerFactory.h>
 
-#include <core/util/timer.h>
+#include <core/util/Timer.h>
 
 #include <core/util/h5json.h>
 
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
   INFO("Acquired:\n{}", ss1.str());
 
-//  DBG << "Loaded:\n" << ss2.str();
+  //INFO("Loaded:\n{}", ss2.str());
 
 //  std::ofstream ofs1("ss1.txt", std::ofstream::out | std::ofstream::trunc);
 //  ofs1 << ss1.str();
@@ -127,8 +127,7 @@ int main(int argc, char** argv)
 //  std::ofstream ofs2("ss2.txt", std::ofstream::out | std::ofstream::trunc);
 //  ofs2 << ss2.str();
 
-  if (ss1.str() != ss2.str())
-  {
+  if (ss1.str() != ss2.str()) {
     INFO("Saved project not identical to original!");
     return EXIT_FAILURE;
   }

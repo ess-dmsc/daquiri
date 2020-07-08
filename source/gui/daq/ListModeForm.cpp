@@ -1,9 +1,9 @@
 #include <gui/daq/ListModeForm.h>
-#include "ui_ListModeForm.h"
+#include <daquiri_autogen/include/ui_ListModeForm.h>
 
 #include <gui/widgets/qt_util.h>
 #include <core/util/lexical_extensions.h>
-#include <core/consumer_factory.h>
+#include <core/ConsumerFactory.h>
 
 #include <QSettings>
 #include <QMessageBox>

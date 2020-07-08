@@ -5,7 +5,7 @@
 
 #include <QMainWindow>
 #include <QStreamBuffer.h>
-#include <core/producer.h>
+#include <core/Producer.h>
 
 #include <core/util/logger.h>
 

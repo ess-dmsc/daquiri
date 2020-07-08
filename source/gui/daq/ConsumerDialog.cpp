@@ -1,13 +1,14 @@
-#include "ConsumerDialog.h"
-#include "ui_ConsumerDialog.h"
+#include <gui/daq/ConsumerDialog.h>
+#include <daquiri_autogen/include/ui_ConsumerDialog.h>
+
 #include <core/util/logger.h>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <core/consumer_factory.h>
-//#include "dialog_detector.h"
+#include <core/ConsumerFactory.h>
+//#include "dialog_Detector.h"
 
-#include <widgets/qt_util.h>
-#include <widgets/QColorExtensions.h>
+#include <gui/widgets/qt_util.h>
+#include <gui/widgets/QColorExtensions.h>
 
 #include <QPlot/GradientSelector.h>
 

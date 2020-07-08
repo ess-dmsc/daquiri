@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/plugin/plugin.h>
+#include <core/plugin/Plugin.h>
 
 #pragma GCC diagnostic push
 #if defined(__GNUC__) && (__GNUC__ >= 7)
@@ -73,6 +73,14 @@ class KafkaConfigPlugin : public DAQuiri::Plugin
     uint16_t kafka_decomission_wait_{5000};
 
     static std::string random_string( size_t length );
+
+    /// \brief load daquiri settings from environment variables
+    void getEnvironmentSettings();
+
+    // Environment overrides
+    struct  EnvironmentSettings_t {
+      std::string KafkaBrokerName;
+    } EnvironmentSettings;
 };
 
 

@@ -1,12 +1,12 @@
 #include <gui/daq/ProjectForm.h>
-#include "ui_ProjectForm.h"
+#include <daquiri_autogen/include/ui_ProjectForm.h>
 
 #include <gui/Profiles.h>
 #include <gui/widgets/QFileExtensions.h>
 #include <gui/daq/ConsumerTemplatesForm.h>
 
-#include <core/consumer_factory.h>
-#include <core/util/timer.h>
+#include <core/ConsumerFactory.h>
+#include <core/util/Timer.h>
 
 #include <QSettings>
 #include <QMessageBox>
@@ -46,7 +46,7 @@ ProjectForm::ProjectForm(ThreadRunner& thread,
   if (!project_)
     project_ = ProjectPtr(new Project());
   plot_thread_.monitor_source(project_);
-  ui->projectView->setSpectra(project_);
+  ui->projectView->set_project(project_);
 //  ui->projectView->setDetDB(detectors_);
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
   connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
@@ -207,7 +207,7 @@ void ProjectForm::clearGraphs() //rename this
 {
   project_->clear();
   newProject();
-  ui->projectView->setSpectra(project_); //wrong!!!!
+  ui->projectView->set_project(project_); //wrong!!!!
   project_->activate();
 }
 
@@ -413,12 +413,13 @@ void ProjectForm::on_pushEditSpectra_clicked()
                                 profile_dir_,
                                 this);
   newDialog->exec();
-  ui->projectView->setSpectra(project_);
+  ui->projectView->set_project(project_);
   update_plots();
 }
 
 void ProjectForm::on_pushStop_clicked()
 {
+  INFO("<GUI> pushStop button clicked ");
   ui->pushStop->setEnabled(false);
   interruptor_.store(true);
 }
@@ -445,6 +446,8 @@ void ProjectForm::run_completed()
 
 void ProjectForm::on_pushStart_clicked()
 {
+  INFO("<GUI> pushStart button clicked ");
+  /// If already running, restart
   if (my_run_)
   {
     restarting_ = true;
@@ -490,7 +493,7 @@ void ProjectForm::start_DAQ()
   ui->pushStop->setEnabled(true);
 
   my_run_ = true;
-  ui->projectView->setSpectra(project_);
+  ui->projectView->set_project(project_);
   uint64_t duration = ui->timeDuration->total_seconds();
   if (ui->toggleIndefiniteRun->isChecked())
     duration = 0;
@@ -499,12 +502,12 @@ void ProjectForm::start_DAQ()
 
 void ProjectForm::newProject()
 {
-  ui->projectView->setSpectra(project_);
+  ui->projectView->set_project(project_);
 }
 
 void ProjectForm::on_pushForceRefresh_clicked()
 {
-  ui->projectView->setSpectra(project_);
+  ui->projectView->set_project(project_);
   update_plots();
 }
 

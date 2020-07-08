@@ -2,7 +2,7 @@
 
 #include <QDialog>
 #include <core/util/time_extensions.h>
-#include <widgets/qt_util.h>
+#include <gui/widgets/qt_util.h>
 
 
 namespace Ui {

@@ -1,5 +1,6 @@
-#include "TimeDurationWidget.h"
-#include "ui_TimeDurationWidget.h"
+#include <gui/widgets/TimeDurationWidget.h>
+#include <daquiri_autogen/include/ui_TimeDurationWidget.h>
+
 #include <date/date.h>
 
 #include <core/util/logger.h>

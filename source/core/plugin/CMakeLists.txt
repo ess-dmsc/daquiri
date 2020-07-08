@@ -1,18 +1,18 @@
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES
-  ${dir}/plugin.cpp
-  ${dir}/setting.cpp
-  ${dir}/setting_metadata.cpp
+  ${dir}/Plugin.cpp
+  ${dir}/Setting.cpp
+  ${dir}/SettingMeta.cpp
   )
 
 set(HEADERS
-  ${dir}/container.h
-  ${dir}/pattern.h
-  ${dir}/plugin.h
-  ${dir}/precise_float.h
-  ${dir}/setting.h
-  ${dir}/setting_metadata.h
+  ${dir}/Container.h
+  ${dir}/Pattern.h
+  ${dir}/Plugin.h
+  ${dir}/PreciseFloat.h
+  ${dir}/Setting.h
+  ${dir}/SettingMeta.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)
