@@ -62,6 +62,6 @@ target_link_libraries(
   QPlot
   QtColorWidgets-Qt52
   Qt5::Widgets
-  Qt5::PrintSupport
+  #Qt5::PrintSupport
   Qt5::Network
 )
