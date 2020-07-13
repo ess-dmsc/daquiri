@@ -248,6 +248,45 @@
         </spacer>
        </item>
        <item>
+        <widget class="QToolButton" name="toolTile">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>35</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>35</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Apply for all</string>
+         </property>
+         <property name="text">
+          <string>Tiling</string>
+         </property>
+         <property name="icon">
+          <iconset theme="view_split_left_right.png">
+           <normalon>:/icons/oxy/16/view_split_left_right.png</normalon>
+          </iconset>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="popupMode">
+          <enum>QToolButton::InstantPopup</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushEditSpectra">
          <property name="minimumSize">
           <size>

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <daquiri_autogen/include/ui_ProjectView.h>
 #include <core/Project.h>
 
 #include <gui/widgets/SelectorWidget.h>
@@ -32,8 +33,17 @@ class ProjectView : public QWidget
 
   void update_plots();
 
+  QMdiArea* getPlotArea() { return ui->area; }
+
 //  protected:
 //    void closeEvent(QCloseEvent*);
+
+public slots:
+  /// \brief moved to public so they can be used from ProjectForm.cpp too
+  void tile_free();
+  void tile_grid();
+  void tile_horizontal();
+  void tile_vertical();
 
  private slots:
   void selectorItemToggled(SelectorItem);
@@ -49,11 +59,6 @@ class ProjectView : public QWidget
   void deleteSelected();
   void deleteShown();
   void deleteHidden();
-
-  void tile_free();
-  void tile_grid();
-  void tile_horizontal();
-  void tile_vertical();
 
   void consumerWidgetDestroyed(QObject*);
   void groupWidgetDestroyed(QObject*);

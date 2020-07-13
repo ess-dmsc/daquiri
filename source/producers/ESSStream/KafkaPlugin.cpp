@@ -153,7 +153,7 @@ Kafka::ConsumerPtr KafkaConfigPlugin::subscribe_topic(std::string topic) const
   conf->set("group.id", random_string(16), error_str);
   conf->set("enable.auto.commit", "false", error_str);
   conf->set("enable.auto.offset.store", "false", error_str);
-  conf->set("offset.store.method", "none", error_str);
+  // conf->set("offset.store.method", "none", error_str); // deprecated
   //  conf->set("auto.offset.reset", "largest", error_str);
   //  conf->set("session.timeout.ms", "10000", error_str);
   //  conf->set("api.version.request", "true", error_str);

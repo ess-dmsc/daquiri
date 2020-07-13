@@ -304,7 +304,7 @@ void ThreadRunner::run()
     }
     else if (action_ == kSettingsRefresh)
     {
-      INFO("<ThreadRunner::run()> - action: SettingsRefresh");
+      //INFO("<ThreadRunner::run()> - action: SettingsRefresh");
       engine_.get_all_settings();
       action_ = kNone;
       emit settingsUpdated(engine_.settings(),

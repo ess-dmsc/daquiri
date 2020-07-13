@@ -1,4 +1,5 @@
 #include <gui/daq/ProjectForm.h>
+#include <gui/daq/ProjectView.h>
 #include <daquiri_autogen/include/ui_ProjectForm.h>
 
 #include <gui/Profiles.h>
@@ -51,8 +52,20 @@ ProjectForm::ProjectForm(ThreadRunner& thread,
   connect(&runner_thread_, SIGNAL(runComplete()), this, SLOT(run_completed()));
   connect(&plot_thread_, SIGNAL(plot_ready()), this, SLOT(update_plots()));
 
-  loadSettings();
 
+  /// \brief Add tiling drop down menu
+  menuTiling.addAction(QIcon(), "Free-for-all",
+                       ui->projectView, SLOT(tile_free()));
+  menuTiling.addAction(QIcon(":/icons/blank16.png"), "Tile grid",
+                       ui->projectView, SLOT(tile_grid()));
+  menuTiling.addAction(QIcon(":/icons/oxy/16/view_split_left_right.png"), "Tile horizontal",
+                       ui->projectView, SLOT(tile_horizontal()));
+  menuTiling.addAction(QIcon(":/icons/oxy/16/view_split_top_bottom.png"), "Tile vertical",
+                       ui->projectView, SLOT(tile_vertical()));
+  ui->toolTile->setMenu(&menuTiling);
+  /// End tiling drop down
+
+  loadSettings();
   on_pushForceRefresh_clicked();
 }
 

@@ -66,6 +66,7 @@ class ProjectForm : public QWidget
   Ui::ProjectForm* ui;
   QMenu menuLoad;
   QMenu menuSave;
+  QMenu menuTiling; /// Tiling mode drop down menu
   hr_time_t opened_{std::chrono::system_clock::now()};
 
   ThreadRunner& runner_thread_;
