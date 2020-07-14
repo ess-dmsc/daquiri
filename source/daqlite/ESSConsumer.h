@@ -26,7 +26,7 @@ public:
 
   /// \brief initial checks for kafka error messages
   /// \return true if message contains data, false otherwise
-  bool handleMessage(RdKafka::Message *message, void *opaque);
+  bool handleMessage(RdKafka::Message *message);
 
   /// \brief histograms the event pixelids and ignores TOF
   uint32_t processEV42Data(RdKafka::Message *Msg);

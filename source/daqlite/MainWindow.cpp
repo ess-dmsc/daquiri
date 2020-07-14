@@ -55,7 +55,7 @@ void MainWindow::setupLayout() {
 }
 
 void MainWindow::startKafkaConsumerThread() {
-  KafkaConsumerThread = new WorkerThread(this, mConfig);
+  KafkaConsumerThread = new WorkerThread(mConfig);
   qRegisterMetaType<int>("int&");
   connect(KafkaConsumerThread, &WorkerThread::resultReady, this,
           &MainWindow::handleKafkaData);

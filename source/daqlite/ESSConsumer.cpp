@@ -84,10 +84,7 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     return PixelIds->size();
 }
 
-bool ESSConsumer::handleMessage(RdKafka::Message *Message, void *Opaque) {
-  size_t MessageOffset;
-  size_t MessageLength;
-
+bool ESSConsumer::handleMessage(RdKafka::Message *Message) {
   mKafkaStats.MessagesRx++;
 
   switch (Message->err()) {
