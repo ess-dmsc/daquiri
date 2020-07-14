@@ -95,5 +95,7 @@
         <file>blank16.png</file>
         <file>fonts/Ruben.ttf</file>
         <file>fonts/SF_Fedora_Titles.ttf</file>
+        <file>kafka.png</file>
+        <file>kafka16.png</file>
     </qresource>
 </RCC>

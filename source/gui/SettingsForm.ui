@@ -58,11 +58,11 @@
         </size>
        </property>
        <property name="text">
-        <string>Boot</string>
+        <string>Connect</string>
        </property>
        <property name="icon">
         <iconset resource="resources/daquiri.qrc">
-         <normaloff>:/icons/boot16.png</normaloff>:/icons/boot16.png</iconset>
+         <normaloff>:/icons/kafka16.png</normaloff>:/icons/kafka16.png</iconset>
        </property>
        <property name="iconSize">
         <size>

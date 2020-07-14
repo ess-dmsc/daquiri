@@ -235,15 +235,15 @@ void SettingsForm::toggle_push(bool enable, ProducerStatus status, StreamManifes
 
   if (online)
   {
-    ui->bootButton->setText("Reset");
-    ui->bootButton->setToolTip("Reset");
+    ui->bootButton->setText("Disconnect");
+    ui->bootButton->setToolTip("Disconnect from Kafka");
     ui->bootButton->setIcon(QIcon(":/icons/oxy/16/start.png"));
   }
   else
   {
-    ui->bootButton->setText("Boot");
-    ui->bootButton->setToolTip("Reset");
-    ui->bootButton->setIcon(QIcon(":/icons/boot16.png"));
+    ui->bootButton->setText("Connect");
+    ui->bootButton->setToolTip("Connect to Kafka");
+    ui->bootButton->setIcon(QIcon(":/icons/kafka16.png"));
   }
 
   current_status_ = status;

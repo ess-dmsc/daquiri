@@ -18,8 +18,8 @@ ProfileDialog::ProfileDialog(QString description, QWidget *parent)
   setWindowTitle("Profile actions");
 
   /// \todo confusing: we have both bootButton and buttonBoot in this Qt project
-  QPushButton *buttonBoot = new QPushButton("Boot", this);
-  buttonBoot->setIcon(QIcon(":/icons/boot16.png"));
+  QPushButton *buttonBoot = new QPushButton("Connect", this);
+  buttonBoot->setIcon(QIcon(":/icons/kafka16.png"));
   connect(buttonBoot, SIGNAL(clicked()), this, SLOT(clickedBoot()));
 
   QPushButton *buttonLoad = new QPushButton("Load", this);
