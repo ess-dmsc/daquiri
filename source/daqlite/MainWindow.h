@@ -1,25 +1,23 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
-//===----------------------------------------------------------------------===//
-///
-/// \file MainWindow.h
-///
-/// \brief Defines the Qt GUI
-///
-/// Also links together plotting, consumer thread and config data
-//===----------------------------------------------------------------------===//
-
-#pragma once
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
-#include <QMainWindow>
 #include <WorkerThread.h>
+#include <QMainWindow>
 
-class MainWindow : public QWidget {
-  Q_OBJECT
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
 
 public:
-  MainWindow(Configuration &Config);
+  MainWindow(Configuration &Config, QWidget *parent = nullptr);
+  ~MainWindow();
+
 
   // Create GUI layout
   void setupLayout();
@@ -32,6 +30,8 @@ public slots:
   void handleKafkaData(int i);
 
 private:
+  Ui::MainWindow *ui;
+
   /// \brief
   Custom2DPlot *Plot2D;
 
@@ -41,3 +41,4 @@ private:
   /// \brief
   WorkerThread *KafkaConsumerThread;
 };
+#endif // MAINWINDOW_H

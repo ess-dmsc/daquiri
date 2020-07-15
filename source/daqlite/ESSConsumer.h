@@ -36,9 +36,12 @@ public:
   static std::string randomGroupString(size_t length);
 
 
-  // Histogram(s)
+  // Histogram(s) and counts
   std::vector<uint32_t> mHistogramPlot;
   std::vector<uint32_t> mHistogram;
+  uint64_t mCountsPlot{0};
+  uint64_t mCounts{0};
+
 
 private:
   RdKafka::Conf *mConf;
@@ -62,5 +65,4 @@ private:
 
 
   uint32_t mMaxPixel{0}; /// \brief Number of pixels
-  uint64_t mCounts{0}; /// \brief Number of counts in mHistogram
 };

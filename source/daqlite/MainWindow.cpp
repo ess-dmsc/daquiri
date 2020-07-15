@@ -1,57 +1,30 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
-//===----------------------------------------------------------------------===//
-///
-/// \file MainWindow.cpp
-///
-//===----------------------------------------------------------------------===//
-
 #include <MainWindow.h>
-#include <QWidget>
+#include "ui_MainWindow.h"
 
-MainWindow::MainWindow(Configuration &Config) : mConfig(Config) {
-  Plot2D = new Custom2DPlot(mConfig);
-  setupLayout();
-  show();
-  startKafkaConsumerThread();
+MainWindow::MainWindow(Configuration &Config, QWidget *parent)
+    : mConfig(Config)
+    , QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    Plot2D = new Custom2DPlot(mConfig);
+    setupLayout();
+    show();
+    startKafkaConsumerThread();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
 void MainWindow::setupLayout() {
   setWindowTitle("Daquiri lite");
   resize(600, 500);
 
-  // main vertical layout
-  QVBoxLayout *pMainLayout = new QVBoxLayout(this);
-  setLayout(pMainLayout);
+  ui->gridLayout->addWidget(Plot2D, 0, 0);
 
-  // first sub layouts
-  QHBoxLayout *pTopHBox = new QHBoxLayout;
-  pMainLayout->addLayout(pTopHBox);
-
-  QHBoxLayout *pBtnHBox = new QHBoxLayout;
-  pMainLayout->addLayout(pBtnHBox);
-
-  // create the group box
-  QGroupBox *plotBox = new QGroupBox(this);
-  plotBox->setTitle(mConfig.Plot.Title.c_str());
-
-  // create the layout for the plotBox
-  QGridLayout *plotLayout = new QGridLayout;
-
-  plotLayout->addWidget(Plot2D, 0, 0);
-  if (mConfig.Geometry.ZDim > 1) {
-    auto plot2 = new Custom2DPlot(mConfig);
-    plotLayout->addWidget(plot2, 0, 1);
-  }
-  plotBox->setLayout(plotLayout);
-  pTopHBox->addWidget(plotBox);
-
-  // create the button area
-  QPushButton *pBtn = new QPushButton(QObject::tr("Quit"), this);
-  pBtnHBox->addWidget(pBtn);
-  pBtnHBox->addItem(
-      new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-  connect(pBtn, SIGNAL(clicked()), this, SLOT(handleExitButton()));
+  connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
 }
 
 void MainWindow::startKafkaConsumerThread() {

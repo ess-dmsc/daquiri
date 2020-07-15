@@ -23,10 +23,12 @@ void WorkerThread::run() {
     std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
     if (elapsed.count() >= 1000000000) {
       Consumer->mHistogramPlot = Consumer->mHistogram;
+      Consumer->mCountsPlot = Consumer->mCounts;
 
       emit resultReady(i);
       i += 1;
 
+      Consumer->mCounts = 0;
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
       t1 = std::chrono::high_resolution_clock::now();
     }

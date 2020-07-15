@@ -21,12 +21,17 @@ set(${this_target}_headers
   WorkerThread.h
   )
 
+set(${this_target}_ui
+  MainWindow.ui
+  )
+
 set(CMAKE_AUTOUIC ON)
 
 add_executable(
   ${this_target}
   ${${this_target}_sources}
   ${${this_target}_headers}
+  ${${this_target}_ui}
 )
 
 target_link_libraries(

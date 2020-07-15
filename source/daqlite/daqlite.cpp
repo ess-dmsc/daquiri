@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     Config.fromJsonFile(FileName);
   }
 
-  MainWindow DaquiriLite(Config);
+  MainWindow w(Config);
 
   return app.exec();
 }
