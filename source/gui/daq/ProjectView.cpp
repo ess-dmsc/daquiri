@@ -1,5 +1,4 @@
 #include <gui/daq/ProjectView.h>
-#include <daquiri_autogen/include/ui_ProjectView.h>
 
 #include <gui/daq/ConsumerScalar.h>
 #include <gui/daq/Consumer1D.h>
@@ -47,6 +46,7 @@ ProjectView::ProjectView(QWidget* parent) :
                          this, SLOT(deleteHidden()));
   ui->toolDelete->setMenu(&delete_menu_);
 
+  /// \brief drop down tiling menu
   tile_menu_.addAction(QIcon(), "Free-for-all",
                        this, SLOT(tile_free()));
   tile_menu_.addAction(QIcon(":/icons/blank16.png"), "Tile grid",

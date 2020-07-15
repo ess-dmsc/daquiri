@@ -40,14 +40,14 @@
      <item>
       <widget class="QPushButton" name="bootButton">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>130</width>
          <height>25</height>
         </size>
        </property>
@@ -58,11 +58,11 @@
         </size>
        </property>
        <property name="text">
-        <string>Boot</string>
+        <string>Connect</string>
        </property>
        <property name="icon">
         <iconset resource="resources/daquiri.qrc">
-         <normaloff>:/icons/boot16.png</normaloff>:/icons/boot16.png</iconset>
+         <normaloff>:/icons/kafka16.png</normaloff>:/icons/kafka16.png</iconset>
        </property>
        <property name="iconSize">
         <size>

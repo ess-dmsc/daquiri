@@ -233,17 +233,12 @@ void SettingsForm::toggle_push(bool enable, ProducerStatus status, StreamManifes
   ui->bootButton->setEnabled(enable);
   //  ui->pushOptimizeAll->setEnabled(enable && (online || offline));
 
-  if (online)
-  {
-    ui->bootButton->setText("Reset");
-    ui->bootButton->setToolTip("Reset");
-    ui->bootButton->setIcon(QIcon(":/icons/oxy/16/start.png"));
-  }
-  else
-  {
-    ui->bootButton->setText("Boot");
-    ui->bootButton->setToolTip("Reset");
-    ui->bootButton->setIcon(QIcon(":/icons/boot16.png"));
+  if (online) {
+    ui->bootButton->setText("Disconnect");
+    ui->bootButton->setToolTip("Disconnect from Kafka");
+  } else {
+    ui->bootButton->setText("Connect");
+    ui->bootButton->setToolTip("Connect to Kafka");
   }
 
   current_status_ = status;
@@ -297,7 +292,7 @@ void SettingsForm::on_checkShowRO_clicked()
 void SettingsForm::on_bootButton_clicked()
 {
   INFO("Boot/Reset button clicked");
-  if (ui->bootButton->text() == "Boot")
+  if (ui->bootButton->text() == "Connect")
   {
     Profiles::singleton().auto_boot(true);
     emit toggleIO(false);

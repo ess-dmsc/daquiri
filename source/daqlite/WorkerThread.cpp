@@ -17,7 +17,7 @@ void WorkerThread::run() {
     auto Msg = Consumer->consume();
 
     /// \todo return counts so we can calculate count rates
-    bool HasData = Consumer->handleMessage(Msg, nullptr);
+    Consumer->handleMessage(Msg);
 
     t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;

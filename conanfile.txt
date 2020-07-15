@@ -1,7 +1,7 @@
 [requires]
 CLI11/1.8.0@cliutils/stable
 date/4b46deb@ess-dmsc/stable
-Eigen3/3.2.9@bilke/stable
+eigen/3.3.7@conan/stable
 fmt/5.2.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
 h5cpp/0.3.3@ess-dmsc/stable

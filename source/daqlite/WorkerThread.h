@@ -20,7 +20,7 @@ class WorkerThread : public QThread {
   Q_OBJECT
 
 public:
-  WorkerThread(QObject *parent, Configuration &Config) : mConfig(Config) {
+  WorkerThread(Configuration &Config) : mConfig(Config) {
     Consumer = new ESSConsumer(Config);
   };
 
