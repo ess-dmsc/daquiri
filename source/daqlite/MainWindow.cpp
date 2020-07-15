@@ -4,8 +4,7 @@
 MainWindow::MainWindow(Configuration &Config, QWidget *parent)
     : mConfig(Config)
     , QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
+    , ui(new Ui::MainWindow) {
     ui->setupUi(this);
     Plot2D = new Custom2DPlot(mConfig);
     setupLayout();
@@ -13,14 +12,15 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
     startKafkaConsumerThread();
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }
 
 void MainWindow::setupLayout() {
   setWindowTitle("Daquiri lite");
-  resize(600, 500);
+
+  ui->labelDescription->setText(mConfig.Plot.Title.c_str());
+  ui->labelEventRate->setText("0");
 
   ui->gridLayout->addWidget(Plot2D, 0, 0);
 
@@ -29,15 +29,16 @@ void MainWindow::setupLayout() {
 
 void MainWindow::startKafkaConsumerThread() {
   KafkaConsumerThread = new WorkerThread(mConfig);
-  qRegisterMetaType<int>("int&");
+  qRegisterMetaType<int>("uint64_t&");
   connect(KafkaConsumerThread, &WorkerThread::resultReady, this,
           &MainWindow::handleKafkaData);
   KafkaConsumerThread->start();
 }
 
 // SLOT
-void MainWindow::handleKafkaData(int i) {
-  Plot2D->addData(i, KafkaConsumerThread->consumer()->mHistogramPlot);
+void MainWindow::handleKafkaData(int EventRate) {
+  ui->labelEventRate->setText(QString::number(EventRate));
+  Plot2D->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
 }
 
 // SLOT

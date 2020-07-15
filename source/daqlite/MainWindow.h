@@ -27,7 +27,7 @@ public:
 
 public slots:
   void handleExitButton();
-  void handleKafkaData(int i);
+  void handleKafkaData(int EventRate);
 
 private:
   Ui::MainWindow *ui;

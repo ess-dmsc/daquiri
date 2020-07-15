@@ -33,7 +33,7 @@ public:
   ESSConsumer * consumer() { return Consumer; }
 
 signals:
-  void resultReady(int &val);
+  void resultReady(uint64_t &val);
 
 private:
   /// \brief configuration obtained from main()
