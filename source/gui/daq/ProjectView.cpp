@@ -30,6 +30,9 @@ ProjectView::ProjectView(QWidget* parent) :
   connect(selector_, SIGNAL(itemToggled(SelectorItem)), this, SLOT(selectorItemToggled(SelectorItem)));
   connect(selector_, SIGNAL(itemDoubleclicked(SelectorItem)), this, SLOT(selectorItemDoubleclicked(SelectorItem)));
 
+  /// \brief communicate rate to ProjectForm
+  connect(this, SIGNAL(updateRate(int)), parent, SLOT(updateRate(int)));
+
   colors_menu_.addAction(QIcon(":/icons/show16.png"), "Show all",
                          this, SLOT(showAll()));
   colors_menu_.addAction(QIcon(":/icons/hide16.png"), "Hide all",
@@ -238,6 +241,7 @@ void ProjectView::selectorItemSelected(SelectorItem /*item*/)
 
   ui->labelSpectrumInfo->setText(infoText);
   ui->pushFullInfo->setEnabled(true);
+  emit updateRate(rate_total);
 }
 
 void ProjectView::updateUI()

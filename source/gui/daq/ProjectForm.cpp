@@ -553,3 +553,9 @@ bool ProjectForm::running() const
 {
   return !interruptor_.load();
 }
+
+// SLOT
+// When notified from ProjectView update the rate
+void ProjectForm::updateRate(int Rate) {
+    ui->labelRate->setText(QString::number(Rate));
+}

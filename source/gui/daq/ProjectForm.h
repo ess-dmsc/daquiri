@@ -40,6 +40,9 @@ class ProjectForm : public QWidget
   void start_DAQ();
   void on_pushStop_clicked();
 
+  /// \brief slot used to get Rate from ProjectView
+  void updateRate(int Rate);
+
  private slots:
   void on_pushStart_clicked();
   void run_completed();
