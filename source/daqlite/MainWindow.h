@@ -1,5 +1,12 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+//===----------------------------------------------------------------------===//
+///
+/// \file MainWindow.h
+///
+/// Main (and only) window for daqlite
+//===----------------------------------------------------------------------===//
+
+#pragma once
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
@@ -17,10 +24,6 @@ class MainWindow : public QMainWindow
 public:
   MainWindow(Configuration &Config, QWidget *parent = nullptr);
   ~MainWindow();
-
-
-  // Create GUI layout
-  void setupLayout();
 
   /// \brief spin up a thread for consuming topic
   void startKafkaConsumerThread();
@@ -41,4 +44,3 @@ private:
   /// \brief
   WorkerThread *KafkaConsumerThread;
 };
-#endif // MAINWINDOW_H
