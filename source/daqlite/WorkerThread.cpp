@@ -9,7 +9,6 @@
 #include <chrono>
 
 void WorkerThread::run() {
-  int i = 0;
 
   auto t2 = std::chrono::high_resolution_clock::now();
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -21,12 +20,14 @@ void WorkerThread::run() {
 
     t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
-    if (elapsed.count() >= 1000000000) {
+    if (elapsed.count() >= 1000000000ULL) {
       Consumer->mHistogramPlot = Consumer->mHistogram;
+      Consumer->mCountsPlot = Consumer->mCounts;
 
-      emit resultReady(i);
-      i += 1;
+      uint64_t Rate = (uint64_t)((Consumer->mCounts * 1000000000ULL)/elapsed.count());
+      emit resultReady(Rate);
 
+      Consumer->mCounts = 0;
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
       t1 = std::chrono::high_resolution_clock::now();
     }

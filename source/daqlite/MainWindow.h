@@ -3,35 +3,38 @@
 ///
 /// \file MainWindow.h
 ///
-/// \brief Defines the Qt GUI
-///
-/// Also links together plotting, consumer thread and config data
+/// Main (and only) window for daqlite
 //===----------------------------------------------------------------------===//
 
 #pragma once
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
-#include <QMainWindow>
 #include <WorkerThread.h>
+#include <QMainWindow>
 
-class MainWindow : public QWidget {
-  Q_OBJECT
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
 
 public:
-  MainWindow(Configuration &Config);
-
-  // Create GUI layout
-  void setupLayout();
+  MainWindow(Configuration &Config, QWidget *parent = nullptr);
+  ~MainWindow();
 
   /// \brief spin up a thread for consuming topic
   void startKafkaConsumerThread();
 
 public slots:
   void handleExitButton();
-  void handleKafkaData(int i);
+  void handleKafkaData(int EventRate);
 
 private:
+  Ui::MainWindow *ui;
+
   /// \brief
   Custom2DPlot *Plot2D;
 

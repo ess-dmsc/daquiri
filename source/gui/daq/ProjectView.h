@@ -38,6 +38,9 @@ class ProjectView : public QWidget
 //  protected:
 //    void closeEvent(QCloseEvent*);
 
+signals:
+  void updateRate(int Rate);
+
 public slots:
   /// \brief moved to public so they can be used from ProjectForm.cpp too
   void tile_free();

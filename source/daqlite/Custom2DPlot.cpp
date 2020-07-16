@@ -42,7 +42,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
   mColorMap->setColorScale(mColorScale);
   mColorMap->setInterpolate(mConfig.Plot.Interpolate);
   mColorMap->setTightBoundary(false);
-  mColorScale->axis()->setLabel("Runtime"); // not change in colorMap too
+  mColorScale->axis()->setLabel("Counts");
 
   // set the color gradient of the color map to one of the presets:
   QCPColorGradient Gradient(QCPColorGradient::gpPolar);
@@ -67,9 +67,6 @@ Custom2DPlot::Custom2DPlot(Configuration &Config) : mConfig(Config) {
 }
 
 void Custom2DPlot::plotDetectorImage(int count) {
-
-  std::string LabelRuntime = "Runtime " + std::to_string(count);
-  mColorScale->axis()->setLabel(LabelRuntime.c_str());
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
   for (unsigned int i = 1; i < HistogramData.size(); i++) {
