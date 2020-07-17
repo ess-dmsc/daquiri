@@ -23,7 +23,7 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   ui->gridLayout->addWidget(Plot2D, 0, 0);
 
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
-  setupLayout();
+  
   show();
   startKafkaConsumerThread();
 }
