@@ -16,11 +16,14 @@
 class Custom2DPlot : public QCustomPlot {
 public:
   /// \brief plot needs the configurable plotting options
-  Custom2DPlot(Configuration &Config);
+  Custom2DPlot(Configuration &Config, int Projection);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
   void addData(int phase, std::vector<uint32_t> & Histogram);
+
+  /// \brief Support for different gradients
+  QCPColorGradient getColorGradient(std::string GradientName);
 
 private:
   /// \brief updates the image
@@ -37,6 +40,21 @@ private:
 
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry * LogicalGeometry;
+
+  // 0 = (x,y), 1 = (x,z), 2 = (y,z)
+  int mProjection{0};
+
+  std::map<std::string, QCPColorGradient> mGradients {
+    {"hot", QCPColorGradient::gpHot},
+    {"grayscale", QCPColorGradient::gpGrayscale},
+    {"cold", QCPColorGradient::gpCold},
+    {"night", QCPColorGradient::gpNight},
+    {"candy", QCPColorGradient::gpCandy},
+    {"geography", QCPColorGradient::gpGeography},
+    {"ion", QCPColorGradient::gpIon},
+    {"thermal", QCPColorGradient::gpThermal},
+    {"polar", QCPColorGradient::gpPolar}
+  };
 
   /// \brief reference time for periodic clearing of histogram
   std::chrono::time_point<std::chrono::high_resolution_clock> t1;

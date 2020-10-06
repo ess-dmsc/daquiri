@@ -48,7 +48,9 @@ public:
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
     bool Interpolate{false};
+    std::string ColorGradient{"hot"};
     bool InvertGradient{false};
+    bool LogScale{false};
     std::string Title;
   } Plot;
 };

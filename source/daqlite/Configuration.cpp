@@ -18,7 +18,9 @@ void Configuration::print() {
   fmt::print("  Clear periodically {}\n", Plot.ClearPeriodic);
   fmt::print("  Clear inerval (s) {}\n", Plot.ClearEverySeconds);
   fmt::print("  Interpolate image {}\n", Plot.Interpolate);
+  fmt::print("  Color gradient {}\n", Plot.ColorGradient);
   fmt::print("  Invert gradient {}\n", Plot.InvertGradient);
+  fmt::print("  Log Scale {}\n", Plot.LogScale);
   fmt::print("  Title {}\n", Plot.Title);
 }
 
@@ -47,6 +49,8 @@ void Configuration::fromJsonFile(std::string fname)
   Plot.ClearPeriodic = j["plot"]["clear_periodic"];
   Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
   Plot.Interpolate = j["plot"]["interpolate_pixels"];
+  Plot.ColorGradient = j["plot"]["color_gradient"];
   Plot.InvertGradient = j["plot"]["invert_gradient"];
+  Plot.LogScale = j["plot"]["log_scale"];
   Plot.Title = j["plot"]["title"];
 }

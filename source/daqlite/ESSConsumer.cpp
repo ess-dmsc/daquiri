@@ -13,7 +13,8 @@
 
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
-  mMaxPixel = mConfig.Geometry.XDim * mConfig.Geometry.YDim;
+  auto & geom = mConfig.Geometry;
+  mMaxPixel = geom.XDim * geom.YDim * geom.YDim;
   assert(mMaxPixel != 0);
   mHistogram.resize(mMaxPixel);
 
@@ -74,10 +75,11 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     }
 
     for (const uint32_t & Pixel : *PixelIds) {
-      if (Pixel >= mMaxPixel) {
+      if (Pixel > mMaxPixel) {
         printf("Error: invalid pixel id: %d > %d\n", Pixel, mMaxPixel);
         exit(0);
       }
+      // printf("pixel value %d\n", Pixel);
       mHistogram[Pixel]++;
     }
     mCounts += PixelIds->size();

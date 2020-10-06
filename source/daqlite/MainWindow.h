@@ -36,7 +36,9 @@ private:
   Ui::MainWindow *ui;
 
   /// \brief
-  Custom2DPlot *Plot2D;
+  Custom2DPlot *Plot2DXY; // xy plots
+  Custom2DPlot *Plot2DXZ; // xz plots
+  Custom2DPlot *Plot2DYZ; // yz plots
 
   /// \brief configuration obtained from main()
   Configuration mConfig;
