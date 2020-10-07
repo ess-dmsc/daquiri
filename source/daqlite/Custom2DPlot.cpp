@@ -20,7 +20,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
   HistogramData.resize(
-    LogicalGeometry->nx() * LogicalGeometry->ny() * LogicalGeometry->ny() + 1);
+    LogicalGeometry->nx() * LogicalGeometry->ny() * LogicalGeometry->nz() + 1);
 
   // this will also allow rescaling the color scale by dragging/zooming
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
