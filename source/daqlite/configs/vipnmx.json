@@ -17,7 +17,7 @@
   },
 
   "plot": {
-    "title" : "Daquiri Light - NMX - 172.30.242.20 (256 x 256)",
+    "title" : "NMX - 172.30.242.20 (256 x 256)",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,

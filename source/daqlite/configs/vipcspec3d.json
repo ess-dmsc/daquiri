@@ -17,7 +17,7 @@
   },
 
   "plot": {
-    "title" : "Daquiri Light - CSPEC 3D - 172.30.242.20 (36 x 40 x 20)",
+    "title" : "CSPEC 3D - 172.30.242.20 (36 x 40 x 20)",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,

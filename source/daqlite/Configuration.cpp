@@ -16,7 +16,7 @@ void Configuration::print() {
   fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
   fmt::print("[Plot]\n");
   fmt::print("  Clear periodically {}\n", Plot.ClearPeriodic);
-  fmt::print("  Clear inerval (s) {}\n", Plot.ClearEverySeconds);
+  fmt::print("  Clear interval (s) {}\n", Plot.ClearEverySeconds);
   fmt::print("  Interpolate image {}\n", Plot.Interpolate);
   fmt::print("  Color gradient {}\n", Plot.ColorGradient);
   fmt::print("  Invert gradient {}\n", Plot.InvertGradient);
@@ -29,28 +29,38 @@ void Configuration::fromJsonFile(std::string fname)
   std::ifstream ifs(fname, std::ofstream::in);
   nlohmann::json j;
   if (!ifs.good()) {
-    throw("Invalid configuration file, exiting ...");
+    throw("Invalid json configuration file, exiting ...");
   }
   ifs >> j;
 
-  /// \todo is there a smarter way?
-  Geometry.XDim = j["geometry"]["xdim"];
-  Geometry.YDim = j["geometry"]["ydim"];
-  Geometry.ZDim = j["geometry"]["zdim"];
+  /// Only geoometry, broker and topic are required
+  try {
+    Geometry.XDim = j["geometry"]["xdim"];
+    Geometry.YDim = j["geometry"]["ydim"];
+    Geometry.ZDim = j["geometry"]["zdim"];
 
-  Kafka.Broker = j["kafka"]["broker"];
-  Kafka.Topic = j["kafka"]["topic"];
-  Kafka.MessageMaxBytes = j["kafka"]["message.max.bytes"];
-  Kafka.FetchMessagMaxBytes = j["kafka"]["fetch.message.max.bytes"];
-  Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
-  Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
-  Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
+    Kafka.Broker = j["kafka"]["broker"];
+    Kafka.Topic = j["kafka"]["topic"];
+  } catch (...) {
+    throw std::runtime_error("Error in, or missing 'geometry/kafka' configuration");
+  }
 
-  Plot.ClearPeriodic = j["plot"]["clear_periodic"];
-  Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
-  Plot.Interpolate = j["plot"]["interpolate_pixels"];
-  Plot.ColorGradient = j["plot"]["color_gradient"];
-  Plot.InvertGradient = j["plot"]["invert_gradient"];
-  Plot.LogScale = j["plot"]["log_scale"];
-  Plot.Title = j["plot"]["title"];
+  try {
+    Kafka.MessageMaxBytes = j["kafka"]["message.max.bytes"];
+    Kafka.FetchMessagMaxBytes = j["kafka"]["fetch.message.max.bytes"];
+    Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
+    Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
+    Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
+
+    Plot.ClearPeriodic = j["plot"]["clear_periodic"];
+    Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
+    Plot.Interpolate = j["plot"]["interpolate_pixels"];
+    Plot.ColorGradient = j["plot"]["color_gradient"];
+    Plot.InvertGradient = j["plot"]["invert_gradient"];
+    Plot.LogScale = j["plot"]["log_scale"];
+    Plot.Title = j["plot"]["title"];
+  } catch (...) {
+    fmt::print("Noncritical error in configuration - using default values\n");
+  }
+  print();
 }

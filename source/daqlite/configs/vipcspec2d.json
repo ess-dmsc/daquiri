@@ -17,7 +17,7 @@
   },
 
   "plot": {
-    "title" : "Daquiri Light - CSPEC 2D - 172.30.242.20 (36 x 800)",
+    "title" : "CSPEC 2D - 172.30.242.20 (36 x 800)",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,
