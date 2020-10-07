@@ -14,7 +14,7 @@
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   auto & geom = mConfig.Geometry;
-  mMaxPixel = geom.XDim * geom.YDim * geom.YDim;
+  mMaxPixel = geom.XDim * geom.YDim * geom.ZDim;
   assert(mMaxPixel != 0);
   mHistogram.resize(mMaxPixel);
 

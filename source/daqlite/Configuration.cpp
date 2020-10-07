@@ -33,18 +33,25 @@ void Configuration::fromJsonFile(std::string fname)
   }
   ifs >> j;
 
-  /// Only geoometry, broker and topic are required
+  /// 'geometry' field is mandatory
   try {
     Geometry.XDim = j["geometry"]["xdim"];
     Geometry.YDim = j["geometry"]["ydim"];
     Geometry.ZDim = j["geometry"]["zdim"];
+  } catch (...) {
+    throw std::runtime_error("Config error: invalid 'geometry' field");
+  }
 
+  /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified
+  try {
     Kafka.Broker = j["kafka"]["broker"];
     Kafka.Topic = j["kafka"]["topic"];
   } catch (...) {
-    throw std::runtime_error("Error in, or missing 'geometry/kafka' configuration");
+    throw std::runtime_error("Config error in 'kafka' field: missing/bad values of broker or topic");
   }
 
+  /// The rest are optional, so we just use default values if there is an
+  /// invalid/missing configuration
   try {
     Kafka.MessageMaxBytes = j["kafka"]["message.max.bytes"];
     Kafka.FetchMessagMaxBytes = j["kafka"]["fetch.message.max.bytes"];
