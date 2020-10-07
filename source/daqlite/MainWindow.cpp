@@ -14,16 +14,25 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   , mConfig(Config) {
 
   ui->setupUi(this);
-  Plot2D = new Custom2DPlot(mConfig);
   setWindowTitle("Daquiri lite");
+
+
+  // Always create the XY plot
+  Plot2DXY = new Custom2DPlot(mConfig, 0);
+  ui->gridLayout->addWidget(Plot2DXY, 0, 0);
+  // If detector is 3D, also create XZ and YZ
+  if (Config.Geometry.ZDim > 1) {
+    Plot2DXZ = new Custom2DPlot(mConfig, 1);
+    ui->gridLayout->addWidget(Plot2DXZ, 0, 1);
+    Plot2DYZ = new Custom2DPlot(mConfig, 2);
+    ui->gridLayout->addWidget(Plot2DYZ, 0, 2);
+  }
 
   ui->labelDescription->setText(mConfig.Plot.Title.c_str());
   ui->labelEventRate->setText("0");
 
-  ui->gridLayout->addWidget(Plot2D, 0, 0);
-
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
-  
+
   show();
   startKafkaConsumerThread();
 }
@@ -43,7 +52,11 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->labelEventRate->setText(QString::number(EventRate));
-  Plot2D->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+  Plot2DXY->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+  if (mConfig.Geometry.ZDim > 1) {
+    Plot2DXZ->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+    Plot2DYZ->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+  }
 }
 
 // SLOT
