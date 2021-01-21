@@ -44,6 +44,9 @@ private:
   // 0 = (x,y), 1 = (x,z), 2 = (y,z)
   int mProjection{0};
 
+
+  // See colors here
+  // https://www.qcustomplot.com/documentation/classQCPColorGradient.html
   std::map<std::string, QCPColorGradient> mGradients {
     {"hot", QCPColorGradient::gpHot},
     {"grayscale", QCPColorGradient::gpGrayscale},
@@ -53,7 +56,10 @@ private:
     {"geography", QCPColorGradient::gpGeography},
     {"ion", QCPColorGradient::gpIon},
     {"thermal", QCPColorGradient::gpThermal},
-    {"polar", QCPColorGradient::gpPolar}
+    {"polar", QCPColorGradient::gpPolar},
+    {"spectrum", QCPColorGradient::gpSpectrum},
+    {"jet", QCPColorGradient::gpJet},
+    {"hues", QCPColorGradient::gpHues}
   };
 
   /// \brief reference time for periodic clearing of histogram

@@ -1,7 +1,7 @@
 {
   "kafka" : {
-    "broker" : "172.17.5.38:9092",
-    "topic" : "FREIA_detector",
+    "broker" : "172.30.242.20:9092",
+    "topic" : "LOKI_detector",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
@@ -11,18 +11,18 @@
   },
 
   "geometry" : {
-    "xdim" : 640,
-    "ydim" : 3840,
+    "xdim" : 512,
+    "ydim" : 56,
     "zdim" : 1
   },
 
   "plot": {
-    "title" : "FREIA",
+    "title" : "LOKI",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,
-    "color_gradient" : "hot",
-    "invert_gradient" : true,
-    "log_scale" : true
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : true 
   }
 }
