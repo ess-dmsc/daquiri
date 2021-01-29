@@ -30,6 +30,7 @@ public:
 
 public slots:
   void handleExitButton();
+  void handleClearButton();
   void handleKafkaData(int EventRate);
 
 private:

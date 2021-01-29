@@ -32,6 +32,7 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   ui->labelEventRate->setText("0");
 
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
+  connect(ui->pushButtonClear, SIGNAL(clicked()), this, SLOT(handleClearButton()));
 
   show();
   startKafkaConsumerThread();
@@ -61,3 +62,11 @@ void MainWindow::handleKafkaData(int EventRate) {
 
 // SLOT
 void MainWindow::handleExitButton() { QApplication::quit(); }
+
+void MainWindow::handleClearButton() {
+  Plot2DXY->clearDetectorImage();
+  if (mConfig.Geometry.ZDim > 1) {
+    Plot2DXZ->clearDetectorImage();
+    Plot2DYZ->clearDetectorImage();
+  }
+}

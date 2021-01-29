@@ -95,9 +95,9 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="pushButtonQuit">
+      <widget class="QPushButton" name="pushButtonClear">
        <property name="text">
-        <string>Quit</string>
+        <string>Clear</string>
        </property>
       </widget>
      </item>
@@ -113,6 +113,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonQuit">
+       <property name="text">
+        <string>Quit</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

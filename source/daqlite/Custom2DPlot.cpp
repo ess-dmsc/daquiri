@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
+#include <algorithm>
 
 Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   mConfig(Config), mProjection(Projection) {
@@ -114,6 +115,11 @@ QCPColorGradient Custom2DPlot::getColorGradient(std::string GradientName) {
 }
 
 
+void Custom2DPlot::clearDetectorImage() {
+  std::fill(HistogramData.begin(), HistogramData.end(), 0);
+  addData(0, HistogramData);
+}
+
 void Custom2DPlot::plotDetectorImage(int count) {
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
@@ -138,7 +144,7 @@ void Custom2DPlot::plotDetectorImage(int count) {
 
   // rescale the data dimension (color) such that all data points lie in the
   // span visualized by the color gradient:
-  mColorMap->rescaleDataRange();
+  mColorMap->rescaleDataRange(true);
 
   replot();
 }
@@ -148,7 +154,9 @@ void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
   std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
-  if (mConfig.Plot.ClearPeriodic and ((unsigned)elapsed.count() >= 1000000000ULL * mConfig.Plot.ClearEverySeconds)) {
+  //
+  uint64_t nsBetweenClear = 1000000000ULL * mConfig.Plot.ClearEverySeconds;
+  if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= nsBetweenClear)) {
     std::fill(HistogramData.begin(), HistogramData.end(), 0);
     t1 = std::chrono::high_resolution_clock::now();
   }
