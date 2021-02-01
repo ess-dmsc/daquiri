@@ -19,10 +19,10 @@
   "plot": {
     "title" : "LOKI",
     "clear_periodic" : false,
-    "clear_interval_seconds" : 5,
+    "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
     "color_gradient" : "spectrum",
     "invert_gradient" : false,
-    "log_scale" : true 
+    "log_scale" : true
   }
 }

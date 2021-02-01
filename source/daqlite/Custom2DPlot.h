@@ -25,9 +25,14 @@ public:
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
 
+  /// \brief clears histogram data
+  void clearDetectorImage();
+
 private:
   /// \brief updates the image
   void plotDetectorImage(int count);
+
+
 
   // QCustomPlot variables
   QCPColorScale *mColorScale{nullptr};
