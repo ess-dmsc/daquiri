@@ -25,6 +25,12 @@ public:
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
 
+  /// \brief update plot based on (possibly dynamic) config settings
+  void setCustomParameters();
+
+  /// \brief rotate through gradient names
+  std::string getNextColorGradient(std::string GradientName);
+
   /// \brief clears histogram data
   void clearDetectorImage();
 
