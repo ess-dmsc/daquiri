@@ -87,7 +87,7 @@ void MainWindow::handleLogButton() {
   mConfig.Plot.LogScale = not mConfig.Plot.LogScale;
 }
 
-// toggle the invert gradion flag
+// toggle the invert gradient flag
 void MainWindow::handleInvertButton() {
   mConfig.Plot.InvertGradient = not mConfig.Plot.InvertGradient;
   updateGradientLabel();
