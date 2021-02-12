@@ -74,16 +74,11 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   mColorMap->setTightBoundary(false);
   mColorScale->axis()->setLabel("Counts");
 
-  // set the color gradient of the color map to one of the presets:
-  QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
 
-  if (mConfig.Plot.InvertGradient) {
-     Gradient = Gradient.inverted();
-  }
-  mColorMap->setGradient(Gradient);
-  if (mConfig.Plot.LogScale) {
-    mColorMap->setDataScaleType(QCPAxis::stLogarithmic);
-  }
+
+  setCustomParameters();
+
+
 
   // make sure the axis rect and color scale synchronize their bottom and top
   // margins (so they line up):
@@ -97,6 +92,22 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   t1 = std::chrono::high_resolution_clock::now();
 }
 
+
+void Custom2DPlot::setCustomParameters() {
+  // set the color gradient of the color map to one of the presets:
+  QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
+
+  if (mConfig.Plot.InvertGradient) {
+     Gradient = Gradient.inverted();
+  }
+
+  mColorMap->setGradient(Gradient);
+  if (mConfig.Plot.LogScale) {
+    mColorMap->setDataScaleType(QCPAxis::stLogarithmic);
+  } else {
+    mColorMap->setDataScaleType(QCPAxis::stLinear);
+  }
+}
 
 // Try the user supplied gradient name, then fall back to 'hot' and
 // provide a list of options
@@ -114,6 +125,27 @@ QCPColorGradient Custom2DPlot::getColorGradient(std::string GradientName) {
   }
 }
 
+std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
+  bool SaveFirst{true};
+  bool SaveNext{false};
+  std::string RetVal;
+
+  for (auto & Gradient : mGradients) {
+    if (SaveFirst) {
+      RetVal = Gradient.first;
+      SaveFirst = false;
+    }
+    if (SaveNext) {
+      RetVal = Gradient.first;
+      SaveNext = false;
+    }
+    if (Gradient.first == GradientName) {
+      SaveNext = true;
+    }
+  }
+  return RetVal;
+}
+
 
 void Custom2DPlot::clearDetectorImage() {
   std::fill(HistogramData.begin(), HistogramData.end(), 0);
@@ -121,6 +153,9 @@ void Custom2DPlot::clearDetectorImage() {
 }
 
 void Custom2DPlot::plotDetectorImage(int count) {
+
+  setCustomParameters();
+
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
   for (unsigned int i = 1; i < HistogramData.size(); i++) {

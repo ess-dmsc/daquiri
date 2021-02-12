@@ -33,6 +33,9 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
 
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
   connect(ui->pushButtonClear, SIGNAL(clicked()), this, SLOT(handleClearButton()));
+  connect(ui->pushButtonLog, SIGNAL(clicked()), this, SLOT(handleLogButton()));
+  connect(ui->pushButtonGradient, SIGNAL(clicked()), this, SLOT(handleGradientButton()));
+  connect(ui->pushButtonInvert, SIGNAL(clicked()), this, SLOT(handleInvertButton()));
 
   show();
   startKafkaConsumerThread();
@@ -69,4 +72,28 @@ void MainWindow::handleClearButton() {
     Plot2DXZ->clearDetectorImage();
     Plot2DYZ->clearDetectorImage();
   }
+}
+
+void MainWindow::updateGradientLabel() {
+  if (mConfig.Plot.InvertGradient)
+    ui->labelGradient->setText(QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
+  else
+    ui->labelGradient->setText(QString::fromStdString(mConfig.Plot.ColorGradient));
+
+}
+
+// toggle the log scale flag
+void MainWindow::handleLogButton() {
+  mConfig.Plot.LogScale = not mConfig.Plot.LogScale;
+}
+
+// toggle the invert gradient flag
+void MainWindow::handleInvertButton() {
+  mConfig.Plot.InvertGradient = not mConfig.Plot.InvertGradient;
+  updateGradientLabel();
+}
+
+void MainWindow::handleGradientButton() {
+  mConfig.Plot.ColorGradient = Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
+  updateGradientLabel();
 }

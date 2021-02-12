@@ -1,0 +1,28 @@
+{
+  "kafka" : {
+    "broker" : "172.17.5.38:9092",
+    "topic" : "DREAM_detector",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 1288,
+    "ydim" : 256,
+    "zdim" : 1
+  },
+
+  "plot": {
+    "title" : "DREAM",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 30,
+    "interpolate_pixels" : false,
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : false
+  }
+}

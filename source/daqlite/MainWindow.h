@@ -28,9 +28,15 @@ public:
   /// \brief spin up a thread for consuming topic
   void startKafkaConsumerThread();
 
+  /// \brief update GUI label text
+  void updateGradientLabel();
+
 public slots:
   void handleExitButton();
   void handleClearButton();
+  void handleLogButton();
+  void handleGradientButton();
+  void handleInvertButton();
   void handleKafkaData(int EventRate);
 
 private:
