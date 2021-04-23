@@ -16,6 +16,7 @@ streaming-data-types/6a41aee@ess-dmsc/stable
 [generators]
 cmake
 virtualrunenv
+cmake_find_package
 
 [options]
 gtest:shared=False
