@@ -19,10 +19,8 @@ You definitely need these:
 ## Conan setup
 To avoid C++ dependency hell, we use `conan`. The following repos need to be added:
 ```
-conan remote add conancommunity https://api.bintray.com/conan/conan-community/conan
-conan remote add conan-transit https://api.bintray.com/conan/conan/conan-transit
-conan remote add ess-dmsc https://api.bintray.com/conan/ess-dmsc/conan
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+conan remote add bincrafters https://bincrafters.jfrog.io/artifactory/api/conan/public-conan
+conan remote add ecdc https://artifactoryconan.esss.dk/artifactory/api/conan/ecdc
 ```
 If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
 If said file does not exists, you are likely yet to run `conan` for the first time. Do the following to generate the above-mentioned file:
