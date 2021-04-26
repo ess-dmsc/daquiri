@@ -5,7 +5,6 @@ eigen/3.3.9
 fmt/5.2.0@bincrafters/stable
 gtest/1.10.0
 h5cpp/0.3.3@ess-dmsc/stable
-hdf5/1.10.5-dm2@ess-dmsc/stable  # override version used by h5cpp
 nlohmann_json/3.9.1
 librdkafka/1.6.0
 logical-geometry/705ea61@ess-dmsc/stable
