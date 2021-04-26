@@ -1,7 +1,7 @@
 set(this_target daqlite)
 
 include(QtLibraryConfig)
-find_package(LibRDKafka REQUIRED)
+find_package(RdKafka REQUIRED)
 find_package(qplot REQUIRED)
 
 set(${this_target}_sources
@@ -37,8 +37,8 @@ add_executable(
 target_link_libraries(
   ${this_target}
   PUBLIC fmt::fmt
-  PRIVATE ${LibRDKafka_LIBRARIES}
-  PRIVATE ${LibRDKafka_C_LIBRARIES}
+  PRIVATE RdKafka::rdkafka++
+  PRIVATE RdKafka::rdkafka
   QPlot
   QtColorWidgets-Qt52
   Qt5::Widgets

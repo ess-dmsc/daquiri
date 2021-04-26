@@ -17,7 +17,7 @@ add_executable(
 
 target_include_directories(
     ${this_target}
-    PRIVATE ${GTEST_INCLUDE_DIRS}
+    PRIVATE ${GTest_INCLUDE_DIRS}
     PRIVATE ${dir}
 )
 
@@ -25,7 +25,7 @@ target_link_libraries(
     ${this_target}
     PRIVATE ${PROJECT_NAME}_core
     PRIVATE ${PROJECT_NAME}_consumers
-    PRIVATE ${GTEST_LIBRARIES}
+    PRIVATE ${GTest_LIBRARIES}
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE ${COVERAGE_LIBRARIES}
 )

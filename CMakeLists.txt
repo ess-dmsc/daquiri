@@ -27,6 +27,8 @@ if(${CONAN} MATCHES "AUTO")
       BASIC_SETUP NO_OUTPUT_DIRS KEEP_RPATHS
       BUILD_TYPE "None"
       BUILD outdated)
+  message(STATUS "Deleting Conan-generated Findqplot.cmake to use package-provided modules")
+  file(REMOVE ${CMAKE_BINARY_DIR}/Findqplot.cmake)
 elseif(${CONAN} MATCHES "MANUAL")
   if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
