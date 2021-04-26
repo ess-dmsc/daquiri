@@ -55,13 +55,14 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "make everything -j4"
+                        sh "make everything -j8"
                     } catch (e) {
                         failure_function(e, 'MacOSX / build failed')
                     }
 
                     try {
-                        sh "tests/unit_tests && \
+                        sh ". ./activate_run.sh && \
+                            tests/unit_tests && \
                             tests/system_test && \
                             bin/gui_tests"
                     } catch (e) {
