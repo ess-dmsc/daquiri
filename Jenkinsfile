@@ -61,7 +61,8 @@ def get_macos_pipeline() {
                     }
 
                     try {
-                        sh "tests/unit_tests && \
+                        sh ". ./activate_run.sh && \
+                            tests/unit_tests && \
                             tests/system_test && \
                             bin/gui_tests"
                     } catch (e) {
