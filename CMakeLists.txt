@@ -6,6 +6,7 @@ project(daquiri
 
 set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 
 #=============================================================================
 # ensure build type first
@@ -20,12 +21,14 @@ include(EnsureBuildType)
 set(CONAN_PROFILE "default" CACHE STRING "Name of conan profile to use, uses default by default")
 set(CONAN "AUTO" CACHE STRING "conan options AUTO (conan must be in path), MANUAL (expects conanbuildinfo.cmake in build directory) or DISABLE")
 if(${CONAN} MATCHES "AUTO")
-  include(${CMAKE_MODULE_PATH}/conan.cmake)
+  include(${EXTRA_MODULES_DIR}/conan.cmake)
   conan_cmake_run(CONANFILE conanfile.txt
       PROFILE ${CONAN_PROFILE}
       BASIC_SETUP NO_OUTPUT_DIRS KEEP_RPATHS
       BUILD_TYPE "None"
       BUILD outdated)
+  message(STATUS "Deleting Conan-generated Findqplot.cmake to use package-provided modules")
+  file(REMOVE ${CMAKE_BINARY_DIR}/Findqplot.cmake)
 elseif(${CONAN} MATCHES "MANUAL")
   if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")

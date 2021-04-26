@@ -59,7 +59,7 @@ target_link_libraries(
   ${this_target}
   PUBLIC ${COVERAGE_LIBRARIES}
   PUBLIC ${GraylogLogger_STATIC_LIBRARIES}
-  PUBLIC h5cpp
+  PUBLIC h5cpp::h5cpp
   PUBLIC fmt::fmt
   PUBLIC ${DATE_LIBRARIES}
   PRIVATE Threads::Threads

@@ -2,7 +2,7 @@ set(this_target ${PROJECT_NAME}_producers)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(LibRDKafka REQUIRED)
+find_package(RdKafka REQUIRED)
 
 set(SOURCES
   ${dir}/producers_autoreg.cpp
@@ -34,8 +34,8 @@ target_include_directories(
 target_link_libraries(
   ${this_target}
   PUBLIC ${PROJECT_NAME}_core
-  PRIVATE ${LibRDKafka_LIBRARIES}
-  PRIVATE ${LibRDKafka_C_LIBRARIES}
+  PRIVATE RdKafka::rdkafka++
+  PRIVATE RdKafka::rdkafka
 )
 
 #enable_coverage(${this_target})
