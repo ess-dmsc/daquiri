@@ -49,7 +49,9 @@ def get_macos_pipeline() {
 
                 dir("${project}/build") {
                     try {
-                        sh "cmake ../code"
+                        // Remove existing CLI11 because of case insensitive filesystem issue
+                        sh "conan remove -f 'CLI11*' && \
+                            cmake ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
