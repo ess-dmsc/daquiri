@@ -20,7 +20,7 @@ cmake_find_package
 
 [options]
 gtest:shared=False
-librdkafka:shared=True
+librdkafka:shared=False
 
 [imports]
 bin, cmake -> ./bin
