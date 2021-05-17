@@ -16,20 +16,25 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   ui->setupUi(this);
   setWindowTitle("Daquiri lite");
 
+  // printf("MainWindow object name %s\n", qPrintable(this->objectName()));
 
   // Always create the XY plot
   Plot2DXY = new Custom2DPlot(mConfig, 0);
-  ui->gridLayout->addWidget(Plot2DXY, 0, 0);
+  ui->gridLayout->addWidget(Plot2DXY, 0, 0, 1, 1);
+
+  printf("Plot2DXY: width %d, height %d\n", Plot2DXY->width(), Plot2DXY->height());
+
+
   // If detector is 3D, also create XZ and YZ
   if (Config.Geometry.ZDim > 1) {
     Plot2DXZ = new Custom2DPlot(mConfig, 1);
-    ui->gridLayout->addWidget(Plot2DXZ, 0, 1);
+    ui->gridLayout->addWidget(Plot2DXZ, 0, 1, 1, 1);
     Plot2DYZ = new Custom2DPlot(mConfig, 2);
-    ui->gridLayout->addWidget(Plot2DYZ, 0, 2);
+    ui->gridLayout->addWidget(Plot2DYZ, 0, 2, 1, 1);
   }
 
-  ui->labelDescription->setText(mConfig.Plot.Title.c_str());
-  ui->labelEventRate->setText("0");
+  ui->lblDescriptionText->setText(mConfig.Plot.Title.c_str());
+  ui->lblEventRateText->setText("0");
 
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
   connect(ui->pushButtonClear, SIGNAL(clicked()), this, SLOT(handleClearButton()));
@@ -37,6 +42,7 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   connect(ui->pushButtonGradient, SIGNAL(clicked()), this, SLOT(handleGradientButton()));
   connect(ui->pushButtonInvert, SIGNAL(clicked()), this, SLOT(handleInvertButton()));
 
+  updateGradientLabel();
   show();
   startKafkaConsumerThread();
 }
@@ -55,7 +61,7 @@ void MainWindow::startKafkaConsumerThread() {
 
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
-  ui->labelEventRate->setText(QString::number(EventRate));
+  ui->lblEventRateText->setText(QString::number(EventRate));
   Plot2DXY->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
   if (mConfig.Geometry.ZDim > 1) {
     Plot2DXZ->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
@@ -76,9 +82,9 @@ void MainWindow::handleClearButton() {
 
 void MainWindow::updateGradientLabel() {
   if (mConfig.Plot.InvertGradient)
-    ui->labelGradient->setText(QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
+    ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
   else
-    ui->labelGradient->setText(QString::fromStdString(mConfig.Plot.ColorGradient));
+    ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient));
 
 }
 

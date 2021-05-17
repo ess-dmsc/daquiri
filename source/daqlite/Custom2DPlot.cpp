@@ -74,11 +74,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   mColorMap->setTightBoundary(false);
   mColorScale->axis()->setLabel("Counts");
 
-
-
   setCustomParameters();
-
-
 
   // make sure the axis rect and color scale synchronize their bottom and top
   // margins (so they line up):
@@ -91,6 +87,10 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
 
   t1 = std::chrono::high_resolution_clock::now();
 }
+
+// void Custom2DPlot::resizeEvent(QResizeEvent *event) {
+//   printf("XXX resize Event called\n");
+// }
 
 
 void Custom2DPlot::setCustomParameters() {

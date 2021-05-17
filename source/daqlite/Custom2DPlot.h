@@ -15,6 +15,8 @@
 
 class Custom2DPlot : public QCustomPlot {
 public:
+  //void resizeEvent(QResizeEvent *event);
+
   /// \brief plot needs the configurable plotting options
   Custom2DPlot(Configuration &Config, int Projection);
 

@@ -10,10 +10,40 @@
     <height>400</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>4000</width>
+    <height>4000</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>4000</width>
+     <height>4000</height>
+    </size>
+   </property>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
@@ -23,12 +53,12 @@
       <height>21</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="StatusLineTop">
      <property name="sizeConstraint">
       <enum>QLayout::SetMaximumSize</enum>
      </property>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="lblDescription">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -41,14 +71,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="labelDescription">
+      <widget class="QLabel" name="lblDescriptionText">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="lblEventRate">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -61,21 +91,21 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="labelEventRate">
+      <widget class="QLabel" name="lblEventRateText">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lblGradient">
        <property name="text">
         <string>Gradient:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="labelGradient">
+      <widget class="QLabel" name="lblGradientText">
        <property name="text">
         <string/>
        </property>
@@ -93,9 +123,9 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
-     </item>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
     </layout>
    </widget>
    <widget class="QWidget" name="horizontalLayoutWidget_3">
@@ -107,7 +137,7 @@
       <height>32</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="BottomButtonRow">
      <item>
       <widget class="QPushButton" name="pushButtonClear">
        <property name="text">
