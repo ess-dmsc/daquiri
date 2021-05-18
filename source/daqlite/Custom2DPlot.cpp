@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file Custom2DPlot.cpp
@@ -16,6 +16,9 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   mConfig(Config), mProjection(Projection) {
 
   assert((Projection >= 0) and (Projection <= 2));
+
+  connect(this, SIGNAL(mouseMove(QMouseEvent*)), this,SLOT(showPointToolTip(QMouseEvent*)));
+  setAttribute(Qt::WA_AlwaysShowToolTips);
 
   auto & geom = mConfig.Geometry;
 
@@ -198,4 +201,13 @@ void Custom2DPlot::addData(std::vector<uint32_t> & Histogram) {
   }
   plotDetectorImage(false);
   return;
+}
+
+
+// MouseOver
+void Custom2DPlot::showPointToolTip(QMouseEvent *event) {
+    int x = this->xAxis->pixelToCoord(event->pos().x());
+    int y = this->yAxis->pixelToCoord(event->pos().y());
+
+    setToolTip(QString("%1 , %2").arg(x).arg(y));
 }
