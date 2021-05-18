@@ -15,14 +15,14 @@
 
 class Custom2DPlot : public QCustomPlot {
 public:
-  //void resizeEvent(QResizeEvent *event);
+  void resizeEvent(const QResizeEvent *event);
 
   /// \brief plot needs the configurable plotting options
   Custom2DPlot(Configuration &Config, int Projection);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
-  void addData(int phase, std::vector<uint32_t> & Histogram);
+  void addData(std::vector<uint32_t> & Histogram);
 
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
@@ -38,7 +38,8 @@ public:
 
 private:
   /// \brief updates the image
-  void plotDetectorImage(int count);
+  /// \param Force forces updates of histogram data with zero count
+  void plotDetectorImage(bool Force);
 
 
 

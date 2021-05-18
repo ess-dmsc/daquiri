@@ -22,8 +22,6 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   Plot2DXY = new Custom2DPlot(mConfig, 0);
   ui->gridLayout->addWidget(Plot2DXY, 0, 0, 1, 1);
 
-  printf("Plot2DXY: width %d, height %d\n", Plot2DXY->width(), Plot2DXY->height());
-
 
   // If detector is 3D, also create XZ and YZ
   if (Config.Geometry.ZDim > 1) {
@@ -62,10 +60,10 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->lblEventRateText->setText(QString::number(EventRate));
-  Plot2DXY->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+  Plot2DXY->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
   if (mConfig.Geometry.ZDim > 1) {
-    Plot2DXZ->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
-    Plot2DYZ->addData(EventRate, KafkaConsumerThread->consumer()->mHistogramPlot);
+    Plot2DXZ->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
+    Plot2DYZ->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
   }
 }
 
