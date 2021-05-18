@@ -21,8 +21,6 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   // Always create the XY plot
   Plot2DXY = new Custom2DPlot(mConfig, 0);
   ui->gridLayout->addWidget(Plot2DXY, 0, 0, 1, 1);
-
-
   // If detector is 3D, also create XZ and YZ
   if (Config.Geometry.ZDim > 1) {
     Plot2DXZ = new Custom2DPlot(mConfig, 1);

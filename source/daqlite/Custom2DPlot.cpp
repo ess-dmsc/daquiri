@@ -148,14 +148,14 @@ void Custom2DPlot::clearDetectorImage() {
   plotDetectorImage(true);
 }
 
-void Custom2DPlot::plotDetectorImage(bool force) {
+void Custom2DPlot::plotDetectorImage(bool Force) {
 
   setCustomParameters();
 
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
   for (unsigned int i = 1; i < HistogramData.size(); i++) {
-    if ((HistogramData[i] != 0) or (force))  {
+    if ((HistogramData[i] != 0) or (Force))  {
       auto xIndex = LogicalGeometry->x(i);
       auto yIndex = LogicalGeometry->y(i);
       auto zIndex = LogicalGeometry->z(i);
