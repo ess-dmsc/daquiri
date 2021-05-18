@@ -88,19 +88,6 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   t1 = std::chrono::high_resolution_clock::now();
 }
 
-void Custom2DPlot::resizeEvent(const QResizeEvent *event) {
-  printf("Resize Event oldsize: (%d,%d) \n",
-    event->oldSize().width(),
-    event->oldSize().height());
-
-  printf("Resize Event newsize: (%d,%d) \n",
-    event->size().width(),
-    event->size().height());
-
-    resize(event->size().width(), event->size().height());
-}
-
-
 void Custom2DPlot::setCustomParameters() {
   // set the color gradient of the color map to one of the presets:
   QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
