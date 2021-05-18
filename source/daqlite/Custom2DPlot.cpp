@@ -74,11 +74,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   mColorMap->setTightBoundary(false);
   mColorScale->axis()->setLabel("Counts");
 
-
-
   setCustomParameters();
-
-
 
   // make sure the axis rect and color scale synchronize their bottom and top
   // margins (so they line up):
@@ -91,7 +87,6 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
 
   t1 = std::chrono::high_resolution_clock::now();
 }
-
 
 void Custom2DPlot::setCustomParameters() {
   // set the color gradient of the color map to one of the presets:
@@ -149,17 +144,18 @@ std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
 
 void Custom2DPlot::clearDetectorImage() {
   std::fill(HistogramData.begin(), HistogramData.end(), 0);
-  addData(0, HistogramData);
+  addData(HistogramData);
+  plotDetectorImage(true);
 }
 
-void Custom2DPlot::plotDetectorImage(int count) {
+void Custom2DPlot::plotDetectorImage(bool Force) {
 
   setCustomParameters();
 
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
   for (unsigned int i = 1; i < HistogramData.size(); i++) {
-    if (HistogramData[i] != 0) {
+    if ((HistogramData[i] != 0) or (Force))  {
       auto xIndex = LogicalGeometry->x(i);
       auto yIndex = LogicalGeometry->y(i);
       auto zIndex = LogicalGeometry->z(i);
@@ -184,7 +180,7 @@ void Custom2DPlot::plotDetectorImage(int count) {
   replot();
 }
 
-void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
+void Custom2DPlot::addData(std::vector<uint32_t> & Histogram) {
   auto t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
 
@@ -200,6 +196,6 @@ void Custom2DPlot::addData(int count, std::vector<uint32_t> & Histogram) {
   for (unsigned int i = 1; i < Histogram.size(); i++) {
     HistogramData[i] += Histogram[i];
   }
-  plotDetectorImage(count);
+  plotDetectorImage(false);
   return;
 }

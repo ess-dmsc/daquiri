@@ -20,7 +20,7 @@ public:
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
-  void addData(int phase, std::vector<uint32_t> & Histogram);
+  void addData(std::vector<uint32_t> & Histogram);
 
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
@@ -36,7 +36,8 @@ public:
 
 private:
   /// \brief updates the image
-  void plotDetectorImage(int count);
+  /// \param Force forces updates of histogram data with zero count
+  void plotDetectorImage(bool Force);
 
 
 
