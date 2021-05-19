@@ -10,6 +10,7 @@
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
+#include <CustomTofPlot.h>
 #include <WorkerThread.h>
 #include <QMainWindow>
 
@@ -41,11 +42,13 @@ public slots:
 
 private:
   Ui::MainWindow *ui;
+  bool TOF{false};
 
   /// \brief
   Custom2DPlot *Plot2DXY; // xy plots
   Custom2DPlot *Plot2DXZ; // xz plots
   Custom2DPlot *Plot2DYZ; // yz plots
+  CustomTofPlot *PlotTOF;
 
   /// \brief configuration obtained from main()
   Configuration mConfig;

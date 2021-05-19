@@ -27,6 +27,9 @@ public:
   /// \brief prints the settings
   void print();
 
+  const int MaxTofUS{50000}; // 50ms
+  const int TofBinSize{512}; // bins
+
   // Configurable options
   struct {
     int XDim{256};
@@ -45,6 +48,7 @@ public:
   } Kafka;
 
   struct {
+    std::string PlotType{"pixels"}; // "tof" is the alternative
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
     bool Interpolate{false};

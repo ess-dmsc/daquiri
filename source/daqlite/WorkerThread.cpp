@@ -22,6 +22,7 @@ void WorkerThread::run() {
     std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
     if (elapsed.count() >= 1000000000ULL) {
       Consumer->mHistogramPlot = Consumer->mHistogram;
+      Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
       Consumer->mCountsPlot = Consumer->mCounts;
 
       uint64_t Rate = (uint64_t)((Consumer->mCounts * 1000000000ULL)/elapsed.count());
@@ -29,6 +30,7 @@ void WorkerThread::run() {
 
       Consumer->mCounts = 0;
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
+      std::fill(Consumer->mHistogramTof.begin(), Consumer->mHistogramTof.end(), 0);
       t1 = std::chrono::high_resolution_clock::now();
     }
     delete Msg;

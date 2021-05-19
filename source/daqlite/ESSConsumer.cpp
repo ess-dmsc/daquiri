@@ -11,12 +11,12 @@
 #include <iostream>
 #include <unistd.h>
 
-
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   auto & geom = mConfig.Geometry;
   mMaxPixel = geom.XDim * geom.YDim * geom.ZDim;
   assert(mMaxPixel != 0);
   mHistogram.resize(mMaxPixel);
+  mHistogramTof.resize(mConfig.TofBinSize);
 
   mConsumer = subscribeTopic();
   assert(mConsumer != nullptr);
@@ -43,12 +43,6 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   mConf->set("enable.auto.commit", mConfig.Kafka.EnableAutoCommit, ErrStr);
   mConf->set("enable.auto.offset.store", mConfig.Kafka.EnableAutoOffsetStore, ErrStr);
 
-  /// \todo why are the configs below commented out?
-  /// If these are enabled REMEMBER to make them configurable
-  //  mConf->set("auto.offset.reset", "largest", ErrStr);
-  //  mConf->set("session.timeout.ms", "10000", ErrStr);
-  //  mConf->set("api.version.request", "true", ErrStr);
-
   auto ret = RdKafka::KafkaConsumer::create(mConf, ErrStr);
   if (!ret) {
     fmt::print("Failed to create consumer: {}\n", ErrStr);
@@ -74,13 +68,21 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
       return 0;
     }
 
-    for (const uint32_t & Pixel : *PixelIds) {
+    for (int i = 0; i < PixelIds->size(); i++) {
+      uint32_t Pixel = (*PixelIds)[i];
+      uint32_t Tof = (*TOFs)[i]/1000; // ns to us
+
       if (Pixel > mMaxPixel) {
         printf("Error: invalid pixel id: %d > %d\n", Pixel, mMaxPixel);
         exit(0);
       }
       // printf("pixel value %d\n", Pixel);
       mHistogram[Pixel]++;
+
+      if (Tof >= mConfig.MaxTofUS) {
+        Tof = mConfig.MaxTofUS;
+      }
+      mHistogramTof[Tof*mConfig.TofBinSize/mConfig.MaxTofUS]++;
     }
     mCounts += PixelIds->size();
     return PixelIds->size();

@@ -17,13 +17,13 @@
   },
 
   "plot": {
-    "plot_type" : "pixels",
+    "plot_type" : "tof",
     "title" : "LOKI",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
     "color_gradient" : "spectrum",
     "invert_gradient" : false,
-    "log_scale" : true
+    "log_scale" : false
   }
 }

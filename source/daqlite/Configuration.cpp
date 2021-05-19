@@ -15,6 +15,7 @@ void Configuration::print() {
   fmt::print("[Geometry]\n");
   fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
   fmt::print("[Plot]\n");
+  fmt::print("  Plot type {}\n", Plot.PlotType);
   fmt::print("  Clear periodically {}\n", Plot.ClearPeriodic);
   fmt::print("  Clear interval (s) {}\n", Plot.ClearEverySeconds);
   fmt::print("  Interpolate image {}\n", Plot.Interpolate);
@@ -59,6 +60,7 @@ void Configuration::fromJsonFile(std::string fname)
     Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
     Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
 
+    Plot.PlotType = j["plot"]["plot_type"];
     Plot.ClearPeriodic = j["plot"]["clear_periodic"];
     Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
     Plot.Interpolate = j["plot"]["interpolate_pixels"];
