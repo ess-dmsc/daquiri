@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file Custom2DPlot.h
@@ -14,6 +14,7 @@
 #include <chrono>
 
 class Custom2DPlot : public QCustomPlot {
+   Q_OBJECT
 public:
   /// \brief plot needs the configurable plotting options
   Custom2DPlot(Configuration &Config, int Projection);
@@ -34,12 +35,13 @@ public:
   /// \brief clears histogram data
   void clearDetectorImage();
 
+public slots:
+  void showPointToolTip(QMouseEvent *event);
+
 private:
   /// \brief updates the image
   /// \param Force forces updates of histogram data with zero count
   void plotDetectorImage(bool Force);
-
-
 
   // QCustomPlot variables
   QCPColorScale *mColorScale{nullptr};
