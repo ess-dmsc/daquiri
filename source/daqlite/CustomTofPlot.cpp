@@ -18,7 +18,7 @@ CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
 
-  HistogramTofData.resize(mConfig.TofBinSize);
+  HistogramTofData.resize(mConfig.TOF.BinSize);
 
   // this will also allow rescaling the color scale by dragging/zooming
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
@@ -37,7 +37,12 @@ CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
   // we want the color map to have nx * ny data points
 
-  xAxis->setLabel("TOF (us)");
+  if (mConfig.Plot.XAxis.empty()) {
+    xAxis->setLabel("TOF (us)");
+  } else {
+    xAxis->setLabel(mConfig.Plot.XAxis.c_str());
+  }
+
   yAxis->setLabel("Counts");
   xAxis->setRange(0, 50000);
 
@@ -59,7 +64,9 @@ void CustomTofPlot::plotDetectorImage(bool Force) {
   mGraph->data()->clear();
   for (unsigned int i = 1; i < HistogramTofData.size(); i++) {
     if ((HistogramTofData[i] != 0) or (Force))  {
-        mGraph->addData(i * mConfig.MaxTofUS/mConfig.TofBinSize, HistogramTofData[i]);
+        uint32_t x = i * mConfig.TOF.MaxValue/mConfig.TOF.BinSize;
+        uint32_t y = HistogramTofData[i];
+        mGraph->addData(x, y);
     }
   }
 

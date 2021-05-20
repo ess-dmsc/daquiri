@@ -1,7 +1,7 @@
 {
   "kafka" : {
     "broker" : "172.30.242.20:9092",
-    "topic" : "LOKI_detector",
+    "topic" : "LOKI_debug",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
@@ -16,14 +16,21 @@
     "zdim" : 1
   },
 
+  "tof" : {
+    "scale" : 1,
+    "max_value" : 65536,
+    "bin_size" : 512
+  },
+
   "plot": {
     "plot_type" : "tof",
-    "title" : "LOKI - TOF",
+    "title" : "LOKI - sum of 4 amps",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
     "color_gradient" : "spectrum",
     "invert_gradient" : false,
-    "log_scale" : false
+    "log_scale" : false,
+    "xaxis" : "Sum of 4 AMPs"
   }
 }

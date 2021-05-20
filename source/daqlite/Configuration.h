@@ -27,10 +27,13 @@ public:
   /// \brief prints the settings
   void print();
 
-  const int MaxTofUS{50000}; // 50ms
-  const int TofBinSize{512}; // bins
-
   // Configurable options
+  struct {
+    unsigned int Scale{1000};     // ns -> us
+    unsigned int MaxValue{25000}; // us
+    unsigned int BinSize{512};    // bins
+  } TOF;
+
   struct {
     int XDim{256};
     int YDim{256};
@@ -56,5 +59,6 @@ public:
     bool InvertGradient{false};
     bool LogScale{false};
     std::string Title;
+    std::string XAxis{""};
   } Plot;
 };

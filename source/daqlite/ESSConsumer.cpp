@@ -5,6 +5,7 @@
 ///
 //===----------------------------------------------------------------------===//
 
+#include <algorithm>
 #include <ESSConsumer.h>
 #include <fmt/format.h>
 #include "ev42_events_generated.h"
@@ -16,7 +17,7 @@ ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   mMaxPixel = geom.XDim * geom.YDim * geom.ZDim;
   assert(mMaxPixel != 0);
   mHistogram.resize(mMaxPixel);
-  mHistogramTof.resize(mConfig.TofBinSize);
+  mHistogramTof.resize(mConfig.TOF.BinSize);
 
   mConsumer = subscribeTopic();
   assert(mConsumer != nullptr);
@@ -70,19 +71,14 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
 
     for (int i = 0; i < PixelIds->size(); i++) {
       uint32_t Pixel = (*PixelIds)[i];
-      uint32_t Tof = (*TOFs)[i]/1000; // ns to us
-
+      uint32_t Tof = (*TOFs)[i]/mConfig.TOF.Scale; // ns to us
       if (Pixel > mMaxPixel) {
         printf("Error: invalid pixel id: %d > %d\n", Pixel, mMaxPixel);
         exit(0);
       }
-      // printf("pixel value %d\n", Pixel);
       mHistogram[Pixel]++;
-
-      if (Tof >= mConfig.MaxTofUS) {
-        Tof = mConfig.MaxTofUS;
-      }
-      mHistogramTof[Tof*mConfig.TofBinSize/mConfig.MaxTofUS]++;
+      Tof = std::min(Tof, mConfig.TOF.MaxValue);
+      mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;
     }
     mCounts += PixelIds->size();
     return PixelIds->size();
