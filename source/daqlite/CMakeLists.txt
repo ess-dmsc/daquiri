@@ -8,6 +8,7 @@ set(${this_target}_sources
   daqlite.cpp
   Configuration.cpp
   Custom2DPlot.cpp
+  CustomTofPlot.cpp
   ESSConsumer.cpp
   MainWindow.cpp
   WorkerThread.cpp
@@ -16,6 +17,7 @@ set(${this_target}_sources
 set(${this_target}_headers
   Configuration.h
   Custom2DPlot.h
+  CustomTofPlot.h
   ESSConsumer.h
   MainWindow.h
   WorkerThread.h

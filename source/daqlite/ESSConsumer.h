@@ -39,6 +39,8 @@ public:
   // Histogram(s) and counts
   std::vector<uint32_t> mHistogramPlot;
   std::vector<uint32_t> mHistogram;
+  std::vector<uint32_t> mHistogramTofPlot;
+  std::vector<uint32_t> mHistogramTof;
   uint64_t mCountsPlot{0};
   uint64_t mCounts{0};
 

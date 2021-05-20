@@ -15,6 +15,7 @@ void Configuration::print() {
   fmt::print("[Geometry]\n");
   fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
   fmt::print("[Plot]\n");
+  fmt::print("  Plot type {}\n", Plot.PlotType);
   fmt::print("  Clear periodically {}\n", Plot.ClearPeriodic);
   fmt::print("  Clear interval (s) {}\n", Plot.ClearEverySeconds);
   fmt::print("  Interpolate image {}\n", Plot.Interpolate);
@@ -22,6 +23,11 @@ void Configuration::print() {
   fmt::print("  Invert gradient {}\n", Plot.InvertGradient);
   fmt::print("  Log Scale {}\n", Plot.LogScale);
   fmt::print("  Title {}\n", Plot.Title);
+  fmt::print("  X Axis {}\n", Plot.XAxis);
+  fmt::print("[TOF]\n");
+  fmt::print("  Scale {}\n", TOF.Scale);
+  fmt::print("  Max value {}\n", TOF.MaxValue);
+  fmt::print("  Bin size {}\n", TOF.BinSize);
 }
 
 void Configuration::fromJsonFile(std::string fname)
@@ -59,6 +65,7 @@ void Configuration::fromJsonFile(std::string fname)
     Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
     Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
 
+    Plot.PlotType = j["plot"]["plot_type"];
     Plot.ClearPeriodic = j["plot"]["clear_periodic"];
     Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
     Plot.Interpolate = j["plot"]["interpolate_pixels"];
@@ -66,6 +73,11 @@ void Configuration::fromJsonFile(std::string fname)
     Plot.InvertGradient = j["plot"]["invert_gradient"];
     Plot.LogScale = j["plot"]["log_scale"];
     Plot.Title = j["plot"]["title"];
+    Plot.XAxis = j["plot"]["xaxis"];
+
+    TOF.Scale = j["tof"]["scale"];
+    TOF.MaxValue = j["tof"]["max_value"];
+    TOF.BinSize = j["tof"]["bin_size"];
   } catch (...) {
     fmt::print("Noncritical error in configuration - using default values\n");
   }

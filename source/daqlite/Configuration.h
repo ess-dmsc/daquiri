@@ -29,6 +29,12 @@ public:
 
   // Configurable options
   struct {
+    unsigned int Scale{1000};     // ns -> us
+    unsigned int MaxValue{25000}; // us
+    unsigned int BinSize{512};    // bins
+  } TOF;
+
+  struct {
     int XDim{256};
     int YDim{256};
     int ZDim{1};
@@ -45,6 +51,7 @@ public:
   } Kafka;
 
   struct {
+    std::string PlotType{"pixels"}; // "tof" is the alternative
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
     bool Interpolate{false};
@@ -52,5 +59,6 @@ public:
     bool InvertGradient{false};
     bool LogScale{false};
     std::string Title;
+    std::string XAxis{""};
   } Plot;
 };
