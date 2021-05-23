@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
   }
 
   MainWindow w(Config);
+  w.resize(Config.Plot.Width, Config.Plot.Height);
 
   return app.exec();
 }

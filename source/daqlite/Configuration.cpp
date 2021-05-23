@@ -74,6 +74,8 @@ void Configuration::fromJsonFile(std::string fname)
     Plot.LogScale = j["plot"]["log_scale"];
     Plot.Title = j["plot"]["title"];
     Plot.XAxis = j["plot"]["xaxis"];
+    Plot.Width = j["plot"]["window_width"];
+    Plot.Height = j["plot"]["window_height"];
 
     TOF.Scale = j["tof"]["scale"];
     TOF.MaxValue = j["tof"]["max_value"];
