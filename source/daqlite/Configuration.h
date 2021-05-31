@@ -60,5 +60,7 @@ public:
     bool LogScale{false};
     std::string Title;
     std::string XAxis{""};
+    int Width{600}; // default window width
+    int Height{400}; // default window height
   } Plot;
 };
