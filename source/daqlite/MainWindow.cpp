@@ -66,6 +66,7 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->lblEventRateText->setText(QString::number(EventRate));
+  KafkaConsumerThread->mutex.lock();
   if (!TOF) {
     Plot2DXY->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
     if (mConfig.Geometry.ZDim > 1) {
@@ -75,6 +76,7 @@ void MainWindow::handleKafkaData(int EventRate) {
   } else {
     PlotTOF->addData(KafkaConsumerThread->consumer()->mHistogramTofPlot);
   }
+  KafkaConsumerThread->mutex.unlock();
 }
 
 // SLOT

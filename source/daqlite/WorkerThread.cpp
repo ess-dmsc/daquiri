@@ -21,9 +21,10 @@ void WorkerThread::run() {
     t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
     if (elapsed.count() >= 1000000000ULL) {
+      mutex.lock();
       Consumer->mHistogramPlot = Consumer->mHistogram;
       Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
-      Consumer->mCountsPlot = Consumer->mCounts;
+      mutex.unlock();
 
       uint64_t Rate = (uint64_t)((Consumer->mCounts * 1000000000ULL)/elapsed.count());
       emit resultReady(Rate);
