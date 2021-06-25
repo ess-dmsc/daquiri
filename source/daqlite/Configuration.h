@@ -58,7 +58,8 @@ public:
     std::string ColorGradient{"hot"};
     bool InvertGradient{false};
     bool LogScale{false};
-    std::string Title;
+    std::string WindowTitle{"Daquiri Lite - Daqlite"};
+    std::string PlotTitle{""};
     std::string XAxis{""};
     int Width{600}; // default window width
     int Height{400}; // default window height

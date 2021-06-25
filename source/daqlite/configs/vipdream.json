@@ -17,7 +17,9 @@
   },
 
   "plot": {
-    "title" : "DREAM",
+    "plot_type" : "pixels",
+    "window_title" : "DREAM",
+    "plot_title" : "DREAM",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,

@@ -17,7 +17,9 @@
   },
 
   "plot": {
-    "title" : "LOKI",
+    "plot_type" : "pixels",
+    "window_title" : "LOKI",
+    "plot_title" : "LOKI",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
