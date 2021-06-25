@@ -44,7 +44,8 @@ void Configuration::fromJsonFile(std::string fname)
     Geometry.XDim = j["geometry"]["xdim"];
     Geometry.YDim = j["geometry"]["ydim"];
     Geometry.ZDim = j["geometry"]["zdim"];
-  } catch (...) {
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("{}\n", e.what());
     throw std::runtime_error("Config error: invalid 'geometry' field");
   }
 
@@ -52,8 +53,10 @@ void Configuration::fromJsonFile(std::string fname)
   try {
     Kafka.Broker = j["kafka"]["broker"];
     Kafka.Topic = j["kafka"]["topic"];
-  } catch (...) {
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("{}\n", e.what());
     throw std::runtime_error("Config error in 'kafka' field: missing/bad values of broker or topic");
+
   }
 
   /// The rest are optional, so we just use default values if there is an
@@ -64,7 +67,12 @@ void Configuration::fromJsonFile(std::string fname)
     Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
     Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
     Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("Noncritical error in Kafka configuration - using default values\n");
+    fmt::print("{}\n", e.what());
+  }
 
+try {
     Plot.PlotType = j["plot"]["plot_type"];
     Plot.ClearPeriodic = j["plot"]["clear_periodic"];
     Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
@@ -76,12 +84,18 @@ void Configuration::fromJsonFile(std::string fname)
     Plot.XAxis = j["plot"]["xaxis"];
     Plot.Width = j["plot"]["window_width"];
     Plot.Height = j["plot"]["window_height"];
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("Noncritical error in Plot configuration - using default values\n");
+    fmt::print("{}\n", e.what());
+  }
 
+try {
     TOF.Scale = j["tof"]["scale"];
     TOF.MaxValue = j["tof"]["max_value"];
     TOF.BinSize = j["tof"]["bin_size"];
-  } catch (...) {
-    fmt::print("Noncritical error in configuration - using default values\n");
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("Noncritical error in TOF configuration - using default values\n");
+    fmt::print("{}\n", e.what());
   }
   print();
 }
