@@ -13,11 +13,12 @@
 #include <unistd.h>
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
+  const int OVERHEAD{1};
   auto & geom = mConfig.Geometry;
   mMaxPixel = geom.XDim * geom.YDim * geom.ZDim;
   assert(mMaxPixel != 0);
-  mHistogram.resize(mMaxPixel);
-  mHistogramTof.resize(mConfig.TOF.BinSize);
+  mHistogram.resize(mMaxPixel + OVERHEAD);
+  mHistogramTof.resize(mConfig.TOF.BinSize + OVERHEAD);
 
   mConsumer = subscribeTopic();
   assert(mConsumer != nullptr);

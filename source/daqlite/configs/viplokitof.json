@@ -18,7 +18,8 @@
 
   "plot": {
     "plot_type" : "tof",
-    "title" : "LOKI - TOF",
+    "window_title" : "LOKI",
+    "plot_title" : "TOF",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,

@@ -15,7 +15,6 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   , mConfig(Config) {
 
   ui->setupUi(this);
-  setWindowTitle("Daquiri lite");
 
   if (strcmp(Config.Plot.PlotType.c_str(), "tof") == 0) {
     TOF = true;
@@ -37,7 +36,7 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
     ui->gridLayout->addWidget(PlotTOF, 0, 0, 1, 1);
   }
 
-  ui->lblDescriptionText->setText(mConfig.Plot.Title.c_str());
+  ui->lblDescriptionText->setText(mConfig.Plot.PlotTitle.c_str());
   ui->lblEventRateText->setText("0");
 
   connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
@@ -66,6 +65,7 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->lblEventRateText->setText(QString::number(EventRate));
+  KafkaConsumerThread->mutex.lock();
   if (!TOF) {
     Plot2DXY->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
     if (mConfig.Geometry.ZDim > 1) {
@@ -75,6 +75,7 @@ void MainWindow::handleKafkaData(int EventRate) {
   } else {
     PlotTOF->addData(KafkaConsumerThread->consumer()->mHistogramTofPlot);
   }
+  KafkaConsumerThread->mutex.unlock();
 }
 
 // SLOT

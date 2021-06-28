@@ -24,7 +24,8 @@
 
   "plot": {
     "plot_type" : "tof",
-    "title" : "LOKI - sum of 4 amps",
+    "window_title" : "LOKI",
+    "plot_title" : "sum of 4 amps",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,

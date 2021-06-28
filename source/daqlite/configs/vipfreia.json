@@ -17,7 +17,9 @@
   },
 
   "plot": {
-    "title" : "FREIA",
+    "plot_type" : "pixels",
+    "window_title" : "FREIA",
+    "plot_title" : "FREIA",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,

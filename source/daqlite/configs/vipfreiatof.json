@@ -24,7 +24,8 @@
 
   "plot": {
     "plot_type" : "tof",
-    "title" : "FREIA - TOF",
+    "window_title" : "FREIA",
+    "plot_title" : "TOF",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,

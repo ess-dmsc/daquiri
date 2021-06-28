@@ -15,6 +15,7 @@ void Configuration::print() {
   fmt::print("[Geometry]\n");
   fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
   fmt::print("[Plot]\n");
+  fmt::print("  WindowTitle {}\n", Plot.WindowTitle);
   fmt::print("  Plot type {}\n", Plot.PlotType);
   fmt::print("  Clear periodically {}\n", Plot.ClearPeriodic);
   fmt::print("  Clear interval (s) {}\n", Plot.ClearEverySeconds);
@@ -22,7 +23,7 @@ void Configuration::print() {
   fmt::print("  Color gradient {}\n", Plot.ColorGradient);
   fmt::print("  Invert gradient {}\n", Plot.InvertGradient);
   fmt::print("  Log Scale {}\n", Plot.LogScale);
-  fmt::print("  Title {}\n", Plot.Title);
+  fmt::print("  PlotTitle {}\n", Plot.PlotTitle);
   fmt::print("  X Axis {}\n", Plot.XAxis);
   fmt::print("[TOF]\n");
   fmt::print("  Scale {}\n", TOF.Scale);
@@ -80,7 +81,8 @@ try {
     Plot.ColorGradient = j["plot"]["color_gradient"];
     Plot.InvertGradient = j["plot"]["invert_gradient"];
     Plot.LogScale = j["plot"]["log_scale"];
-    Plot.Title = j["plot"]["title"];
+    Plot.WindowTitle = j["plot"]["window_title"];
+    Plot.PlotTitle = j["plot"]["plot_title"];
     Plot.XAxis = j["plot"]["xaxis"];
     Plot.Width = j["plot"]["window_width"];
     Plot.Height = j["plot"]["window_height"];

@@ -32,6 +32,9 @@ public:
   /// \brief Getter for the consumer
   ESSConsumer * consumer() { return Consumer; }
 
+
+  QMutex mutex;
+
 signals:
   void resultReady(uint64_t &val);
 
@@ -41,4 +44,6 @@ private:
 
   /// \brief Kafka consumer
   ESSConsumer *Consumer;
+
+
 };

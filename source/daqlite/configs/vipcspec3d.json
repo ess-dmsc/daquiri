@@ -17,7 +17,9 @@
   },
 
   "plot": {
-    "title" : "CSPEC 3D - 172.30.242.20 (36 x 40 x 20)",
+    "plot_type" : "pixels",
+    "window_title" : "CSPEC",
+    "plot_title" : "3D (36 x 40 x 20)",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,
