@@ -50,7 +50,7 @@
         {
          "id": "KafkaTopicConfig/KafkaTopic",
          "type": "text",
-         "value": "C-SPEC_detector"
+         "value": "cspec_detector"
         },
         {
          "id": "KafkaTopicConfig/KafkaFF",

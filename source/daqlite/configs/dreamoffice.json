@@ -1,7 +1,7 @@
 {
   "kafka" : {
     "broker" : "172.17.5.38:9092",
-    "topic" : "DREAM_detector",
+    "topic" : "dream_detector",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
