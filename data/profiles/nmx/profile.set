@@ -50,7 +50,7 @@
         {
          "id": "KafkaTopicConfig/KafkaTopic",
          "type": "text",
-         "value": "NMX_detector"
+         "value": "nmx_detector"
         },
         {
          "id": "KafkaTopicConfig/KafkaFF",
@@ -160,7 +160,7 @@
         {
          "id": "KafkaTopicConfig/KafkaTopic",
          "type": "text",
-         "value": "NMX_monitor"
+         "value": "nmx_monitor"
         },
         {
          "id": "KafkaTopicConfig/KafkaFF",

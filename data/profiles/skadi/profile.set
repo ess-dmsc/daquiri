@@ -50,7 +50,7 @@
         {
          "id": "KafkaTopicConfig/KafkaTopic",
          "type": "text",
-         "value": "SKADI_detector"
+         "value": "skadi_detector"
         },
         {
          "id": "KafkaTopicConfig/KafkaFF",
