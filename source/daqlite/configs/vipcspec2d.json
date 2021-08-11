@@ -13,7 +13,8 @@
   "geometry" : {
     "xdim" : 36,
     "ydim" : 800,
-    "zdim" : 1
+    "zdim" : 1,
+    "offset" : 0
   },
 
   "plot": {

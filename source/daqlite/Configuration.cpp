@@ -14,6 +14,7 @@ void Configuration::print() {
   fmt::print("  Topic {}\n", Kafka.Topic);
   fmt::print("[Geometry]\n");
   fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
+  fmt::print("  Pixel Offset {}\n", Geometry.Offset);
   fmt::print("[Plot]\n");
   fmt::print("  WindowTitle {}\n", Plot.WindowTitle);
   fmt::print("  Plot type {}\n", Plot.PlotType);
@@ -48,6 +49,14 @@ void Configuration::fromJsonFile(std::string fname)
   } catch (nlohmann::json::exception& e) {
     fmt::print("{}\n", e.what());
     throw std::runtime_error("Config error: invalid 'geometry' field");
+  }
+
+  /// 'geometry' offset field is optional
+  try {
+    Geometry.Offset = j["geometry"]["offset"];
+  } catch (nlohmann::json::exception& e) {
+    fmt::print("Noncritical error in Geometry configuration - using default value for offset\n");
+    fmt::print("{}\n", e.what());
   }
 
   /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified

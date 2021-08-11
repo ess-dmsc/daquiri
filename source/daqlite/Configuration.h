@@ -35,9 +35,10 @@ public:
   } TOF;
 
   struct {
-    int XDim{256};
-    int YDim{256};
+    int XDim{1};
+    int YDim{1};
     int ZDim{1};
+    int Offset{0};
   } Geometry;
 
   struct {
