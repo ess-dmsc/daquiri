@@ -65,6 +65,8 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->lblEventRateText->setText(QString::number(EventRate));
+  ui->lblDiscardedPixelsText->setText(QString::number(KafkaConsumerThread->consumer()->PixelDiscard));
+
   KafkaConsumerThread->mutex.lock();
   if (!TOF) {
     Plot2DXY->addData(KafkaConsumerThread->consumer()->mHistogramPlot);

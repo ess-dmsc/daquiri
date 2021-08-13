@@ -26,10 +26,10 @@ void WorkerThread::run() {
       Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
       mutex.unlock();
 
-      uint64_t Rate = (uint64_t)((Consumer->mCounts * 1000000000ULL)/elapsed.count());
+      uint64_t Rate = (uint64_t)((Consumer->PixelCount * 1000000000ULL)/elapsed.count());
       emit resultReady(Rate);
 
-      Consumer->mCounts = 0;
+      Consumer->PixelCount = 0;
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
       std::fill(Consumer->mHistogramTof.begin(), Consumer->mHistogramTof.end(), 0);
       t1 = std::chrono::high_resolution_clock::now();

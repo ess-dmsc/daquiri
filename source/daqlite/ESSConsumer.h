@@ -41,8 +41,8 @@ public:
   std::vector<uint32_t> mHistogram;
   std::vector<uint32_t> mHistogramTofPlot;
   std::vector<uint32_t> mHistogramTof;
-  uint64_t mCounts{0};
-
+  uint64_t PixelCount{0};
+  uint64_t PixelDiscard{0};
 
 private:
   RdKafka::Conf *mConf;
@@ -65,5 +65,6 @@ private:
   } mKafkaStats;
 
 
-  uint32_t mMaxPixel{0}; /// \brief Number of pixels
+  uint32_t mMinPixel{0}; ///< Offset
+  uint32_t mMaxPixel{0}; ///< Number of pixels + offset
 };
