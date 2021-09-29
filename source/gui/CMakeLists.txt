@@ -60,7 +60,7 @@ target_link_libraries(
   ${PROJECT_NAME}_producers
   ${PROJECT_NAME}_consumers
   QPlot
-  QtColorWidgets-Qt52
+  QtColorWidgets
   Qt5::Widgets
   Qt5::PrintSupport
   Qt5::Network
