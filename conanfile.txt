@@ -1,12 +1,12 @@
 [requires]
 cli11/1.9.1
-date/27d1e1e@ess-dmsc/stable
+date/2.4.1
 eigen/3.3.9
 fmt/6.2.0
 gtest/1.10.0
-h5cpp/0.3.3@ess-dmsc/stable
+h5cpp/0.4.0-dm2@ess-dmsc/stable
 nlohmann_json/3.9.1
-librdkafka/1.6.0
+librdkafka/1.5.0@ess-dmsc/stable
 logical-geometry/705ea61@ess-dmsc/stable
 qplot/2ffc74f@ess-dmsc/stable
 Qt-Color-Widgets/a95f72e@ess-dmsc/stable

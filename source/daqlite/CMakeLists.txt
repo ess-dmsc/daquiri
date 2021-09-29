@@ -42,6 +42,6 @@ target_link_libraries(
   PRIVATE RdKafka::rdkafka++
   PRIVATE RdKafka::rdkafka
   QPlot
-  QtColorWidgets-Qt52
+  QtColorWidgets
   Qt5::Widgets
 )
