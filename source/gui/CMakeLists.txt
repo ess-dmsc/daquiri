@@ -56,18 +56,18 @@ target_include_directories(
 
 target_link_libraries(
   ${this_target}
-  ${PROJECT_NAME}_core
-  ${PROJECT_NAME}_producers
-  ${PROJECT_NAME}_consumers
-  QPlot
-  QtColorWidgets
-  Qt5::Widgets
-  Qt5::PrintSupport
-  Qt5::Network
+  PRIVATE ${PROJECT_NAME}_core
+  PRIVATE ${PROJECT_NAME}_producers
+  PRIVATE ${PROJECT_NAME}_consumers
+  PRIVATE QPlot
+  PRIVATE QtColorWidgets
+  PRIVATE Qt5::Widgets
+  PRIVATE Qt5::PrintSupport
+  PRIVATE Qt5::Network
 )
 
 # Link stdc++fs or c++experimental to get std::experimental::filesystem when necessary
 target_link_libraries(${this_target}
-  $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+  PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 target_link_libraries(${this_target}
-  $<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,11.0>>:c++fs>)
+  PRIVATE $<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,11.0>>:c++fs>)
