@@ -16,7 +16,7 @@
 
 #include <core/util/json_file.h>
 
-#include <signal.h>
+#include <csignal>
 
 #ifdef BUILD_TIME
 #include "build_time.h"
@@ -44,7 +44,7 @@ struct AcquireOptions
 
   AcquireOptions()
   {
-    app.add_option("-t,--time", duration, "How long shall we run?", true)
+    app.add_option("-t,--time", duration, "How long shall we run?")
         ->check(CLI::Range(uint64_t(1), std::numeric_limits<uint64_t>::max()));
     app.add_option("-i,--input", profile_file, "DAQ producer config profile")
         ->check(CLI::ExistingFile);
