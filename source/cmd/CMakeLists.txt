@@ -11,4 +11,3 @@ target_link_libraries(
   PRIVATE ${PROJECT_NAME}_producers
   PRIVATE ${PROJECT_NAME}_consumers
 )
-
