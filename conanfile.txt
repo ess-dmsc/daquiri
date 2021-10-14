@@ -16,12 +16,14 @@ fmt/5.3.0@bincrafters/stable
 [generators]
 cmake
 cmake_find_package
+virtualbuildenv
 virtualrunenv
 
 [options]
 gtest:shared=False
 librdkafka:shared=True
 flatbuffers:shared=True
+hdf5:shared=True
 date:use_system_tz_db=True
 h5cpp:with_boost=False
 
