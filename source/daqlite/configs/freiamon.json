@@ -1,7 +1,7 @@
 {
   "kafka" : {
     "broker" : "172.30.242.20:9092",
-    "topic" : "freia_detector",
+    "topic" : "freia_monitor",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
@@ -17,15 +17,21 @@
     "offset" : 0
   },
 
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 90000,
+    "bin_size" : 512
+  },
+
   "plot": {
-    "plot_type" : "pixels",
+    "plot_type" : "tof",
     "window_title" : "FREIA",
-    "plot_title" : "FREIA",
+    "plot_title" : "Monitor TOF",
     "clear_periodic" : false,
-    "clear_interval_seconds" : 5,
+    "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
-    "color_gradient" : "hot",
-    "invert_gradient" : true,
-    "log_scale" : true
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : false
   }
 }

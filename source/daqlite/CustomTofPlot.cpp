@@ -33,7 +33,9 @@ CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
   mGraph = new QCPGraph(xAxis, yAxis);
   // mGraph->setLineStyle(QCPGraph::lsNone);
-  // mGraph->setScatterStyle(QCPScatterStyle::ssDisc);
+  //mGraph->setScatterStyle(QCPScatterStyle::ssDisc);
+  //mGraph->setLineStyle(QCPGraph::lsImpulse);
+  mGraph->setLineStyle(QCPGraph::lsStepCenter);
 
   // we want the color map to have nx * ny data points
 
