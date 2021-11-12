@@ -98,8 +98,12 @@ void MainWindow::handleClearButton() {
 }
 
 void MainWindow::updateGradientLabel() {
+  // Gradient button and lables are not relevant for TOF so we hide them
   if (TOF) {
-    ui->lblGradientText->setText(QString::fromStdString("na"));
+    ui->pushButtonGradient->setVisible(false);
+    ui->pushButtonInvert->setVisible(false);
+    ui->lblGradientText->setVisible(false);
+    ui->lblGradient->setVisible(false);
     return;
   }
 
@@ -111,8 +115,11 @@ void MainWindow::updateGradientLabel() {
 }
 
 void MainWindow::updateAutoScaleLabel() {
+  // AutoScale button and lables are not relevant for TOF so we hide them
   if (not TOF) {
-    ui->lblAutoScaleText->setText(QString::fromStdString("na"));
+    ui->pushButtonAutoScale->setVisible(false);
+    ui->lblAutoScaleText->setVisible(false);
+    ui->lblAutoScale->setVisible(false);
     return;
   }
 
