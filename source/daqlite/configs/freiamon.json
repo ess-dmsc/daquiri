@@ -1,7 +1,7 @@
 {
   "kafka" : {
     "broker" : "172.30.242.20:9092",
-    "topic" : "freia_monitor",
+    "topic" : "freia_beam_monitor",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
