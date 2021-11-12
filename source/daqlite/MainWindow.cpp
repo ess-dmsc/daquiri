@@ -44,8 +44,10 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   connect(ui->pushButtonLog, SIGNAL(clicked()), this, SLOT(handleLogButton()));
   connect(ui->pushButtonGradient, SIGNAL(clicked()), this, SLOT(handleGradientButton()));
   connect(ui->pushButtonInvert, SIGNAL(clicked()), this, SLOT(handleInvertButton()));
+  connect(ui->pushButtonAutoScale, SIGNAL(clicked()), this, SLOT(handleAutoScaleButton()));
 
   updateGradientLabel();
+  updateAutoScaleLabel();
   show();
   startKafkaConsumerThread();
 }
@@ -96,14 +98,28 @@ void MainWindow::handleClearButton() {
 }
 
 void MainWindow::updateGradientLabel() {
-  if (TOF)
+  if (TOF) {
+    ui->lblGradientText->setText(QString::fromStdString("na"));
     return;
+  }
 
   if (mConfig.Plot.InvertGradient)
     ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
   else
     ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient));
 
+}
+
+void MainWindow::updateAutoScaleLabel() {
+  if (not TOF) {
+    ui->lblAutoScaleText->setText(QString::fromStdString("na"));
+    return;
+  }
+
+  if (mConfig.TOF.AutoScale)
+    ui->lblAutoScaleText->setText(QString::fromStdString("on"));
+  else
+    ui->lblAutoScaleText->setText(QString::fromStdString("off"));
 }
 
 // toggle the log scale flag
@@ -120,9 +136,19 @@ void MainWindow::handleInvertButton() {
   updateGradientLabel();
 }
 
-void MainWindow::handleGradientButton() {
-  if (TOF)
+// toggle the auto scale button
+void MainWindow::handleAutoScaleButton() {
+  if (not TOF)
     return;
+
+  mConfig.TOF.AutoScale = not mConfig.TOF.AutoScale;
+  updateAutoScaleLabel();
+}
+
+void MainWindow::handleGradientButton() {
+  if (TOF) {
+    return;
+  }
 
   mConfig.Plot.ColorGradient = Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
   updateGradientLabel();

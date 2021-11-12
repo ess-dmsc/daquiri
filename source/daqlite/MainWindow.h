@@ -32,12 +32,16 @@ public:
   /// \brief update GUI label text
   void updateGradientLabel();
 
+  /// \brief update GUI label text
+  void updateAutoScaleLabel();
+
 public slots:
   void handleExitButton();
   void handleClearButton();
   void handleLogButton();
   void handleGradientButton();
   void handleInvertButton();
+  void handleAutoScaleButton();
   void handleKafkaData(int EventRate);
 
 private:

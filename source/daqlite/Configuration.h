@@ -32,6 +32,8 @@ public:
     unsigned int Scale{1000};     // ns -> us
     unsigned int MaxValue{25000}; // us
     unsigned int BinSize{512};    // bins
+
+    bool AutoScale{on}; // currently not settable by json
   } TOF;
 
   struct {
