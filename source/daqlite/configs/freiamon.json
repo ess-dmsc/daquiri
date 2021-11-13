@@ -11,8 +11,8 @@
   },
 
   "geometry" : {
-    "xdim" : 64,
-    "ydim" : 1024,
+    "xdim" : 1,
+    "ydim" : 1,
     "zdim" : 1,
     "offset" : 0
   },
