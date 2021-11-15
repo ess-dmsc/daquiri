@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file Configuration.cpp
@@ -15,44 +15,44 @@ void Configuration::fromJsonFile(std::string fname) {
     throw("Invalid json configuration file, exiting ...");
   }
   ifs >> j;
-
+  using std::operator""s;
   /// 'geometry' field is mandatory
-  Geometry.XDim = getInt("geometry", "xdim", Geometry.XDim, true);
-  Geometry.YDim = getInt("geometry", "ydim", Geometry.YDim, true);
-  Geometry.ZDim = getInt("geometry", "zdim", Geometry.ZDim, true);
-  Geometry.Offset = getInt("geometry", "offset", Geometry.Offset);
+  Geometry.XDim = getVal("geometry", "xdim", Geometry.XDim, true);
+  Geometry.YDim = getVal("geometry", "ydim", Geometry.YDim, true);
+  Geometry.ZDim = getVal("geometry", "zdim", Geometry.ZDim, true);
+  Geometry.Offset = getVal("geometry", "offset", Geometry.Offset);
 
   /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified
-  Kafka.Broker = getString("kafka", "broker", "n/a", true);
-  Kafka.Topic = getString("kafka", "topic", "n/a", true);
+  Kafka.Broker = getVal("kafka", "broker", "n/a"s, true);
+  Kafka.Topic = getVal("kafka", "topic", "n/a"s, true);
   /// The rest are optional, so we just use default values if there is an
   /// invalid/missing configuration
-  Kafka.MessageMaxBytes = getString("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
-  Kafka.FetchMessagMaxBytes = getString("kafka", "fetch.message.max.bytes", Kafka.FetchMessagMaxBytes);
-  Kafka.ReplicaFetchMaxBytes = getString("kafka", "replica.fetch.max.bytes", Kafka.ReplicaFetchMaxBytes);
-  Kafka.EnableAutoCommit = getString("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
-  Kafka.EnableAutoOffsetStore = getString("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
+  Kafka.MessageMaxBytes = getVal("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
+  Kafka.FetchMessagMaxBytes = getVal("kafka", "fetch.message.max.bytes", Kafka.FetchMessagMaxBytes);
+  Kafka.ReplicaFetchMaxBytes = getVal("kafka", "replica.fetch.max.bytes", Kafka.ReplicaFetchMaxBytes);
+  Kafka.EnableAutoCommit = getVal("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
+  Kafka.EnableAutoOffsetStore = getVal("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
 
   // Plot options - all are optional
-  Plot.PlotType = getString("plot", "plot_type", Plot.PlotType);
-  Plot.ClearPeriodic = getBool("plot", "clear_periodic", Plot.ClearPeriodic);
-  Plot.ClearEverySeconds = getInt("plot", "clear_interval_seconds", Plot.ClearEverySeconds);
-  Plot.Interpolate = getBool("plot", "interpolate_pixels", Plot.Interpolate);
-  Plot.ColorGradient = getString("plot", "color_gradient", Plot.ColorGradient);
-  Plot.InvertGradient = getBool("plot", "invert_gradient", Plot.InvertGradient);
-  Plot.LogScale = getBool("plot", "log_scale", Plot.LogScale);
+  Plot.PlotType = getVal("plot", "plot_type", Plot.PlotType);
+  Plot.ClearPeriodic = getVal("plot", "clear_periodic", Plot.ClearPeriodic);
+  Plot.ClearEverySeconds = getVal("plot", "clear_interval_seconds", Plot.ClearEverySeconds);
+  Plot.Interpolate = getVal("plot", "interpolate_pixels", Plot.Interpolate);
+  Plot.ColorGradient = getVal("plot", "color_gradient", Plot.ColorGradient);
+  Plot.InvertGradient = getVal("plot", "invert_gradient", Plot.InvertGradient);
+  Plot.LogScale = getVal("plot", "log_scale", Plot.LogScale);
 
   // Window options - all are optional
-  Plot.WindowTitle = getString("plot", "window_title", Plot.WindowTitle);
-  Plot.PlotTitle = getString("plot", "plot_title", Plot.PlotTitle);
-  Plot.XAxis = getString("plot", "xaxis", Plot.XAxis);
-  Plot.Width = getInt("plot", "window_width", Plot.Width);
-  Plot.Height = getInt("plot", "window_height", Plot.Height);
+  Plot.WindowTitle = getVal("plot", "window_title", Plot.WindowTitle);
+  Plot.PlotTitle = getVal("plot", "plot_title", Plot.PlotTitle);
+  Plot.XAxis = getVal("plot", "xaxis", Plot.XAxis);
+  Plot.Width = getVal("plot", "window_width", Plot.Width);
+  Plot.Height = getVal("plot", "window_height", Plot.Height);
 
-  TOF.Scale = getInt("tof", "scale", TOF.Scale);
-  TOF.MaxValue = getInt("tof", "max_value", TOF.MaxValue);
-  TOF.BinSize = getInt("tof", "bin_size", TOF.BinSize);
-  TOF.AutoScale = getBool("tof", "auto_scale", TOF.AutoScale);
+  TOF.Scale = getVal("tof", "scale", TOF.Scale);
+  TOF.MaxValue = getVal("tof", "max_value", TOF.MaxValue);
+  TOF.BinSize = getVal("tof", "bin_size", TOF.BinSize);
+  TOF.AutoScale = getVal("tof", "auto_scale", TOF.AutoScale);
 
   print();
 }
@@ -83,43 +83,11 @@ void Configuration::print() {
 }
 
 
-int Configuration::getInt(std::string Group, std::string Option, int Default,
-    bool Throw) {
-  int ConfigVal;
-  try {
-    ConfigVal = j[Group][Option];
-  } catch (nlohmann::json::exception& e) {
-    fmt::print("Missing [{}][{}] configuration\n", Group, Option);
-    if (Throw) {
-      throw std::runtime_error("Daqlite config error");
-    } else {
-      fmt::print("Using default: {}\n", Default);
-      return Default;
-    }
-  }
-  return ConfigVal;
-}
-
-bool Configuration::getBool(std::string Group, std::string Option, bool Default,
-    bool Throw) {
-      bool ConfigVal;
-      try {
-        ConfigVal = j[Group][Option];
-      } catch (nlohmann::json::exception& e) {
-        fmt::print("Missing [{}][{}] configuration\n", Group, Option);
-        if (Throw) {
-          throw std::runtime_error("Daqlite config error");
-        } else {
-          fmt::print("Using default: {}\n", Default);
-          return Default;
-        }
-      }
-      return ConfigVal;
-}
-
-std::string Configuration:: getString(std::string Group, std::string Option,
-    std::string Default, bool Throw) {
-  std::string ConfigVal;
+//\brief getVal() template is used to effectively achieve
+// getInt(), getString() and getBool() functionality through T
+template<typename T>
+T Configuration::getVal(std::string Group, std::string Option, T Default , bool Throw) {
+  T ConfigVal;
   try {
     ConfigVal = j[Group][Option];
   } catch (nlohmann::json::exception& e) {

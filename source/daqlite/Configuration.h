@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file Configuration.h
@@ -27,18 +27,9 @@ public:
   /// \brief prints the settings
   void print();
 
-  /// \brief Get integer value from json object
-  /// returns value, possibly default, or throw if Throw == true
-  int getInt(std::string Group, std::string Option, int Default, bool Throw = false);
-
-  /// \brief Get boolean value from json object
-  /// returns value, possibly default, or throw if Throw == true
-  bool getBool(std::string Group, std::string Option, bool Default, bool Throw = false);
-
-  /// \brief Get string value from json object
-  /// returns value, possibly default, or throw if Throw == true
-  std::string getString(std::string Group, std::string Option,
-    std::string Default, bool Throw = false);
+  /// \brief return value of type T from the json object, possibly default,
+  // and optionally throws if value is not found
+  template<typename T> T getVal(std::string Group, std::string Option, T Default , bool Throw = false);
 
   // Configurable options
   struct {
