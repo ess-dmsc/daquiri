@@ -8,6 +8,55 @@
 #include <Configuration.h>
 #include <fmt/format.h>
 
+
+void Configuration::fromJsonFile(std::string fname) {
+  std::ifstream ifs(fname, std::ofstream::in);
+  if (!ifs.good()) {
+    throw("Invalid json configuration file, exiting ...");
+  }
+  ifs >> j;
+
+  /// 'geometry' field is mandatory
+  Geometry.XDim = getInt("geometry", "xdim", Geometry.XDim, true);
+  Geometry.YDim = getInt("geometry", "ydim", Geometry.YDim, true);
+  Geometry.ZDim = getInt("geometry", "zdim", Geometry.ZDim, true);
+  Geometry.Offset = getInt("geometry", "offset", Geometry.Offset);
+
+  /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified
+  Kafka.Broker = getString("kafka", "broker", "n/a", true);
+  Kafka.Topic = getString("kafka", "topic", "n/a", true);
+  /// The rest are optional, so we just use default values if there is an
+  /// invalid/missing configuration
+  Kafka.MessageMaxBytes = getString("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
+  Kafka.FetchMessagMaxBytes = getString("kafka", "fetch.message.max.bytes", Kafka.FetchMessagMaxBytes);
+  Kafka.ReplicaFetchMaxBytes = getString("kafka", "replica.fetch.max.bytes", Kafka.ReplicaFetchMaxBytes);
+  Kafka.EnableAutoCommit = getString("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
+  Kafka.EnableAutoOffsetStore = getString("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
+
+  // Plot options - all are optional
+  Plot.PlotType = getString("plot", "plot_type", Plot.PlotType);
+  Plot.ClearPeriodic = getBool("plot", "clear_periodic", Plot.ClearPeriodic);
+  Plot.ClearEverySeconds = getInt("plot", "clear_interval_seconds", Plot.ClearEverySeconds);
+  Plot.Interpolate = getBool("plot", "interpolate_pixels", Plot.Interpolate);
+  Plot.ColorGradient = getString("plot", "color_gradient", Plot.ColorGradient);
+  Plot.InvertGradient = getBool("plot", "invert_gradient", Plot.InvertGradient);
+  Plot.LogScale = getBool("plot", "log_scale", Plot.LogScale);
+
+  // Window options - all are optional
+  Plot.WindowTitle = getString("plot", "window_title", Plot.WindowTitle);
+  Plot.PlotTitle = getString("plot", "plot_title", Plot.PlotTitle);
+  Plot.XAxis = getString("plot", "xaxis", Plot.XAxis);
+  Plot.Width = getInt("plot", "window_width", Plot.Width);
+  Plot.Height = getInt("plot", "window_height", Plot.Height);
+
+  TOF.Scale = getInt("tof", "scale", TOF.Scale);
+  TOF.MaxValue = getInt("tof", "max_value", TOF.MaxValue);
+  TOF.BinSize = getInt("tof", "bin_size", TOF.BinSize);
+  TOF.AutoScale = getBool("tof", "auto_scale", TOF.AutoScale);
+
+  print();
+}
+
 void Configuration::print() {
   fmt::print("[Kafka]\n");
   fmt::print("  Broker {}\n", Kafka.Broker);
@@ -30,83 +79,57 @@ void Configuration::print() {
   fmt::print("  Scale {}\n", TOF.Scale);
   fmt::print("  Max value {}\n", TOF.MaxValue);
   fmt::print("  Bin size {}\n", TOF.BinSize);
+  fmt::print("  Auto scale {}\n", TOF.AutoScale);
 }
 
-void Configuration::fromJsonFile(std::string fname)
-{
-  std::ifstream ifs(fname, std::ofstream::in);
-  nlohmann::json j;
-  if (!ifs.good()) {
-    throw("Invalid json configuration file, exiting ...");
-  }
-  ifs >> j;
 
-  /// 'geometry' field is mandatory
+int Configuration::getInt(std::string Group, std::string Option, int Default,
+    bool Throw) {
+  int ConfigVal;
   try {
-    Geometry.XDim = j["geometry"]["xdim"];
-    Geometry.YDim = j["geometry"]["ydim"];
-    Geometry.ZDim = j["geometry"]["zdim"];
+    ConfigVal = j[Group][Option];
   } catch (nlohmann::json::exception& e) {
-    fmt::print("{}\n", e.what());
-    throw std::runtime_error("Config error: invalid 'geometry' field");
+    fmt::print("Missing [{}][{}] configuration\n", Group, Option);
+    if (Throw) {
+      throw std::runtime_error("Daqlite config error");
+    } else {
+      fmt::print("Using default: {}\n", Default);
+      return Default;
+    }
   }
+  return ConfigVal;
+}
 
-  /// 'geometry' offset field is optional
+bool Configuration::getBool(std::string Group, std::string Option, bool Default,
+    bool Throw) {
+      bool ConfigVal;
+      try {
+        ConfigVal = j[Group][Option];
+      } catch (nlohmann::json::exception& e) {
+        fmt::print("Missing [{}][{}] configuration\n", Group, Option);
+        if (Throw) {
+          throw std::runtime_error("Daqlite config error");
+        } else {
+          fmt::print("Using default: {}\n", Default);
+          return Default;
+        }
+      }
+      return ConfigVal;
+}
+
+std::string Configuration:: getString(std::string Group, std::string Option,
+    std::string Default, bool Throw) {
+  std::string ConfigVal;
   try {
-    Geometry.Offset = j["geometry"]["offset"];
+    ConfigVal = j[Group][Option];
   } catch (nlohmann::json::exception& e) {
-    fmt::print("Noncritical error in Geometry configuration - using default value for offset\n");
-    fmt::print("{}\n", e.what());
+    fmt::print("Missing [{}][{}] configuration\n", Group, Option);
+    if (Throw) {
+      throw std::runtime_error("Daqlite config error");
+    } else {
+      fmt::print("Using default: {}\n", Default);
+      return Default;
+    }
   }
-
-  /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified
-  try {
-    Kafka.Broker = j["kafka"]["broker"];
-    Kafka.Topic = j["kafka"]["topic"];
-  } catch (nlohmann::json::exception& e) {
-    fmt::print("{}\n", e.what());
-    throw std::runtime_error("Config error in 'kafka' field: missing/bad values of broker or topic");
-
-  }
-
-  /// The rest are optional, so we just use default values if there is an
-  /// invalid/missing configuration
-  try {
-    Kafka.MessageMaxBytes = j["kafka"]["message.max.bytes"];
-    Kafka.FetchMessagMaxBytes = j["kafka"]["fetch.message.max.bytes"];
-    Kafka.ReplicaFetchMaxBytes  = j["kafka"]["replica.fetch.max.bytes"];
-    Kafka.EnableAutoCommit= j["kafka"]["enable.auto.commit"];
-    Kafka.EnableAutoOffsetStore= j["kafka"]["enable.auto.offset.store"];
-  } catch (nlohmann::json::exception& e) {
-    fmt::print("Noncritical error in Kafka configuration - using default values\n");
-    fmt::print("{}\n", e.what());
-  }
-
-try {
-    Plot.PlotType = j["plot"]["plot_type"];
-    Plot.ClearPeriodic = j["plot"]["clear_periodic"];
-    Plot.ClearEverySeconds = j["plot"]["clear_interval_seconds"];
-    Plot.Interpolate = j["plot"]["interpolate_pixels"];
-    Plot.ColorGradient = j["plot"]["color_gradient"];
-    Plot.InvertGradient = j["plot"]["invert_gradient"];
-    Plot.LogScale = j["plot"]["log_scale"];
-    Plot.WindowTitle = j["plot"]["window_title"];
-    Plot.PlotTitle = j["plot"]["plot_title"];
-    Plot.XAxis = j["plot"]["xaxis"];
-    Plot.Width = j["plot"]["window_width"];
-    Plot.Height = j["plot"]["window_height"];
-  } catch (nlohmann::json::exception& e) {
-    fmt::print("Noncritical error in Plot configuration - using default values\n");
-    fmt::print("{}\n", e.what());
-  }
-
-try {
-    TOF.Scale = j["tof"]["scale"];
-    TOF.MaxValue = j["tof"]["max_value"];
-    TOF.BinSize = j["tof"]["bin_size"];
-  } catch (nlohmann::json::exception& e) {
-    fmt::print("Noncritical error in TOF configuration - using default values\n");
-    fmt::print("{}\n", e.what());
-  }
-  print();
+  return ConfigVal;
 }

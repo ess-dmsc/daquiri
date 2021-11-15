@@ -27,6 +27,19 @@ public:
   /// \brief prints the settings
   void print();
 
+  /// \brief Get integer value from json object
+  /// returns value, possibly default, or throw if Throw == true
+  int getInt(std::string Group, std::string Option, int Default, bool Throw = false);
+
+  /// \brief Get boolean value from json object
+  /// returns value, possibly default, or throw if Throw == true
+  bool getBool(std::string Group, std::string Option, bool Default, bool Throw = false);
+
+  /// \brief Get string value from json object
+  /// returns value, possibly default, or throw if Throw == true
+  std::string getString(std::string Group, std::string Option,
+    std::string Default, bool Throw = false);
+
   // Configurable options
   struct {
     unsigned int Scale{1000};     // ns -> us
@@ -67,4 +80,7 @@ public:
     int Width{600}; // default window width
     int Height{400}; // default window height
   } Plot;
+
+  //
+  nlohmann::json j;
 };

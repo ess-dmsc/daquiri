@@ -12,20 +12,26 @@
 
   "geometry" : {
     "xdim" : 64,
-    "ydim" : 1024,
+    "ydim" : 448,
     "zdim" : 1,
     "offset" : 0
   },
 
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 65000,
+    "bin_size" : 512
+  },
+
   "plot": {
-    "plot_type" : "pixels",
-    "window_title" : "FREIA detector image",
-    "plot_title" : "Picels",
+    "plot_type" : "tof",
+    "window_title" : "AMOR TOF",
+    "plot_title" : "TOF",
     "clear_periodic" : false,
-    "clear_interval_seconds" : 5,
+    "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
-    "color_gradient" : "hot",
-    "invert_gradient" : true,
-    "log_scale" : true
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : false
   }
 }

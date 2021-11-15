@@ -19,8 +19,8 @@
 
   "plot": {
     "plot_type" : "pixels",
-    "window_title" : "FREIA",
-    "plot_title" : "FREIA",
+    "window_title" : "AMOR detector image",
+    "plot_title" : "Pixels",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,
