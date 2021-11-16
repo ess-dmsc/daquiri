@@ -13,6 +13,7 @@
 #pragma once
 
 #include <ESSConsumer.h>
+#include <QMutex>
 #include <QThread>
 #include <iostream>
 
