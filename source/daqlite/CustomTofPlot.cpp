@@ -7,14 +7,14 @@
 
 #include <CustomTofPlot.h>
 #include <WorkerThread.h>
+#include <algorithm>
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
-#include <algorithm>
 
 CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
-  auto & geom = mConfig.Geometry;
+  auto &geom = mConfig.Geometry;
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
 
@@ -65,17 +65,17 @@ void CustomTofPlot::plotDetectorImage(bool Force) {
   mGraph->data()->clear();
   uint32_t MaxY{0};
   for (unsigned int i = 1; i < HistogramTofData.size(); i++) {
-    if ((HistogramTofData[i] != 0) or (Force))  {
-        uint32_t x = i * mConfig.TOF.MaxValue/mConfig.TOF.BinSize;
-        uint32_t y = HistogramTofData[i];
-        if (y > MaxY) {
-          MaxY = y;
-        }
-        mGraph->addData(x, y);
+    if ((HistogramTofData[i] != 0) or (Force)) {
+      uint32_t x = i * mConfig.TOF.MaxValue / mConfig.TOF.BinSize;
+      uint32_t y = HistogramTofData[i];
+      if (y > MaxY) {
+        MaxY = y;
+      }
+      mGraph->addData(x, y);
     }
   }
 
-  //yAxis->rescale();
+  // yAxis->rescale();
   if (mConfig.TOF.AutoScale) {
     xAxis->setRange(0, mConfig.TOF.MaxValue * 1.05);
     yAxis->setRange(0, MaxY * 1.05);
@@ -83,10 +83,10 @@ void CustomTofPlot::plotDetectorImage(bool Force) {
   replot();
 }
 
-void CustomTofPlot::addData(std::vector<uint32_t> & Histogram) {
-  //printf("addData (TOF) Histogram size %lu\n", Histogram.size());
+void CustomTofPlot::addData(std::vector<uint32_t> &Histogram) {
+  // printf("addData (TOF) Histogram size %lu\n", Histogram.size());
   auto t2 = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
+  std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
   //

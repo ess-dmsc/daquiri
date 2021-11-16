@@ -30,8 +30,7 @@ public:
   void run() override;
 
   /// \brief Getter for the consumer
-  ESSConsumer * consumer() { return Consumer; }
-
+  ESSConsumer *consumer() { return Consumer; }
 
   QMutex mutex;
 
@@ -44,6 +43,4 @@ private:
 
   /// \brief Kafka consumer
   ESSConsumer *Consumer;
-
-
 };

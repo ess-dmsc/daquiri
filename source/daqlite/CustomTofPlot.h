@@ -10,18 +10,18 @@
 
 #include <Configuration.h>
 #include <QPlot/QPlot.h>
-#include <logical_geometry/ESSGeometry.h>
 #include <chrono>
+#include <logical_geometry/ESSGeometry.h>
 
 class CustomTofPlot : public QCustomPlot {
-   Q_OBJECT
+  Q_OBJECT
 public:
   /// \brief plot needs the configurable plotting options
   CustomTofPlot(Configuration &Config);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
-  void addData(std::vector<uint32_t> & Histogram);
+  void addData(std::vector<uint32_t> &Histogram);
 
   /// \brief update plot based on (possibly dynamic) config settings
   void setCustomParameters();
@@ -44,8 +44,7 @@ private:
   std::vector<uint32_t> HistogramTofData;
 
   /// \brief for calculating x, y, z from pixelid
-  ESSGeometry * LogicalGeometry;
-
+  ESSGeometry *LogicalGeometry;
 
   /// \brief reference time for periodic clearing of histogram
   std::chrono::time_point<std::chrono::high_resolution_clock> t1;

@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <string>
 
 class Configuration {
@@ -29,7 +29,9 @@ public:
 
   /// \brief return value of type T from the json object, possibly default,
   // and optionally throws if value is not found
-  template<typename T> T getVal(std::string Group, std::string Option, T Default , bool Throw = false);
+  template <typename T>
+  T getVal(std::string Group, std::string Option, T Default,
+           bool Throw = false);
 
   // Configurable options
   struct {
@@ -67,10 +69,10 @@ public:
     std::string WindowTitle{"Daquiri Lite - Daqlite"};
     std::string PlotTitle{""};
     std::string XAxis{""};
-    int Width{600}; // default window width
+    int Width{600};  // default window width
     int Height{400}; // default window height
   } Plot;
 
   //
-  nlohmann::json j;
+  nlohmann::json j; // json 'map'
 };

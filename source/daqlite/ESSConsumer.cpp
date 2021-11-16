@@ -5,19 +5,19 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include <algorithm>
-#include <ESSConsumer.h>
-#include <fmt/format.h>
 #include "ev42_events_generated.h"
+#include <ESSConsumer.h>
+#include <algorithm>
+#include <fmt/format.h>
 #include <iostream>
 #include <unistd.h>
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   const int OVERHEAD{1};
-  auto & geom = mConfig.Geometry;
+  auto &geom = mConfig.Geometry;
   uint32_t NumPixels = geom.XDim * geom.YDim * geom.ZDim;
   mMinPixel = geom.Offset;
-  mMaxPixel =  NumPixels + geom.Offset;
+  mMaxPixel = NumPixels + geom.Offset;
   assert(mMaxPixel != 0);
   assert(mMinPixel < mMaxPixel);
   mHistogram.resize(NumPixels + OVERHEAD);
@@ -26,7 +26,6 @@ ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   mConsumer = subscribeTopic();
   assert(mConsumer != nullptr);
 }
-
 
 RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   auto mConf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -41,12 +40,15 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   /// \todo some may be obsolete
   mConf->set("metadata.broker.list", mConfig.Kafka.Broker, ErrStr);
   mConf->set("message.max.bytes", mConfig.Kafka.MessageMaxBytes, ErrStr);
-  mConf->set("fetch.message.max.bytes", mConfig.Kafka.FetchMessagMaxBytes, ErrStr);
-  mConf->set("replica.fetch.max.bytes", mConfig.Kafka.ReplicaFetchMaxBytes, ErrStr);
+  mConf->set("fetch.message.max.bytes", mConfig.Kafka.FetchMessagMaxBytes,
+             ErrStr);
+  mConf->set("replica.fetch.max.bytes", mConfig.Kafka.ReplicaFetchMaxBytes,
+             ErrStr);
   std::string GroupId = randomGroupString(16);
   mConf->set("group.id", GroupId, ErrStr);
   mConf->set("enable.auto.commit", mConfig.Kafka.EnableAutoCommit, ErrStr);
-  mConf->set("enable.auto.offset.store", mConfig.Kafka.EnableAutoOffsetStore, ErrStr);
+  mConf->set("enable.auto.offset.store", mConfig.Kafka.EnableAutoOffsetStore,
+             ErrStr);
 
   auto ret = RdKafka::KafkaConsumer::create(mConf, ErrStr);
   if (!ret) {
@@ -57,74 +59,73 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   // // Start consumer for topic+partition at start offset
   RdKafka::ErrorCode resp = ret->subscribe({mConfig.Kafka.Topic});
   if (resp != RdKafka::ERR_NO_ERROR) {
-    fmt::print("Failed to subscribe consumer to '{}': {}\n", mConfig.Kafka.Topic,
-           err2str(resp));
+    fmt::print("Failed to subscribe consumer to '{}': {}\n",
+               mConfig.Kafka.Topic, err2str(resp));
   }
 
   return ret;
 }
 
-
 uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
-    auto EvMsg = GetEventMessage(Msg->payload());
-    auto PixelIds = EvMsg->detector_id();
-    auto TOFs = EvMsg->time_of_flight();
+  auto EvMsg = GetEventMessage(Msg->payload());
+  auto PixelIds = EvMsg->detector_id();
+  auto TOFs = EvMsg->time_of_flight();
 
-    if (PixelIds->size() != TOFs->size()) {
-      return 0;
+  if (PixelIds->size() != TOFs->size()) {
+    return 0;
+  }
+
+  for (int i = 0; i < PixelIds->size(); i++) {
+    uint32_t Pixel = (*PixelIds)[i];
+    uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
+
+    if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
+      // printf("Error: invalid pixel id: %d, min: %d, max: %d\n",
+      //        Pixel, mMinPixel, mMaxPixel);
+      // exit(0);
+      PixelDiscard++;
+    } else {
+      Pixel -= mMinPixel;
+      mHistogram[Pixel]++;
+      Tof = std::min(Tof, mConfig.TOF.MaxValue);
+      mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;
     }
-
-    for (int i = 0; i < PixelIds->size(); i++) {
-      uint32_t Pixel = (*PixelIds)[i];
-      uint32_t Tof = (*TOFs)[i]/mConfig.TOF.Scale; // ns to us
-
-      if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
-        // printf("Error: invalid pixel id: %d, min: %d, max: %d\n",
-        //        Pixel, mMinPixel, mMaxPixel);
-        // exit(0);
-        PixelDiscard++;
-      } else {
-        Pixel -= mMinPixel;
-        mHistogram[Pixel]++;
-        Tof = std::min(Tof, mConfig.TOF.MaxValue);
-        mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;
-      }
-    }
-    PixelCount += PixelIds->size();
-    return PixelIds->size();
+  }
+  PixelCount += PixelIds->size();
+  return PixelIds->size();
 }
 
 bool ESSConsumer::handleMessage(RdKafka::Message *Message) {
   mKafkaStats.MessagesRx++;
 
   switch (Message->err()) {
-    case RdKafka::ERR__TIMED_OUT:
-      mKafkaStats.MessagesTMO++;
-      return false;
-      break;
+  case RdKafka::ERR__TIMED_OUT:
+    mKafkaStats.MessagesTMO++;
+    return false;
+    break;
 
-    case RdKafka::ERR_NO_ERROR:
-      mKafkaStats.MessagesData++;
-      processEV42Data(Message);
-      return true;
-      break;
+  case RdKafka::ERR_NO_ERROR:
+    mKafkaStats.MessagesData++;
+    processEV42Data(Message);
+    return true;
+    break;
 
-    case RdKafka::ERR__PARTITION_EOF:
-      mKafkaStats.MessagesEOF++;
-      return false;
-      break;
+  case RdKafka::ERR__PARTITION_EOF:
+    mKafkaStats.MessagesEOF++;
+    return false;
+    break;
 
-    case RdKafka::ERR__UNKNOWN_TOPIC:
-    case RdKafka::ERR__UNKNOWN_PARTITION:
-      mKafkaStats.MessagesUnknown++;
-      fmt::print("Consume failed: {}\n", Message->errstr());
-      return false;
-      break;
+  case RdKafka::ERR__UNKNOWN_TOPIC:
+  case RdKafka::ERR__UNKNOWN_PARTITION:
+    mKafkaStats.MessagesUnknown++;
+    fmt::print("Consume failed: {}\n", Message->errstr());
+    return false;
+    break;
 
-    default: // Other errors
-      mKafkaStats.MessagesOther++;
-      fmt::print("Consume failed: {}", Message->errstr());
-      return false;
+  default: // Other errors
+    mKafkaStats.MessagesOther++;
+    fmt::print("Consume failed: {}", Message->errstr());
+    return false;
   }
 }
 
@@ -143,8 +144,5 @@ std::string ESSConsumer::randomGroupString(size_t length) {
   return str;
 }
 
-
 /// \todo is timeout reasonable?
-RdKafka::Message *ESSConsumer::consume() {
-  return mConsumer->consume(1000);
-}
+RdKafka::Message *ESSConsumer::consume() { return mConsumer->consume(1000); }

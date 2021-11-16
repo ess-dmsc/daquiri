@@ -5,14 +5,12 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include <MainWindow.h>
 #include "ui_MainWindow.h"
+#include <MainWindow.h>
 #include <string.h>
 
 MainWindow::MainWindow(Configuration &Config, QWidget *parent)
-  : QMainWindow(parent)
-  , ui(new Ui::MainWindow)
-  , mConfig(Config) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), mConfig(Config) {
 
   ui->setupUi(this);
 
@@ -39,12 +37,17 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   ui->lblDescriptionText->setText(mConfig.Plot.PlotTitle.c_str());
   ui->lblEventRateText->setText("0");
 
-  connect(ui->pushButtonQuit, SIGNAL(clicked()), this, SLOT(handleExitButton()));
-  connect(ui->pushButtonClear, SIGNAL(clicked()), this, SLOT(handleClearButton()));
+  connect(ui->pushButtonQuit, SIGNAL(clicked()), this,
+          SLOT(handleExitButton()));
+  connect(ui->pushButtonClear, SIGNAL(clicked()), this,
+          SLOT(handleClearButton()));
   connect(ui->pushButtonLog, SIGNAL(clicked()), this, SLOT(handleLogButton()));
-  connect(ui->pushButtonGradient, SIGNAL(clicked()), this, SLOT(handleGradientButton()));
-  connect(ui->pushButtonInvert, SIGNAL(clicked()), this, SLOT(handleInvertButton()));
-  connect(ui->pushButtonAutoScale, SIGNAL(clicked()), this, SLOT(handleAutoScaleButton()));
+  connect(ui->pushButtonGradient, SIGNAL(clicked()), this,
+          SLOT(handleGradientButton()));
+  connect(ui->pushButtonInvert, SIGNAL(clicked()), this,
+          SLOT(handleInvertButton()));
+  connect(ui->pushButtonAutoScale, SIGNAL(clicked()), this,
+          SLOT(handleAutoScaleButton()));
 
   updateGradientLabel();
   updateAutoScaleLabel();
@@ -52,9 +55,7 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
   startKafkaConsumerThread();
 }
 
-MainWindow::~MainWindow() {
-  delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::startKafkaConsumerThread() {
   KafkaConsumerThread = new WorkerThread(mConfig);
@@ -67,7 +68,8 @@ void MainWindow::startKafkaConsumerThread() {
 // SLOT
 void MainWindow::handleKafkaData(int EventRate) {
   ui->lblEventRateText->setText(QString::number(EventRate));
-  ui->lblDiscardedPixelsText->setText(QString::number(KafkaConsumerThread->consumer()->PixelDiscard));
+  ui->lblDiscardedPixelsText->setText(
+      QString::number(KafkaConsumerThread->consumer()->PixelDiscard));
 
   KafkaConsumerThread->mutex.lock();
   if (!TOF) {
@@ -108,10 +110,11 @@ void MainWindow::updateGradientLabel() {
   }
 
   if (mConfig.Plot.InvertGradient)
-    ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
+    ui->lblGradientText->setText(
+        QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
   else
-    ui->lblGradientText->setText(QString::fromStdString(mConfig.Plot.ColorGradient));
-
+    ui->lblGradientText->setText(
+        QString::fromStdString(mConfig.Plot.ColorGradient));
 }
 
 void MainWindow::updateAutoScaleLabel() {
@@ -157,6 +160,7 @@ void MainWindow::handleGradientButton() {
     return;
   }
 
-  mConfig.Plot.ColorGradient = Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
+  mConfig.Plot.ColorGradient =
+      Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
   updateGradientLabel();
 }

@@ -8,7 +8,6 @@
 #include <Configuration.h>
 #include <fmt/format.h>
 
-
 void Configuration::fromJsonFile(std::string fname) {
   std::ifstream ifs(fname, std::ofstream::in);
   if (!ifs.good()) {
@@ -27,16 +26,22 @@ void Configuration::fromJsonFile(std::string fname) {
   Kafka.Topic = getVal("kafka", "topic", "n/a"s, true);
   /// The rest are optional, so we just use default values if there is an
   /// invalid/missing configuration
-  Kafka.MessageMaxBytes = getVal("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
-  Kafka.FetchMessagMaxBytes = getVal("kafka", "fetch.message.max.bytes", Kafka.FetchMessagMaxBytes);
-  Kafka.ReplicaFetchMaxBytes = getVal("kafka", "replica.fetch.max.bytes", Kafka.ReplicaFetchMaxBytes);
-  Kafka.EnableAutoCommit = getVal("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
-  Kafka.EnableAutoOffsetStore = getVal("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
+  Kafka.MessageMaxBytes =
+      getVal("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
+  Kafka.FetchMessagMaxBytes =
+      getVal("kafka", "fetch.message.max.bytes", Kafka.FetchMessagMaxBytes);
+  Kafka.ReplicaFetchMaxBytes =
+      getVal("kafka", "replica.fetch.max.bytes", Kafka.ReplicaFetchMaxBytes);
+  Kafka.EnableAutoCommit =
+      getVal("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
+  Kafka.EnableAutoOffsetStore =
+      getVal("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
 
   // Plot options - all are optional
   Plot.PlotType = getVal("plot", "plot_type", Plot.PlotType);
   Plot.ClearPeriodic = getVal("plot", "clear_periodic", Plot.ClearPeriodic);
-  Plot.ClearEverySeconds = getVal("plot", "clear_interval_seconds", Plot.ClearEverySeconds);
+  Plot.ClearEverySeconds =
+      getVal("plot", "clear_interval_seconds", Plot.ClearEverySeconds);
   Plot.Interpolate = getVal("plot", "interpolate_pixels", Plot.Interpolate);
   Plot.ColorGradient = getVal("plot", "color_gradient", Plot.ColorGradient);
   Plot.InvertGradient = getVal("plot", "invert_gradient", Plot.InvertGradient);
@@ -62,7 +67,8 @@ void Configuration::print() {
   fmt::print("  Broker {}\n", Kafka.Broker);
   fmt::print("  Topic {}\n", Kafka.Topic);
   fmt::print("[Geometry]\n");
-  fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim, Geometry.ZDim);
+  fmt::print("  Dimensions ({}, {}, {})\n", Geometry.XDim, Geometry.YDim,
+             Geometry.ZDim);
   fmt::print("  Pixel Offset {}\n", Geometry.Offset);
   fmt::print("[Plot]\n");
   fmt::print("  WindowTitle {}\n", Plot.WindowTitle);
@@ -82,15 +88,15 @@ void Configuration::print() {
   fmt::print("  Auto scale {}\n", TOF.AutoScale);
 }
 
-
 //\brief getVal() template is used to effectively achieve
 // getInt(), getString() and getBool() functionality through T
-template<typename T>
-T Configuration::getVal(std::string Group, std::string Option, T Default , bool Throw) {
+template <typename T>
+T Configuration::getVal(std::string Group, std::string Option, T Default,
+                        bool Throw) {
   T ConfigVal;
   try {
     ConfigVal = j[Group][Option];
-  } catch (nlohmann::json::exception& e) {
+  } catch (nlohmann::json::exception &e) {
     fmt::print("Missing [{}][{}] configuration\n", Group, Option);
     if (Throw) {
       throw std::runtime_error("Daqlite config error");
