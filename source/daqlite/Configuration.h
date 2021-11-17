@@ -24,6 +24,18 @@ public:
   /// \brief loads configuration from json file
   void fromJsonFile(std::string fname);
 
+  // get the Kafka related config options
+  void getKafkaConfig();
+
+  // get the Geometry related config options
+  void getGeometryConfig();
+
+  // get the Plot related config options
+  void getPlotConfig();
+
+  // get the TOF related config options
+  void getTOFConfig();
+
   /// \brief prints the settings
   void print();
 
@@ -34,21 +46,21 @@ public:
            bool Throw = false);
 
   // Configurable options
-  struct {
+  struct TOF {
     unsigned int Scale{1000};     // ns -> us
     unsigned int MaxValue{25000}; // us
     unsigned int BinSize{512};    // bins
     bool AutoScale{true};
-  } TOF;
+  };
 
-  struct {
+  struct Geometry {
     int XDim{1};
     int YDim{1};
     int ZDim{1};
     int Offset{0};
-  } Geometry;
+  };
 
-  struct {
+  struct Kafka {
     std::string Topic{"nmx_detector"};
     std::string Broker{"172.17.5.38:9092"};
     std::string MessageMaxBytes{"10000000"};
@@ -56,9 +68,9 @@ public:
     std::string ReplicaFetchMaxBytes{"10000000"};
     std::string EnableAutoCommit{"false"};
     std::string EnableAutoOffsetStore{"false"};
-  } Kafka;
+  };
 
-  struct {
+  struct Plot {
     std::string PlotType{"pixels"}; // "tof" is the alternative
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
@@ -71,8 +83,13 @@ public:
     std::string XAxis{""};
     int Width{600};  // default window width
     int Height{400}; // default window height
-  } Plot;
+  };
 
-  //
-  nlohmann::json j; // json 'map'
+//
+  struct TOF TOF;
+  struct Geometry Geometry;
+  struct Kafka Kafka;
+  struct Plot Plot;
+
+  nlohmann::json JsonObj;
 };

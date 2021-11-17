@@ -11,21 +11,38 @@
 void Configuration::fromJsonFile(std::string fname) {
   std::ifstream ifs(fname, std::ofstream::in);
   if (!ifs.good()) {
-    throw("Invalid json configuration file, exiting ...");
+    throw("Unable to create ifstream (bad filename?), exiting ...");
   }
-  ifs >> j;
-  using std::operator""s;
+
+  try {
+    ifs >> JsonObj;
+  } catch (...) {
+    throw("File is not valid JSON");
+  }
+
+  getGeometryConfig();
+  getKafkaConfig();
+  getPlotConfig();
+  getTOFConfig();
+  print();
+}
+
+
+void Configuration::getGeometryConfig() {
   /// 'geometry' field is mandatory
   Geometry.XDim = getVal("geometry", "xdim", Geometry.XDim, true);
   Geometry.YDim = getVal("geometry", "ydim", Geometry.YDim, true);
   Geometry.ZDim = getVal("geometry", "zdim", Geometry.ZDim, true);
   Geometry.Offset = getVal("geometry", "offset", Geometry.Offset);
+}
 
-  /// 'kafka' field is mandatory. 'broker' and 'topic' must be specified
+
+void Configuration::getKafkaConfig() {
+  /// 'broker' and 'topic' must be specified
+  using std::operator""s;
   Kafka.Broker = getVal("kafka", "broker", "n/a"s, true);
   Kafka.Topic = getVal("kafka", "topic", "n/a"s, true);
-  /// The rest are optional, so we just use default values if there is an
-  /// invalid/missing configuration
+  /// The rest are optional, using default values
   Kafka.MessageMaxBytes =
       getVal("kafka", "message.max.bytes", Kafka.MessageMaxBytes);
   Kafka.FetchMessagMaxBytes =
@@ -36,7 +53,10 @@ void Configuration::fromJsonFile(std::string fname) {
       getVal("kafka", "enable.auto.commit", Kafka.EnableAutoCommit);
   Kafka.EnableAutoOffsetStore =
       getVal("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
+}
 
+
+void Configuration::getPlotConfig() {
   // Plot options - all are optional
   Plot.PlotType = getVal("plot", "plot_type", Plot.PlotType);
   Plot.ClearPeriodic = getVal("plot", "clear_periodic", Plot.ClearPeriodic);
@@ -53,14 +73,15 @@ void Configuration::fromJsonFile(std::string fname) {
   Plot.XAxis = getVal("plot", "xaxis", Plot.XAxis);
   Plot.Width = getVal("plot", "window_width", Plot.Width);
   Plot.Height = getVal("plot", "window_height", Plot.Height);
+}
 
+void Configuration::getTOFConfig() {
   TOF.Scale = getVal("tof", "scale", TOF.Scale);
   TOF.MaxValue = getVal("tof", "max_value", TOF.MaxValue);
   TOF.BinSize = getVal("tof", "bin_size", TOF.BinSize);
   TOF.AutoScale = getVal("tof", "auto_scale", TOF.AutoScale);
-
-  print();
 }
+
 
 void Configuration::print() {
   fmt::print("[Kafka]\n");
@@ -95,7 +116,7 @@ T Configuration::getVal(std::string Group, std::string Option, T Default,
                         bool Throw) {
   T ConfigVal;
   try {
-    ConfigVal = j[Group][Option];
+    ConfigVal = JsonObj[Group][Option];
   } catch (nlohmann::json::exception &e) {
     fmt::print("Missing [{}][{}] configuration\n", Group, Option);
     if (Throw) {
