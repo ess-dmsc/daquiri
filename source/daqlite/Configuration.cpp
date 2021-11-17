@@ -11,13 +11,13 @@
 void Configuration::fromJsonFile(std::string fname) {
   std::ifstream ifs(fname, std::ofstream::in);
   if (!ifs.good()) {
-    throw("Unable to create ifstream (bad filename?), exiting ...");
+    throw(std::runtime_error("Unable to create ifstream (bad filename?), exiting ..."));
   }
 
   try {
     ifs >> JsonObj;
   } catch (...) {
-    throw("File is not valid JSON");
+    throw(std::runtime_error("File is not valid JSON"));
   }
 
   getGeometryConfig();
@@ -27,7 +27,6 @@ void Configuration::fromJsonFile(std::string fname) {
   print();
 }
 
-
 void Configuration::getGeometryConfig() {
   /// 'geometry' field is mandatory
   Geometry.XDim = getVal("geometry", "xdim", Geometry.XDim, true);
@@ -35,7 +34,6 @@ void Configuration::getGeometryConfig() {
   Geometry.ZDim = getVal("geometry", "zdim", Geometry.ZDim, true);
   Geometry.Offset = getVal("geometry", "offset", Geometry.Offset);
 }
-
 
 void Configuration::getKafkaConfig() {
   /// 'broker' and 'topic' must be specified
@@ -54,7 +52,6 @@ void Configuration::getKafkaConfig() {
   Kafka.EnableAutoOffsetStore =
       getVal("kafka", "enable.auto.offset.store", Kafka.EnableAutoOffsetStore);
 }
-
 
 void Configuration::getPlotConfig() {
   // Plot options - all are optional
@@ -81,7 +78,6 @@ void Configuration::getTOFConfig() {
   TOF.BinSize = getVal("tof", "bin_size", TOF.BinSize);
   TOF.AutoScale = getVal("tof", "auto_scale", TOF.AutoScale);
 }
-
 
 void Configuration::print() {
   fmt::print("[Kafka]\n");
