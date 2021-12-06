@@ -50,6 +50,8 @@ def get_macos_pipeline() {
                 dir("${project}/build") {
                     try {
                         // Remove existing CLI11 because of case insensitive filesystem issue
+                        sh "ls /usr/include"
+                        sh "which uic"
                         sh "conan remove -f 'CLI11*' && \
                             CPATH=`xcrun --show-sdk-path`/usr/include CFLAGS=-Wno-error=implicit-function-declaration cmake ../code"
                     } catch (e) {
@@ -106,6 +108,8 @@ builders = pipeline_builder.createBuilders { container ->
 
         container.sh """
             cd ${project}/build
+            sh "ls /usr/include"
+            sh "which uic"
             CFLAGS=-Wno-error=implicit-function-declaration cmake .. ${coverage_flag}
         """
     }  // stage
