@@ -61,6 +61,7 @@ target_link_libraries(
   PUBLIC ${GraylogLogger_STATIC_LIBRARIES}
   PUBLIC h5cpp::h5cpp
   PUBLIC fmt::fmt
+  PUBLIC spdlog::spdlog
   PUBLIC ${DATE_LIBRARIES}
   PRIVATE Threads::Threads
 )

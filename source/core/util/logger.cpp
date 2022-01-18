@@ -22,7 +22,8 @@ class ostream_sink final : public spdlog::sinks::base_sink<Mutex>
  protected:
   void sink_it_(const spdlog::details::log_msg& msg) override
   {
-    fmt::memory_buffer formatted;
+    // Changed from fmt::memory_buffer to be able to compile.
+    fmt::basic_memory_buffer<char, 250> formatted;
     spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
     (*outStream) << fmt::to_string(formatted);
   }
