@@ -16,8 +16,8 @@ ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   const int OVERHEAD{1};
   auto &geom = mConfig.Geometry;
   uint32_t NumPixels = geom.XDim * geom.YDim * geom.ZDim;
-  mMinPixel = geom.Offset;
-  mMaxPixel = NumPixels + geom.Offset;
+  mMinPixel = geom.Offset + 1;
+  mMaxPixel = geom.Offset +  NumPixels;
   assert(mMaxPixel != 0);
   assert(mMinPixel < mMaxPixel);
   mHistogram.resize(NumPixels + OVERHEAD);
@@ -85,7 +85,7 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
       // exit(0);
       PixelDiscard++;
     } else {
-      Pixel -= mMinPixel;
+      Pixel = Pixel - mConfig.Geometry.Offset;
       mHistogram[Pixel]++;
       Tof = std::min(Tof, mConfig.TOF.MaxValue);
       mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;

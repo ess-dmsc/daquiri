@@ -35,6 +35,7 @@ CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
   // mGraph->setLineStyle(QCPGraph::lsNone);
   mGraph->setBrush(QBrush(QColor(0, 0, 255, 20)));
   mGraph->setLineStyle(QCPGraph::lsStepCenter);
+  mGraph->  setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
 
   // we want the color map to have nx * ny data points
 
@@ -64,7 +65,7 @@ void CustomTofPlot::plotDetectorImage(bool Force) {
   setCustomParameters();
   mGraph->data()->clear();
   uint32_t MaxY{0};
-  for (unsigned int i = 1; i < HistogramTofData.size(); i++) {
+  for (unsigned int i = 0; i < HistogramTofData.size(); i++) {
     if ((HistogramTofData[i] != 0) or (Force)) {
       uint32_t x = i * mConfig.TOF.MaxValue / mConfig.TOF.BinSize;
       uint32_t y = HistogramTofData[i];
