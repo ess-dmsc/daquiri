@@ -1,7 +1,7 @@
 #!/bin/bash
 
-../../../build/bin/daqlite -f ../configs/vipfreia.json &
-../../../build/bin/daqlite -f ../configs/vipnmx.json &
-../../../build/bin/daqlite -f ../configs/viploki.json &
-../../../build/bin/daqlite -f ../configs/vipcspec3d.json &
-../../../build/bin/daqlite -f ../configs/vipdream.json
+../../../build/bin/daqlite -f ../configs/vipdemo/freia.json &
+../../../build/bin/daqlite -f ../configs/vipdemo/nmx.json &
+../../../build/bin/daqlite -f ../configs/vipdemo/loki.json &
+../../../build/bin/daqlite -f ../configs/vipdemo/cspec3d.json &
+../../../build/bin/daqlite -f ../configs/vipdemo/dream.json
