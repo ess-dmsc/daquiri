@@ -1,6 +1,6 @@
 {
   "kafka" : {
-    "broker" : "172.30.242.20:9092",
+    "broker" : "127.0.0.1:9092",
     "topic" : "loki_detector",
 
     "message.max.bytes" : "10000000",
