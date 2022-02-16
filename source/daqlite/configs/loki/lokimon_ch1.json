@@ -11,10 +11,10 @@
   },
 
   "geometry" : {
-    "xdim" : 1,
+    "xdim" : 2,
     "ydim" : 1,
     "zdim" : 1,
-    "offset" : 0
+    "offset" : 1
   },
 
   "tof" : {
