@@ -12,20 +12,28 @@
 
   "geometry" : {
     "xdim" : 512,
-    "ydim" : 6271,
+    "ydim" : 896,
     "zdim" : 1,
     "offset" : 0
+  },  
+
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 5000000,
+    "bin_size" : 512
   },
 
   "plot": {
-    "plot_type" : "pixels",
-    "window_title" : "LOKI - full instrument",
-    "plot_title" : "pixels",
+    "plot_type" : "tof",
+    "window_title" : "LOKI TOF",
+    "plot_title" : "TOF",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
     "color_gradient" : "spectrum",
     "invert_gradient" : false,
-    "log_scale" : true
-  }
+    "log_scale" : false,
+    "window_height" : 250,
+    "window_width" : 750
+   }
 }

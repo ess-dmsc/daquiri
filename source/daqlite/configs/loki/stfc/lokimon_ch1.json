@@ -1,7 +1,7 @@
 {
   "kafka" : {
     "broker" : "127.0.0.1:9092",
-    "topic" : "loki_detector",
+    "topic" : "loki_beam_monitor",
 
     "message.max.bytes" : "10000000",
     "fetch.message.max.bytes" : "10000000",
@@ -11,21 +11,29 @@
   },
 
   "geometry" : {
-    "xdim" : 512,
-    "ydim" : 6271,
+    "xdim" : 2,
+    "ydim" : 1,
     "zdim" : 1,
-    "offset" : 0
+    "offset" : 1
+  },
+
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 120000,
+    "bin_size" : 512
   },
 
   "plot": {
-    "plot_type" : "pixels",
-    "window_title" : "LOKI - full instrument",
-    "plot_title" : "pixels",
+    "plot_type" : "tof",
+    "window_title" : "LOKI",
+    "plot_title" : "Monitor TOF Channel 1",
     "clear_periodic" : false,
     "clear_interval_seconds" : 30,
     "interpolate_pixels" : false,
     "color_gradient" : "spectrum",
     "invert_gradient" : false,
-    "log_scale" : true
-  }
+    "log_scale" : false,
+    "window_height" : 250,
+    "window_width" : 750
+   }
 }
