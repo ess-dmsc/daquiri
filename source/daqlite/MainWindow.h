@@ -43,7 +43,7 @@ public slots:
   void handleGradientButton();
   void handleInvertButton();
   void handleAutoScaleButton();
-  void handleKafkaData(int EventRate);
+  void handleKafkaData(uint64_t ElapsedCountNS);
 
 private:
   Ui::MainWindow *ui;
