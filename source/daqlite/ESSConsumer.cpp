@@ -83,15 +83,16 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
       // printf("Error: invalid pixel id: %d, min: %d, max: %d\n",
       //        Pixel, mMinPixel, mMaxPixel);
       // exit(0);
-      PixelDiscard++;
+      EventDiscard++;
     } else {
+      EventAccept++;
       Pixel = Pixel - mConfig.Geometry.Offset;
       mHistogram[Pixel]++;
       Tof = std::min(Tof, mConfig.TOF.MaxValue);
       mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;
     }
   }
-  PixelCount += PixelIds->size();
+  EventCount += PixelIds->size();
   return PixelIds->size();
 }
 

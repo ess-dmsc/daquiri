@@ -85,12 +85,38 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Event rate:</string>
+         <string>Evts/s:</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="lblEventRateText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblAcceptRate">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Accept/s:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblAcceptRateText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -111,7 +137,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Discarded:</string>
+         <string>Discard/s:</string>
         </property>
        </widget>
       </item>

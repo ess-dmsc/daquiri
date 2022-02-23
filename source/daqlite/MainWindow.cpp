@@ -66,21 +66,30 @@ void MainWindow::startKafkaConsumerThread() {
 }
 
 // SLOT
-void MainWindow::handleKafkaData(int EventRate) {
+void MainWindow::handleKafkaData(uint64_t ElapsedCountMS) {
+  auto Consumer = KafkaConsumerThread->consumer();
+
+  uint64_t EventRate = Consumer->EventCount * 1000ULL/ElapsedCountMS;
+  uint64_t EventAccept = Consumer->EventAccept * 1000ULL/ElapsedCountMS;
+  uint64_t EventDiscardRate = Consumer->EventDiscard * 1000ULL/ElapsedCountMS;
+
   ui->lblEventRateText->setText(QString::number(EventRate));
-  ui->lblDiscardedPixelsText->setText(
-      QString::number(KafkaConsumerThread->consumer()->PixelDiscard));
+  ui->lblAcceptRateText->setText(QString::number(EventAccept));
+  ui->lblDiscardedPixelsText->setText(QString::number(EventDiscardRate));
 
   KafkaConsumerThread->mutex.lock();
   if (!TOF) {
-    Plot2DXY->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
+    Plot2DXY->addData(Consumer->mHistogramPlot);
     if (mConfig.Geometry.ZDim > 1) {
-      Plot2DXZ->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
-      Plot2DYZ->addData(KafkaConsumerThread->consumer()->mHistogramPlot);
+      Plot2DXZ->addData(Consumer->mHistogramPlot);
+      Plot2DYZ->addData(Consumer->mHistogramPlot);
     }
   } else {
-    PlotTOF->addData(KafkaConsumerThread->consumer()->mHistogramTofPlot);
+    PlotTOF->addData(Consumer->mHistogramTofPlot);
   }
+  Consumer->EventCount = 0;
+  Consumer->EventAccept = 0;
+  Consumer->EventDiscard = 0;
   KafkaConsumerThread->mutex.unlock();
 }
 

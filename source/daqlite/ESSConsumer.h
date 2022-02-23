@@ -40,8 +40,12 @@ public:
   std::vector<uint32_t> mHistogram;
   std::vector<uint32_t> mHistogramTofPlot;
   std::vector<uint32_t> mHistogramTof;
-  uint64_t PixelCount{0};
-  uint64_t PixelDiscard{0};
+
+  uint64_t EventCount{0};
+  uint64_t EventAccept{0};
+  uint64_t EventDiscard{0};
+
+
 
 private:
   RdKafka::Conf *mConf;
