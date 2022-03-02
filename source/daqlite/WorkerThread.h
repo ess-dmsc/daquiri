@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file WorkerThread.h
@@ -33,9 +33,13 @@ public:
   /// \brief Getter for the consumer
   ESSConsumer *consumer() { return Consumer; }
 
+  /// \brief protects vectors<uint32_t> used for histograms
+  /// shared bewteen workerthread and consumer.
   QMutex mutex;
 
 signals:
+  /// \brief this signal is 'emitted' when there is new data to be plotted
+  /// this is done periodically (approximately once every second)
   void resultReady(uint64_t &val);
 
 private:

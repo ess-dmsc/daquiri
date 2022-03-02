@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 European Spallation Source, ERIC. See LICENSE file      */
+// Copyright (C) 2020 - 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file WorkerThread.cpp
@@ -12,14 +12,19 @@ void WorkerThread::run() {
 
   auto t2 = std::chrono::high_resolution_clock::now();
   auto t1 = std::chrono::high_resolution_clock::now();
-  while (1) {
+
+  while (true) {
     auto Msg = Consumer->consume();
 
     Consumer->handleMessage(Msg);
 
     t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
+
+    /// once every ~ 1 second, copy the histograms and tell main thread
+    /// that plots can be updated.
     if (elapsed.count() >= 1000000000ULL) {
+
       mutex.lock();
       Consumer->mHistogramPlot = Consumer->mHistogram;
       Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
