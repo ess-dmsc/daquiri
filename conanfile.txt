@@ -7,8 +7,8 @@ h5cpp/0.4.0-dm2@ess-dmsc/stable
 nlohmann_json/3.9.1
 librdkafka/1.6.0
 logical-geometry/705ea61@ess-dmsc/stable
-qplot/2ffc74f@ess-dmsc/stable
-Qt-Color-Widgets/a95f72e@ess-dmsc/stable
+qplot/3f6c5ad@ess-dmsc/testing
+Qt-Color-Widgets/9f4e052@ess-dmsc/testing
 spdlog/1.8.5
 streaming-data-types/6a41aee@ess-dmsc/stable
 fmt/5.3.0@bincrafters/stable
