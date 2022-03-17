@@ -3,11 +3,11 @@ cli11/2.1.1
 date/2.4.1
 eigen/3.3.9
 gtest/1.10.0
-h5cpp/0.4.0-dm2@ess-dmsc/stable
+h5cpp/0.4.1@ess-dmsc/testing
 nlohmann_json/3.9.1
 librdkafka/1.6.0
 logical-geometry/705ea61@ess-dmsc/stable
-qplot/3f6c5ad@ess-dmsc/testing
+qplot/6e192ab@ess-dmsc/testing
 Qt-Color-Widgets/9f4e052@ess-dmsc/testing
 spdlog/1.8.5
 streaming-data-types/6a41aee@ess-dmsc/stable
