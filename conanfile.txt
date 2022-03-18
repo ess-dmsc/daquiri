@@ -4,16 +4,14 @@ date/3.0.1
 eigen/3.3.9 #bump to 3.4.0 requires conan upgrade
 gtest/1.10.0
 fmt/8.1.1
-librdkafka/1.6.1 #bump to 1.8.2 requires conan upgrade
+librdkafka/1.6.0 #bump to 1.8.2 requires conan upgrade
 nlohmann_json/3.10.5
 spdlog/1.9.2
 h5cpp/0.4.1@ess-dmsc/stable
 logical-geometry/705ea61@ess-dmsc/stable
 qplot/6e192ab@ess-dmsc/stable
 Qt-Color-Widgets/9f4e052@ess-dmsc/stable
-spdlog/1.8.5
 streaming-data-types/6a41aee@ess-dmsc/stable
-fmt/5.3.0@bincrafters/stable
 
 [generators]
 cmake
