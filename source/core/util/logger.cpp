@@ -4,7 +4,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <fstream>
-#include <date/date.h>
 
 namespace spdlog
 {

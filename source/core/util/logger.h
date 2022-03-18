@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <libgen.h>
 
-#include <cassert> /// Somehow spdlog fails to bring it along on its own
 #include <spdlog/spdlog.h>
 
 #pragma GCC system_header
