@@ -1,5 +1,5 @@
 [requires]
-cli11/2.1.2
+cli11/2.1.1
 date/3.0.1
 eigen/3.4.0
 gtest/1.10.0
