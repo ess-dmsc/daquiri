@@ -15,7 +15,7 @@ template<typename Mutex>
 class ostream_sink final : public spdlog::sinks::base_sink<Mutex>
 {
  public:
-  ostream_sink(std::ostream* gui_stream)
+  explicit ostream_sink(std::ostream* gui_stream)
       : outStream(gui_stream)
   {}
 
