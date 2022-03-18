@@ -1,7 +1,7 @@
 [requires]
-cli11/2.1.1
+cli11/2.1.1 #need update 2.1.2
 date/3.0.1
-eigen/3.4.0
+eigen/3.3.9 #needs update 3.4.0
 gtest/1.10.0
 fmt/8.1.1
 librdkafka/1.8.2
