@@ -77,8 +77,10 @@ void CustomTofPlot::plotDetectorImage(bool Force) {
   }
 
   // yAxis->rescale();
-  if (mConfig.TOF.AutoScale) {
+  if (mConfig.TOF.AutoScaleX) {
     xAxis->setRange(0, mConfig.TOF.MaxValue * 1.05);
+  }
+  if (mConfig.TOF.AutoScaleY){
     yAxis->setRange(0, MaxY * 1.05);
   }
   replot();

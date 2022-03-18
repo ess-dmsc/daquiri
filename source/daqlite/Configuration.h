@@ -50,7 +50,8 @@ public:
     unsigned int Scale{1000};     // ns -> us
     unsigned int MaxValue{25000}; // us
     unsigned int BinSize{512};    // bins
-    bool AutoScale{true};
+    bool AutoScaleX{true};
+    bool AutoScaleY{true};
   };
 
   struct Geometry {
