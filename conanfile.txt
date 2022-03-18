@@ -4,7 +4,7 @@ date/3.0.1
 eigen/3.3.9 #needs update 3.4.0
 gtest/1.10.0
 fmt/8.1.1
-librdkafka/1.8.0 #needs update 1.8.2
+librdkafka/1.7.0 #needs update 1.8.2
 nlohmann_json/3.10.5
 spdlog/1.9.2
 h5cpp/0.4.1@ess-dmsc/stable
