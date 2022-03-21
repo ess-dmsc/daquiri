@@ -14,9 +14,9 @@
 #include <WorkerThread.h>
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QPlot/QPlot.h>
 #include <fmt/format.h>
-#include <QCommandLineParser>
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);

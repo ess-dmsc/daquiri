@@ -7,14 +7,14 @@
 
 #include <CustomTofPlot.h>
 #include <WorkerThread.h>
+#include <algorithm>
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
-#include <algorithm>
 
 CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
-  auto & geom = mConfig.Geometry;
+  auto &geom = mConfig.Geometry;
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
 
@@ -33,7 +33,9 @@ CustomTofPlot::CustomTofPlot(Configuration &Config) : mConfig(Config) {
 
   mGraph = new QCPGraph(xAxis, yAxis);
   // mGraph->setLineStyle(QCPGraph::lsNone);
-  // mGraph->setScatterStyle(QCPScatterStyle::ssDisc);
+  mGraph->setBrush(QBrush(QColor(0, 0, 255, 20)));
+  mGraph->setLineStyle(QCPGraph::lsStepCenter);
+  mGraph->  setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
 
   // we want the color map to have nx * ny data points
 
@@ -62,22 +64,30 @@ void CustomTofPlot::setCustomParameters() {
 void CustomTofPlot::plotDetectorImage(bool Force) {
   setCustomParameters();
   mGraph->data()->clear();
-  for (unsigned int i = 1; i < HistogramTofData.size(); i++) {
-    if ((HistogramTofData[i] != 0) or (Force))  {
-        uint32_t x = i * mConfig.TOF.MaxValue/mConfig.TOF.BinSize;
-        uint32_t y = HistogramTofData[i];
-        mGraph->addData(x, y);
+  uint32_t MaxY{0};
+  for (unsigned int i = 0; i < HistogramTofData.size(); i++) {
+    if ((HistogramTofData[i] != 0) or (Force)) {
+      uint32_t x = i * mConfig.TOF.MaxValue / mConfig.TOF.BinSize;
+      uint32_t y = HistogramTofData[i];
+      if (y > MaxY) {
+        MaxY = y;
+      }
+      mGraph->addData(x, y);
     }
   }
 
-  yAxis->rescale();
+  // yAxis->rescale();
+  if (mConfig.TOF.AutoScale) {
+    xAxis->setRange(0, mConfig.TOF.MaxValue * 1.05);
+    yAxis->setRange(0, MaxY * 1.05);
+  }
   replot();
 }
 
-void CustomTofPlot::addData(std::vector<uint32_t> & Histogram) {
-  //printf("addData (TOF) Histogram size %lu\n", Histogram.size());
+void CustomTofPlot::addData(std::vector<uint32_t> &Histogram) {
+  // printf("addData (TOF) Histogram size %lu\n", Histogram.size());
   auto t2 = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
+  std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
   //

@@ -35,14 +35,17 @@ public:
   /// multiple applications is possible.
   static std::string randomGroupString(size_t length);
 
-
   // Histogram(s) and counts
   std::vector<uint32_t> mHistogramPlot;
   std::vector<uint32_t> mHistogram;
   std::vector<uint32_t> mHistogramTofPlot;
   std::vector<uint32_t> mHistogramTof;
-  uint64_t PixelCount{0};
-  uint64_t PixelDiscard{0};
+
+  uint64_t EventCount{0};
+  uint64_t EventAccept{0};
+  uint64_t EventDiscard{0};
+
+
 
 private:
   RdKafka::Conf *mConf;
@@ -63,7 +66,6 @@ private:
     uint64_t MessagesUnknown{0};
     uint64_t MessagesOther{0};
   } mKafkaStats;
-
 
   uint32_t mMinPixel{0}; ///< Offset
   uint32_t mMaxPixel{0}; ///< Number of pixels + offset

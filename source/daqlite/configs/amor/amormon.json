@@ -1,0 +1,37 @@
+{
+  "kafka" : {
+    "broker" : "172.30.242.20:9092",
+    "topic" : "freia_beam_monitor",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 1,
+    "ydim" : 1,
+    "zdim" : 1,
+    "offset" : 0
+  },
+
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 71500,
+    "bin_size" : 512
+  },
+
+  "plot": {
+    "plot_type" : "tof",
+    "window_title" : "AMOR MONITOR",
+    "plot_title" : "Monitor TOF",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 30,
+    "interpolate_pixels" : false,
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : false
+  }
+}

@@ -11,16 +11,16 @@
   },
 
   "geometry" : {
-    "xdim" : 32,
-    "ydim" : 192,
+    "xdim" : 64,
+    "ydim" : 1024,
     "zdim" : 1,
     "offset" : 0
   },
 
   "plot": {
     "plot_type" : "pixels",
-    "window_title" : "FREIA",
-    "plot_title" : "FREIA",
+    "window_title" : "FREIA detector image",
+    "plot_title" : "Picels",
     "clear_periodic" : false,
     "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,

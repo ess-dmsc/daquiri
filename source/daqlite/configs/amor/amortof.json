@@ -1,0 +1,37 @@
+{
+  "kafka" : {
+    "broker" : "172.30.242.20:9092",
+    "topic" : "freia_detector",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 64,
+    "ydim" : 448,
+    "zdim" : 1,
+    "offset" : 0
+  },
+
+  "tof" : {
+    "scale" : 1000,
+    "max_value" : 65000,
+    "bin_size" : 512
+  },
+
+  "plot": {
+    "plot_type" : "tof",
+    "window_title" : "AMOR TOF",
+    "plot_title" : "TOF",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 30,
+    "interpolate_pixels" : false,
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : false
+  }
+}

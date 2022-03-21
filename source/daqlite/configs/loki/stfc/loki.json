@@ -1,0 +1,33 @@
+{
+  "kafka" : {
+    "broker" : "127.0.0.1:9092",
+    "topic" : "loki_detector",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 512,
+    "ydim" : 896,
+    "zdim" : 1,
+    "offset" : 0
+  },
+
+  "plot": {
+    "plot_type" : "pixels",
+    "window_title" : "LOKI - full instrument",
+    "plot_title" : "pixels",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 30,
+    "interpolate_pixels" : false,
+    "color_gradient" : "spectrum",
+    "invert_gradient" : false,
+    "log_scale" : true,
+    "window_width" : 300,
+    "window_height": 900
+  }
+}

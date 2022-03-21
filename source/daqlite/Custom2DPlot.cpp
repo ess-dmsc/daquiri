@@ -7,20 +7,21 @@
 
 #include <Custom2DPlot.h>
 #include <WorkerThread.h>
+#include <algorithm>
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
-#include <algorithm>
 
-Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
-  mConfig(Config), mProjection(Projection) {
+Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection)
+    : mConfig(Config), mProjection(Projection) {
 
   assert((Projection >= 0) and (Projection <= 2));
 
-  connect(this, SIGNAL(mouseMove(QMouseEvent*)), this,SLOT(showPointToolTip(QMouseEvent*)));
+  connect(this, SIGNAL(mouseMove(QMouseEvent *)), this,
+          SLOT(showPointToolTip(QMouseEvent *)));
   setAttribute(Qt::WA_AlwaysShowToolTips);
 
-  auto & geom = mConfig.Geometry;
+  auto &geom = mConfig.Geometry;
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
   HistogramData.resize(LogicalGeometry->max_pixel() + 1);
@@ -62,7 +63,6 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, int Projection) :
   // add a color scale:
   mColorScale = new QCPColorScale(this);
 
-
   // add it to the right of the main axis rect
   plotLayout()->addElement(0, 1, mColorScale);
 
@@ -95,7 +95,7 @@ void Custom2DPlot::setCustomParameters() {
   QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
 
   if (mConfig.Plot.InvertGradient) {
-     Gradient = Gradient.inverted();
+    Gradient = Gradient.inverted();
   }
 
   mColorMap->setGradient(Gradient);
@@ -114,7 +114,7 @@ QCPColorGradient Custom2DPlot::getColorGradient(std::string GradientName) {
   } else {
     fmt::print("Gradient {} not found, using 'hot' instead.\n", GradientName);
     fmt::print("Supported gradients are: ");
-    for (auto & Gradient : mGradients) {
+    for (auto &Gradient : mGradients) {
       fmt::print("{} ", Gradient.first);
     }
     fmt::print("\n");
@@ -127,7 +127,7 @@ std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
   bool SaveNext{false};
   std::string RetVal;
 
-  for (auto & Gradient : mGradients) {
+  for (auto &Gradient : mGradients) {
     if (SaveFirst) {
       RetVal = Gradient.first;
       SaveFirst = false;
@@ -143,7 +143,6 @@ std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
   return RetVal;
 }
 
-
 void Custom2DPlot::clearDetectorImage() {
   std::fill(HistogramData.begin(), HistogramData.end(), 0);
   addData(HistogramData);
@@ -157,19 +156,22 @@ void Custom2DPlot::plotDetectorImage(bool Force) {
   // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
   // and coordinates match. PixelId 0 does not exist.
   for (unsigned int i = 1; i < HistogramData.size(); i++) {
-    if ((HistogramData[i] != 0) or (Force))  {
+    if ((HistogramData[i] != 0) or (Force)) {
       auto xIndex = LogicalGeometry->x(i);
       auto yIndex = LogicalGeometry->y(i);
       auto zIndex = LogicalGeometry->z(i);
 
       if (mProjection == 0) {
-        //printf("XY: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex, HistogramData[i]);
+        // printf("XY: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
+        // HistogramData[i]);
         mColorMap->data()->setCell(xIndex, yIndex, HistogramData[i]);
       } else if (mProjection == 1) {
-        //printf("XZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex, HistogramData[i]);
+        // printf("XZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
+        // HistogramData[i]);
         mColorMap->data()->setCell(xIndex, zIndex, HistogramData[i]);
       } else {
-        //printf("YZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex, HistogramData[i]);
+        // printf("YZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
+        // HistogramData[i]);
         mColorMap->data()->setCell(yIndex, zIndex, HistogramData[i]);
       }
     }
@@ -182,9 +184,9 @@ void Custom2DPlot::plotDetectorImage(bool Force) {
   replot();
 }
 
-void Custom2DPlot::addData(std::vector<uint32_t> & Histogram) {
+void Custom2DPlot::addData(std::vector<uint32_t> &Histogram) {
   auto t2 = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<int64_t,std::nano> elapsed = t2 - t1;
+  std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
   //
@@ -202,11 +204,10 @@ void Custom2DPlot::addData(std::vector<uint32_t> & Histogram) {
   return;
 }
 
-
 // MouseOver
 void Custom2DPlot::showPointToolTip(QMouseEvent *event) {
-    int x = this->xAxis->pixelToCoord(event->pos().x());
-    int y = this->yAxis->pixelToCoord(event->pos().y());
+  int x = this->xAxis->pixelToCoord(event->pos().x());
+  int y = this->yAxis->pixelToCoord(event->pos().y());
 
-    setToolTip(QString("%1 , %2").arg(x).arg(y));
+  setToolTip(QString("%1 , %2").arg(x).arg(y));
 }

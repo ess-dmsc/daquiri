@@ -4,7 +4,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <fstream>
-#include <date/date.h>
 
 namespace spdlog
 {
@@ -15,14 +14,15 @@ template<typename Mutex>
 class ostream_sink final : public spdlog::sinks::base_sink<Mutex>
 {
  public:
-  ostream_sink(std::ostream* gui_stream)
+  explicit ostream_sink(std::ostream* gui_stream)
       : outStream(gui_stream)
   {}
 
  protected:
   void sink_it_(const spdlog::details::log_msg& msg) override
   {
-    fmt::memory_buffer formatted;
+    // Changed from fmt::memory_buffer to be able to compile.
+    fmt::basic_memory_buffer<char, 250> formatted;
     spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
     (*outStream) << fmt::to_string(formatted);
   }

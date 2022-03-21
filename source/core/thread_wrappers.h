@@ -1,6 +1,8 @@
 #pragma once
 
+#include <mutex>
 #include <shared_mutex>
+#include <condition_variable>
 #include <thread>
 
 #define MUTEX_LOCK_TIMEOUT std::chrono::microseconds(1)
