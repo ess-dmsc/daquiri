@@ -76,7 +76,8 @@ void Configuration::getTOFConfig() {
   TOF.Scale = getVal("tof", "scale", TOF.Scale);
   TOF.MaxValue = getVal("tof", "max_value", TOF.MaxValue);
   TOF.BinSize = getVal("tof", "bin_size", TOF.BinSize);
-  TOF.AutoScale = getVal("tof", "auto_scale", TOF.AutoScale);
+  TOF.AutoScaleX = getVal("tof", "auto_scale_x", TOF.AutoScaleX);
+  TOF.AutoScaleY = getVal("tof", "auto_scale_y", TOF.AutoScaleY);
 }
 
 void Configuration::print() {
@@ -102,7 +103,8 @@ void Configuration::print() {
   fmt::print("  Scale {}\n", TOF.Scale);
   fmt::print("  Max value {}\n", TOF.MaxValue);
   fmt::print("  Bin size {}\n", TOF.BinSize);
-  fmt::print("  Auto scale {}\n", TOF.AutoScale);
+  fmt::print("  Auto scale x {}\n", TOF.AutoScaleX);
+  fmt::print("  Auto scale y {}\n", TOF.AutoScaleY);
 }
 
 //\brief getVal() template is used to effectively achieve

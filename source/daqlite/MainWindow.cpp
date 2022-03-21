@@ -46,11 +46,13 @@ MainWindow::MainWindow(Configuration &Config, QWidget *parent)
           SLOT(handleGradientButton()));
   connect(ui->pushButtonInvert, SIGNAL(clicked()), this,
           SLOT(handleInvertButton()));
-  connect(ui->pushButtonAutoScale, SIGNAL(clicked()), this,
-          SLOT(handleAutoScaleButton()));
+  connect(ui->pushButtonAutoScaleX, SIGNAL(clicked()), this,
+          SLOT(handleAutoScaleXButton()));
+  connect(ui->pushButtonAutoScaleY, SIGNAL(clicked()), this,
+          SLOT(handleAutoScaleYButton()));
 
   updateGradientLabel();
-  updateAutoScaleLabel();
+  updateAutoScaleLabels();
   show();
   startKafkaConsumerThread();
 }
@@ -126,19 +128,27 @@ void MainWindow::updateGradientLabel() {
         QString::fromStdString(mConfig.Plot.ColorGradient));
 }
 
-void MainWindow::updateAutoScaleLabel() {
+void MainWindow::updateAutoScaleLabels() {
   // AutoScale button and lables are not relevant for TOF so we hide them
   if (not TOF) {
-    ui->pushButtonAutoScale->setVisible(false);
-    ui->lblAutoScaleText->setVisible(false);
-    ui->lblAutoScale->setVisible(false);
+    ui->pushButtonAutoScaleX->setVisible(false);
+    ui->lblAutoScaleXText->setVisible(false);
+    ui->lblAutoScaleX->setVisible(false);
+    ui->pushButtonAutoScaleY->setVisible(false);
+    ui->lblAutoScaleYText->setVisible(false);
+    ui->lblAutoScaleY->setVisible(false);
     return;
   }
 
-  if (mConfig.TOF.AutoScale)
-    ui->lblAutoScaleText->setText(QString::fromStdString("on"));
+  if (mConfig.TOF.AutoScaleX)
+    ui->lblAutoScaleXText->setText(QString::fromStdString("on"));
   else
-    ui->lblAutoScaleText->setText(QString::fromStdString("off"));
+    ui->lblAutoScaleXText->setText(QString::fromStdString("off"));
+
+  if (mConfig.TOF.AutoScaleY)
+    ui->lblAutoScaleYText->setText(QString::fromStdString("on"));
+  else
+    ui->lblAutoScaleYText->setText(QString::fromStdString("off"));
 }
 
 // toggle the log scale flag
@@ -155,13 +165,22 @@ void MainWindow::handleInvertButton() {
   updateGradientLabel();
 }
 
-// toggle the auto scale button
-void MainWindow::handleAutoScaleButton() {
+// toggle the auto scale x button
+void MainWindow::handleAutoScaleXButton() {
   if (not TOF)
     return;
 
-  mConfig.TOF.AutoScale = not mConfig.TOF.AutoScale;
-  updateAutoScaleLabel();
+  mConfig.TOF.AutoScaleX = not mConfig.TOF.AutoScaleX;
+  updateAutoScaleLabels();
+}
+
+// toggle the auto scale y button
+void MainWindow::handleAutoScaleYButton() {
+  if (not TOF)
+    return;
+
+  mConfig.TOF.AutoScaleY = not mConfig.TOF.AutoScaleY;
+  updateAutoScaleLabels();
 }
 
 void MainWindow::handleGradientButton() {
