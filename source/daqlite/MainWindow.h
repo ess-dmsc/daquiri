@@ -34,7 +34,7 @@ public:
   void updateGradientLabel();
 
   /// \brief update GUI label text
-  void updateAutoScaleLabel();
+  void updateAutoScaleLabels();
 
 public slots:
   void handleExitButton();
@@ -42,7 +42,8 @@ public slots:
   void handleLogButton();
   void handleGradientButton();
   void handleInvertButton();
-  void handleAutoScaleButton();
+  void handleAutoScaleXButton();
+  void handleAutoScaleYButton();
   void handleKafkaData(uint64_t ElapsedCountNS);
 
 private:

@@ -181,7 +181,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblAutoScale">
+       <widget class="QLabel" name="lblAutoScaleX">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -189,12 +189,38 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Auto scale:</string>
+         <string>Auto scale X:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblAutoScaleText">
+       <widget class="QLabel" name="lblAutoScaleXText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblAutoScaleY">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Auto scale Y:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblAutoScaleYText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -262,9 +288,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonAutoScale">
+       <widget class="QPushButton" name="pushButtonAutoScaleX">
         <property name="text">
-         <string>Auto scale</string>
+         <string>Auto scale X</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonAutoScaleY">
+        <property name="text">
+         <string>Auto scale Y</string>
         </property>
        </widget>
       </item>
