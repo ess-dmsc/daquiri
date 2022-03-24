@@ -52,9 +52,9 @@ def get_macos_pipeline() {
                         // Remove existing CLI11 because of case insensitive filesystem issue
                         sh "conan remove -f 'CLI11*' && \
                             pwd ;\
-                            ls -l /Library/Developer/CommandLineTools/SDKs ;\
                             ls -l /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk ;\
-                            CFLAGS='-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -I/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include -Wno-error=implicit-function-declaration' cmake ../code"
+                            ls -l /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include ;\
+                            CFLAGS='-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -Wno-error=implicit-function-declaration' cmake ../code"
                     } catch (e) {
                         failure_function(e, 'MacOSX / CMake failed')
                     }
