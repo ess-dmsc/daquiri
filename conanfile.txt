@@ -21,7 +21,7 @@ virtualrunenv
 
 [options]
 gtest:shared=False
-librdkafka:shared=True
+librdkafka:shared=False
 flatbuffers:shared=True
 hdf5:shared=True
 date:use_system_tz_db=True
