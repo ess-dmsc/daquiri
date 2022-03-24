@@ -50,7 +50,7 @@ def get_macos_pipeline() {
                 dir("${project}/build") {
                     try {
                         // Remove existing CLI11 because of case insensitive filesystem issue
-                        sh "CFLAGS='-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk' conan remove -f 'CLI11*' && \
+                        sh "CFLAGS='conan remove -f 'CLI11*' && \
                             pwd ;\
                             ls -l /usr/local/include;\
                             ls -l /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk ;\

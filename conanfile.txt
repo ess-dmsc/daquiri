@@ -34,3 +34,9 @@ h5cpp:with_boost=False
 ., *.dll -> ./bin @ keep_path=False
 ., *.a* -> ./lib @ keep_path=False
 ., *.lib -> -> ./bin @ keep_path=False
+
+[env]
+CFLAGS="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+CXXFLAGS="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+CPPFLAGS="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+LDFLAGS="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
