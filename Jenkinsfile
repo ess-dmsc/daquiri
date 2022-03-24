@@ -53,7 +53,7 @@ def get_macos_pipeline() {
                         sh "conan remove -f 'CLI11*' && \
                             pwd ;\
                             ls -l /usr;\
-                            ls -l /usr/include;\
+                            ls -l /usr/local;\
                             ls -l /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk ;\
                             ls -l /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include ;\
                             CFLAGS='-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -Wno-error=implicit-function-declaration' cmake ../code"
