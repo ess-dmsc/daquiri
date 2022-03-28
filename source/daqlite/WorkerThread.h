@@ -15,6 +15,7 @@
 #include <ESSConsumer.h>
 #include <QMutex>
 #include <QThread>
+#include <QMutex>
 #include <iostream>
 
 class WorkerThread : public QThread {

@@ -53,6 +53,7 @@ if(GTest_FOUND)
     all_tests
     acquire
     daquiri
+    daqlite
     )
   create_coverage_targets(
     coverage

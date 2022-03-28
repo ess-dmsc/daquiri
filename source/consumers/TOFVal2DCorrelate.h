@@ -2,6 +2,7 @@
 
 #include <consumers/Spectrum.h>
 #include <consumers/add_ons/ValueLatch.h>
+#include <deque>
 
 namespace DAQuiri
 {

@@ -4,6 +4,8 @@
 #include <core/util/h5json.h>
 #include <core/util/ascii_tree.h>
 
+#include <fstream>
+
 #ifdef BUILD_TIME
 #include "build_time.h"
 #endif

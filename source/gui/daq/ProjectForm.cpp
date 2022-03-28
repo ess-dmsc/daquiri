@@ -348,10 +348,10 @@ void ProjectForm::save()
   if (project_identity_.isEmpty() || !project_->changed())
     return;
 
-  boost::filesystem::path path(project_identity_.toStdString());
-  if (!boost::filesystem::exists(path) || !hdf5::file::is_hdf5_file(path))
+  std::filesystem::path path(project_identity_.toStdString());
+  if (!std::filesystem::exists(path) || !hdf5::file::is_hdf5_file(path))
   {
-    path = boost::filesystem::path(data_directory_.toStdString())
+    path = std::filesystem::path(data_directory_.toStdString())
         / (project_identity_.toStdString() + ".daq");
   }
 

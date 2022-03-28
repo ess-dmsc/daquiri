@@ -41,7 +41,12 @@ target_link_libraries(
   PUBLIC fmt::fmt
   PRIVATE RdKafka::rdkafka++
   PRIVATE RdKafka::rdkafka
-  QPlot
-  QtColorWidgets-Qt52
-  Qt5::Widgets
+  PRIVATE QPlot
+  PRIVATE QtColorWidgets
+  PRIVATE Qt5::Widgets
 )
+
+target_link_libraries(${this_target}
+  PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+target_link_libraries(${this_target}
+  PRIVATE $<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,11.0>>:c++fs>)
