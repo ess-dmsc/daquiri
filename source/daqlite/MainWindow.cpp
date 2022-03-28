@@ -61,19 +61,20 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::startKafkaConsumerThread() {
   KafkaConsumerThread = new WorkerThread(mConfig);
-  qRegisterMetaType<int>("uint64_t&");
+  qRegisterMetaType<int>("int&");
   connect(KafkaConsumerThread, &WorkerThread::resultReady, this,
           &MainWindow::handleKafkaData);
   KafkaConsumerThread->start();
 }
 
 // SLOT
-void MainWindow::handleKafkaData(uint64_t ElapsedCountMS) {
+void MainWindow::handleKafkaData(int ElapsedCountMS) {
   auto Consumer = KafkaConsumerThread->consumer();
 
   uint64_t EventRate = Consumer->EventCount * 1000ULL/ElapsedCountMS;
   uint64_t EventAccept = Consumer->EventAccept * 1000ULL/ElapsedCountMS;
   uint64_t EventDiscardRate = Consumer->EventDiscard * 1000ULL/ElapsedCountMS;
+
 
   ui->lblEventRateText->setText(QString::number(EventRate));
   ui->lblAcceptRateText->setText(QString::number(EventAccept));

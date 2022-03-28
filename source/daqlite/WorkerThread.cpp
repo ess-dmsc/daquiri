@@ -30,7 +30,7 @@ void WorkerThread::run() {
       Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
       mutex.unlock();
 
-      uint64_t ElapsedCountMS = elapsed.count()/1000000;
+      int ElapsedCountMS = elapsed.count()/1000000;
       emit resultReady(ElapsedCountMS);
 
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
