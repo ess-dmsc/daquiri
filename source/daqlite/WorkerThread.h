@@ -41,7 +41,7 @@ public:
 signals:
   /// \brief this signal is 'emitted' when there is new data to be plotted
   /// this is done periodically (approximately once every second)
-  void resultReady(uint64_t &val);
+  void resultReady(int &val);
 
 private:
   /// \brief configuration obtained from main()

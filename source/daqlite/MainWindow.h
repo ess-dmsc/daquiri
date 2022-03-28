@@ -44,7 +44,7 @@ public slots:
   void handleInvertButton();
   void handleAutoScaleXButton();
   void handleAutoScaleYButton();
-  void handleKafkaData(uint64_t ElapsedCountNS);
+  void handleKafkaData(int ElapsedCountNS);
 
 private:
   Ui::MainWindow *ui;
