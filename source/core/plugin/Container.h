@@ -17,22 +17,22 @@ TT class Container
     using iterator = typename container_t::iterator;
     using const_iterator = typename container_t::const_iterator;
 
-    Container() {}
+    Container() = default;
 
-    void join(const Container<T> other);
+    void join(const Container<T>& other);
 
-    inline bool empty() const { return data_.empty(); }
-    inline size_t size() const { return data_.size(); }
-    inline void clear() { data_.clear(); }
-    inline std::list<T>& data() { return data_; }
-    inline const std::list<T>& data() const { return data_; }
+    [[nodiscard]] bool empty() const { return data_.empty(); }
+    [[nodiscard]] size_t size() const { return data_.size(); }
+    void clear() { data_.clear(); }
+    std::list<T>& data() { return data_; }
+    const std::list<T>& data() const { return data_; }
 
-    inline iterator begin() { return data_.begin(); }
-    inline iterator end() { return data_.end(); }
-    inline const_iterator begin() const { return data_.begin(); }
-    inline const_iterator end() const { return data_.end(); }
-    inline const_iterator cbegin() const { return data_.cbegin(); }
-    inline const_iterator cend() const { return data_.cend(); }
+    iterator begin() { return data_.begin(); }
+    iterator end() { return data_.end(); }
+    const_iterator begin() const { return data_.begin(); }
+    const_iterator end() const { return data_.end(); }
+    const_iterator cbegin() const { return data_.cbegin(); }
+    const_iterator cend() const { return data_.cend(); }
 
     bool operator!= (const Container& other) const;
     bool operator== (const Container& other) const;
@@ -58,21 +58,23 @@ TT class Container
     std::vector<T> to_vector() const;
     void from_vector(std::vector<T> vec);
 
-    inline friend void to_json(json& j, const Container<T>& t)
+    friend void to_json(json& j, const Container<T>& t)
     {
       j = t.data_;
       //    for (auto k : t.data_)
       //      j.push_back(json(k));
     }
 
-    inline friend void from_json(const json& j, Container<T>& t)
+    friend void from_json(const json& j, Container<T>& t)
     {
       for (auto it : j)
         t.data_.push_back(it);
     }
 };
 
-TT void Container<T>::join(const Container<T> other)
+// \todo: move implementations to tpp file
+
+TT void Container<T>::join(const Container<T>& other)
 {
   data_.insert(data_.end(), other.data_.begin(), other.data_.end());
 }
@@ -141,7 +143,7 @@ TT void Container<T>::replace(T t)
 
 TT void Container<T>::replace(size_t i, T t)
 {
-  if ((i >= 0) && (i < size())) {
+  if (i < size()) {
     typename std::list<T>::iterator it = std::next(data_.begin(), i);
     (*it) = t;
   }
@@ -169,7 +171,7 @@ TT void Container<T>::remove_a(const T &t)   //using shallow compare
 
 TT void Container<T>::remove(size_t i)
 {
-  if ((i >= 0) && (i < size())) {
+  if (i < size()) {
     typename std::list<T>::iterator it = std::next(data_.begin(), i);
     data_.erase(it);
   }
@@ -185,7 +187,7 @@ TT T Container<T>::get(T t) const
 
 TT T Container<T>::get(size_t i) const
 {
-  if ((i >= 0) && (i < size())) {
+  if (i < size()) {
     typename std::list<T>::const_iterator it = std::next(data_.begin(), i);
     return *it;
   }
@@ -194,7 +196,7 @@ TT T Container<T>::get(size_t i) const
 
 TT void Container<T>::up(size_t i)
 {
-  if ((i > 0) && (i < size())) {
+  if (i < size()) {
     typename std::list<T>::iterator it = std::next(data_.begin(), i-1);
     std::swap( *it, *std::next( it ) );
   }
@@ -202,7 +204,7 @@ TT void Container<T>::up(size_t i)
 
 TT void Container<T>::down(size_t i)
 {
-  if ((i >= 0) && ((i+1) < size())) {
+  if ((i+1) < size()) {
     typename std::list<T>::iterator it = std::next(data_.begin(), i);
     std::swap( *it, *std::next( it ) );
   }

@@ -17,8 +17,8 @@ class MockFunction : public DAQuiri::CoefFunction
   double derivative(double) const override { return 1; }
 
   std::string debug() const override { return ""; }
-  std::string to_UTF8(int precision, bool with_rsq) const override { return ""; }
-  std::string to_markup(int precision, bool with_rsq) const override { return ""; }
+  std::string to_UTF8([[maybe_unused]] int precision,[[maybe_unused]]  bool with_rsq) const override { return ""; }
+  std::string to_markup([[maybe_unused]] int precision,[[maybe_unused]]  bool with_rsq) const override { return ""; }
 };
 
 TEST_F(CoefFunction, InitDefault)
