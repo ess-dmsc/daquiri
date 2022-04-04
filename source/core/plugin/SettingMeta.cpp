@@ -1,6 +1,6 @@
 #include <core/plugin/SettingMeta.h>
-#include <core/util/color_bash.h>
 #include <core/util/string_extensions.h>
+#include <fmt/color.h>
 
 namespace DAQuiri {
 
@@ -184,15 +184,15 @@ bool SettingMeta::meaningful() const
 
 std::string SettingMeta::debug(std::string prepend, bool verbose) const
 {
-  std::string ret = col(GREEN) + to_string(type_) + col();
+  std::string ret = format(fg(fmt::terminal_color::green), "{}",
+                           to_string(type_));
 
   if (is_numeric())
-    ret += " " + col(CYAN) + value_range() + col();
+    ret += format(fg(fmt::terminal_color::cyan), " {}", value_range());
 
   if (!flags_.empty())
-    ret += " " + col(WHITE, NONE, DIM)
-        + join(flags_, " ")
-        + col();
+    ret += format(fg(fmt::terminal_color::bright_black), " {}",
+                  join(flags_, " "));
 
   json cont;
   if (verbose)

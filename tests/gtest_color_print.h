@@ -1,12 +1,10 @@
 #pragma once
 #include <gtest/gtest.h>
-#include <core/util/color_bash.h>
+#include <fmt/color.h>
 
-namespace testing {
-namespace internal {
+namespace testing::internal {
 
-extern void ColoredPrintf(GTestColor color, const char* fmt, ...);
-}
+extern void ColoredPrintf(GTestColor color, const char* format, ...);
 }
 
 class TestBase : public ::testing::Test
@@ -17,8 +15,8 @@ class TestBase : public ::testing::Test
       public:
         ~Message()
         {
-          std::cout << col(BashColor::GREEN) <<  "[          ] ";
-          std::cout << col(BashColor::YELLOW) <<  str();
+          fmt::print(fg(fmt::terminal_color::green), "[          ] ");
+          fmt::print(fg(fmt::terminal_color::yellow), "{}", str());
         }
     };
 #define MESSAGE Message

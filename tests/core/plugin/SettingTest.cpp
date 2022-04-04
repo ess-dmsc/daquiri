@@ -1,8 +1,13 @@
 #include <core/plugin/Setting.h>
 #include <gtest/gtest.h>
 #include <thread>
+#include "gtest_color_print.h"
 
-TEST(Setting, Init)
+class Setting : public TestBase
+{
+};
+
+TEST_F(Setting, Init)
 {
   DAQuiri::Setting s;
   ASSERT_FALSE(bool(s));
@@ -14,7 +19,7 @@ TEST(Setting, Init)
   ASSERT_TRUE(bool(s));
 }
 
-TEST(Setting, Indices)
+TEST_F(Setting, Indices)
 {
   DAQuiri::Setting s;
   s.add_indices({0,1});
@@ -35,7 +40,7 @@ TEST(Setting, Indices)
   ASSERT_TRUE(s.has_index(4));
 }
 
-TEST(Setting, Time)
+TEST_F(Setting, Time)
 {
   auto t = std::chrono::system_clock::now();
   DAQuiri::Setting s("a", t);
@@ -46,7 +51,7 @@ TEST(Setting, Time)
   ASSERT_EQ(s.time(), t);
 }
 
-TEST(Setting, Duration)
+TEST_F(Setting, Duration)
 {
   auto t1 = std::chrono::system_clock::now();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -63,7 +68,7 @@ TEST(Setting, Duration)
   ASSERT_EQ(s.duration(), d);
 }
 
-TEST(Setting, Pattern)
+TEST_F(Setting, Pattern)
 {
   DAQuiri::Pattern p(2, {true, true});
   DAQuiri::Setting s("a", p);
@@ -74,7 +79,7 @@ TEST(Setting, Pattern)
   ASSERT_EQ(s.pattern(), p);
 }
 
-TEST(Setting, Text)
+TEST_F(Setting, Text)
 {
   auto s = DAQuiri::Setting::text("a", "a");
   ASSERT_EQ(s.get_text(), "a");
@@ -82,7 +87,7 @@ TEST(Setting, Text)
   ASSERT_EQ(s.get_text(), "b");
 }
 
-TEST(Setting, Numeric)
+TEST_F(Setting, Numeric)
 {
   auto s = DAQuiri::Setting::floating("a", 1.23);
   ASSERT_EQ(s.get_number(), 1.23);
@@ -127,7 +132,7 @@ TEST(Setting, Numeric)
   ASSERT_FALSE(s.triggered());
 }
 
-TEST(Setting, Compare)
+TEST_F(Setting, Compare)
 {
   auto a = DAQuiri::Setting::text("a", "a");
   auto b = DAQuiri::Setting::text("b", "b");
@@ -142,6 +147,11 @@ TEST(Setting, Compare)
   aa.set_text("a");
   ASSERT_TRUE(a == aa);
   ASSERT_FALSE(a != aa);
-
 }
 
+TEST_F(Setting, Print)
+{
+  auto a = DAQuiri::Setting::text("setting_id", "text_value");
+  a.set_indices({3,4});
+  MESSAGE() << "\n" << a.debug("", true) << "\n";
+}

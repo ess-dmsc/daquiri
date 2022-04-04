@@ -10,7 +10,6 @@ set(SOURCES
 set(HEADERS
   ${dir}/ascii_tree.h
   ${dir}/bin_hex_print.h
-  ${dir}/color_bash.h
   ${dir}/logger.h
   ${dir}/h5json.h
   ${dir}/json_file.h

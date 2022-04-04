@@ -3,7 +3,7 @@
 #include <core/util/string_extensions.h>
 #include <core/util/time_extensions.h>
 #include <core/util/ascii_tree.h>
-#include <core/util/color_bash.h>
+#include <fmt/color.h>
 
 #include <core/util/logger.h>
 
@@ -740,12 +740,13 @@ std::string Setting::debug(std::string prepend, bool verbose) const
 {
   std::string ret;
   if (!id().empty())
-    ret = col(BLUE, NONE, BRIGHT) + id() + col();
+    ret = format(fg(fmt::terminal_color::bright_blue), "{}",  id());
   if (!indices_.empty())
-    ret += col(RED) + indices_to_string(true) + col();
+    ret += format(fg(fmt::terminal_color::red), "{}", indices_to_string(true));
   if (!ret.empty())
     ret += "=";
-  ret += col(GREEN, NONE, BRIGHT) + val_to_string() + col();
+  ret += format(fg(fmt::terminal_color::bright_green), "{}", val_to_string());
+
   ret += " " + metadata_.debug(prepend, verbose);
   ret += "\n";
   if (!branches.empty())
