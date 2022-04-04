@@ -1,6 +1,12 @@
 #include <core/calibration/Parameter.h>
 #include <fmt/format.h>
-#include <core/util/compare.h>
+
+#include <algorithm>
+
+double median(double a, double b, double c)
+{
+  return std::max(std::min(a, b), std::min(std::max(a, b), c));
+}
 
 namespace DAQuiri
 {
@@ -31,9 +37,9 @@ void Parameter::value(double v)
 
 void Parameter::set(double v1, double v2, double v3)
 {
-  lower_ = min(v1, v2, v3);
-  upper_ = max(v1, v2, v3);
-  value_ = mid(v1, v2, v3);
+  lower_ = std::min({v1, v2, v3});
+  upper_ = std::max({v1, v2, v3});
+  value_ = median(v1, v2, v3);
 }
 
 void Parameter::constrain(double v1, double v2)
