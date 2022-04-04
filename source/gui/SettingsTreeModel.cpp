@@ -228,7 +228,8 @@ bool SettingsTreeItem::setData(int column, const QVariant& value)
   if ((column == 1) && (itemData.metadata().get_num("chans", 0) > 0))
   {
     QString val = value.toString();
-    QStringList ilist = val.split(QRegExp("\\W+"), Qt::SkipEmptyParts);
+    /// \todo replace with Qt::SkipEmptyParts for new Qt version
+    QStringList ilist = val.split(QRegExp("\\W+"), QString::SkipEmptyParts);
     if (ilist.isEmpty())
     {
       itemData.clear_indices();
