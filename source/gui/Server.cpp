@@ -71,9 +71,7 @@ void CommandServer::send_response(QString msg)
 {
   if (!server_socket)
     return;
-  QByteArray out;
-  out.append(msg);
-  server_socket->write(out);
+  server_socket->write(msg.toLocal8Bit());
 }
 
 

@@ -228,7 +228,7 @@ bool SettingsTreeItem::setData(int column, const QVariant& value)
   if ((column == 1) && (itemData.metadata().get_num("chans", 0) > 0))
   {
     QString val = value.toString();
-    QStringList ilist = val.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    QStringList ilist = val.split(QRegExp("\\W+"), Qt::SkipEmptyParts);
     if (ilist.isEmpty())
     {
       itemData.clear_indices();
@@ -376,7 +376,7 @@ QVariant SettingsTreeModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags SettingsTreeModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
-    return 0;
+    return {};
 
   SettingsTreeItem* item = getItem(index);
   if (edit_read_only_ && (index.column() == 2))

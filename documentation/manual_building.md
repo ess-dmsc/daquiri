@@ -5,7 +5,7 @@ In case you want to do everything manually, here are some of the gory details.
 ## Requirements
 
 Supported platforms:
-- Ubuntu 18.04
+- Ubuntu 20.04
 - macOS High Sierra
 - Centos 7
 
@@ -14,19 +14,17 @@ You definitely need these:
 - recent C++ compiler
 - CMake 3.0
 - Qt5
-- conan 1.0 (via pip)
+- conan (via pip)
 
 ## Conan setup
-To avoid C++ dependency hell, we use `conan`. The following repos need to be added:
-```
-conan remote add bincrafters https://bincrafters.jfrog.io/artifactory/api/conan/public-conan
-conan remote add ecdc https://artifactoryconan.esss.dk/artifactory/api/conan/ecdc
-```
-If you are on a `linux` sytem you also need to ensure that `conan` builds everything using the c++11 standard. Edit your `~/.conan/profiles/default` to replace `compiler.libcxx=libstdc++` with `compiler.libcxx=libstdc++11`.
-If said file does not exists, you are likely yet to run `conan` for the first time. Do the following to generate the above-mentioned file:
-```
+To avoid C++ dependency hell, we use `conan`. After you install it, run:
+
+```bash
 conan profile new --detect default
+conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
+
+For the most up-to-date remotes, see the standard `ESS` configuration for conan in [this repository](https://github.com/ess-dmsc/conan-configuration)
 
 ## Installation of Qt
 
@@ -35,7 +33,7 @@ a platform-specific way. For each platform it's the following:
 
 - Ubuntu: `qt5-default` package from apt
 - Centos: `qt5-qtbase-devel` package from yum
-- macOS: whatever default qt package from brew
+- macOS: whatever default qt5 package from brew
 
 It is easiest if you have Qt installed via brew or apt.
 

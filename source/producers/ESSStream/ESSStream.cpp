@@ -370,7 +370,7 @@ std::string ESSStream::get_fb_id(Kafka::MessagePtr message)
     ERR("Could not extract id. Flatbuffer was only {} bytes. Expected ≥ 8 bytes.", message->low_level->len());
     return {};
   }
-  auto ch = reinterpret_cast<char const *const>(message->low_level->payload());
+  auto ch = reinterpret_cast<char *>(message->low_level->payload());
   return std::string(ch + 4, 4);
 }
 

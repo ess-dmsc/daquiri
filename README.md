@@ -16,5 +16,3 @@ Versatile DAQ engine for physics detectors, event mode and otherwise, with a var
 ## The future
 
 You can see current tickets and their priorities on the [Kanban board](https://github.com/ess-dmsc/daquiri/projects/1)
-
-Please send any feature requests you have to (martin.shetty@esss.se).
