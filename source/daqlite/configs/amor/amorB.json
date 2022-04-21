@@ -1,0 +1,31 @@
+{
+  "kafka" : {
+    "broker" : "172.30.242.20:9092",
+    "topic" : "amor_detector",
+
+    "message.max.bytes" : "10000000",
+    "fetch.message.max.bytes" : "10000000",
+    "replica.fetch.max.bytes" : "10000000",
+    "enable.auto.commit" : "false",
+    "enable.auto.offset.store" : "false"
+  },
+
+  "geometry" : {
+    "xdim" : 32,
+    "ydim" : 352,
+    "zdim" : 1,
+    "offset" : 0
+  },
+
+  "plot": {
+    "plot_type" : "pixels",
+    "window_title" : "AMOR-B detector image",
+    "plot_title" : "Pixels",
+    "clear_periodic" : false,
+    "clear_interval_seconds" : 5,
+    "interpolate_pixels" : false,
+    "color_gradient" : "hot",
+    "invert_gradient" : true,
+    "log_scale" : true
+  }
+}
