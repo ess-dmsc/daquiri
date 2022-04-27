@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <unistd.h>
+#include <vector>
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
   const int OVERHEAD{1};
@@ -78,6 +79,12 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
   for (int i = 0; i < PixelIds->size(); i++) {
     uint32_t Pixel = (*PixelIds)[i];
     uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
+
+    // accumulate events for 2D TOF
+    uint32_t TofBin = std::min(Tof, mConfig.TOF.MaxValue) * mConfig.TOF.BinSize / mConfig.TOF.MaxValue;
+    //printf("Pushback pixel %u, tof %u\n", Pixel, TofBin);
+    mPixelIDs.push_back(Pixel);
+    mTOFs.push_back(TofBin);
 
     if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
       // printf("Error: invalid pixel id: %d, min: %d, max: %d\n",

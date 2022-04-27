@@ -8,6 +8,7 @@ set(${this_target}_sources
   daqlite.cpp
   Configuration.cpp
   Custom2DPlot.cpp
+  Custom2DTOFPlot.cpp
   CustomTofPlot.cpp
   ESSConsumer.cpp
   MainWindow.cpp
@@ -17,6 +18,7 @@ set(${this_target}_sources
 set(${this_target}_headers
   Configuration.h
   Custom2DPlot.h
+  Custom2DTOFPlot.h
   CustomTofPlot.h
   ESSConsumer.h
   MainWindow.h

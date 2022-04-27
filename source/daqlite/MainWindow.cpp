@@ -9,30 +9,58 @@
 #include <MainWindow.h>
 #include <string.h>
 
+
+void MainWindow::setupPlots() {
+  if (strcmp(mConfig.Plot.PlotType.c_str(), "tof2d") == 0) {
+    plottype = tof2d;
+    PlotTOF2D = new Custom2DTOFPlot(mConfig, 0);
+    ui->gridLayout->addWidget(PlotTOF2D, 0, 0, 1, 1);
+
+  } else if (strcmp(mConfig.Plot.PlotType.c_str(), "tof") == 0) {
+    plottype =tof;
+    PlotTOF = new CustomTofPlot(mConfig);
+    ui->gridLayout->addWidget(PlotTOF, 0, 0, 1, 1);
+
+    // Hide irrelevant buttons for TOF
+    ui->pushButtonGradient->setVisible(false);
+    ui->pushButtonInvert->setVisible(false);
+    ui->lblGradientText->setVisible(false);
+    ui->lblGradient->setVisible(false);
+
+  } else if (strcmp(mConfig.Plot.PlotType.c_str(), "pixels") == 0) {
+    plottype =pixels;
+
+    // Always create the XY plot
+    Plot2DXY = new Custom2DPlot(mConfig, Custom2DPlot::ProjectionXY);
+    ui->gridLayout->addWidget(Plot2DXY, 0, 0, 1, 1);
+    // If detector is 3D, also create XZ and YZ
+    if (mConfig.Geometry.ZDim > 1) {
+      Plot2DXZ = new Custom2DPlot(mConfig, Custom2DPlot::ProjectionXZ);
+      ui->gridLayout->addWidget(Plot2DXZ, 0, 1, 1, 1);
+      Plot2DYZ = new Custom2DPlot(mConfig, Custom2DPlot::ProjectionYZ);
+      ui->gridLayout->addWidget(Plot2DYZ, 0, 2, 1, 1);
+    }
+  } else {
+    throw(std::runtime_error("No valid plot type specified"));
+  }
+
+  // Autoscale buttons are only relevant for TOF
+  if (plottype != tof) {
+    ui->pushButtonAutoScaleX->setVisible(false);
+    ui->lblAutoScaleXText->setVisible(false);
+    ui->lblAutoScaleX->setVisible(false);
+    ui->pushButtonAutoScaleY->setVisible(false);
+    ui->lblAutoScaleYText->setVisible(false);
+    ui->lblAutoScaleY->setVisible(false);
+  }
+}
+
 MainWindow::MainWindow(Configuration &Config, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), mConfig(Config) {
 
   ui->setupUi(this);
 
-  if (strcmp(Config.Plot.PlotType.c_str(), "tof") == 0) {
-    TOF = true;
-  }
-
-  if (!TOF) {
-    // Always create the XY plot
-    Plot2DXY = new Custom2DPlot(mConfig, 0);
-    ui->gridLayout->addWidget(Plot2DXY, 0, 0, 1, 1);
-    // If detector is 3D, also create XZ and YZ
-    if (Config.Geometry.ZDim > 1) {
-      Plot2DXZ = new Custom2DPlot(mConfig, 1);
-      ui->gridLayout->addWidget(Plot2DXZ, 0, 1, 1, 1);
-      Plot2DYZ = new Custom2DPlot(mConfig, 2);
-      ui->gridLayout->addWidget(Plot2DYZ, 0, 2, 1, 1);
-    }
-  } else {
-    PlotTOF = new CustomTofPlot(mConfig);
-    ui->gridLayout->addWidget(PlotTOF, 0, 0, 1, 1);
-  }
+  setupPlots();
 
   ui->lblDescriptionText->setText(mConfig.Plot.PlotTitle.c_str());
   ui->lblEventRateText->setText("0");
@@ -81,15 +109,19 @@ void MainWindow::handleKafkaData(int ElapsedCountMS) {
   ui->lblDiscardedPixelsText->setText(QString::number(EventDiscardRate));
 
   KafkaConsumerThread->mutex.lock();
-  if (!TOF) {
+
+  if (plottype == tof2d) {
+    PlotTOF2D->addData(Consumer->mPixelIDsPlot, Consumer->mTOFsPlot);
+  } else if (plottype == tof) {
+    PlotTOF->addData(Consumer->mHistogramTofPlot);
+  } else if (plottype == pixels) {
     Plot2DXY->addData(Consumer->mHistogramPlot);
     if (mConfig.Geometry.ZDim > 1) {
       Plot2DXZ->addData(Consumer->mHistogramPlot);
       Plot2DYZ->addData(Consumer->mHistogramPlot);
     }
-  } else {
-    PlotTOF->addData(Consumer->mHistogramTofPlot);
   }
+
   Consumer->EventCount = 0;
   Consumer->EventAccept = 0;
   Consumer->EventDiscard = 0;
@@ -100,56 +132,49 @@ void MainWindow::handleKafkaData(int ElapsedCountMS) {
 void MainWindow::handleExitButton() { QApplication::quit(); }
 
 void MainWindow::handleClearButton() {
-  if (!TOF) {
+  if (plottype == tof2d) {
+    PlotTOF2D->clearDetectorImage();
+
+  } else if (plottype == tof) {
+    PlotTOF->clearDetectorImage();
+
+  } else if (plottype == pixels) {
     Plot2DXY->clearDetectorImage();
     if (mConfig.Geometry.ZDim > 1) {
       Plot2DXZ->clearDetectorImage();
       Plot2DYZ->clearDetectorImage();
     }
-  } else {
-    PlotTOF->clearDetectorImage();
   }
 }
 
 void MainWindow::updateGradientLabel() {
-  // Gradient button and lables are not relevant for TOF so we hide them
-  if (TOF) {
-    ui->pushButtonGradient->setVisible(false);
-    ui->pushButtonInvert->setVisible(false);
-    ui->lblGradientText->setVisible(false);
-    ui->lblGradient->setVisible(false);
-    return;
+  if (plottype != tof) {
+    if (mConfig.Plot.InvertGradient) {
+      ui->lblGradientText->setText(
+          QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
+    } else {
+      ui->lblGradientText->setText(
+          QString::fromStdString(mConfig.Plot.ColorGradient));
+    }
   }
-
-  if (mConfig.Plot.InvertGradient)
-    ui->lblGradientText->setText(
-        QString::fromStdString(mConfig.Plot.ColorGradient + " (I)"));
-  else
-    ui->lblGradientText->setText(
-        QString::fromStdString(mConfig.Plot.ColorGradient));
 }
 
+
+/// \brief Autoscale is only relevant for TOF
 void MainWindow::updateAutoScaleLabels() {
-  // AutoScale button and lables are not relevant for TOF so we hide them
-  if (not TOF) {
-    ui->pushButtonAutoScaleX->setVisible(false);
-    ui->lblAutoScaleXText->setVisible(false);
-    ui->lblAutoScaleX->setVisible(false);
-    ui->pushButtonAutoScaleY->setVisible(false);
-    ui->lblAutoScaleYText->setVisible(false);
-    ui->lblAutoScaleY->setVisible(false);
-    return;
+  if (plottype == tof) {
+    if (mConfig.TOF.AutoScaleX) {
+      ui->lblAutoScaleXText->setText(QString::fromStdString("on"));
+    } else {
+      ui->lblAutoScaleXText->setText(QString::fromStdString("off"));
+    }
+
+    if (mConfig.TOF.AutoScaleY) {
+      ui->lblAutoScaleYText->setText(QString::fromStdString("on"));
+    } else {
+      ui->lblAutoScaleYText->setText(QString::fromStdString("off"));
+    }
   }
-
-  if (mConfig.TOF.AutoScaleX)
-    ui->lblAutoScaleXText->setText(QString::fromStdString("on"));
-  else
-    ui->lblAutoScaleXText->setText(QString::fromStdString("off"));
-
-  if (mConfig.TOF.AutoScaleY)
-    ui->lblAutoScaleYText->setText(QString::fromStdString("on"));
-  else
-    ui->lblAutoScaleYText->setText(QString::fromStdString("off"));
 }
 
 // toggle the log scale flag
@@ -157,39 +182,34 @@ void MainWindow::handleLogButton() {
   mConfig.Plot.LogScale = not mConfig.Plot.LogScale;
 }
 
-// toggle the invert gradient flag
+// toggle the invert gradient flag (irrelevant for TOF)
 void MainWindow::handleInvertButton() {
-  if (TOF)
-    return;
-
-  mConfig.Plot.InvertGradient = not mConfig.Plot.InvertGradient;
-  updateGradientLabel();
+  if (plottype != tof) {
+    mConfig.Plot.InvertGradient = not mConfig.Plot.InvertGradient;
+    updateGradientLabel();
+  }
 }
 
 // toggle the auto scale x button
 void MainWindow::handleAutoScaleXButton() {
-  if (not TOF)
-    return;
-
-  mConfig.TOF.AutoScaleX = not mConfig.TOF.AutoScaleX;
-  updateAutoScaleLabels();
+  if (plottype == tof) {
+    mConfig.TOF.AutoScaleX = not mConfig.TOF.AutoScaleX;
+    updateAutoScaleLabels();
+  }
 }
 
 // toggle the auto scale y button
 void MainWindow::handleAutoScaleYButton() {
-  if (not TOF)
-    return;
-
-  mConfig.TOF.AutoScaleY = not mConfig.TOF.AutoScaleY;
-  updateAutoScaleLabels();
+  if (plottype == tof) {
+    mConfig.TOF.AutoScaleY = not mConfig.TOF.AutoScaleY;
+    updateAutoScaleLabels();
+  }
 }
 
 void MainWindow::handleGradientButton() {
-  if (TOF) {
-    return;
+  if (plottype != tof) {
+    mConfig.Plot.ColorGradient =
+        PlotTOF2D->getNextColorGradient(mConfig.Plot.ColorGradient);
+    updateGradientLabel();
   }
-
-  mConfig.Plot.ColorGradient =
-      Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
-  updateGradientLabel();
 }

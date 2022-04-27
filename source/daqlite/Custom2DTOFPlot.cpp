@@ -5,15 +5,19 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include <Custom2DPlot.h>
+#include <Custom2DTOFPlot.h>
 #include <WorkerThread.h>
 #include <algorithm>
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
 
-Custom2DPlot::Custom2DPlot(Configuration &Config, Projection Proj)
-    : mConfig(Config), mProjection(Proj) {
+Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config, int Projection)
+    : mConfig(Config), mProjection(Projection) {
+
+  memset(HistogramData2D, 0, sizeof(HistogramData2D));
+
+  assert((Projection >= 0) and (Projection <= 2));
 
   connect(this, SIGNAL(mouseMove(QMouseEvent *)), this,
           SLOT(showPointToolTip(QMouseEvent *)));
@@ -22,7 +26,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, Projection Proj)
   auto &geom = mConfig.Geometry;
 
   LogicalGeometry = new ESSGeometry(geom.XDim, geom.YDim, geom.ZDim, 1);
-  HistogramData.resize(LogicalGeometry->max_pixel() + 1);
+  //HistogramData.resize(LogicalGeometry->max_pixel() + 1);
 
   // this will also allow rescaling the color scale by dragging/zooming
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
@@ -38,26 +42,14 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, Projection Proj)
   mColorMap = new QCPColorMap(xAxis, yAxis);
 
   // we want the color map to have nx * ny data points
-  if (mProjection == ProjectionXY) {
-    xAxis->setLabel("X");
+  if (mProjection == 0) {
+    xAxis->setLabel("TOF");
     yAxis->setLabel("Y");
-    mColorMap->data()->setSize(geom.XDim, geom.YDim);
-    mColorMap->data()->setRange(QCPRange(0, geom.XDim - 1),
-                                QCPRange(0, geom.YDim - 1)); //
-  } else if (mProjection == ProjectionXZ) {
-    xAxis->setLabel("X");
-    yAxis->setLabel("Z");
-    mColorMap->data()->setSize(geom.XDim, geom.ZDim);
-    mColorMap->data()->setRange(QCPRange(0, geom.XDim - 1),
-                                QCPRange(0, geom.ZDim - 1));
-  } else {
-    xAxis->setLabel("Y");
-    yAxis->setLabel("Z");
-    mColorMap->data()->setSize(geom.YDim, geom.ZDim);
-
-    mColorMap->data()->setRange(QCPRange(0, geom.YDim - 1),
-                                QCPRange(0, geom.ZDim - 1));
+    mColorMap->data()->setSize(mConfig.TOF.BinSize, geom.YDim);
+    mColorMap->data()->setRange(QCPRange(0, mConfig.TOF.BinSize),
+                                QCPRange(0, mConfig.Geometry.YDim)); //
   }
+
   // add a color scale:
   mColorScale = new QCPColorScale(this);
 
@@ -88,7 +80,7 @@ Custom2DPlot::Custom2DPlot(Configuration &Config, Projection Proj)
   t1 = std::chrono::high_resolution_clock::now();
 }
 
-void Custom2DPlot::setCustomParameters() {
+void Custom2DTOFPlot::setCustomParameters() {
   // set the color gradient of the color map to one of the presets:
   QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
 
@@ -97,6 +89,7 @@ void Custom2DPlot::setCustomParameters() {
   }
 
   mColorMap->setGradient(Gradient);
+
   if (mConfig.Plot.LogScale) {
     mColorMap->setDataScaleType(QCPAxis::stLogarithmic);
   } else {
@@ -106,7 +99,7 @@ void Custom2DPlot::setCustomParameters() {
 
 // Try the user supplied gradient name, then fall back to 'hot' and
 // provide a list of options
-QCPColorGradient Custom2DPlot::getColorGradient(std::string GradientName) {
+QCPColorGradient Custom2DTOFPlot::getColorGradient(std::string GradientName) {
   if (mGradients.find(GradientName) != mGradients.end()) {
     return mGradients.find(GradientName)->second;
   } else {
@@ -120,7 +113,7 @@ QCPColorGradient Custom2DPlot::getColorGradient(std::string GradientName) {
   }
 }
 
-std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
+std::string Custom2DTOFPlot::getNextColorGradient(std::string GradientName) {
   bool SaveFirst{true};
   bool SaveNext{false};
   std::string RetVal;
@@ -141,37 +134,22 @@ std::string Custom2DPlot::getNextColorGradient(std::string GradientName) {
   return RetVal;
 }
 
-void Custom2DPlot::clearDetectorImage() {
-  std::fill(HistogramData.begin(), HistogramData.end(), 0);
-  addData(HistogramData);
+void Custom2DTOFPlot::clearDetectorImage() {
+  /// \todo is this right?
+  memset(HistogramData2D, 0, sizeof(HistogramData2D));
   plotDetectorImage(true);
 }
 
-void Custom2DPlot::plotDetectorImage(bool Force) {
-
+void Custom2DTOFPlot::plotDetectorImage(bool Force) {
   setCustomParameters();
 
-  // if scales match the dimensions (xdim 400, range 0, 399) then cell indexes
-  // and coordinates match. PixelId 0 does not exist.
-  for (unsigned int i = 1; i < HistogramData.size(); i++) {
-    if ((HistogramData[i] != 0) or (Force)) {
-      auto xIndex = LogicalGeometry->x(i);
-      auto yIndex = LogicalGeometry->y(i);
-      auto zIndex = LogicalGeometry->z(i);
-
-      if (mProjection == ProjectionXY) {
-        // printf("XY: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
-        // HistogramData[i]);
-        mColorMap->data()->setCell(xIndex, yIndex, HistogramData[i]);
-      } else if (mProjection == ProjectionXZ) {
-        // printf("XZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
-        // HistogramData[i]);
-        mColorMap->data()->setCell(xIndex, zIndex, HistogramData[i]);
-      } else {
-        // printf("YZ: x,y,z %d, %d, %d: count %d\n", xIndex, yIndex, zIndex,
-        // HistogramData[i]);
-        mColorMap->data()->setCell(yIndex, zIndex, HistogramData[i]);
+  for (unsigned int y = 0; y < 352; y++) {
+    for (unsigned int x = 0; x < 512; x++) {
+      if (HistogramData2D[x][y] == 0) {
+        continue;
       }
+      //printf("debug x %u, y %u, z %u\n", x, y, HistogramData2D[x][y]);
+      mColorMap->data()->setCell(x, y, HistogramData2D[x][y]);
     }
   }
 
@@ -182,28 +160,41 @@ void Custom2DPlot::plotDetectorImage(bool Force) {
   replot();
 }
 
-void Custom2DPlot::addData(std::vector<uint32_t> &Histogram) {
+void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
+    std::vector<uint32_t> &TOFs) {
   auto t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
 
   // Periodically clear the histogram
   //
-  uint64_t nsBetweenClear = 1000000000ULL * mConfig.Plot.ClearEverySeconds;
-  if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= nsBetweenClear)) {
-    std::fill(HistogramData.begin(), HistogramData.end(), 0);
-    t1 = std::chrono::high_resolution_clock::now();
-  }
+  // uint64_t nsBetweenClear = 1000000000ULL * mConfig.Plot.ClearEverySeconds;
+  // if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= nsBetweenClear)) {
+  //   std::fill(HistogramData.begin(), HistogramData.end(), 0);
+  //   t1 = std::chrono::high_resolution_clock::now();
+  // }
 
   // Accumulate counts, PixelId 0 does not exist
-  for (unsigned int i = 1; i < Histogram.size(); i++) {
-    HistogramData[i] += Histogram[i];
+  if (PixelIDs.size() == 0) {
+    return;
+  }
+
+  for (int i = 0; i < PixelIDs.size(); i++) {
+    if (PixelIDs[i] == 0) {
+      continue;
+    }
+    //printf("pixel %u, tof %u\n", PixelIDs[i], TOFs[i]);
+    int tof  = TOFs[i];
+    int yvals = PixelIDs[i]/32;
+    //printf("tofbin %d, wire %d\n", tof, yvals);
+    HistogramData2D[tof][yvals]++;
+    //HistogramData2D[1][1]++;
   }
   plotDetectorImage(false);
   return;
 }
 
 // MouseOver
-void Custom2DPlot::showPointToolTip(QMouseEvent *event) {
+void Custom2DTOFPlot::showPointToolTip(QMouseEvent *event) {
   int x = this->xAxis->pixelToCoord(event->pos().x());
   int y = this->yAxis->pixelToCoord(event->pos().y());
 

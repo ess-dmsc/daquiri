@@ -10,6 +10,7 @@
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
+#include <Custom2DTOFPlot.h>
 #include <CustomTofPlot.h>
 #include <QMainWindow>
 #include <WorkerThread.h>
@@ -26,6 +27,9 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(Configuration &Config, QWidget *parent = nullptr);
   ~MainWindow();
+
+  /// \brief create the plot widgets
+  void setupPlots();
 
   /// \brief spin up a thread for consuming topic
   void startKafkaConsumerThread();
@@ -48,9 +52,10 @@ public slots:
 
 private:
   Ui::MainWindow *ui;
-  bool TOF{false};
+  enum PlotType {none, pixels, tof, tof2d};
+  PlotType plottype{none};
 
-  /// \brief
+  Custom2DTOFPlot *PlotTOF2D; /// Experimental
   Custom2DPlot *Plot2DXY; // xy plots
   Custom2DPlot *Plot2DXZ; // xz plots
   Custom2DPlot *Plot2DYZ; // yz plots

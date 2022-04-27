@@ -1,9 +1,9 @@
-// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
+// Copyright (C) 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
-/// \file Custom2DPlot.h
+/// \file Custom2DTOFPlot.h
 ///
-/// \brief Creates a QCustomPlot based on the configuration parameters
+/// \brief Creates (maybe) a QCustomPlot based on the configuration parameters
 //===----------------------------------------------------------------------===//
 
 #pragma once
@@ -13,20 +13,15 @@
 #include <chrono>
 #include <logical_geometry/ESSGeometry.h>
 
-
-
-
-class Custom2DPlot : public QCustomPlot {
+class Custom2DTOFPlot : public QCustomPlot {
   Q_OBJECT
 public:
-  enum Projection {ProjectionXY, ProjectionXZ, ProjectionYZ};
-
   /// \brief plot needs the configurable plotting options
-  Custom2DPlot(Configuration &Config, Projection Proj);
+  Custom2DTOFPlot(Configuration &Config, int Projection);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
-  void addData(std::vector<uint32_t> &Histogram);
+  void addData(std::vector<uint32_t> &Pixels, std::vector<uint32_t> &TOFs);
 
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
@@ -55,13 +50,13 @@ private:
   /// \brief configuration obtained from main()
   Configuration &mConfig;
 
-  std::vector<uint32_t> HistogramData;
+  uint32_t HistogramData2D[600][400];
 
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry *LogicalGeometry;
 
-  //
-  Projection mProjection;
+  // 0 = (x,y), 1 = (x,z), 2 = (y,z)
+  int mProjection{0};
 
   // See colors here
   // https://www.qcustomplot.com/documentation/classQCPColorGradient.html
