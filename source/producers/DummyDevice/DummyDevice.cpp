@@ -18,9 +18,9 @@ DummyDevice::DummyDevice()
 
   manifest_["Stream1"].event_model.add_value("val1", 1000);
   manifest_["Stream1"].event_model.add_value("val2", 2000);
-  manifest_["Stream1"].stats.branches.add(SettingMeta("float_val", SettingType::floating));
-  manifest_["Stream1"].stats.branches.add(SettingMeta("int_val", SettingType::integer));
-  manifest_["Stream1"].stats.branches.add(SettingMeta("precise_val", SettingType::precise));
+  manifest_["Stream1"].stats.branches.add(Setting(SettingMeta("float_val", SettingType::floating)));
+  manifest_["Stream1"].stats.branches.add(Setting(SettingMeta("int_val", SettingType::integer)));
+  manifest_["Stream1"].stats.branches.add(Setting(SettingMeta("precise_val", SettingType::precise)));
 
   manifest_["Stream2"].event_model.add_value("val_a", 500);
   manifest_["Stream2"].event_model.add_trace("trc_a", {2, 3, 4});
@@ -66,7 +66,7 @@ Setting DummyDevice::settings() const
   set.set(Setting(r + "Pattern", pattern_));
   set.set(Setting::boolean(r + "Boolean", bool_));
 
-  auto sb = set.find({r + "Binary"});
+  auto sb = set.find(Setting(r + "Binary"));
   sb.set_int(binary_);
   set.set(sb);
 
@@ -88,38 +88,38 @@ void DummyDevice::settings(const Setting& settings)
   std::string r{plugin_name() + "/DummySettings/"};
 
   auto set = enrich_and_toggle_presets(settings);
-  dummy_selection_ = set.find({r + "Menu"}).selection();
-  read_only_ = !set.find({r + "Enabled"}).triggered();
+  dummy_selection_ = set.find(Setting(r + "Menu")).selection();
+  read_only_ = !set.find(Setting(r + "Enabled")).triggered();
 
-  int_unbounded_ = set.find({r + "IntUnbounded"}).get_int();
-  int_lower_bounded_ = set.find({r + "IntLB"}).get_int();
-  int_upper_bounded_ = set.find({r + "IntUB"}).get_int();
-  int_bounded_ = set.find({r + "IntBounded"}).get_int();
+  int_unbounded_ = set.find(Setting(r + "IntUnbounded")).get_int();
+  int_lower_bounded_ = set.find(Setting(r + "IntLB")).get_int();
+  int_upper_bounded_ = set.find(Setting(r + "IntUB")).get_int();
+  int_bounded_ = set.find(Setting(r + "IntBounded")).get_int();
 
-  float_unbounded_ = set.find({r + "FloatUnbounded"}).get_number();
-  float_lower_bounded_ = set.find({r + "FloatLB"}).get_number();
-  float_upper_bounded_ = set.find({r + "FloatUB"}).get_number();
-  float_bounded_ = set.find({r + "FloatBounded"}).get_number();
+  float_unbounded_ = set.find(Setting(r + "FloatUnbounded")).get_number();
+  float_lower_bounded_ = set.find(Setting(r + "FloatLB")).get_number();
+  float_upper_bounded_ = set.find(Setting(r + "FloatUB")).get_number();
+  float_bounded_ = set.find(Setting(r + "FloatBounded")).get_number();
 
-  precise_unbounded_ = set.find({r + "PreciseUnbounded"}).precise();
-  precise_lower_bounded_ = set.find({r + "PreciseLB"}).precise();
-  precise_upper_bounded_ = set.find({r + "PreciseUB"}).precise();
-  precise_bounded_ = set.find({r + "PreciseBounded"}).precise();
+  precise_unbounded_ = set.find(Setting(r + "PreciseUnbounded")).precise();
+  precise_lower_bounded_ = set.find(Setting(r + "PreciseLB")).precise();
+  precise_upper_bounded_ = set.find(Setting(r + "PreciseUB")).precise();
+  precise_bounded_ = set.find(Setting(r + "PreciseBounded")).precise();
 
-  time_ = set.find({r + "Time"}).time();
-  duration_ = set.find({r + "Duration"}).duration();
+  time_ = set.find(Setting(r + "Time")).time();
+  duration_ = set.find(Setting(r + "Duration")).duration();
 
-  pattern_ = set.find({r + "Pattern"}).pattern();
-  bool_ = set.find({r + "Boolean"}).get_bool();
+  pattern_ = set.find(Setting(r + "Pattern")).pattern();
+  bool_ = set.find(Setting(r + "Boolean")).get_bool();
 
-  text_ = set.find({r + "Text"}).get_text();
-  color_ = set.find({r + "Color"}).get_text();
-  file_ = set.find({r + "File"}).get_text();
-  directory_ = set.find({r + "Directory"}).get_text();
-  detector_ = set.find({r + "Detector"}).get_text();
-  gradient_ = set.find({r + "Gradient"}).get_text();
+  text_ = set.find(Setting(r + "Text")).get_text();
+  color_ = set.find(Setting(r + "Color")).get_text();
+  file_ = set.find(Setting(r + "File")).get_text();
+  directory_ = set.find(Setting(r + "Directory")).get_text();
+  detector_ = set.find(Setting(r + "Detector")).get_text();
+  gradient_ = set.find(Setting(r + "Gradient")).get_text();
 
-  binary_ = set.find({r + "Binary"}).get_int();
+  binary_ = set.find(Setting(r + "Binary")).get_int();
 }
 
 StreamManifest DummyDevice::stream_manifest() const

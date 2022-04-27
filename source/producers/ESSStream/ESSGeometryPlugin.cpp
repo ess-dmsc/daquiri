@@ -43,10 +43,10 @@ Setting ESSGeometryPlugin::settings() const
 void ESSGeometryPlugin::settings(const Setting& settings)
 {
   std::string r{plugin_name()};
-  geometry_.nx(settings.find({r + "/extent_x"}).get_number());
-  geometry_.ny(settings.find({r + "/extent_y"}).get_number());
-  geometry_.nz(settings.find({r + "/extent_z"}).get_number());
-  geometry_.np(settings.find({r + "/panels"}).get_number());
+  geometry_.nx(settings.find(Setting(r + "/extent_x")).get_number());
+  geometry_.ny(settings.find(Setting(r + "/extent_y")).get_number());
+  geometry_.nz(settings.find(Setting(r + "/extent_z")).get_number());
+  geometry_.np(settings.find(Setting(r + "/panels")).get_number());
 }
 
 void ESSGeometryPlugin::define(EventModel& definition)

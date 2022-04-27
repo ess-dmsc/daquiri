@@ -30,15 +30,15 @@ Setting Engine::default_settings()
 {
   Setting ret {SettingMeta("Engine", SettingType::stem)};
   ret.branches.add(Setting::text("ProfileDescr", "(no description)"));
-  ret.branches.add(SettingMeta("DropPackets", SettingType::menu));
-  ret.branches.add(SettingMeta("MaxPackets", SettingType::integer));
+  ret.branches.add(Setting(SettingMeta("DropPackets", SettingType::menu)));
+  ret.branches.add(Setting(SettingMeta("MaxPackets", SettingType::integer)));
   return ret;
 }
 
 
 void Engine::initialize(const json &profile)
 {
-  //printf("initialize engine\n");
+  //TRC("Engine::initialize");
   UNIQUE_LOCK_EVENTUALLY_ST
 
   Setting tree = profile;
@@ -123,9 +123,9 @@ StreamManifest Engine::stream_manifest() const
       continue;
     for (auto m : q.second->stream_manifest())
       ret[m.first] = m.second;
-    ret["engine"].stats.branches.add(SettingMeta("queue_size", SettingType::integer));
-    ret["engine"].stats.branches.add(SettingMeta("dropped_spills", SettingType::integer));
-    ret["engine"].stats.branches.add(SettingMeta("dropped_events", SettingType::integer));
+    ret["engine"].stats.branches.add(Setting(SettingMeta("queue_size", SettingType::integer)));
+    ret["engine"].stats.branches.add(Setting(SettingMeta("dropped_spills", SettingType::integer)));
+    ret["engine"].stats.branches.add(Setting(SettingMeta("dropped_events", SettingType::integer)));
   }
   return ret;
 }

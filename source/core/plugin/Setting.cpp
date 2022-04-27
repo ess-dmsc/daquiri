@@ -9,11 +9,11 @@
 
 namespace DAQuiri {
 
-Setting::Setting(std::string id)
+Setting::Setting(const std::string& id)
   : Setting(SettingMeta(id, SettingType::none))
 {}
 
-Setting::Setting(SettingMeta meta)
+Setting::Setting(const SettingMeta& meta)
 {
   metadata_ = meta;
 }
@@ -43,13 +43,13 @@ void Setting::clear_indices()
   indices_.clear();
 }
 
-void Setting::set_indices(std::set<int32_t> l)
+void Setting::set_indices(const std::set<int32_t>& l)
 {
   clear_indices();
   add_indices(l);
 }
 
-void Setting::add_indices(std::set<int32_t> l)
+void Setting::add_indices(const std::set<int32_t>& l)
 {
   for (auto ll : l)
     indices_.insert(ll);
@@ -65,7 +65,7 @@ std::set<int32_t> Setting::indices() const
   return indices_;
 }
 
-Setting::Setting(std::string sid, hr_time_t v)
+Setting::Setting(const std::string& sid, hr_time_t v)
   : Setting(SettingMeta(sid, SettingType::time))
 {
   value_time = v;
@@ -81,7 +81,7 @@ hr_time_t Setting::time() const
   return value_time;
 }
 
-Setting::Setting(std::string sid, hr_duration_t v)
+Setting::Setting(const std::string& sid, hr_duration_t v)
   : Setting(SettingMeta(sid, SettingType::duration))
 {
   value_duration = v;
@@ -97,7 +97,7 @@ hr_duration_t Setting::duration() const
   return value_duration;
 }
 
-Setting::Setting(std::string sid, Pattern v)
+Setting::Setting(const std::string& sid, Pattern v)
   : Setting(SettingMeta(sid, SettingType::pattern))
 {
   value_pattern = v;
@@ -185,9 +185,9 @@ std::string Setting::indices_to_string(bool showblanks) const
 
   if (showblanks && idcs.size() < max)
     for (auto i = idcs.size(); i < max; ++i)
-      idcs.push_back("-");
+      idcs.emplace_back("-");
 
-  if (idcs.size())
+  if (!idcs.empty())
     return "{" + join(idcs, " ") + "}";
 
   return "";
@@ -292,7 +292,7 @@ Setting Setting::find(Setting address, Match m) const
   if (find_dfs(address, *this, m))
     return address;
   else
-    return Setting();
+    return {};
 }
 
 std::list<Setting> Setting::find_all(const Setting &setting, Match m) const
@@ -338,7 +338,7 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
     metadata_ = setting_definitions.at(id());
     auto idm = metadata_.enum_map();
 
-    if (idm.size())
+    if (!idm.empty())
     {
       Container<Setting> new_branches;
       auto idss = metadata_.enum_names();
@@ -354,7 +354,7 @@ void Setting::enrich(const std::map<std::string, SettingMeta> &setting_definitio
           ids.erase(old.id());
       }
 
-      for (auto id : idm)
+      for (const auto& id : idm)
       {
         if (!ids.count(id.second))
           continue;
@@ -482,19 +482,19 @@ void Setting::strip_metadata()
   metadata_ = metadata_.stripped();
 }
 
-Setting Setting::text(std::string sid, std::string val)
+Setting Setting::text(const std::string& sid, const std::string& val)
 {
   Setting ret(SettingMeta(sid, SettingType::text));
   ret.value_text = val;
   return ret;
 }
 
-Setting Setting::stem(std::string sid)
+Setting Setting::stem(const std::string& sid)
 {
   return Setting(SettingMeta(sid, SettingType::stem));
 }
 
-void Setting::set_text(std::string val)
+void Setting::set_text(const std::string& val)
 {
   value_text = val;
 }
@@ -506,35 +506,35 @@ std::string Setting::get_text() const
 
 // Numerics
 
-Setting Setting::floating(std::string sid, floating_t val)
+Setting Setting::floating(const std::string& sid, floating_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::floating));
   ret.value_dbl = val;
   return ret;
 }
 
-Setting Setting::precise(std::string sid, precise_t val)
+Setting Setting::precise(const std::string& sid, precise_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::precise));
   ret.value_precise = val;
   return ret;
 }
 
-Setting Setting::boolean(std::string sid, bool val)
+Setting Setting::boolean(const std::string& sid, bool val)
 {
   Setting ret(SettingMeta(sid, SettingType::boolean));
   ret.value_int = val;
   return ret;
 }
 
-Setting Setting::integer(std::string sid, integer_t val)
+Setting Setting::integer(const std::string& sid, integer_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::integer));
   ret.value_int = val;
   return ret;
 }
 
-Setting Setting::indicator(std::string sid, integer_t val)
+Setting Setting::indicator(const std::string& sid, integer_t val)
 {
   Setting ret(SettingMeta(sid, SettingType::indicator));
   ret.value_int = val;
@@ -563,11 +563,11 @@ double Setting::get_number() const
 void Setting::set_number(double val)
 {
   if (is(SettingType::integer))
-    value_int = val;
+    value_int = static_cast<integer_t>(val);
   else if (is(SettingType::floating))
-    value_dbl = val;
+    value_dbl = static_cast<floating_t>(val);
   else if (is(SettingType::precise))
-    value_precise = val;
+    value_precise = static_cast<precise_t>(val);
   enforce_limits();
 }
 
@@ -674,14 +674,14 @@ Setting& Setting::operator--()
 }
 
 // postfix
-Setting Setting::operator++(int)
+const Setting Setting::operator++(int)
 {
   Setting tmp(*this);
   operator++();
   return tmp;
 }
 
-Setting Setting::operator--(int)
+const Setting Setting::operator--(int)
 {
   Setting tmp(*this);
   operator--();
@@ -736,7 +736,7 @@ std::string Setting::val_to_string() const
   return ss.str();
 }
 
-std::string Setting::debug(std::string prepend, bool verbose) const
+std::string Setting::debug(const std::string& prepend, bool verbose) const
 {
   std::string ret;
   if (!id().empty())
@@ -847,7 +847,7 @@ void from_json(const json& j, Setting &s)
     s.metadata_ = j["metadata"];
 
   if (j.count("indices"))
-    for (auto it : j["indices"])
+    for (const auto& it : j["indices"])
       s.indices_.insert(it.get<int32_t>());
 
   if (s.is(SettingType::stem))

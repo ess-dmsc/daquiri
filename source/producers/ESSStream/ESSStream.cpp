@@ -150,9 +150,9 @@ void ESSStream::settings(const Setting& settings)
   std::string r {plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
 
-  kafka_config_.settings(set.find({kafka_config_.plugin_name()}));
+  kafka_config_.settings(set.find(Setting(kafka_config_.plugin_name())));
 
-  size_t total = set.find({r + "/TopicCount"}).get_int();
+  size_t total = set.find(Setting(r + "/TopicCount")).get_int();
   if (!total)
     total = 1;
 
@@ -166,14 +166,14 @@ void ESSStream::settings(const Setting& settings)
     if (v.id() != (r + "/Topic"))
       continue;
 
-    auto parser_set = enrich_and_toggle_presets(v.find({r + "/Parser"}));
+    auto parser_set = enrich_and_toggle_presets(v.find(Setting(r + "/Parser")));
     auto parser = parser_set.metadata().enum_name(parser_set.selection());
 
-    streams_[i].config.settings(v.find(streams_[i].config.plugin_name()));
+    streams_[i].config.settings(v.find(Setting(streams_[i].config.plugin_name())));
 
     select_parser(i, parser);
     if (streams_[i].parser && (streams_[i].parser->plugin_name() == parser))
-      streams_[i].parser->settings(v.find({parser}));
+      streams_[i].parser->settings(v.find(Setting(parser)));
     i++;
   }
 }

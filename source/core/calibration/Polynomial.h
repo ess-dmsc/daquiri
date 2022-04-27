@@ -9,6 +9,7 @@ class Polynomial : public CoefFunction
 {
  public:
   using CoefFunction::CoefFunction;
+  Polynomial() : CoefFunction::CoefFunction() {}
 
   std::string type() const override { return "Polynomial"; }
   Polynomial* clone() const override { return new Polynomial(*this); }

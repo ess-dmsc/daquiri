@@ -60,7 +60,7 @@ bool Timer::timeout() const
 
 std::string Timer::elapsed_str() const
 {
-  uint64_t e_tot = static_cast<uint64_t>(s());
+  auto e_tot = static_cast<uint64_t>(s());
   uint64_t e_h = e_tot / 3600;
   uint64_t e_m = (e_tot % 3600) / 60;
   uint64_t e_s = (e_tot % 60);
@@ -76,7 +76,7 @@ std::string Timer::elapsed_str() const
 
 std::string Timer::ETA_str() const
 {
-  uint64_t ETA_tot = static_cast<uint64_t>(
+  auto ETA_tot = static_cast<uint64_t>(
       ceil(static_cast<double>(timeout_limit) - s())
   );
   uint64_t ETA_h = ETA_tot / 3600;

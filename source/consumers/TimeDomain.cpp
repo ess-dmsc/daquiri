@@ -23,13 +23,13 @@ TimeDomain::TimeDomain()
   win.set_val("min", 1);
   win.set_val("units", "units (see below)");
   win.set_val("description", "Infinite if =0");
-  base_options.branches.add(win);
+  base_options.branches.add(Setting(win));
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "units (see below)");
-  base_options.branches.add(res);
+  base_options.branches.add(Setting(res));
 
   SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
@@ -37,10 +37,10 @@ TimeDomain::TimeDomain()
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  base_options.branches.add(units);
+  base_options.branches.add(Setting(units));
 
   SettingMeta trim("trim", SettingType::boolean, "Trim last bin");
-  base_options.branches.add(trim);
+  base_options.branches.add(Setting(trim));
 
   metadata_.overwrite_all_attributes(base_options);
 }

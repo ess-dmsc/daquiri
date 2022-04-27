@@ -10,40 +10,40 @@ Spectrum::Spectrum()
   Setting base_options = metadata_.attributes();
 
   SettingMeta name("name", SettingType::text, "Name");
-  base_options.branches.add(name);
+  base_options.branches.add(Setting(name));
 
   SettingMeta altaxisname("alt_axis_name", SettingType::text, "Axis alias");
-  base_options.branches.add(altaxisname);
+  base_options.branches.add(Setting(altaxisname));
 
   SettingMeta vis("visible", SettingType::boolean, "Visible");
-  base_options.branches.add(vis);
+  base_options.branches.add(Setting(vis));
 
   SettingMeta grp("window_group", SettingType::integer, "Window group");
   grp.set_val("min", 0);
   grp.set_val("max", 100);
-  base_options.branches.add(grp);
+  base_options.branches.add(Setting(grp));
 
   SettingMeta sca("preferred_scale", SettingType::menu, "Plot scale for counts");
   sca.set_enum(0, "Linear");
   sca.set_enum(1, "Logarithmic");
-  base_options.branches.add(sca);
+  base_options.branches.add(Setting(sca));
 
   SettingMeta totalcount("total_count", SettingType::precise, "Total count");
   totalcount.set_flag("readonly");
   totalcount.set_val("min", 0);
-  base_options.branches.add(totalcount);
+  base_options.branches.add(Setting(totalcount));
 
   SettingMeta start_time("start_time", SettingType::time, "Start time");
   start_time.set_flag("readonly");
-  base_options.branches.add(start_time);
+  base_options.branches.add(Setting(start_time));
 
   SettingMeta live_time("live_time", SettingType::duration, "Live time");
   live_time.set_flag("readonly");
-  base_options.branches.add(live_time);
+  base_options.branches.add(Setting(live_time));
 
   SettingMeta real_time("real_time", SettingType::duration, "Real time");
   real_time.set_flag("readonly");
-  base_options.branches.add(real_time);
+  base_options.branches.add(Setting(real_time));
 
   base_options.branches.add(recent_rate_.update(Status(), 0));
 

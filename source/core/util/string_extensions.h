@@ -59,7 +59,7 @@ inline std::string trim_all(std::string text)
   std::string s;
   while (iss >> s)
   {
-    if (text != "")
+    if (!text.empty())
       text += " " + s;
     else text = s;
   }
@@ -67,7 +67,7 @@ inline std::string trim_all(std::string text)
 }
 
 template<typename T>
-inline std::string join(T strings, std::string delimiter)
+inline std::string join(T strings, const std::string& delimiter)
 {
   std::string ret;
   for (const auto& s : strings)

@@ -53,7 +53,7 @@ void Detector::add_optimizations(const std::list<Setting>& l,
 
 Setting Detector::get_setting(std::string id) const
 {
-  return settings_.find({id}, Match::id);
+  return settings_.find(Setting(id), Match::id);
 }
 
 void Detector::clear_optimizations()

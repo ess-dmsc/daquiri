@@ -109,9 +109,9 @@ Setting KafkaConfigPlugin::settings() const
 void KafkaConfigPlugin::settings(const Setting& set)
 {
   std::string r {plugin_name()};
-  kafka_broker_name_ = set.find({r + "/KafkaBroker"}).get_text();
-  kafka_timeout_ = set.find({r + "/KafkaTimeout"}).get_int();
-  kafka_decomission_wait_ = set.find({r + "/KafkaDecomission"}).get_int();
+  kafka_broker_name_ = set.find(Setting(r + "/KafkaBroker")).get_text();
+  kafka_timeout_ = set.find(Setting(r + "/KafkaTimeout")).get_int();
+  kafka_decomission_wait_ = set.find(Setting(r + "/KafkaDecomission")).get_int();
 }
 
 std::string KafkaConfigPlugin::random_string( size_t length )
@@ -273,7 +273,7 @@ Setting KafkaStreamConfig::settings() const
 void KafkaStreamConfig::settings(const Setting& set)
 {
   std::string r{plugin_name()};
-  kafka_topic_name_ = set.find({r + "/KafkaTopic"}).get_text();
-  kafka_ff_ = set.find({r + "/KafkaFF"}).get_bool();
-  kafka_max_backlog_ = set.find({r + "/KafkaMaxBacklog"}).get_int();
+  kafka_topic_name_ = set.find(Setting(r + "/KafkaTopic")).get_text();
+  kafka_ff_ = set.find(Setting(r + "/KafkaFF")).get_bool();
+  kafka_max_backlog_ = set.find(Setting(r + "/KafkaMaxBacklog")).get_int();
 }

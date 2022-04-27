@@ -22,7 +22,7 @@ TimeDelta1D::TimeDelta1D()
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "units (see below)");
-  base_options.branches.add(res);
+  base_options.branches.add(Setting(res));
 
   SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
@@ -30,7 +30,7 @@ TimeDelta1D::TimeDelta1D()
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  base_options.branches.add(units);
+  base_options.branches.add(Setting(units));
 
   metadata_.overwrite_all_attributes(base_options);
 }

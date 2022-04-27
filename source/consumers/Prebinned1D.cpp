@@ -16,20 +16,20 @@ Prebinned1D::Prebinned1D()
 
   SettingMeta app("appearance", SettingType::text, "Appearance");
   app.set_flag("color");
-  base_options.branches.add(app);
+  base_options.branches.add(Setting(app));
 
   SettingMeta val_name("trace_id", SettingType::text);
   val_name.set_flag("preset");
   val_name.set_flag("event_trace");
   val_name.set_val("description", "Name of event trace to bin");
-  base_options.branches.add(val_name);
+  base_options.branches.add(Setting(val_name));
 
   SettingMeta mds("downsample", SettingType::integer, "Downsample by");
   mds.set_val("units", "bits");
   mds.set_flag("preset");
   mds.set_val("min", 0);
   mds.set_val("max", 31);
-  base_options.branches.add(mds);
+  base_options.branches.add(Setting(mds));
 
   metadata_.overwrite_all_attributes(base_options);
 }
