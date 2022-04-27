@@ -13,7 +13,7 @@
 void MainWindow::setupPlots() {
   if (strcmp(mConfig.Plot.PlotType.c_str(), "tof2d") == 0) {
     plottype = tof2d;
-    PlotTOF2D = new Custom2DTOFPlot(mConfig, 0);
+    PlotTOF2D = new Custom2DTOFPlot(mConfig);
     ui->gridLayout->addWidget(PlotTOF2D, 0, 0, 1, 1);
 
   } else if (strcmp(mConfig.Plot.PlotType.c_str(), "tof") == 0) {
@@ -102,7 +102,6 @@ void MainWindow::handleKafkaData(int ElapsedCountMS) {
   uint64_t EventRate = Consumer->EventCount * 1000ULL/ElapsedCountMS;
   uint64_t EventAccept = Consumer->EventAccept * 1000ULL/ElapsedCountMS;
   uint64_t EventDiscardRate = Consumer->EventDiscard * 1000ULL/ElapsedCountMS;
-
 
   ui->lblEventRateText->setText(QString::number(EventRate));
   ui->lblAcceptRateText->setText(QString::number(EventAccept));

@@ -12,12 +12,16 @@
 #include <fmt/format.h>
 #include <string>
 
-Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config, int Projection)
-    : mConfig(Config), mProjection(Projection) {
+Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config)
+    : mConfig(Config) {
+
+  if ((not (mConfig.Geometry.YDim <= TOF2DY) or
+      (not (mConfig.TOF.BinSize <= TOF2DX)))) {
+    throw(std::runtime_error("2D TOF histogram size mismatch"));
+  }
 
   memset(HistogramData2D, 0, sizeof(HistogramData2D));
 
-  assert((Projection >= 0) and (Projection <= 2));
 
   connect(this, SIGNAL(mouseMove(QMouseEvent *)), this,
           SLOT(showPointToolTip(QMouseEvent *)));
@@ -46,7 +50,7 @@ Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config, int Projection)
     xAxis->setLabel("TOF");
     yAxis->setLabel("Y");
     mColorMap->data()->setSize(mConfig.TOF.BinSize, geom.YDim);
-    mColorMap->data()->setRange(QCPRange(0, mConfig.TOF.BinSize),
+    mColorMap->data()->setRange(QCPRange(0, mConfig.TOF.MaxValue),
                                 QCPRange(0, mConfig.Geometry.YDim)); //
   }
 
@@ -135,7 +139,7 @@ std::string Custom2DTOFPlot::getNextColorGradient(std::string GradientName) {
 }
 
 void Custom2DTOFPlot::clearDetectorImage() {
-  /// \todo is this right?
+  /// \todo not done yet
   memset(HistogramData2D, 0, sizeof(HistogramData2D));
   plotDetectorImage(true);
 }
@@ -182,12 +186,9 @@ void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
     if (PixelIDs[i] == 0) {
       continue;
     }
-    //printf("pixel %u, tof %u\n", PixelIDs[i], TOFs[i]);
     int tof  = TOFs[i];
-    int yvals = PixelIDs[i]/32;
-    //printf("tofbin %d, wire %d\n", tof, yvals);
+    int yvals = (PixelIDs[i] - 1)/32;
     HistogramData2D[tof][yvals]++;
-    //HistogramData2D[1][1]++;
   }
   plotDetectorImage(false);
   return;

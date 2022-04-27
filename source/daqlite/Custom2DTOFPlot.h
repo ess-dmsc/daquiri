@@ -17,7 +17,7 @@ class Custom2DTOFPlot : public QCustomPlot {
   Q_OBJECT
 public:
   /// \brief plot needs the configurable plotting options
-  Custom2DTOFPlot(Configuration &Config, int Projection);
+  Custom2DTOFPlot(Configuration &Config);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
@@ -50,7 +50,10 @@ private:
   /// \brief configuration obtained from main()
   Configuration &mConfig;
 
-  uint32_t HistogramData2D[600][400];
+  /// \brief allocated according to config in constructor
+  #define TOF2DX 512
+  #define TOF2DY 512
+  uint32_t HistogramData2D[TOF2DX][TOF2DY];
 
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry *LogicalGeometry;
