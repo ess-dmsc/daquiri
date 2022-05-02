@@ -33,7 +33,8 @@ public:
   std::string getNextColorGradient(std::string GradientName);
 
   /// \brief clears histogram data
-  void clearDetectorImage();
+  void clearDetectorImage(std::vector<uint32_t> &PixelIDs,
+      std::vector<uint32_t> &TOFs);
 
 public slots:
   void showPointToolTip(QMouseEvent *event);

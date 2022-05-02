@@ -138,8 +138,10 @@ std::string Custom2DTOFPlot::getNextColorGradient(std::string GradientName) {
   return RetVal;
 }
 
-void Custom2DTOFPlot::clearDetectorImage() {
-  /// \todo not done yet
+void Custom2DTOFPlot::clearDetectorImage(std::vector<uint32_t> &PixelIDs,
+    std::vector<uint32_t> &TOFs) {
+  PixelIDs.clear();
+  TOFs.clear();
   memset(HistogramData2D, 0, sizeof(HistogramData2D));
   plotDetectorImage(true);
 }
@@ -149,7 +151,7 @@ void Custom2DTOFPlot::plotDetectorImage(bool Force) {
 
   for (unsigned int y = 0; y < 352; y++) {
     for (unsigned int x = 0; x < 512; x++) {
-      if (HistogramData2D[x][y] == 0) {
+      if ((HistogramData2D[x][y] == 0) and (not Force)) {
         continue;
       }
       //printf("debug x %u, y %u, z %u\n", x, y, HistogramData2D[x][y]);

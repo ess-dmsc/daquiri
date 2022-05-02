@@ -132,7 +132,8 @@ void MainWindow::handleExitButton() { QApplication::quit(); }
 
 void MainWindow::handleClearButton() {
   if (plottype == tof2d) {
-    PlotTOF2D->clearDetectorImage();
+    auto Consumer = KafkaConsumerThread->consumer();
+    PlotTOF2D->clearDetectorImage(Consumer->mPixelIDsPlot, Consumer->mTOFsPlot);
 
   } else if (plottype == tof) {
     PlotTOF->clearDetectorImage();
