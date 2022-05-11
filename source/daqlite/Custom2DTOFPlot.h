@@ -54,7 +54,7 @@ private:
   /// \brief allocated according to config in constructor
   #define TOF2DX 512
   #define TOF2DY 512
-  uint32_t HistogramData2D[TOF2DX][TOF2DY];
+  uint32_t HistogramData2D[TOF2DX + 1][TOF2DY + 1];
 
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry *LogicalGeometry;
