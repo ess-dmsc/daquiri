@@ -171,14 +171,6 @@ void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
   auto t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
 
-  // Periodically clear the histogram
-  //
-  // uint64_t nsBetweenClear = 1000000000ULL * mConfig.Plot.ClearEverySeconds;
-  // if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= nsBetweenClear)) {
-  //   std::fill(HistogramData.begin(), HistogramData.end(), 0);
-  //   t1 = std::chrono::high_resolution_clock::now();
-  // }
-
   // Accumulate counts, PixelId 0 does not exist
   if (PixelIDs.size() == 0) {
     return;

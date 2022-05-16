@@ -207,9 +207,16 @@ void MainWindow::handleAutoScaleYButton() {
 }
 
 void MainWindow::handleGradientButton() {
-  if (plottype != tof) {
+  if (plottype == pixels) {
     mConfig.Plot.ColorGradient =
-        PlotTOF2D->getNextColorGradient(mConfig.Plot.ColorGradient);
-    updateGradientLabel();
+      Plot2DXY->getNextColorGradient(mConfig.Plot.ColorGradient);
+  } else if (plottype == tof2d) {
+    mConfig.Plot.ColorGradient =
+      PlotTOF2D->getNextColorGradient(mConfig.Plot.ColorGradient);
+      auto Consumer = KafkaConsumerThread->consumer();
+      PlotTOF2D->clearDetectorImage(Consumer->mPixelIDsPlot, Consumer->mTOFsPlot);
+  } else {
+    return;
   }
+  updateGradientLabel();
 }

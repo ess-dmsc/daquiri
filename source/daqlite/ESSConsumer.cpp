@@ -81,7 +81,7 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
 
     // accumulate events for 2D TOF
-    uint32_t TofBin = std::min(Tof, mConfig.TOF.MaxValue) * mConfig.TOF.BinSize / mConfig.TOF.MaxValue;
+    uint32_t TofBin = std::min(Tof, mConfig.TOF.MaxValue) * (mConfig.TOF.BinSize - 1) / mConfig.TOF.MaxValue;
     //printf("Pushback pixel %u, tof %u\n", Pixel, TofBin);
     mPixelIDs.push_back(Pixel);
     mTOFs.push_back(TofBin);
