@@ -36,14 +36,14 @@ public:
   void clearDetectorImage(std::vector<uint32_t> &PixelIDs,
       std::vector<uint32_t> &TOFs);
 
-public slots:
-  void showPointToolTip(QMouseEvent *event);
-
-private:
   /// \brief updates the image
   /// \param Force forces updates of histogram data with zero count
   void plotDetectorImage(bool Force);
 
+public slots:
+  void showPointToolTip(QMouseEvent *event);
+
+private:
   // QCustomPlot variables
   QCPColorScale *mColorScale{nullptr};
   QCPColorMap *mColorMap{nullptr};

@@ -213,8 +213,7 @@ void MainWindow::handleGradientButton() {
   } else if (plottype == tof2d) {
     mConfig.Plot.ColorGradient =
       PlotTOF2D->getNextColorGradient(mConfig.Plot.ColorGradient);
-      auto Consumer = KafkaConsumerThread->consumer();
-      PlotTOF2D->clearDetectorImage(Consumer->mPixelIDsPlot, Consumer->mTOFsPlot);
+      PlotTOF2D->plotDetectorImage(true);
   } else {
     return;
   }
