@@ -72,7 +72,7 @@ public:
   };
 
   struct Plot {
-    std::string PlotType{"pixels"}; // "tof" and "tof2s" are also possible
+    std::string PlotType{"pixels"}; // "tof" and "tof2d" are also possible
     bool ClearPeriodic{false};
     uint32_t ClearEverySeconds{5};
     bool Interpolate{false};

@@ -13,9 +13,6 @@
 #include <chrono>
 #include <logical_geometry/ESSGeometry.h>
 
-
-
-
 class Custom2DPlot : public QCustomPlot {
   Q_OBJECT
 public:
