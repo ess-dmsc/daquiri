@@ -13,7 +13,7 @@
 void MainWindow::setupPlots() {
   if (strcmp(mConfig.Plot.PlotType.c_str(), "tof2d") == 0) {
     plottype = tof2d;
-    PlotTOF2D = new Custom2DTOFPlot(mConfig);
+    PlotTOF2D = new CustomAMOR2DTOFPlot(mConfig);
     ui->gridLayout->addWidget(PlotTOF2D, 0, 0, 1, 1);
 
   } else if (strcmp(mConfig.Plot.PlotType.c_str(), "tof") == 0) {
@@ -213,7 +213,7 @@ void MainWindow::handleGradientButton() {
   } else if (plottype == tof2d) {
     mConfig.Plot.ColorGradient =
       PlotTOF2D->getNextColorGradient(mConfig.Plot.ColorGradient);
-      PlotTOF2D->plotDetectorImage(true);
+    PlotTOF2D->plotDetectorImage(true);
   } else {
     return;
   }

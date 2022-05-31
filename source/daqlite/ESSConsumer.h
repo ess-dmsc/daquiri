@@ -53,7 +53,6 @@ public:
 
 
 private:
-  uint64_t NextSeqNum{0}; // Kafka - from message_id
   RdKafka::Conf *mConf;
   RdKafka::Conf *mTConf;
   RdKafka::KafkaConsumer *mConsumer;

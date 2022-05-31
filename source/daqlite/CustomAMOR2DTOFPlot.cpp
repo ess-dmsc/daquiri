@@ -1,18 +1,18 @@
-// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
+// Copyright (C) 2020 - 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
 /// \file Custom2DPlot.cpp
 ///
 //===----------------------------------------------------------------------===//
 
-#include <Custom2DTOFPlot.h>
+#include <CustomAMOR2DTOFPlot.h>
 #include <WorkerThread.h>
 #include <algorithm>
 #include <assert.h>
 #include <fmt/format.h>
 #include <string>
 
-Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config)
+CustomAMOR2DTOFPlot::CustomAMOR2DTOFPlot(Configuration &Config)
     : mConfig(Config) {
 
   if ((not (mConfig.Geometry.YDim <= TOF2DY) or
@@ -46,13 +46,11 @@ Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config)
   mColorMap = new QCPColorMap(xAxis, yAxis);
 
   // we want the color map to have nx * ny data points
-  if (mProjection == 0) {
-    xAxis->setLabel("TOF");
-    yAxis->setLabel("Y");
-    mColorMap->data()->setSize(mConfig.TOF.BinSize, geom.YDim);
-    mColorMap->data()->setRange(QCPRange(0, mConfig.TOF.MaxValue),
-                                QCPRange(0, mConfig.Geometry.YDim)); //
-  }
+  xAxis->setLabel("TOF");
+  yAxis->setLabel("Y");
+  mColorMap->data()->setSize(mConfig.TOF.BinSize, geom.YDim);
+  mColorMap->data()->setRange(QCPRange(0, mConfig.TOF.MaxValue),
+                              QCPRange(0, mConfig.Geometry.YDim)); //
 
   // add a color scale:
   mColorScale = new QCPColorScale(this);
@@ -84,7 +82,7 @@ Custom2DTOFPlot::Custom2DTOFPlot(Configuration &Config)
   t1 = std::chrono::high_resolution_clock::now();
 }
 
-void Custom2DTOFPlot::setCustomParameters() {
+void CustomAMOR2DTOFPlot::setCustomParameters() {
   // set the color gradient of the color map to one of the presets:
   QCPColorGradient Gradient(getColorGradient(mConfig.Plot.ColorGradient));
 
@@ -103,7 +101,7 @@ void Custom2DTOFPlot::setCustomParameters() {
 
 // Try the user supplied gradient name, then fall back to 'hot' and
 // provide a list of options
-QCPColorGradient Custom2DTOFPlot::getColorGradient(std::string GradientName) {
+QCPColorGradient CustomAMOR2DTOFPlot::getColorGradient(std::string GradientName) {
   if (mGradients.find(GradientName) != mGradients.end()) {
     return mGradients.find(GradientName)->second;
   } else {
@@ -117,7 +115,7 @@ QCPColorGradient Custom2DTOFPlot::getColorGradient(std::string GradientName) {
   }
 }
 
-std::string Custom2DTOFPlot::getNextColorGradient(std::string GradientName) {
+std::string CustomAMOR2DTOFPlot::getNextColorGradient(std::string GradientName) {
   bool SaveFirst{true};
   bool SaveNext{false};
   std::string RetVal;
@@ -138,7 +136,7 @@ std::string Custom2DTOFPlot::getNextColorGradient(std::string GradientName) {
   return RetVal;
 }
 
-void Custom2DTOFPlot::clearDetectorImage(std::vector<uint32_t> &PixelIDs,
+void CustomAMOR2DTOFPlot::clearDetectorImage(std::vector<uint32_t> &PixelIDs,
     std::vector<uint32_t> &TOFs) {
   PixelIDs.clear();
   TOFs.clear();
@@ -146,7 +144,7 @@ void Custom2DTOFPlot::clearDetectorImage(std::vector<uint32_t> &PixelIDs,
   plotDetectorImage(true);
 }
 
-void Custom2DTOFPlot::plotDetectorImage(bool Force) {
+void CustomAMOR2DTOFPlot::plotDetectorImage(bool Force) {
   setCustomParameters();
 
   for (unsigned int y = 0; y < 352; y++) {
@@ -166,7 +164,7 @@ void Custom2DTOFPlot::plotDetectorImage(bool Force) {
   replot();
 }
 
-void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
+void CustomAMOR2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
     std::vector<uint32_t> &TOFs) {
   auto t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<int64_t, std::nano> elapsed = t2 - t1;
@@ -181,7 +179,7 @@ void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
       continue;
     }
     int tof  = TOFs[i];
-    int yvals = (PixelIDs[i] - 1)/32;
+    int yvals = (PixelIDs[i] - 1)/mConfig.Geometry.XDim;
     HistogramData2D[tof][yvals]++;
   }
   plotDetectorImage(false);
@@ -189,7 +187,7 @@ void Custom2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
 }
 
 // MouseOver
-void Custom2DTOFPlot::showPointToolTip(QMouseEvent *event) {
+void CustomAMOR2DTOFPlot::showPointToolTip(QMouseEvent *event) {
   int x = this->xAxis->pixelToCoord(event->pos().x());
   int y = this->yAxis->pixelToCoord(event->pos().y());
 

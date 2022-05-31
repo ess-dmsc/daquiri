@@ -1,7 +1,7 @@
 // Copyright (C) 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
-/// \file Custom2DTOFPlot.h
+/// \file CustomAMOR2DTOFPlot.h
 ///
 /// \brief Creates (maybe) a QCustomPlot based on the configuration parameters
 //===----------------------------------------------------------------------===//
@@ -13,11 +13,11 @@
 #include <chrono>
 #include <logical_geometry/ESSGeometry.h>
 
-class Custom2DTOFPlot : public QCustomPlot {
+class CustomAMOR2DTOFPlot : public QCustomPlot {
   Q_OBJECT
 public:
   /// \brief plot needs the configurable plotting options
-  Custom2DTOFPlot(Configuration &Config);
+  CustomAMOR2DTOFPlot(Configuration &Config);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
@@ -59,9 +59,6 @@ private:
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry *LogicalGeometry;
 
-  // 0 = (x,y), 1 = (x,z), 2 = (y,z)
-  int mProjection{0};
-
   // See colors here
   // https://www.qcustomplot.com/documentation/classQCPColorGradient.html
   std::map<std::string, QCPColorGradient> mGradients{
@@ -77,7 +74,7 @@ private:
       {"spectrum", QCPColorGradient::gpSpectrum},
       {"jet", QCPColorGradient::gpJet},
       {"hues", QCPColorGradient::gpHues}};
-
+      
   /// \brief reference time for periodic clearing of histogram
   std::chrono::time_point<std::chrono::high_resolution_clock> t1;
 };

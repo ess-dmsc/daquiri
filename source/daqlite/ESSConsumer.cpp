@@ -68,12 +68,6 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
 
 uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
   auto EvMsg = GetEventMessage(Msg->payload());
-  uint64_t MessageId = EvMsg->message_id();
-  if (MessageId != NextSeqNum) {
-    printf("Message sequence number error: expected %llu, got %llu\n", NextSeqNum, MessageId);
-  }
-  NextSeqNum = MessageId + 1;
-
   auto PixelIds = EvMsg->detector_id();
   auto TOFs = EvMsg->time_of_flight();
 

@@ -10,7 +10,7 @@
 
 #include <Configuration.h>
 #include <Custom2DPlot.h>
-#include <Custom2DTOFPlot.h>
+#include <CustomAMOR2DTOFPlot.h>
 #include <CustomTofPlot.h>
 #include <QMainWindow>
 #include <WorkerThread.h>
@@ -55,7 +55,7 @@ private:
   enum PlotType {none, pixels, tof, tof2d};
   PlotType plottype{none};
 
-  Custom2DTOFPlot *PlotTOF2D; /// Experimental
+  CustomAMOR2DTOFPlot *PlotTOF2D; /// Experimental
   Custom2DPlot *Plot2DXY; // xy plots
   Custom2DPlot *Plot2DXZ; // xz plots
   Custom2DPlot *Plot2DYZ; // yz plots
@@ -66,4 +66,5 @@ private:
 
   /// \brief
   WorkerThread *KafkaConsumerThread;
+
 };

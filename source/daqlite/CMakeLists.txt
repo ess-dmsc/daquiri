@@ -7,7 +7,7 @@ set(daqlite_src
   daqlite.cpp
   Configuration.cpp
   Custom2DPlot.cpp
-  Custom2DTOFPlot.cpp
+  CustomAMOR2DTOFPlot.cpp
   CustomTofPlot.cpp
   ESSConsumer.cpp
   MainWindow.cpp
@@ -17,7 +17,7 @@ set(daqlite_src
 set(daqlite_inc
   Configuration.h
   Custom2DPlot.h
-  Custom2DTOFPlot.h
+  CustomAMOR2DTOFPlot.h
   CustomTofPlot.h
   ESSConsumer.h
   MainWindow.h
