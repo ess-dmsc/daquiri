@@ -11,17 +11,17 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <unistd.h>
+#include <vector>
 
 ESSConsumer::ESSConsumer(Configuration &Config) : mConfig(Config) {
-  const int OVERHEAD{1};
   auto &geom = mConfig.Geometry;
   uint32_t NumPixels = geom.XDim * geom.YDim * geom.ZDim;
   mMinPixel = geom.Offset + 1;
   mMaxPixel = geom.Offset +  NumPixels;
   assert(mMaxPixel != 0);
   assert(mMinPixel < mMaxPixel);
-  mHistogram.resize(NumPixels + OVERHEAD);
-  mHistogramTof.resize(mConfig.TOF.BinSize + OVERHEAD);
+  mHistogram.resize(NumPixels);
+  mHistogramTof.resize(mConfig.TOF.BinSize);
 
   mConsumer = subscribeTopic();
   assert(mConsumer != nullptr);
@@ -79,17 +79,19 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     uint32_t Pixel = (*PixelIds)[i];
     uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
 
+    // accumulate events for 2D TOF
+    uint32_t TofBin = std::min(Tof, mConfig.TOF.MaxValue) * (mConfig.TOF.BinSize - 1) / mConfig.TOF.MaxValue;
+    mPixelIDs.push_back(Pixel);
+    mTOFs.push_back(TofBin);
+
     if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
-      // printf("Error: invalid pixel id: %d, min: %d, max: %d\n",
-      //        Pixel, mMinPixel, mMaxPixel);
-      // exit(0);
       EventDiscard++;
     } else {
       EventAccept++;
       Pixel = Pixel - mConfig.Geometry.Offset;
       mHistogram[Pixel]++;
       Tof = std::min(Tof, mConfig.TOF.MaxValue);
-      mHistogramTof[Tof * mConfig.TOF.BinSize / mConfig.TOF.MaxValue]++;
+      mHistogramTof[Tof * (mConfig.TOF.BinSize - 1)/ mConfig.TOF.MaxValue]++;
     }
   }
   EventCount += PixelIds->size();

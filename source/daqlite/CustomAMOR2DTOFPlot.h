@@ -1,9 +1,9 @@
-// Copyright (C) 2020 - 2021 European Spallation Source, ERIC. See LICENSE file
+// Copyright (C) 2022 European Spallation Source, ERIC. See LICENSE file
 //===----------------------------------------------------------------------===//
 ///
-/// \file Custom2DPlot.h
+/// \file CustomAMOR2DTOFPlot.h
 ///
-/// \brief Creates a QCustomPlot based on the configuration parameters
+/// \brief Creates (maybe) a QCustomPlot based on the configuration parameters
 //===----------------------------------------------------------------------===//
 
 #pragma once
@@ -13,17 +13,15 @@
 #include <chrono>
 #include <logical_geometry/ESSGeometry.h>
 
-class Custom2DPlot : public QCustomPlot {
+class CustomAMOR2DTOFPlot : public QCustomPlot {
   Q_OBJECT
 public:
-  enum Projection {ProjectionXY, ProjectionXZ, ProjectionYZ};
-
   /// \brief plot needs the configurable plotting options
-  Custom2DPlot(Configuration &Config, Projection Proj);
+  CustomAMOR2DTOFPlot(Configuration &Config);
 
   /// \brief adds histogram data, clears periodically then calls
   /// plotDetectorImage()
-  void addData(std::vector<uint32_t> &Histogram);
+  void addData(std::vector<uint32_t> &Pixels, std::vector<uint32_t> &TOFs);
 
   /// \brief Support for different gradients
   QCPColorGradient getColorGradient(std::string GradientName);
@@ -35,7 +33,8 @@ public:
   std::string getNextColorGradient(std::string GradientName);
 
   /// \brief clears histogram data
-  void clearDetectorImage();
+  void clearDetectorImage(std::vector<uint32_t> &PixelIDs,
+      std::vector<uint32_t> &TOFs);
 
   /// \brief updates the image
   /// \param Force forces updates of histogram data with zero count
@@ -52,13 +51,13 @@ private:
   /// \brief configuration obtained from main()
   Configuration &mConfig;
 
-  std::vector<uint32_t> HistogramData;
+  /// \brief allocated according to config in constructor
+  #define TOF2DX 512
+  #define TOF2DY 512
+  uint32_t HistogramData2D[TOF2DX + 1][TOF2DY + 1];
 
   /// \brief for calculating x, y, z from pixelid
   ESSGeometry *LogicalGeometry;
-
-  //
-  Projection mProjection;
 
   // See colors here
   // https://www.qcustomplot.com/documentation/classQCPColorGradient.html
@@ -75,7 +74,7 @@ private:
       {"spectrum", QCPColorGradient::gpSpectrum},
       {"jet", QCPColorGradient::gpJet},
       {"hues", QCPColorGradient::gpHues}};
-
+      
   /// \brief reference time for periodic clearing of histogram
   std::chrono::time_point<std::chrono::high_resolution_clock> t1;
 };

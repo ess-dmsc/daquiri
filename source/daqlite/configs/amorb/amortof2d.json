@@ -24,14 +24,14 @@
   },
 
   "plot": {
-    "plot_type" : "tof",
-    "window_title" : "AMOR TOF",
-    "plot_title" : "TOF",
+    "plot_type" : "tof2d",
+    "window_title" : "AMOR-B 2d TOF",
+    "plot_title" : "Pixels",
     "clear_periodic" : false,
-    "clear_interval_seconds" : 30,
+    "clear_interval_seconds" : 5,
     "interpolate_pixels" : false,
-    "color_gradient" : "spectrum",
+    "color_gradient" : "hot",
     "invert_gradient" : false,
-    "log_scale" : false
+    "log_scale" : true
   }
 }

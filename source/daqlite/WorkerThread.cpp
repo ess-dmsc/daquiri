@@ -28,14 +28,17 @@ void WorkerThread::run() {
       mutex.lock();
       Consumer->mHistogramPlot = Consumer->mHistogram;
       Consumer->mHistogramTofPlot = Consumer->mHistogramTof;
+      Consumer->mPixelIDsPlot = Consumer->mPixelIDs;
+      Consumer->mTOFsPlot = Consumer->mTOFs;
       mutex.unlock();
 
       int ElapsedCountMS = elapsed.count()/1000000;
       emit resultReady(ElapsedCountMS);
 
       std::fill(Consumer->mHistogram.begin(), Consumer->mHistogram.end(), 0);
-      std::fill(Consumer->mHistogramTof.begin(), Consumer->mHistogramTof.end(),
-                0);
+      std::fill(Consumer->mHistogramTof.begin(), Consumer->mHistogramTof.end(), 0);
+      Consumer->mPixelIDs.clear();
+      Consumer->mTOFs.clear();
       t1 = std::chrono::high_resolution_clock::now();
     }
     delete Msg;

@@ -41,6 +41,11 @@ public:
   std::vector<uint32_t> mHistogramTofPlot;
   std::vector<uint32_t> mHistogramTof;
 
+  std::vector<uint32_t> mPixelIDs;
+  std::vector<uint32_t> mPixelIDsPlot;
+  std::vector<uint32_t> mTOFs;
+  std::vector<uint32_t> mTOFsPlot;
+
   uint64_t EventCount{0};
   uint64_t EventAccept{0};
   uint64_t EventDiscard{0};
