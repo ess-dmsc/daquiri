@@ -11,7 +11,7 @@ h5cpp/0.4.1@ess-dmsc/stable
 logical-geometry/705ea61@ess-dmsc/stable
 qplot/6e192ab@ess-dmsc/stable
 Qt-Color-Widgets/9f4e052@ess-dmsc/stable
-streaming-data-types/6a41aee@ess-dmsc/stable
+streaming-data-types/e644b3c@ess-dmsc/stable
 
 [generators]
 cmake
