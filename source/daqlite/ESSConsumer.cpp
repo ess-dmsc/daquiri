@@ -5,7 +5,6 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include "ev42_events_generated.h"
 #include "ev44_events_generated.h"
 #include <ESSConsumer.h>
 #include <algorithm>
@@ -99,7 +98,7 @@ uint32_t ESSConsumer::processEV44Data(RdKafka::Message *Msg) {
   return PixelIds->size();
 }
 
-uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
+uint32_t ESSConsumer::processEV44Data(RdKafka::Message *Msg) {
   auto EvMsg = GetEventMessage(Msg->payload());
   auto PixelIds = EvMsg->detector_id();
   auto TOFs = EvMsg->time_of_flight();
