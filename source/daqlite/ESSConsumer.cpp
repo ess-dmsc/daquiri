@@ -68,7 +68,7 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
 }
 
 uint32_t ESSConsumer::processEV44Data(RdKafka::Message *Msg) {
-  auto EvMsg = GetEventMessage(Msg->payload());
+  auto EvMsg = GetEvent44Message(Msg->payload());
   auto PixelIds = EvMsg->pixel_id();
   auto TOFs = EvMsg->time_of_flight();
 
