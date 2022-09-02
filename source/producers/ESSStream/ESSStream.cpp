@@ -1,6 +1,6 @@
 #include <producers/ESSStream/ESSStream.h>
 
-#include <producers/ESSStream/ev44_parser.h>
+#include <producers/ESSStream/ev42_parser.h>
 #include <producers/ESSStream/mo01_parser.h>
 #include <producers/ESSStream/f142_parser.h>
 #include <producers/ESSStream/SenvParser.h>
@@ -11,7 +11,7 @@
 ESSStream::ESSStream()
 {
   parser_names_["none"] = 0;
-  parser_names_["ev44_events"] = 1; ///< efu event stream
+  parser_names_["ev42_events"] = 1; ///< efu event stream
   parser_names_["mo01_nmx"] = 2; ///< efu monitor stream
   parser_names_["ChopperTDC"] = 3;
   parser_names_["SenvParser"] = 4;
@@ -187,8 +187,8 @@ void ESSStream::select_parser(size_t i, std::string t)
     return;
   if (t.empty())
     streams_[i].parser.reset();
-  else if (t == "ev44_events")
-    streams_[i].parser = std::make_shared<ev44_events>();
+  else if (t == "ev42_events")
+    streams_[i].parser = std::make_shared<ev42_events>();
   else if (t == "mo01_nmx")
     streams_[i].parser = std::make_shared<mo01_nmx>();
   else if (t == "ChopperTDC")

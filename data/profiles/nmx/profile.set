@@ -74,32 +74,32 @@
       {
        "branches": [
         {
-         "id": "ev44_events/StreamID",
+         "id": "ev42_events/StreamID",
          "type": "text",
          "value": "detector"
         },
         {
-         "id": "ev44_events/SpoofClock",
+         "id": "ev42_events/SpoofClock",
          "type": "menu",
          "value": 2
         },
         {
-         "id": "ev44_events/Heartbeat",
+         "id": "ev42_events/Heartbeat",
          "type": "boolean",
          "value": false
         },
         {
-         "id": "ev44_events/FilterSourceName",
+         "id": "ev42_events/FilterSourceName",
          "type": "boolean",
          "value": false
         },
         {
-         "id": "ev44_events/SourceName",
+         "id": "ev42_events/SourceName",
          "type": "text",
          "value": ""
         },
         {
-         "id": "ev44_events/MessageOrdering",
+         "id": "ev42_events/MessageOrdering",
          "type": "menu",
          "value": 0
         },
@@ -146,7 +146,7 @@
          "type": "stem"
         }
        ],
-       "id": "ev44_events",
+       "id": "ev42_events",
        "type": "stem"
       }
      ],
