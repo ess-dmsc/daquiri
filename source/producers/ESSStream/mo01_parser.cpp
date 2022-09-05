@@ -220,11 +220,11 @@ uint64_t mo01_nmx::process_payload(SpillMultiqueue * spill_queue, void* msg)
 
 uint64_t mo01_nmx::produce_hists(const GEMHist& hist, SpillMultiqueue * queue)
 {
-  if (!hist.xstrips()->size() &&
-      !hist.xstrips()->size() &&
-      !hist.xspectrum()->size() &&
-      !hist.yspectrum()->size() &&
-      !hist.cluster_spectrum()->size())
+  if (!hist.xstrips()->Length() &&
+      !hist.xstrips()->Length() &&
+      !hist.xspectrum()->Length() &&
+      !hist.yspectrum()->Length() &&
+      !hist.cluster_spectrum()->Length())
     return 0;
 
   auto ret = std::make_shared<Spill>(hists_stream_id_, Spill::Type::running);
@@ -257,13 +257,13 @@ uint64_t mo01_nmx::produce_tracks(const GEMTrack& track, SpillMultiqueue * queue
 {
   uint64_t pushed_spills {0};
 
-  if (track.xtrack()->size())
+  if (track.xtrack()->Length())
   {
     queue->enqueue(grab_track(track.xtrack(), x_stream_id_));
     pushed_spills ++;
   }
 
-  if (track.ytrack()->size())
+  if (track.ytrack()->Length())
   {
     queue->enqueue(grab_track(track.ytrack(), y_stream_id_));
     pushed_spills ++;
@@ -278,9 +278,9 @@ uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillMultiqueue * queue)
   spill->state.branches.add(Setting::precise("native_time", spoofed_time_));
   spill->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   spill->event_model = hits_model_;
-  spill->events.reserve(hits.plane()->size(), hits_model_);
+  spill->events.reserve(hits.plane()->Length(), hits_model_);
 
-  for (size_t i=0; i < hits.plane()->size(); ++i)
+  for (size_t i=0; i < hits.plane()->Length(); ++i)
   {
     auto& e = spill->events.last();
     e.set_time(spoofed_time_ + hits.time()->Get(i));
@@ -292,7 +292,7 @@ uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillMultiqueue * queue)
 
   spill->events.finalize();
 
-  if (hits.plane()->size())
+  if (hits.plane()->Length())
   {
     queue->enqueue(spill);
     return 1;
@@ -303,13 +303,13 @@ uint64_t mo01_nmx::produce_hits(const MONHit& hits, SpillMultiqueue * queue)
 
 void mo01_nmx::grab_hist(Event& e, size_t idx, const flatbuffers::Vector<uint32_t>* data)
 {
-  if (!data->size())
+  if (!data->Length())
     return;
-//  std::vector<uint32_t> vals(data->size(), 0);
+//  std::vector<uint32_t> vals(data->Length(), 0);
   auto& trace = e.trace(idx);
-  for (size_t i=0; i < data->size(); ++i)
+  for (size_t i=0; i < data->Length(); ++i)
     trace[i] = data->Get(i);
-//  DBG( "Added hist " << idx << " length " << data->size();
+//  DBG( "Added hist " << idx << " length " << data->Length();
 }
 
 SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data,
@@ -320,9 +320,9 @@ SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>
   ret->state.branches.add(Setting::precise("native_time", spoofed_time_));
   ret->state.branches.add(Setting::precise("dropped_buffers", stats.dropped_buffers));
   ret->event_model = track_model_;
-  ret->events.reserve(data->size(), track_model_);
+  ret->events.reserve(data->Length(), track_model_);
 
-  for (size_t i=0; i < data->size(); ++i)
+  for (size_t i=0; i < data->Length(); ++i)
   {
     auto& e = ret->events.last();
     e.set_time(spoofed_time_);
@@ -340,15 +340,15 @@ SpillPtr mo01_nmx::grab_track(const flatbuffers::Vector<flatbuffers::Offset<pos>
 std::string mo01_nmx::debug(const GEMHist& hist)
 {
   std::stringstream ss;
-  if (hist.xstrips()->size())
+  if (hist.xstrips()->Length())
     ss << "  strips_x: " << print_hist(hist.xstrips()) << "\n";
-  if (hist.ystrips()->size())
+  if (hist.ystrips()->Length())
     ss << "  strips_y: " << print_hist(hist.ystrips()) << "\n";
-  if (hist.xspectrum()->size())
+  if (hist.xspectrum()->Length())
     ss << "  adc_x: " << print_hist(hist.xspectrum()) << "\n";
-  if (hist.yspectrum()->size())
+  if (hist.yspectrum()->Length())
     ss << "  adc_y: " << print_hist(hist.yspectrum()) << "\n";
-  if (hist.cluster_spectrum()->size())
+  if (hist.cluster_spectrum()->Length())
     ss << "  adc_cluster: " << print_hist(hist.cluster_spectrum()) << "\n";
   return ss.str();
 }
@@ -356,7 +356,7 @@ std::string mo01_nmx::debug(const GEMHist& hist)
 std::string mo01_nmx::print_hist(const flatbuffers::Vector<uint32_t>* data)
 {
   std::stringstream ss;
-  for (size_t i=0; i < data->size(); ++i)
+  for (size_t i=0; i < data->Length(); ++i)
     ss << " " << data->Get(i);
   return ss.str();
 }
@@ -364,9 +364,9 @@ std::string mo01_nmx::print_hist(const flatbuffers::Vector<uint32_t>* data)
 std::string mo01_nmx::debug(const GEMTrack& track)
 {
   std::stringstream ss;
-  if (track.xtrack()->size())
+  if (track.xtrack()->Length())
     ss << "  x: " << print_track(track.xtrack()) << "\n";
-  if (track.ytrack()->size())
+  if (track.ytrack()->Length())
     ss << "  y: " << print_track(track.ytrack()) << "\n";
   return ss.str();
 }
@@ -374,7 +374,7 @@ std::string mo01_nmx::debug(const GEMTrack& track)
 std::string mo01_nmx::print_track(const flatbuffers::Vector<flatbuffers::Offset<pos>>* data)
 {
   std::stringstream ss;
-  for (size_t i=0; i < data->size(); ++i)
+  for (size_t i=0; i < data->Length(); ++i)
   {
     auto element = data->Get(i);
     ss << "(" << element->strip()

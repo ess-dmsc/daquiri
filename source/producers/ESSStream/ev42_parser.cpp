@@ -228,8 +228,8 @@ uint64_t ev42_events::process_payload(SpillMultiqueue * spill_queue, void* msg)
 
 size_t ev42_events::events_in_buffer(const EventMessage* em)
 {
-  auto t_len = em->time_of_flight()->size();
-  auto p_len = em->detector_id()->size();
+  auto t_len = em->time_of_flight()->Length();
+  auto p_len = em->detector_id()->Length();
   if ((t_len != p_len) || !t_len)
     return 0;
 
@@ -252,8 +252,8 @@ std::string ev42_events::debug(const EventMessage* em)
   ss << em->source_name()->str()
      << " #" << em->message_id()
      << " time=" << em->pulse_time()
-     << " tof_size=" << em->time_of_flight()->size()
-     << " det_size=" << em->detector_id()->size();
+     << " tof_size=" << em->time_of_flight()->Length()
+     << " det_size=" << em->detector_id()->Length();
 
   return ss.str();
 }
