@@ -31,8 +31,8 @@ public:
   /// \brief histograms the event pixelids and ignores TOF
   uint32_t processEV42Data(RdKafka::Message *Msg);
 
-  // /// \brief histograms the event pixelids and ignores TOF
-  // uint32_t processEV44Data(RdKafka::Message *Msg);
+  /// \brief histograms the event pixelids and ignores TOF
+  uint32_t processEV44Data(RdKafka::Message *Msg);
 
   /// \brief return a random group id so that simultaneous consume from
   /// multiple applications is possible.
