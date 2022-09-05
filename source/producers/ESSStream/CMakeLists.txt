@@ -4,6 +4,7 @@ set(SOURCES
   ${dir}/ESSGeometryPlugin.cpp
   ${dir}/ESSStream.cpp
   ${dir}/ev42_parser.cpp
+  ${dir}/ev44_parser.cpp
   ${dir}/f142_parser.cpp
   ${dir}/fb_parser.cpp
   ${dir}/KafkaPlugin.cpp
@@ -16,6 +17,7 @@ set(HEADERS
   ${dir}/ESSGeometryPlugin.h
   ${dir}/ESSStream.h
   ${dir}/ev42_parser.h
+  ${dir}/ev44_parser.cpp
   ${dir}/f142_parser.h
   ${dir}/fb_parser.h
   ${dir}/KafkaPlugin.h
