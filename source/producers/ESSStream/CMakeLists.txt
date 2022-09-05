@@ -8,8 +8,6 @@ set(SOURCES
   ${dir}/fb_parser.cpp
   ${dir}/KafkaPlugin.cpp
   ${dir}/mo01_parser.cpp
-  ${dir}/SenvParser.cpp
-  ${dir}/SenvParserWrong.cpp
   )
 
 set(HEADERS
@@ -20,8 +18,6 @@ set(HEADERS
   ${dir}/fb_parser.h
   ${dir}/KafkaPlugin.h
   ${dir}/mo01_parser.h
-  ${dir}/SenvParser.h
-  ${dir}/SenvParserWrong.h
   )
 
 set(${this_target}_headers ${${this_target}_headers} ${HEADERS} PARENT_SCOPE)

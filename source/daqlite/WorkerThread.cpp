@@ -23,7 +23,7 @@ void WorkerThread::run() {
 
     /// once every ~ 1 second, copy the histograms and tell main thread
     /// that plots can be updated.
-    if (elapsed.count() >= 1000000000ULL) {
+    if (elapsed.count() >= 1000000000LL) {
 
       mutex.lock();
       Consumer->mHistogramPlot = Consumer->mHistogram;
