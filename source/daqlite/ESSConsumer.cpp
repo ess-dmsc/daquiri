@@ -76,7 +76,7 @@ uint32_t ESSConsumer::processEV44Data(RdKafka::Message *Msg) {
     return 0;
   }
 
-  for (int i = 0; i < PixelIds->size(); i++) {
+  for (int i = 0; i < int(PixelIds->size()); i++) {
     uint32_t Pixel = (*PixelIds)[i];
     uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
 
