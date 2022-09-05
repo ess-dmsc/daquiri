@@ -142,7 +142,7 @@ bool ESSConsumer::handleMessage(RdKafka::Message *Message) {
 
   case RdKafka::ERR_NO_ERROR:
     mKafkaStats.MessagesData++;
-    processEV44Data(Message);
+    processEV42Data(Message);
     return true;
     break;
 
