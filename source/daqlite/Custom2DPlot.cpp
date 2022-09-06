@@ -188,7 +188,7 @@ void Custom2DPlot::addData(std::vector<uint32_t> &Histogram) {
 
   // Periodically clear the histogram
   //
-  uint64_t nsBetweenClear = 1000000000ULL * mConfig.Plot.ClearEverySeconds;
+  int64_t nsBetweenClear = 1000000000LL * mConfig.Plot.ClearEverySeconds;
   if (mConfig.Plot.ClearPeriodic and (elapsed.count() >= nsBetweenClear)) {
     std::fill(HistogramData.begin(), HistogramData.end(), 0);
     t1 = std::chrono::high_resolution_clock::now();

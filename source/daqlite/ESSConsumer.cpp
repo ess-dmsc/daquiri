@@ -6,6 +6,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "ev42_events_generated.h"
+#include "ev44_events_generated.h"
 #include <ESSConsumer.h>
 #include <algorithm>
 #include <fmt/format.h>
@@ -66,6 +67,38 @@ RdKafka::KafkaConsumer *ESSConsumer::subscribeTopic() const {
   return ret;
 }
 
+uint32_t ESSConsumer::processEV44Data(RdKafka::Message *Msg) {
+  auto EvMsg = GetEvent44Message(Msg->payload());
+  auto PixelIds = EvMsg->pixel_id();
+  auto TOFs = EvMsg->time_of_flight();
+
+  if (PixelIds->size() != TOFs->size()) {
+    return 0;
+  }
+
+  for (uint i = 0; i < PixelIds->size(); i++) {
+    uint32_t Pixel = (*PixelIds)[i];
+    uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
+
+    // accumulate events for 2D TOF
+    uint32_t TofBin = std::min(Tof, mConfig.TOF.MaxValue) * (mConfig.TOF.BinSize - 1) / mConfig.TOF.MaxValue;
+    mPixelIDs.push_back(Pixel);
+    mTOFs.push_back(TofBin);
+
+    if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
+      EventDiscard++;
+    } else {
+      EventAccept++;
+      Pixel = Pixel - mConfig.Geometry.Offset;
+      mHistogram[Pixel]++;
+      Tof = std::min(Tof, mConfig.TOF.MaxValue);
+      mHistogramTof[Tof * (mConfig.TOF.BinSize - 1)/ mConfig.TOF.MaxValue]++;
+    }
+  }
+  EventCount += PixelIds->size();
+  return PixelIds->size();
+}
+
 uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
   auto EvMsg = GetEventMessage(Msg->payload());
   auto PixelIds = EvMsg->detector_id();
@@ -75,7 +108,7 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     return 0;
   }
 
-  for (int i = 0; i < PixelIds->size(); i++) {
+  for (uint i = 0; i < PixelIds->size(); i++) {
     uint32_t Pixel = (*PixelIds)[i];
     uint32_t Tof = (*TOFs)[i] / mConfig.TOF.Scale; // ns to us
 

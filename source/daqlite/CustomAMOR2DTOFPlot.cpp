@@ -174,7 +174,7 @@ void CustomAMOR2DTOFPlot::addData(std::vector<uint32_t> &PixelIDs,
     return;
   }
 
-  for (int i = 0; i < PixelIDs.size(); i++) {
+  for (uint i = 0; i < PixelIDs.size(); i++) {
     if (PixelIDs[i] == 0) {
       continue;
     }
