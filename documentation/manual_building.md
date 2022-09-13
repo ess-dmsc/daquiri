@@ -58,6 +58,7 @@ cd build
 cmake ..
 make
 ```
+On macOS, the cmake command might need to be `cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)`.
 
 However, for convenience you also have the following for the first build
 
