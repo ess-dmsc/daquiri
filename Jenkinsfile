@@ -18,8 +18,8 @@ properties([[
 ]]);
 
 container_build_nodes = [
-  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8'),
-  'ubuntu2004': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2004')
+  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc11'),
+  'ubuntu2204': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2204')
 ]
 
 pipeline_builder = new PipelineBuilder(this, container_build_nodes)
