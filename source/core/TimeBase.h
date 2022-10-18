@@ -168,8 +168,8 @@ class TimeBasePlugin : public Plugin
     void settings(const Setting& setting) override
     {
       std::string r{plugin_name()};
-      uint32_t mult = setting.find({r + "/multiplier"}).get_int();
-      uint32_t div = setting.find({r + "/divider"}).get_int();
+      uint32_t mult = setting.find(Setting(r + "/multiplier")).get_int();
+      uint32_t div = setting.find(Setting(r + "/divider")).get_int();
       timebase_ = TimeBase(mult ? mult : 1, div ? div : 1);
     }
 

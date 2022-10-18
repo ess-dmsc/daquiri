@@ -56,11 +56,6 @@ using PreciseFloat = boost::multiprecision::number<boost::multiprecision::cpp_de
 using PreciseFloat = boost::multiprecision::float128;
 #endif
 
-//#include <boost/multiprecision/mpfr.hpp>
-//using PreciseFloat = boost::multiprecision::mpfr_float_50;
-//#include <quadmath.h>
-//using PreciseFloat = __float128;
-
 #ifdef PF_MP
 
 inline double to_double(PreciseFloat pf)

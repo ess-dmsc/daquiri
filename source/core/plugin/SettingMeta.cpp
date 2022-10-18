@@ -1,6 +1,8 @@
 #include <core/plugin/SettingMeta.h>
-#include <core/util/color_bash.h>
 #include <core/util/string_extensions.h>
+#include <fmt/color.h>
+
+#include <utility>
 
 namespace DAQuiri {
 
@@ -68,13 +70,13 @@ std::string to_string(const SettingType &t)
     return "";
 }
 
-SettingMeta::SettingMeta(std::string id, SettingType type)
+SettingMeta::SettingMeta(const std::string& id, SettingType type)
   : SettingMeta(id, type, id)
 {}
 
 SettingMeta::SettingMeta(std::string id, SettingType type,
-                         std::string name)
-  : id_(id)
+                         const std::string& name)
+  : id_(std::move(id))
   , type_ (type)
 {
   values_["name"] = name;
@@ -104,10 +106,10 @@ bool SettingMeta::is_numeric() const
 
 void SettingMeta::set_enum(int32_t idx, std::string val)
 {
-  enum_map_[idx] = val;
+  enum_map_[idx] = std::move(val);
 }
 
-void SettingMeta::set_enums(int32_t start_idx, std::list<std::string> vals)
+void SettingMeta::set_enums(int32_t start_idx, const std::list<std::string>& vals)
 {
   for (const auto& v : vals)
     set_enum(start_idx++, v);
@@ -138,7 +140,7 @@ std::map<int32_t, std::string> SettingMeta::enum_map() const
   return enum_map_;
 }
 
-std::string SettingMeta::get_string(std::string name, std::string default_val) const
+std::string SettingMeta::get_string(const std::string& name, std::string default_val) const
 {
   if (values_.count(name) && values_.at(name).is_string())
     return values_[name];
@@ -182,17 +184,17 @@ bool SettingMeta::meaningful() const
           !enum_map_.empty());
 }
 
-std::string SettingMeta::debug(std::string prepend, bool verbose) const
+std::string SettingMeta::debug(const std::string& prepend, bool verbose) const
 {
-  std::string ret = col(GREEN) + to_string(type_) + col();
+  std::string ret = format(fg(fmt::terminal_color::green), "{}",
+                           to_string(type_));
 
   if (is_numeric())
-    ret += " " + col(CYAN) + value_range() + col();
+    ret += format(fg(fmt::terminal_color::cyan), " {}", value_range());
 
   if (!flags_.empty())
-    ret += " " + col(WHITE, NONE, DIM)
-        + join(flags_, " ")
-        + col();
+    ret += format(fg(fmt::terminal_color::bright_black), " {}",
+                  join(flags_, " "));
 
   json cont;
   if (verbose)
@@ -216,7 +218,7 @@ std::string SettingMeta::debug(std::string prepend, bool verbose) const
           + it.value().dump();
   }
 
-  if (verbose && enum_map_.size())
+  if (verbose && !enum_map_.empty())
   {
     ret += "\n" + prepend + " ";
     for (auto &i : enum_map_)
@@ -238,7 +240,7 @@ std::string SettingMeta::value_range() const
   return ss.str();
 }
 
-std::string SettingMeta::mins(std::string def) const
+std::string SettingMeta::mins(const std::string& def) const
 {
   if (is(SettingType::integer))
     return min_str<integer_t>(def);
@@ -249,7 +251,7 @@ std::string SettingMeta::mins(std::string def) const
   return "?";
 }
 
-std::string SettingMeta::maxs(std::string def) const
+std::string SettingMeta::maxs(const std::string& def) const
 {
   if (is(SettingType::integer))
     return max_str<integer_t>(def);
@@ -286,7 +288,7 @@ void from_json(const json& j, SettingMeta &s)
       s.enum_map_[it["val"]] = it["meaning"];
 
   if (j.count("flags"))
-    for (auto it : j["flags"])
+    for (const auto& it : j["flags"])
       s.flags_.insert(it.get<std::string>());
 
   if (j.count("contents"))

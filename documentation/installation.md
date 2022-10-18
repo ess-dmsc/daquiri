@@ -1,7 +1,7 @@
 ## Requirements
 
 Supported (continuously tested) platforms:
-- Ubuntu 18.04
+- Ubuntu 20.04
 - macOS Catalina
 - Centos 7
 

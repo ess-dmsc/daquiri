@@ -54,18 +54,18 @@ std::string to_string(const SettingType& t);
 class SettingMeta
 {
 public:
-  SettingMeta() {}
-  SettingMeta(std::string id, SettingType type);
-  SettingMeta(std::string id, SettingType type, std::string name);
+  SettingMeta() = default;
+  SettingMeta(const std::string& id, SettingType type);
+  SettingMeta(std::string id, SettingType type, const std::string& name);
 
-  SettingMeta stripped() const;
-  bool meaningful() const;
+  [[nodiscard]] SettingMeta stripped() const;
+  [[nodiscard]] bool meaningful() const;
 
-  std::string id() const;
-  SettingType type() const;
+  [[nodiscard]] std::string id() const;
+  [[nodiscard]] SettingType type() const;
 
-  bool is(SettingType type) const;
-  bool is_numeric() const;
+  [[nodiscard]] bool is(SettingType type) const;
+  [[nodiscard]] bool is_numeric() const;
 
   void set_flag(std::string f);
   bool has_flag(std::string f);
@@ -73,13 +73,13 @@ public:
   void set_flags(std::initializer_list<std::string> fs);
 
   void set_enum(int32_t idx, std::string val);
-  void set_enums(int32_t start_idx, std::list<std::string> vals);
-  bool has_enum(int32_t idx) const;
-  std::string enum_name(int32_t idx) const;
-  std::list<std::string> enum_names() const;
-  std::map<int32_t, std::string> enum_map() const;
+  void set_enums(int32_t start_idx, const std::list<std::string>& vals);
+  [[nodiscard]] bool has_enum(int32_t idx) const;
+  [[nodiscard]] std::string enum_name(int32_t idx) const;
+  [[nodiscard]] std::list<std::string> enum_names() const;
+  [[nodiscard]] std::map<int32_t, std::string> enum_map() const;
 
-  std::string get_string(std::string name, std::string default_val) const;
+  [[nodiscard]] std::string get_string(const std::string& name, std::string default_val) const;
 
   TT T get_num(std::string name, T default_val) const;
   TT void set_val(std::string name, T val);
@@ -89,8 +89,8 @@ public:
   TT T max() const;
   TT T step() const;
 
-  std::string value_range() const;
-  std::string debug(std::string prepend = "", bool verbose = true) const;
+  [[nodiscard]] std::string value_range() const;
+  [[nodiscard]] std::string debug(const std::string& prepend = "", bool verbose = true) const;
 
   friend void to_json(json& j, const SettingMeta &s);
   friend void from_json(const json& j, SettingMeta &s);
@@ -102,13 +102,14 @@ private:
   json                           values_;
   std::map<int32_t, std::string> enum_map_;
 
-  std::string mins(std::string def) const;
-  std::string maxs(std::string def) const;
+  [[nodiscard]] std::string mins(const std::string& def) const;
+  [[nodiscard]] std::string maxs(const std::string& def) const;
 
-  TT std::string min_str(std::string def) const;
-  TT std::string max_str(std::string def) const;
+  TT [[nodiscard]] std::string min_str(std::string def) const;
+  TT [[nodiscard]] std::string max_str(std::string def) const;
 };
 
+// \todo move these to tpp file
 
 TT std::string SettingMeta::min_str(std::string def) const
 {

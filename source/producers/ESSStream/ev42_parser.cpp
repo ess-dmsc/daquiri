@@ -72,20 +72,20 @@ void ev42_events::settings(const Setting& settings)
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
 
-  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
-  source_name_ = set.find({r + "/SourceName"}).get_text();
-  stream_id_ = set.find({r + "/StreamID"}).get_text();
-  spoof_clock_ = static_cast<Spoof>(set.find({r + "/SpoofClock"}).get_int());
-  heartbeat_ = set.find({r + "/Heartbeat"}).triggered();
-  ordering_ = static_cast<CheckOrdering>(set.find({r + "/MessageOrdering"}).get_int());
+  filter_source_name_ = set.find(Setting(r + "/FilterSourceName")).triggered();
+  source_name_ = set.find(Setting(r + "/SourceName")).get_text();
+  stream_id_ = set.find(Setting(r + "/StreamID")).get_text();
+  spoof_clock_ = static_cast<Spoof>(set.find(Setting(r + "/SpoofClock")).get_int());
+  heartbeat_ = set.find(Setting(r + "/Heartbeat")).triggered();
+  ordering_ = static_cast<CheckOrdering>(set.find(Setting(r + "/MessageOrdering")).get_int());
 
   event_definition_ = EventModel();
 
   TimeBasePlugin tbs;
-  tbs.settings(set.find({tbs.plugin_name()}));
+  tbs.settings(set.find(Setting(tbs.plugin_name())));
   event_definition_ = EventModel();
   event_definition_.timebase = tbs.timebase();
-  geometry_.settings(set.find({geometry_.plugin_name()}));
+  geometry_.settings(set.find(Setting(geometry_.plugin_name())));
   geometry_.define(event_definition_);
 }
 
@@ -93,9 +93,9 @@ StreamManifest ev42_events::stream_manifest() const
 {
   StreamManifest ret;
   ret[stream_id_].event_model = event_definition_;
-  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
-  ret[stream_id_].stats.branches.add(SettingMeta("pulse_time", SettingType::precise));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("pulse_time", SettingType::precise)));
   return ret;
 }
 

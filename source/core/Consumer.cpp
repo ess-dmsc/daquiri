@@ -13,7 +13,7 @@ Consumer::Consumer()
   SettingMeta stream("stream_id", SettingType::text, "Stream ID");
   stream.set_flag("preset");
   stream.set_flag("stream");
-  attributes.branches.add(stream);
+  attributes.branches.add(Setting(stream));
 
   metadata_.overwrite_all_attributes(attributes);
 }

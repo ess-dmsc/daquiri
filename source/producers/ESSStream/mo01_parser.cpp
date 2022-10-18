@@ -83,15 +83,15 @@ void mo01_nmx::settings(const Setting& settings)
   std::string r{plugin_name()};
 
   auto set = enrich_and_toggle_presets(settings);
-  hists_stream_id_ = set.find({r + "/HistsStream"}).get_text();
-  x_stream_id_ = set.find({r + "/XStream"}).get_text();
-  y_stream_id_ = set.find({r + "/YStream"}).get_text();
-  hit_stream_id_ = set.find({r + "/HitsStream"}).get_text();
-  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
-  source_name_ = set.find({r + "/SourceName"}).get_text();
+  hists_stream_id_ = set.find(Setting(r + "/HistsStream")).get_text();
+  x_stream_id_ = set.find(Setting(r + "/XStream")).get_text();
+  y_stream_id_ = set.find(Setting(r + "/YStream")).get_text();
+  hit_stream_id_ = set.find(Setting(r + "/HitsStream")).get_text();
+  filter_source_name_ = set.find(Setting(r + "/FilterSourceName")).triggered();
+  source_name_ = set.find(Setting(r + "/SourceName")).get_text();
 
   TimeBasePlugin tbs;
-  tbs.settings(set.find({tbs.plugin_name()}));
+  tbs.settings(set.find(Setting(tbs.plugin_name())));
   hists_model_.timebase = tbs.timebase();
 }
 
@@ -99,20 +99,20 @@ StreamManifest mo01_nmx::stream_manifest() const
 {
   StreamManifest ret;
   ret[hists_stream_id_].event_model = hists_model_;
-  ret[hists_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[hists_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[hists_stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[hists_stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
 
   ret[x_stream_id_].event_model = track_model_;
-  ret[x_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[x_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[x_stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[x_stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
 
   ret[y_stream_id_].event_model = track_model_;
-  ret[y_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[y_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[y_stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[y_stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
 
   ret[hit_stream_id_].event_model = hits_model_;
-  ret[hit_stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[hit_stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[hit_stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[hit_stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
   return ret;
 }
 

@@ -7,21 +7,23 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+/// \todo: move implementation to cpp file
+
 namespace DAQuiri {
 
 class Pattern
 {
 public:
-  inline Pattern() {}
+  inline Pattern() = default;
   inline Pattern(size_t thresh, std::vector<bool> gts)
   {
     set(thresh, gts);
   }
 
-  inline const std::vector<bool>& gates() const { return gates_; }
-  inline size_t threshold() const { return threshold_; }
+  [[nodiscard]] inline const std::vector<bool>& gates() const { return gates_; }
+  [[nodiscard]] inline size_t threshold() const { return threshold_; }
 
-  inline bool relevant(size_t chan) const
+  [[nodiscard]] inline bool relevant(size_t chan) const
   {
     return ((chan < gates_.size()) && gates_[chan]);
   }
@@ -32,7 +34,7 @@ public:
     threshold_ = std::min(sz, threshold_);
   }
 
-  inline void set_gates(std::vector<bool> gts)
+  inline void set_gates(const std::vector<bool>& gts)
   {
     gates_ = gts;
     threshold_ = std::min(gates_.size(), threshold_);
@@ -44,25 +46,25 @@ public:
     threshold_ = std::min(gates_.size(), threshold_);
   }
 
-  inline void set(size_t thresh, std::vector<bool> gts)
+  inline void set(size_t thresh, const std::vector<bool>& gts)
   {
     threshold_ = thresh;
     gates_ = gts;
     threshold_ = std::min(gates_.size(), threshold_);
   }
 
-  inline bool operator==(const Pattern other) const
+  inline bool operator==(const Pattern& other) const
   {
     return ((gates_ == other.gates_) &&
             (threshold_ == other.threshold_));
   }
 
-  inline bool operator!=(const Pattern other) const
+  inline bool operator!=(const Pattern& other) const
   {
     return !operator ==(other);
   }
 
-  inline std::string debug() const
+  [[nodiscard]] inline std::string debug() const
   {
     std::stringstream ss;
     ss << threshold_;

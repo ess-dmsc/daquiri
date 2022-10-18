@@ -41,12 +41,12 @@ StreamManifest SenvParserWrong::stream_manifest() const
   for (size_t i=0; i < 4; ++i) {
     auto sid = stream_id_base_ + std::to_string(i);
     ret[sid].event_model = event_model_;
-    ret[sid].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-    ret[sid].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
-    ret[sid].stats.branches.add(SettingMeta("senv_name", SettingType::text));
-    ret[sid].stats.branches.add(SettingMeta("senv_chan", SettingType::integer));
-    ret[sid].stats.branches.add(SettingMeta("senv_delta", SettingType::floating));
-    ret[sid].stats.branches.add(SettingMeta("senv_counter", SettingType::integer));
+    ret[sid].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+    ret[sid].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
+    ret[sid].stats.branches.add(Setting(SettingMeta("senv_name", SettingType::text)));
+    ret[sid].stats.branches.add(Setting(SettingMeta("senv_chan", SettingType::integer)));
+    ret[sid].stats.branches.add(Setting(SettingMeta("senv_delta", SettingType::floating)));
+    ret[sid].stats.branches.add(Setting(SettingMeta("senv_counter", SettingType::integer)));
   }
   return ret;
 }
@@ -70,12 +70,12 @@ void SenvParserWrong::settings(const Setting& settings)
 {
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
-  stream_id_base_ = set.find({r + "/StreamBase"}).get_text();
-  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
-  source_name_ = set.find({r + "/SourceName"}).get_text();
+  stream_id_base_ = set.find(Setting(r + "/StreamBase")).get_text();
+  filter_source_name_ = set.find(Setting(r + "/FilterSourceName")).triggered();
+  source_name_ = set.find(Setting(r + "/SourceName")).get_text();
 
   TimeBasePlugin tbs;
-  tbs.settings(set.find({tbs.plugin_name()}));
+  tbs.settings(set.find(Setting(tbs.plugin_name())));
   event_model_.timebase = tbs.timebase();
 }
 

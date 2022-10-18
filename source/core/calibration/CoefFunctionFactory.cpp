@@ -5,9 +5,9 @@
 namespace DAQuiri
 {
 
-void CoefFunctionFactory::register_type(std::function<CoefFunction*(void)> constructor)
+void CoefFunctionFactory::register_type(std::string name,
+                                        std::function<CoefFunction*(void)> constructor)
 {
-  auto name = CoefFunctionPtr(constructor())->type();
   if (name.empty())
     WARN("<CoefFunctionFactory> failed to register nameless type");
   else if (constructors_.count(name))
@@ -24,8 +24,10 @@ CoefFunctionPtr CoefFunctionFactory::create_type(std::string type) const
   auto it = constructors_.find(type);
   if (it != constructors_.end())
     return CoefFunctionPtr(it->second());
-  else
+  else {
+    WARN("CoefFunctionFactory failed to create type={}", type);
     return CoefFunctionPtr();
+  }
 }
 
 CoefFunctionPtr CoefFunctionFactory::create_copy(CoefFunctionPtr other) const

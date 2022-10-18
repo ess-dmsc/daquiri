@@ -19,7 +19,8 @@ class CoefFunctionFactory
   CoefFunctionPtr create_copy(CoefFunctionPtr other) const;
   CoefFunctionPtr create_from_json(const nlohmann::json&) const;
 
-  void register_type(std::function<CoefFunction*(void)> constructor);
+  void register_type(std::string name,
+      std::function<CoefFunction*(void)> constructor);
   std::vector<std::string> types() const;
 
   void clear();
@@ -39,7 +40,8 @@ class CoefFunctionRegistrar
  public:
   CoefFunctionRegistrar()
   {
-    CoefFunctionFactory::singleton().register_type([](void) -> CoefFunction* { return new T(); });
+    CoefFunctionFactory::singleton().register_type(T().type(),
+        [](void) -> CoefFunction* { return new T(); });
   }
 };
 

@@ -114,7 +114,7 @@ void ProfilesForm::update_profiles()
     if (!tree)
       continue;
 
-    auto description = tree.find({"ProfileDescr"}, Match::id);
+    auto description = tree.find(Setting("ProfileDescr"), Match::id);
     profiles_.push_back({q, QS(description.get_text())});
   }
 

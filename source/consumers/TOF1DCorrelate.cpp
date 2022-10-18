@@ -21,7 +21,7 @@ TOF1DCorrelate::TOF1DCorrelate()
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "units (see below)");
-  base_options.branches.add(res);
+  base_options.branches.add(Setting(res));
 
   SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
@@ -29,12 +29,12 @@ TOF1DCorrelate::TOF1DCorrelate()
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  base_options.branches.add(units);
+  base_options.branches.add(Setting(units));
 
   SettingMeta stream("chopper_stream_id", SettingType::text, "Chopper stream ID");
   stream.set_flag("preset");
   stream.set_flag("stream");
-  base_options.branches.add(stream);
+  base_options.branches.add(Setting(stream));
 
   metadata_.overwrite_all_attributes(base_options);
 }

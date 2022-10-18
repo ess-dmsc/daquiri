@@ -77,8 +77,8 @@ struct FloatDeconstructed
     }
   }
 
-  FloatDeconstructed() {}
-  FloatDeconstructed(std::string s)
+  FloatDeconstructed() = default;
+  explicit FloatDeconstructed(std::string s)
   {
     parse(s);
   }

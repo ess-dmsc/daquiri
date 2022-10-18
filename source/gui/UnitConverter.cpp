@@ -73,25 +73,17 @@ PreciseFloat UnitConverter::convert_units(PreciseFloat value, std::string from, 
 
 std::string UnitConverter::get_prefix(std::string full_unit) const
 {
-//  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
-//  std::u32string prefix = ucs4;
-
   auto prefix = full_unit;
   if (full_unit.size() > 1)
     prefix = full_unit.substr(0, 1);
-//  return boost::locale::conv::utf_to_utf<char>(prefix);
   return prefix;
 }
 
 std::string UnitConverter::strip_unit(std::string full_unit) const
 {
-//  std::u32string ucs4 = boost::locale::conv::utf_to_utf<char32_t>(full_unit);
-//  std::u32string stripped_unit = ucs4;
-
   auto stripped_unit = full_unit;
   if (full_unit.size() > 1)
     stripped_unit = full_unit.substr(1, full_unit.size()-1);
-//  return boost::locale::conv::utf_to_utf<char>(stripped_unit);
   return stripped_unit;
 }
 

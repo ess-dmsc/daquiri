@@ -191,7 +191,7 @@ void daquiri::update_settings(Setting sets,
 {
   engine_status_ = status;
   stream_manifest_ = manifest;
-  auto description = sets.find({"ProfileDescr"}, Match::id);
+  auto description = sets.find(Setting("ProfileDescr"), Match::id);
   profile_description_ = QS(description.get_text());
   if (profile_description_.isEmpty())
     profile_description_ = Profiles::singleton().current_profile_name();

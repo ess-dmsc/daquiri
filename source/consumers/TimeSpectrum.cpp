@@ -14,16 +14,16 @@ TimeSpectrum::TimeSpectrum()
 
   SettingMeta app("appearance", SettingType::text, "Plot appearance");
   app.set_flag("gradient-name");
-  base_options.branches.add(app);
+  base_options.branches.add(Setting(app));
 
   SettingMeta flip("flip-y", SettingType::boolean, "Flip Y axis");
-  base_options.branches.add(flip);
+  base_options.branches.add(Setting(flip));
 
   SettingMeta res("time_resolution", SettingType::floating, "Time resolution");
   res.set_flag("preset");
   res.set_val("min", 1);
   res.set_val("units", "Time units (see below)");
-  base_options.branches.add(res);
+  base_options.branches.add(Setting(res));
 
   SettingMeta units("time_units", SettingType::menu, "Time units (domain)");
   units.set_flag("preset");
@@ -31,7 +31,7 @@ TimeSpectrum::TimeSpectrum()
   units.set_enum(3, "\u03BCs");
   units.set_enum(6, "ms");
   units.set_enum(9, "s");
-  base_options.branches.add(units);
+  base_options.branches.add(Setting(units));
 
   base_options.branches.add(value_latch_.settings(-1, "Value to bin"));
 

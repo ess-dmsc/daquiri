@@ -36,8 +36,8 @@ StreamManifest ChopperTDC::stream_manifest() const
 {
   StreamManifest ret;
   ret[stream_id_].event_model = event_model_;
-  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::precise));
-  ret[stream_id_].stats.branches.add(SettingMeta("dropped_buffers", SettingType::precise));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::precise)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("dropped_buffers", SettingType::precise)));
   return ret;
 }
 
@@ -60,12 +60,12 @@ void ChopperTDC::settings(const Setting& settings)
 {
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
-  stream_id_ = set.find({r + "/EventsStream"}).get_text();
-  filter_source_name_ = set.find({r + "/FilterSourceName"}).triggered();
-  source_name_ = set.find({r + "/SourceName"}).get_text();
+  stream_id_ = set.find(Setting(r + "/EventsStream")).get_text();
+  filter_source_name_ = set.find(Setting(r + "/FilterSourceName")).triggered();
+  source_name_ = set.find(Setting(r + "/SourceName")).get_text();
 
   TimeBasePlugin tbs;
-  tbs.settings(set.find({tbs.plugin_name()}));
+  tbs.settings(set.find(Setting(tbs.plugin_name())));
   event_model_.timebase = tbs.timebase();
 }
 

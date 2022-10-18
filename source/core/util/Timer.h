@@ -15,20 +15,20 @@ class Timer
 
  public:
 
-  Timer(bool start = false);
-  Timer(double timeout, bool start = false);
+  explicit Timer(bool start = false);
+  explicit Timer(double timeout, bool start = false);
 
   void restart();
 
-  double s() const;
-  double ms() const;
-  double us() const;
+  [[nodiscard]] double s() const;
+  [[nodiscard]] double ms() const;
+  [[nodiscard]] double us() const;
 
-  bool timeout() const;
+  [[nodiscard]] bool timeout() const;
 
-  std::string elapsed_str() const;
+  [[nodiscard]] std::string elapsed_str() const;
 
-  std::string ETA_str() const;
+  [[nodiscard]] std::string ETA_str() const;
 
   static void wait_s(double);
   static void wait_ms(double);

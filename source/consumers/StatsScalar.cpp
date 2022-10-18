@@ -16,7 +16,7 @@ StatsScalar::StatsScalar()
 
   SettingMeta app("appearance", SettingType::text, "Appearance");
   app.set_flag("gradient-name");
-  base_options.branches.add(app);
+  base_options.branches.add(Setting(app));
 
   SettingMeta stat("what_stats", SettingType::text, "Stat of choice");
   stat.set_flag("stat_value");

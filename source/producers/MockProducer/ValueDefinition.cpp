@@ -69,11 +69,11 @@ void ValueDefinition::settings(const Setting& v)
 {
   std::string r{plugin_name()};
 
-  center_ = v.find({r + "/PeakCenter"}).get_number() * 0.01;
-  spread_ = v.find({r + "/PeakSpread"}).get_number();
-  trace_length_ = v.find({r + "/TraceLength"}).get_int();
-  name_ = v.find({r + "/Name"}).get_text();
-  bits_ = v.find({r + "/Resolution"}).get_int();
+  center_ = v.find(Setting(r + "/PeakCenter")).get_number() * 0.01;
+  spread_ = v.find(Setting(r + "/PeakSpread")).get_number();
+  trace_length_ = v.find(Setting(r + "/TraceLength")).get_int();
+  name_ = v.find(Setting(r + "/Name")).get_text();
+  bits_ = v.find(Setting(r + "/Resolution")).get_int();
   max_ = pow(2, uint32_t(bits_));
 }
 

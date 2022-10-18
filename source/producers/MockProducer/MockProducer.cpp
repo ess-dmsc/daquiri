@@ -73,10 +73,10 @@ StreamManifest MockProducer::stream_manifest() const
 {
   StreamManifest ret;
   ret[stream_id_].event_model = event_definition_;
-  ret[stream_id_].stats.branches.add(SettingMeta("native_time", SettingType::floating));
-  ret[stream_id_].stats.branches.add(SettingMeta("live_time", SettingType::floating));
-  ret[stream_id_].stats.branches.add(SettingMeta("live_trigger", SettingType::floating));
-  ret[stream_id_].stats.branches.add(SettingMeta("pulse_time", SettingType::floating));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("native_time", SettingType::floating)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("live_time", SettingType::floating)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("live_trigger", SettingType::floating)));
+  ret[stream_id_].stats.branches.add(Setting(SettingMeta("pulse_time", SettingType::floating)));
 
   return ret;
 }
@@ -145,19 +145,19 @@ void MockProducer::settings(const Setting& settings)
   std::string r{plugin_name()};
   auto set = enrich_and_toggle_presets(settings);
 
-  stream_id_ = set.find({r + "/StreamID"}).get_text();
-  spill_interval_ = set.find({r + "/SpillInterval"}).get_number();
-  count_rate_ = set.find({r + "/CountRate"}).get_number();
-  lambda_ = set.find({r + "/Lambda"}).get_number();
-  spill_lambda_ = set.find({r + "/SpillLambda"}).get_number();
-  dead_ = set.find({r + "/DeadTime"}).get_number() * 0.01;
+  stream_id_ = set.find(Setting(r + "/StreamID")).get_text();
+  spill_interval_ = set.find(Setting(r + "/SpillInterval")).get_number();
+  count_rate_ = set.find(Setting(r + "/CountRate")).get_number();
+  lambda_ = set.find(Setting(r + "/Lambda")).get_number();
+  spill_lambda_ = set.find(Setting(r + "/SpillLambda")).get_number();
+  dead_ = set.find(Setting(r + "/DeadTime")).get_number() * 0.01;
 
   TimeBasePlugin tbs;
-  tbs.settings(set.find({tbs.plugin_name()}));
+  tbs.settings(set.find(Setting(tbs.plugin_name())));
   event_definition_ = EventModel();
   event_definition_.timebase = tbs.timebase();
 
-  uint16_t val_count_ = std::max(int(set.find({r + "/ValueCount"}).get_number()), 1);
+  uint16_t val_count_ = std::max(int(set.find(Setting(r + "/ValueCount")).get_number()), 1);
   if (val_defs_.size() != val_count_)
     val_defs_.resize(val_count_);
 

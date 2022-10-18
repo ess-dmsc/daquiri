@@ -2,6 +2,7 @@
 #include <core/calibration/Calibration.h>
 #include <core/calibration/CoefFunctionFactory.h>
 #include <core/calibration/Polynomial.h>
+#include <core/util/logger.h>
 
 class CalibID : public TestBase
 {
@@ -72,8 +73,8 @@ TEST_F(CalibID, Json)
 class FakeFunction : public DAQuiri::CoefFunction
 {
  public:
-  // Inherit constructors
-  using DAQuiri::CoefFunction::CoefFunction;
+  using CoefFunction::CoefFunction;
+  FakeFunction() : DAQuiri::CoefFunction::CoefFunction() {}
 
   FakeFunction* clone() const override { return new FakeFunction(*this); }
   std::string type() const override { return "FakeFunction"; }
@@ -201,6 +202,8 @@ TEST_F(Calibration, equals)
 
   c.function("Polynomial" , {5.0, 2.0, 1.0});
   c2.function("FakeFunction" , {5.0, 2.0, 1.0});
+  DBG("c={}", c.debug());
+  DBG("c2={}", c2.debug());
 
   EXPECT_NE(c, c2);
   EXPECT_NE(c2, c);
