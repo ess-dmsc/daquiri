@@ -23,7 +23,6 @@ virtualrunenv
 gtest:shared=False
 librdkafka:shared=False
 flatbuffers:shared=True
-hdf5:shared=True
 date:use_system_tz_db=True
 h5cpp:with_boost=False
 
