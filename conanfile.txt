@@ -7,7 +7,7 @@ fmt/6.2.0        #bump to 8.1.1 requires upgrade of spdlog as well
 librdkafka/1.6.0 #bump to 1.8.2 requires conan upgrade
 nlohmann_json/3.10.5
 spdlog/1.8.5     #bump to 1.9.2 requires conan upgrade
-h5cpp/0.4.1@ess-dmsc/stable
+h5cpp/95f0e70@ess-dmsc/stable
 logical-geometry/705ea61@ess-dmsc/stable
 qplot/6e192ab@ess-dmsc/stable
 Qt-Color-Widgets/9f4e052@ess-dmsc/stable
@@ -23,7 +23,6 @@ virtualrunenv
 gtest:shared=False
 librdkafka:shared=False
 flatbuffers:shared=True
-hdf5:shared=True
 date:use_system_tz_db=True
 h5cpp:with_boost=False
 
