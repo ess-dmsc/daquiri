@@ -85,6 +85,7 @@ uint32_t ESSConsumer::processEV42Data(RdKafka::Message *Msg) {
     mTOFs.push_back(TofBin);
 
     if ((Pixel > mMaxPixel) or (Pixel < mMinPixel)) {
+      printf("Pixel %u\n", Pixel);
       EventDiscard++;
     } else {
       EventAccept++;

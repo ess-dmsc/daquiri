@@ -1,6 +1,6 @@
 {
   "kafka" : {
-    "broker" : "172.30.242.20:9092",
+    "broker" : "172.17.0.242:9092",
     "topic" : "loki_beam_monitor",
 
     "message.max.bytes" : "10000000",
