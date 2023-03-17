@@ -189,8 +189,10 @@ node('docker') {
         }
     }
 
-    // Add macOS pipeline to builders
-    builders['macOS'] = get_macos_pipeline()
+    if (env.ENABLE_MACOS_BUILDS.toUpperCase() == 'TRUE') {
+        // Add macOS pipeline to builders
+        builders['macOS'] = get_macos_pipeline()
+    }
 
     try {
         timeout(time: 2, unit: 'HOURS') {
